@@ -10,6 +10,10 @@
 # This template uses one generic job with conditional builds
 # for the default branch and all other (MR) branches.
 
+stages:
+  - build
+  - push
+
 docker-build:
   # Use the official docker image.
   image: docker:latest
@@ -58,10 +62,10 @@ push-latest:
 push-tag:
   variables:
     GIT_STRATEGY: none
-    stage: push
-    only:
-      - tags
-    script:
-      - docker pull $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
-      - docker tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME
-      - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME
+  stage: push
+  only:
+    - tags
+  script:
+    - docker pull $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
+    - docker tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME
+    - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME
