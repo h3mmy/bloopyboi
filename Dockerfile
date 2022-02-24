@@ -24,4 +24,5 @@ FROM gcr.io/distroless/static
 
 COPY --from=build /build/bloopyboi /
 
-ENTRYPOINT ["bloopyboi"]
+# ENTRYPOINT ["bloopyboi"]
+CMD ["./bloopyboi", "-t $BOT_TOKEN"]
