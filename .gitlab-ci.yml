@@ -37,7 +37,7 @@ docker-build:
       --label "org.opencontainers.image.version=$CI_COMMIT_REF_NAME"
       --label "org.opencontainers.image.license=Apache-2.0"
       --tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
-       .
+      .
     - docker push "$CI_REGISTRY_IMAGE:$CI_COMMIT_SHA"
   # Run this job in a branch where a Dockerfile exists
   rules:
