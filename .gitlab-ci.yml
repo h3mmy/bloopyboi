@@ -13,8 +13,11 @@
 stages:
   - build
   - push
+  - prepare
+  - release
+  - deploy
 
-docker-build:
+docker_build:
   # Use the official docker image.
   image: docker:latest
   stage: build
@@ -46,20 +49,19 @@ docker-build:
         - Dockerfile
 
 # Tags only the $CI_DEFAULT_BRANCH as latest
-push-latest:
+push_latest:
   variables:
     # Disable fresh pull of source
     GIT_STRATEGY: none
   stage: push
   only:
     - $CI_DEFAULT_BRANCH
-  # TODO use build artifact to remove this redundant pull. At least it's cached?
   script:
     - docker pull $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
     - docker tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA $CI_REGISTRY_IMAGE:latest
     - docker push $CI_REGISTRY_IMAGE:latest
 
-push-tag:
+push_tag:
   variables:
     GIT_STRATEGY: none
   stage: push
@@ -69,3 +71,57 @@ push-tag:
     - docker pull $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
     - docker tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME
     - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME
+
+
+prepare_release:
+  stage: prepare
+  rules:
+    - if: $CI_COMMIT_TAG
+      when: never
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  script:
+    - echo "EXTRA_DESCRIPTION=blahblah" >> variables.env
+    - echo "TAG=v$(cat VERSION)" >> variables.env
+  artifacts:
+    reports:
+      dotenv: variables.env
+
+.release_job:
+  stage: release
+  image: registry.gitlab.com/gitlab-org/release-cli:latest
+  needs:
+    - job: prepare_release
+      artifacts: true
+  rules:
+    - if: $CI_COMMIT_TAG
+      when: never                                  # Do not run this job when a tag is created manually
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH  # Run this job when commits are pushed or merged to the default branch
+    - if: $CI_DEPLOY_FREEZE == null
+  script:
+    - echo "running release_job for $TAG"
+  release:
+    name: 'Release $TAG'
+    description: 'Created using the release-cli $EXTRA_DESCRIPTION'  # $EXTRA_DESCRIPTION and the $TAG
+    tag_name: '$TAG'                                                 # variables must be defined elsewhere
+    ref: '$CI_COMMIT_SHA'                                            # in the pipeline. For example, in the
+    milestones:                                                      # prepare_job
+      - $CI_MERGE_REQUEST_MILESTONE
+    released_at: $CI_COMMIT_TIMESTAMP
+    # assets:
+    #   links:
+    #     - name: 'asset1'
+    #       url: 'https://example.com/assets/1'
+    #     - name: 'asset2'
+    #       url: 'https://example.com/assets/2'
+    #       filepath: '/pretty/url/1' # optional
+    #       link_type: 'other' # optional
+
+deploy_neutrino:
+  stage: deploy
+  environment:
+    name: neutrino
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - if: $CI_DEPLOY_FREEZE == null
+  script:
+    - echo "Deploying to Neutrino"
