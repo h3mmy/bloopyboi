@@ -19,6 +19,7 @@ RUN go mod download
 RUN go vet -v
 RUN go test -v
 RUN go build -ldflags="-w -s" .
+RUN echo $(ls .)
 
 FROM gcr.io/distroless/static
 
@@ -26,5 +27,5 @@ COPY --from=build /build/bloopyboi /
 
 WORKDIR /
 
-ENTRYPOINT ["bloopyboi"]
+ENTRYPOINT ["/bloopyboi"]
 CMD ["-t $BOT_TOKEN"]

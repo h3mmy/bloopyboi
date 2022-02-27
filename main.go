@@ -42,6 +42,8 @@ func main() {
 
 	// Register the messageCreate func as a callback for MessageCreate events.
 	dg.AddHandler(messageCreate)
+	dg.AddHandler(directMessageCreate)
+
 
 	// Just like the ping pong example, we only care about receiving message
 	// events in this example.
@@ -64,22 +66,63 @@ func main() {
 	dg.Close()
 }
 
+// Temporary method to check if command is relevant
+func isNotDMCommand(q string) bool {
+	switch q {
+		case "ping":
+			return false
+		}
+	return true
+}
+
+// Temporary method to check if command is relevant
+func isNotChannelCommand(q string) bool{
+	switch q {
+		case "inspire":
+			return false
+	}
+	return true
+}
+
 // This function will be called (due to AddHandler above) every time a new
 // message is created on any channel that the authenticated bot has access to.
-//
-// It is called whenever a message is created but only when it's sent through a
-// server as we did not request IntentsDirectMessages.
 func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
+
 	// Ignore all messages created by the bot itself
 	// This isn't required in this specific example but it's a good practice.
 	if m.Author.ID == s.State.User.ID {
 		return
 	}
-	// In this example, we only care about messages that are "ping".
-	if m.Content != "ping" {
-		return
+	// If the message is "ping" reply with "Pong!"
+	if m.Content == "inspire" {
+		s.ChannelMessageSend(m.ChannelID, "I heard you")
 	}
 
+	// If the message is "pong" reply with "Ping!"
+	if m.Content == "pong" {
+		s.ChannelMessageSend(m.ChannelID, "Ping!")
+	}
+
+	if m.Content == "Pong!" {
+		s.ChannelMessageSend(m.ChannelID, "-_-")
+	}
+}
+
+// This function will be called (due to AddHandler above) every time a new
+// message is created on any channel that the authenticated bot has access to.
+//
+// It is called whenever a message is created but only when it's sent through a
+// server as we did not request IntentsDirectMessages.
+func directMessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
+	// Ignore all messages created by the bot itself
+	// This isn't required in this specific example but it's a good practice.
+	if m.Author.ID == s.State.User.ID {
+		return
+	}
+	// Filter only commands we care about
+	if isNotDMCommand(m.Content) {
+		return
+	}
 	// We create the private channel with the user who sent the message.
 	channel, err := s.UserChannelCreate(m.Author.ID)
 	if err != nil {
