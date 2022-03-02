@@ -31,7 +31,7 @@ var (
 	Token  string
 )
 
-func init() {
+func initWithConfig() {
 	viper.SetConfigName("config")          // name of config file (without extension)
 	viper.AddConfigPath("/config")         // path to look for the config file in
 	viper.AddConfigPath("$HOME/.bloopyboi") // call multiple times to add many search paths
@@ -44,7 +44,7 @@ func init() {
 }
 
 // @Deprecated
-func initOld() {
+func init() {
 	flag.StringVar(&Token, "t", "", "Bot Token")
 	flag.Parse()
 }
