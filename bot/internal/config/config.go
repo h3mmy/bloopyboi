@@ -1,6 +1,8 @@
 package config
 
 import (
+	"errors"
+
 	"github.com/spf13/viper"
 	"gitlab.com/h3mmy/bloopyboi/bot/internal/log"
 )
@@ -33,4 +35,14 @@ func GetConfig() (*Config, error) {
 	}
 
 	return &c, nil
+}
+
+func (myConfig *Config) GetFeatureConfig(name string) (FeatureConfig, error) {
+	for _, feat := range myConfig.Features {
+		if feat.Name == name {
+			return feat, nil
+		}
+	}
+	logger.Error("Could not find config for feature", name)
+	return FeatureConfig{}, errors.New("could not find config for feature")
 }
