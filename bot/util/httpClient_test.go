@@ -5,15 +5,13 @@ import (
 	"testing"
 )
 
-
-var stubInspiroClient InspiroClient = *NewInspiroClient(
+var stubInspiroClient InspiroClient = *NewInspiroClientWithConfig(
 	InspiroConfig{
-	API_url: "myapi",
-	Logger: nil,
-	Backup_image_link: "myBackup",
+		API_url:           "myapi",
+		Logger:            nil,
+		Backup_image_link: "myBackup",
 	},
 )
-
 
 func TestNewBloopyHttpClient(t *testing.T) {
 	type args struct {
@@ -34,6 +32,26 @@ func TestNewBloopyHttpClient(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := NewBloopyHttpClient(tt.args.inspiro); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("NewBloopyHttpClient() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestNewBloopyClient(t *testing.T) {
+	tests := []struct {
+		name string
+		want *BloopyHttp
+	}{
+		// Replace with actual useful test after learning how to mock in golang
+		{
+			name: "Constructs basic",
+			want: NewBloopyClient(),
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := NewBloopyClient(); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("NewBloopyClient() = %v, want %v", got, tt.want)
 			}
 		})
 	}

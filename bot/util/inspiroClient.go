@@ -44,22 +44,15 @@ type InspiroClient struct {
 }
 
 // 'Constructs' InspiroClient with declared Config
-func NewInspiroClient(myConfig InspiroConfig) *InspiroClient {
+func NewInspiroClientWithConfig(myConfig InspiroConfig) *InspiroClient {
 	return &InspiroClient{
 		config: myConfig,
 	}
 }
 
-// 'Constructs' InspiroClient with transparent Config
-func NewInspiroClientWithURI(apiUrl string, logger *logrus.Logger, backupLink string) *InspiroClient {
-	if logger != nil {
-		return &InspiroClient{
-			config: InspiroConfig{API_url: apiUrl, Logger: logger, Backup_image_link: backupLink},
-		}
-	}
-	return &InspiroClient{
-		config: InspiroConfig{API_url: apiUrl, Logger: log.New(), Backup_image_link: backupLink},
-	}
+// Abstracted 'Constructor'
+func NewInspiroClient() *InspiroClient {
+	return NewInspiroClientWithConfig(GetInspiroConfig())
 }
 
 // returns raw uri as string without validation

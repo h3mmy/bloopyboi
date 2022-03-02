@@ -174,5 +174,5 @@ func directMessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 }
 
 func addBloopyClient() *util.BloopyHttp {
-	return util.NewBloopyHttpClient(util.NewInspiroClient(util.InspiroConfig{API_url: "bla", Logger: nil, Backup_image_link: "ta"}))
+	return util.NewBloopyHttpClient(util.NewInspiroClient())
 }

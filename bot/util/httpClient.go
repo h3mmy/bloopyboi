@@ -7,3 +7,7 @@ type BloopyHttp struct {
 func NewBloopyHttpClient(inspiro *InspiroClient) *BloopyHttp {
 	return &BloopyHttp{inspiro_api: inspiro}
 }
+
+func NewBloopyClient() *BloopyHttp {
+	return NewBloopyHttpClient(NewInspiroClient())
+}
