@@ -9,7 +9,6 @@ import (
 	"gitlab.com/h3mmy/bloopyboi/bot/internal/log"
 )
 
-
 var logger = log.New()
 var InspiroFeatureName = "inspiro"
 var InspiroAPIKey = "api_url"
@@ -17,8 +16,8 @@ var InspiroBackupURLKey = "backup_image_link"
 
 // Basically a static var for this 'Object'
 type InspiroConfig struct {
-	API_url string
-	Logger *logrus.Logger
+	API_url           string
+	Logger            *logrus.Logger
 	Backup_image_link string
 }
 
@@ -33,8 +32,8 @@ func GetInspiroConfig() InspiroConfig {
 		logger.Error("Error loading FeatureConfig", err)
 	}
 	return InspiroConfig{
-		API_url: inspiroCfg.Data[InspiroAPIKey],
-		Logger: logger,
+		API_url:           inspiroCfg.Data[InspiroAPIKey],
+		Logger:            logger,
 		Backup_image_link: inspiroCfg.Data[InspiroBackupURLKey]}
 }
 

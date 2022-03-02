@@ -14,16 +14,16 @@ var (
 // Bot Config
 type Config struct {
 	BotToken string
-	BotName string
-	AppId int64
+	BotName  string
+	AppId    int64
 	Features []FeatureConfig
 }
 
 // Feature Specific Config
 type FeatureConfig struct {
-	Name string
+	Name    string
 	Enabled bool
-	Data map[string]string
+	Data    map[string]string
 }
 
 // GetConfig returns bloopyboi configuration
