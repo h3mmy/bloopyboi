@@ -13,5 +13,5 @@
 
 *.env.*
 *.config.(^sample)
-
+config.yaml
 bloopyboi_dev

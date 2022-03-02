@@ -13,24 +13,38 @@
 package main
 
 import (
+	"errors"
 	"flag"
 	"fmt"
-	"gitlab.com/h3mmy/bloopyboi/log"
-	"gitlab.com/h3mmy/bloopyboi/util"
 	"os"
 	"os/signal"
 	"syscall"
 
+	"gitlab.com/h3mmy/bloopyboi/bot/util"
+
 	"github.com/bwmarrin/discordgo"
+	"github.com/spf13/viper"
 )
 
 // Variables used for command line parameters
 var (
 	Token  string
-	logger = log.New()
 )
 
 func init() {
+	viper.SetConfigName("config")          // name of config file (without extension)
+	viper.AddConfigPath("/config")         // path to look for the config file in
+	viper.AddConfigPath("$HOME/.bloopyboi") // call multiple times to add many search paths
+	viper.AddConfigPath(".")               // optionally look for config in the working directory
+	viper.AutomaticEnv()
+	err := viper.ReadInConfig() // Find and read the config file
+	if err != nil {             // Handle errors reading the config file
+		panic(errors.New("Fatal error config file: " + err.Error()))
+	}
+}
+
+// @Deprecated
+func initOld() {
 	flag.StringVar(&Token, "t", "", "Bot Token")
 	flag.Parse()
 }
@@ -160,5 +174,5 @@ func directMessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 }
 
 func addBloopyClient() *util.BloopyHttp {
-	return util.NewBloopyHttpClient(util.NewInspiroClient(util.InspiroConfig{API_url: "bla", Logger: logger, Backup_image_link: "ta"}))
+	return util.NewBloopyHttpClient(util.NewInspiroClient(util.InspiroConfig{API_url: "bla", Logger: nil, Backup_image_link: "ta"}))
 }

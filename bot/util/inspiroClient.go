@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/sirupsen/logrus"
+	"gitlab.com/h3mmy/bloopyboi/bot/internal/log"
 )
 
 // Basically a static var for this 'Object'
@@ -19,7 +20,7 @@ type InspiroClient struct {
 	config InspiroConfig
 }
 
-// 'Constructs' InspiroClient with declared COnfig
+// 'Constructs' InspiroClient with declared Config
 func NewInspiroClient(myConfig InspiroConfig) *InspiroClient {
 	return &InspiroClient{
 		config: myConfig,
@@ -28,8 +29,13 @@ func NewInspiroClient(myConfig InspiroConfig) *InspiroClient {
 
 // 'Constructs' InspiroClient with transparent Config
 func NewInspiroClientWithURI(apiUrl string, logger *logrus.Logger, backupLink string) *InspiroClient {
+	if logger != nil {
+		return &InspiroClient{
+			config: InspiroConfig{API_url: apiUrl, Logger: logger, Backup_image_link: backupLink},
+		}
+	}
 	return &InspiroClient{
-		config: InspiroConfig{API_url: apiUrl, Logger: logger, Backup_image_link: backupLink},
+		config: InspiroConfig{API_url: apiUrl, Logger: log.New(), Backup_image_link: backupLink},
 	}
 }
 
