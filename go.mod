@@ -2,7 +2,11 @@ module gitlab.com/h3mmy/bloopyboi
 
 go 1.17
 
-require github.com/bwmarrin/discordgo v0.23.2
+require (
+	github.com/bwmarrin/discordgo v0.23.2
+	github.com/onrik/logrus v0.9.0
+	github.com/sirupsen/logrus v1.8.1
+)
 
 require (
 	github.com/gorilla/websocket v1.5.0 // indirect

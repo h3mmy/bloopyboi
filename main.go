@@ -15,6 +15,8 @@ package main
 import (
 	"flag"
 	"fmt"
+	"gitlab.com/h3mmy/bloopyboi/log"
+	"gitlab.com/h3mmy/bloopyboi/util"
 	"os"
 	"os/signal"
 	"syscall"
@@ -24,7 +26,8 @@ import (
 
 // Variables used for command line parameters
 var (
-	Token string
+	Token  string
+	logger = log.New()
 )
 
 func init() {
@@ -43,7 +46,6 @@ func main() {
 	// Register the messageCreate func as a callback for MessageCreate events.
 	dg.AddHandler(messageCreate)
 	dg.AddHandler(directMessageCreate)
-
 
 	// Just like the ping pong example, we only care about receiving message
 	// events in this example.
@@ -69,17 +71,17 @@ func main() {
 // Temporary method to check if command is relevant
 func isNotDMCommand(q string) bool {
 	switch q {
-		case "ping":
-			return false
-		}
+	case "ping":
+		return false
+	}
 	return true
 }
 
 // Temporary method to check if command is relevant
-func isNotChannelCommand(q string) bool{
+func isNotChannelCommand(q string) bool {
 	switch q {
-		case "inspire":
-			return false
+	case "inspire":
+		return false
 	}
 	return true
 }
@@ -155,4 +157,8 @@ func directMessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 				"Did you disable DM in your privacy settings?",
 		)
 	}
+}
+
+func addBloopyClient() *util.BloopyHttp {
+	return util.NewBloopyHttpClient(util.NewInspiroClient(util.InspiroConfig{API_url: "bla", Logger: logger, Backup_image_link: "ta"}))
 }
