@@ -55,17 +55,20 @@ func NewInspiroClient() *InspiroClient {
 }
 
 // returns raw uri as string without validation
-func (inspiroClient *InspiroClient) getInspiro() string {
+func (inspiroClient *InspiroClient) GetInspiro() string {
 
 	image_link, err := http.Get(inspiroClient.config.API_url)
-	defer image_link.Body.Close()
 
 	if err != nil {
-		result, err2 := io.ReadAll(image_link.Body)
-		if err2 != nil {
-			return string(result)
-		}
-		return err2.Error()
+		return err.Error()
 	}
-	return err.Error()
+	defer image_link.Body.Close()
+
+	result, err := io.ReadAll(image_link.Body)
+	if err != nil {
+		logger.Error("IO Error while reading body", err)
+		return err.Error()
+	}
+	logger.Debug("Got Link", result)
+	return string(result)
 }

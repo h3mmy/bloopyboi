@@ -28,4 +28,3 @@ COPY --from=build /build/bloopyboi /
 WORKDIR /
 
 ENTRYPOINT ["/bloopyboi"]
-CMD ["-t $BOT_TOKEN"]

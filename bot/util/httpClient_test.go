@@ -25,7 +25,7 @@ func TestNewBloopyHttpClient(t *testing.T) {
 		{
 			name: "Constructs",
 			args: args{inspiro: &stubInspiroClient},
-			want: &BloopyHttp{inspiro_api: &stubInspiroClient},
+			want: &BloopyHttp{Inspiro_api: &stubInspiroClient},
 		},
 	}
 	for _, tt := range tests {

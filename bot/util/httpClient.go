@@ -1,11 +1,11 @@
 package util
 
 type BloopyHttp struct {
-	inspiro_api *InspiroClient
+	Inspiro_api *InspiroClient
 }
 
 func NewBloopyHttpClient(inspiro *InspiroClient) *BloopyHttp {
-	return &BloopyHttp{inspiro_api: inspiro}
+	return &BloopyHttp{Inspiro_api: inspiro}
 }
 
 func NewBloopyClient() *BloopyHttp {

@@ -14,12 +14,12 @@ package main
 
 import (
 	"errors"
-	"flag"
 	"fmt"
 	"os"
 	"os/signal"
 	"syscall"
 
+	"gitlab.com/h3mmy/bloopyboi/bot/providers"
 	"gitlab.com/h3mmy/bloopyboi/bot/util"
 
 	"github.com/bwmarrin/discordgo"
@@ -31,7 +31,7 @@ var (
 	Token string
 )
 
-func initWithConfig() {
+func init() {
 	viper.SetConfigName("config")           // name of config file (without extension)
 	viper.AddConfigPath("/config")          // path to look for the config file in
 	viper.AddConfigPath("$HOME/.bloopyboi") // call multiple times to add many search paths
@@ -43,13 +43,10 @@ func initWithConfig() {
 	}
 }
 
-// @Deprecated
-func init() {
-	flag.StringVar(&Token, "t", "", "Bot Token")
-	flag.Parse()
-}
-
 func main() {
+
+	Token = providers.GetBotToken()
+
 	// Create a new Discord session using the provided bot token.
 	dg, err := discordgo.New("Bot " + Token)
 	if err != nil {
@@ -111,7 +108,14 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 	// If the message is "ping" reply with "Pong!"
 	if m.Content == "inspire" {
-		s.ChannelMessageSend(m.ChannelID, "I heard you")
+		bttp := util.NewBloopyClient()
+		embed := &discordgo.MessageEmbed{
+			Author: &discordgo.MessageEmbedAuthor{},
+			Image: &discordgo.MessageEmbedImage{
+				URL: bttp.Inspiro_api.GetInspiro(),
+			},
+		}
+		s.ChannelMessageSendEmbed(m.ChannelID, embed)
 	}
 
 	// If the message is "pong" reply with "Ping!"
@@ -171,8 +175,4 @@ func directMessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 				"Did you disable DM in your privacy settings?",
 		)
 	}
-}
-
-func addBloopyClient() *util.BloopyHttp {
-	return util.NewBloopyHttpClient(util.NewInspiroClient())
 }
