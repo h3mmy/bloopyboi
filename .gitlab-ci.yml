@@ -106,7 +106,8 @@ release_job:
     ref: '$CI_COMMIT_SHA'                                            # in the pipeline. For example, in the
     milestones:                                                      # prepare_job
       - $CI_MERGE_REQUEST_MILESTONE
-    released_at: $CI_COMMIT_TIMESTAMP
+    # Disable released_at to use current time
+    # released_at: $CI_COMMIT_TIMESTAMP
     # assets:
     #   links:
     #     - name: 'asset1'
