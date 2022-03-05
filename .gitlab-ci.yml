@@ -86,7 +86,7 @@ prepare_release:
     reports:
       dotenv: variables.env
 
-.release_job:
+release_job:
   stage: release
   image: registry.gitlab.com/gitlab-org/release-cli:latest
   needs:
