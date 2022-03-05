@@ -59,6 +59,7 @@ func addHandlers(s *discordgo.Session) {
 	s.AddHandler(bloopyCommands.DirectMessageCreate)
 }
 
+// Where the magic happens
 func main() {
 
 	// Get token

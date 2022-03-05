@@ -15,11 +15,8 @@ func isNotDMCommand(q string) bool {
 	return true
 }
 
-// This function will be called (due to AddHandler above) every time a new
-// message is created on any channel that the authenticated bot has access to.
-//
-// It is called whenever a message is created but only when it's sent through a
-// server as we did not request IntentsDirectMessages.
+// Listens for target command in channels
+// Responds in DM to user
 func DirectMessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	// Ignore all messages created by the bot itself
 	// This isn't required in this specific example but it's a good practice.
