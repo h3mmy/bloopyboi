@@ -50,6 +50,9 @@ docker_build:
 
 # Tags only the $CI_DEFAULT_BRANCH as latest
 push_latest:
+  image: docker:latest
+  services:
+    - docker:dind
   variables:
     # Disable fresh pull of source
     GIT_STRATEGY: none
@@ -65,6 +68,8 @@ push_latest:
 
 push_tag:
   image: docker:latest
+  services:
+    - docker:dind
   variables:
     GIT_STRATEGY: none
   stage: push
