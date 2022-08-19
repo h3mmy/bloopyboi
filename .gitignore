@@ -15,3 +15,6 @@
 *.config.(^sample)
 config.yaml
 bloopyboi_dev
+
+Chart.lock
+charts/*.tgz

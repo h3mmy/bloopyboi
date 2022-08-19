@@ -1,0 +1,22 @@
+apiVersion: v2
+appVersion: v0.2.0
+description: |
+    BloopyBoi is a bot written for the bloopysphere but is capable of being multifunctional with other environments.
+name: bloopyboi
+version: 0.1.0
+kubeVersion: ">=1.24.0-0"
+keywords:
+- bloopyboi
+- discordbot
+- discordgo
+home: https://gitlab.com/h3mmy/bloopyboii/-/tree/main/charts/bloopyboi
+icon: https://gitlab.com/h3mmy/bloopyboii/-/tree/main/docs/static/img/pcb-brain.svg
+sources:
+- https://gitlab.com/h3mmy/bloopyboi
+maintainers:
+- name: h3mmy
+  email: h3mmy@users.noreply.gitlab.com
+dependencies:
+- name: common
+  repository: https://library-charts.k8s-at-home.com
+  version: 4.5.2

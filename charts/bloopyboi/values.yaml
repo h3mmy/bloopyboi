@@ -1,0 +1,16 @@
+registry: registry.gitlab.com/h3mmy/bloopyboi
+
+bloopyboi:
+  # Discord Bot Credentials
+  botName: BloopyBoi
+  botToken: ""
+  appId: ""
+
+  # Feature Settings
+  features:
+      # Enables and configures InspiroBot
+    - name: inspiro
+      enabled: true
+      data:
+        - api_url: "https://inspirobot.me/api?generate=true"
+        - backup_image_url: "https://generated.inspirobot.me/a/12PYMWaBPB.jpg"

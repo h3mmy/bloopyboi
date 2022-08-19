@@ -1,0 +1,14 @@
+{{- include "common.values.setup" . }}
+
+{{- define "bloopyboi.configVolume" -}}
+enabled: "true"
+mountPath: "/config.yaml"
+subPath: "config.yaml"
+type: "custom"
+volumeSpec:
+  configMap:
+    name: {{ include "common.names.fullname" . }}-settings
+{{- end -}}
+{{- $_ := set .Values.persistence "bloopyboi-config" (include "bloopyboi.configVolume" . | fromYaml) -}}
+
+{{ include "common.all" . }}
