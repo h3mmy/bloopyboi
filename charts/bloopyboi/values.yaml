@@ -41,7 +41,7 @@ service:
   main:
     ports:
       http:
-        port: 5000
+        port: 5005
 
 # -- Configures service account needed for k8s features
 # @default -- See below

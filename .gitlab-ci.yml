@@ -66,7 +66,7 @@ docker_build:
     - if: $CI_COMMIT_BRANCH
       exists:
         - Dockerfile
-    - changes: *gopkg_changes
+      changes: *gopkg_changes
 
 # Tags only the $CI_DEFAULT_BRANCH as latest
 push_latest:
