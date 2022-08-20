@@ -7,7 +7,7 @@
     REPO_NAME: bloopyboi-charts
     HELM_REPO_URL: "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/helm/api/stable/charts"
   basic_publish_script:
-    - helm repo add --username $CI_REGISTRY_USER --password $CI_REGISTRY_PASSWORD $REPO_NAME $HELM_REPO_URL
+    - helm repo add --username $CI_REGISTRY_USER --password $CI_REGISTRY_PASSWORD $REPO_NAME $CI_REGISTRY
     - helm package $CHART_NAME
     - helm push ${CHART_NAME}.tgz $REPO_NAME
 
@@ -79,8 +79,10 @@ push_latest:
   stage: push
   before_script: !reference [.docker, before_script]
   only:
-    - tags
-    - main@h3mmy/bloopyboi
+    refs:
+      - tags
+      - main@h3mmy/bloopyboi
+    changes: *gopkg_changes
   script:
     - docker pull $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
     - docker tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA $CI_REGISTRY_IMAGE:latest
@@ -94,7 +96,9 @@ push_tag:
     GIT_STRATEGY: none
   stage: push
   only:
-    - tags
+    refs:
+      - tags
+    changes: *gopkg_changes
   before_script: !reference [.docker, before_script]
   script:
     - docker pull $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
@@ -167,8 +171,6 @@ helm_lint:
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
       changes: *helm_changes
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-      when: manual
   script:
     - helm lint charts/${CHART_NAME}
 
@@ -180,7 +182,5 @@ helm_publish:
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
       changes: *helm_changes
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-      when: manual
   variables: !reference [.helm, variables]
   script: !reference [.helm, basic_publish_script]
