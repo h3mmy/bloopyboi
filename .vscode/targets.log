@@ -8,7 +8,7 @@ makefile:17: *** missing separator.  Stop.
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Sat Aug 20 11:56:30 2022
+# Make data base, printed on Sat Aug 20 16:11:29 2022
 
 # Variables
 
@@ -71,7 +71,7 @@ PKG_LIST := gitlab.com/h3mmy/bloopyboi gitlab.com/h3mmy/bloopyboi/bot/commands g
 # environment
 ELECTRON_RUN_AS_NODE = 1
 # environment
-VSCODE_IPC_HOOK_CLI = /tmp/vscode-ipc-31cd261a-81e9-482f-abd5-1eda592f5049.sock
+VSCODE_IPC_HOOK_CLI = /tmp/vscode-ipc-253cd605-e534-4f99-9de6-8cb665ec1bbc.sock
 # default
 .FEATURES := target-specific order-only second-expansion else-if shortest-stem undefine oneshell archives jobserver output-sync check-symlink load
 # environment
@@ -85,9 +85,9 @@ PWD = /mnt/c/Users/Zak/Code/projects/bloopyboii
 # makefile (from 'makefile', line 2)
 PKG := "gitlab.com/h3mmy/"bloopyboi""
 # environment
-WSL_INTEROP = /run/WSL/409_interop
+WSL_INTEROP = /run/WSL/29864_interop
 # environment
-WT_SESSION = 81d6e527-3a1b-4ee4-9cf5-5122cea787a2
+WT_SESSION = edfb7ae7-c6a4-4994-9a1b-d07ea8ff1c1d
 # environment
 MANPATH = /home/linuxbrew/.linuxbrew/share/man:
 # environment
@@ -195,9 +195,9 @@ WSL_DISTRO_NAME = Ubuntu
 
 # Directories
 
-# . (device 68, inode 75153818781783925): 25 files, no impossibilities.
+# . (device 68, inode 75153818781783925): 26 files, no impossibilities.
 
-# 25 files, no impossibilities in 1 directories.
+# 26 files, no impossibilities in 1 directories.
 
 # Implicit Rules
 
@@ -286,12 +286,12 @@ lint:
 
 # No general ('VPATH' variable) search path.
 
-# strcache buffers: 1 (0) / strings = 39 / storage = 336 B / avg = 8 B
-# current buf: size = 8162 B / used = 336 B / count = 39 / avg = 8 B
+# strcache buffers: 1 (0) / strings = 40 / storage = 362 B / avg = 9 B
+# current buf: size = 8162 B / used = 362 B / count = 40 / avg = 9 B
 
-# strcache performance: lookups = 54 / hit rate = 27%
+# strcache performance: lookups = 55 / hit rate = 27%
 # hash-table stats:
-# Load=39/8192=0%, Rehash=0, Collisions=1/54=2%
-# Finished Make data base on Sat Aug 20 11:56:30 2022
+# Load=40/8192=0%, Rehash=0, Collisions=1/55=2%
+# Finished Make data base on Sat Aug 20 16:11:29 2022
 
  

@@ -17,6 +17,7 @@ type Config struct {
 	BotName  string
 	AppId    int64
 	Features []FeatureConfig
+	LogLevel string
 }
 
 // Feature Specific Config

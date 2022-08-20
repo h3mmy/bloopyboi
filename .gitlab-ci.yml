@@ -4,7 +4,7 @@
     entrypoint: [""]
   variables:
     CHART_NAME: bloopyboi
-    CHART_VERSION: "0.1.0"
+    CHART_VERSION: "0.1.1"
     REPO_NAME: bloopyboi-charts
     LIBRARY_REPO_NAME: k8s-at-home-library-charts
     LIBRARY_REPO_URL: https://library-charts.k8s-at-home.com

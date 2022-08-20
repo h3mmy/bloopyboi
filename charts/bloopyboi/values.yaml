@@ -8,7 +8,7 @@ image:
   # -- image pull policy
   pullPolicy: IfNotPresent
   # -- image tag
-  tag: v0.2.2
+  tag: v0.3.0
 
 # -- environment variables.
 # @default -- See below
@@ -23,6 +23,9 @@ bloopyboi:
   botName: BloopyBoi
   botToken: ""
   appId: ""
+
+  # -- Log Level (info, warn, error, debug)
+  logLevel: info
 
   # -- Feature Settings
   features:
@@ -39,7 +42,7 @@ service:
   main:
     ports:
       http:
-        port: 5005
+        port: 3000
 
 # -- Configures service account needed for k8s features
 # @default -- See below

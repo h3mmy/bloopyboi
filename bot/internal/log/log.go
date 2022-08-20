@@ -26,3 +26,19 @@ func New() *logrus.Logger {
 
 	return log
 }
+
+// Set LogLevel from config
+func ParseLevel(logLevel string) logrus.Level {
+	switch logLevel {
+	case "debug":
+		return logrus.DebugLevel
+	case "info":
+		return logrus.InfoLevel
+	case "warn":
+		return logrus.WarnLevel
+	case "error":
+		return logrus.ErrorLevel
+	default:
+		return logrus.InfoLevel
+	}
+}

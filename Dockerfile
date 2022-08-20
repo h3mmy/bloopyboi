@@ -27,4 +27,6 @@ COPY --from=build /build/bloopyboi /
 
 WORKDIR /
 
+EXPOSE 3000
+
 ENTRYPOINT ["/bloopyboi"]

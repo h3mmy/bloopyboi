@@ -13,9 +13,11 @@
 package main
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"log"
+	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
@@ -24,6 +26,7 @@ import (
 	"gitlab.com/h3mmy/bloopyboi/bot/providers"
 	"gitlab.com/h3mmy/bloopyboi/bot/util"
 
+	"github.com/alexliesenfeld/health"
 	"github.com/bwmarrin/discordgo"
 	"github.com/spf13/viper"
 )
@@ -38,6 +41,7 @@ var (
 
 func init() {
 	viper.SetConfigName("config")           // name of config file (without extension)
+	viper.SetConfigType("yaml") // REQUIRED if the config file does not have the extension in the name
 	viper.AddConfigPath("/config")          // path to look for the config file in
 	viper.AddConfigPath("$HOME/.bloopyboi") // call multiple times to add many search paths
 	viper.AddConfigPath(".")                // optionally look for config in the working directory
@@ -62,6 +66,8 @@ func addHandlers(s *discordgo.Session) {
 // Where the magic happens
 func main() {
 
+	ctx := context.Background()
+
 	// Get token
 	Token = providers.GetBotToken()
 
@@ -84,6 +90,8 @@ func main() {
 		fmt.Println("error opening connection,", err)
 		return
 	}
+	ctx = context.WithValue(ctx, "customReady", "true")
+
 
 	RegisteredCommands = make([]*discordgo.ApplicationCommand, len(bloopyCommands.Commands))
 	for i, v := range bloopyCommands.Commands {
@@ -94,6 +102,22 @@ func main() {
 		}
 		RegisteredCommands[i] = cmd
 	}
+
+	readinessChecker := providers.NewReadinessChecker()
+
+	// Liveness check should mostly contain checks that identify if the service is locked up or in a state that it
+	// cannot recover from (deadlocks, etc.). In most cases it should just respond with 200 OK to avoid unexpected
+	// restarts.
+	livenessChecker := health.NewChecker()
+
+	// Create a new health check http.Handler that returns the health status
+	// serialized as a JSON string. You can pass pass further configuration
+	// options to NewHandler to modify default configuration.
+	http.Handle("/healthz", health.NewHandler(livenessChecker))
+	http.Handle("/ready", health.NewHandler(readinessChecker))
+
+	// Start the HTTP server
+	log.Fatalln(http.ListenAndServe(":3000", nil))
 
 	// Wait here until CTRL-C or other term signal is received.
 	fmt.Println("Bot is now running. Press CTRL-C to exit.")
