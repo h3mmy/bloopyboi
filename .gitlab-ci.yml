@@ -167,7 +167,7 @@ helm_lint:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
       changes: *helm_changes
   script:
-    - helm lint /charts/${CHART_NAME}
+    - helm lint charts/${CHART_NAME}
 
 helm_publish:
   stage: publish_charts
