@@ -1,5 +1,5 @@
-{{- if .Values.serviceAccount.create }}
 {{- include "common.values.setup" . -}}
+{{- if .Values.serviceAccount.create }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
