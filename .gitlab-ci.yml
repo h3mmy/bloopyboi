@@ -22,7 +22,8 @@
     - makefile
   helm: &helm_changes
     - charts/*
-    - charts/*/**
+    - charts/*/*
+    - charts/*/templates/*
 
 .docker:
   before_script:
