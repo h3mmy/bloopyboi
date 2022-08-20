@@ -3,7 +3,6 @@
   image:
     name: alpine/helm:latest
     entrypoint: [""]
-
   variables:
     CHART_NAME: bloopyboi
     REPO_NAME: bloopyboi-charts
