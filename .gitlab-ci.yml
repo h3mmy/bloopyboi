@@ -192,4 +192,4 @@ helm_publish:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
       changes: *helm_changes
   variables: !reference [.helm, variables]
-  script: !reference [.helm, basic_publish_script]
+  script: !reference [.helm, curly_publish_script]
