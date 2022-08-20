@@ -7,7 +7,6 @@
     CHART_NAME: bloopyboi
     REPO_NAME: bloopyboi-charts
     HELM_REPO_URL: "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/helm/api/stable/charts"
-
   basic_publish_script:
     - helm repo add --username $CI_REGISTRY_USER --password $CI_REGISTRY_PASSWORD $REPO_NAME $HELM_REPO_URL
     - helm package $CHART_NAME
