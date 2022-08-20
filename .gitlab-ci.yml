@@ -4,12 +4,19 @@
     entrypoint: [""]
   variables:
     CHART_NAME: bloopyboi
+    CHART_VERSION: "0.1.0"
     REPO_NAME: bloopyboi-charts
+    LIBRARY_REPO_NAME: k8s-at-home-library-charts
+    LIBRARY_REPO_URL: https://library-charts.k8s-at-home.com
     HELM_REPO_URL: "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/helm/api/stable/charts"
+  curly_publish_script:
+    - helm package charts/$CHART_NAME
+    - curl --request POST --form chart=@${CHART_NAME}-${CHART_VERSION}.tgz --user gitlab-ci-token:$CI_JOB_TOKEN $HELM_REPO_URL
+
   basic_publish_script:
     - helm repo add --username $CI_REGISTRY_USER --password $CI_REGISTRY_PASSWORD $REPO_NAME $CI_REGISTRY
-    - helm package $CHART_NAME
-    - helm push ${CHART_NAME}.tgz $REPO_NAME
+    - helm package charts/$CHART_NAME
+    - helm push ${CHART_NAME}-${CHART_VERSION}.tgz $REPO_NAME
 
 .changes:
   gopkg: &gopkg_changes
