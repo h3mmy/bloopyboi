@@ -1,20 +1,39 @@
-# This file is a template, and might need editing before it works on your project.
-# To contribute improvements to CI/CD templates, please follow the Development guide at:
-# https://docs.gitlab.com/ee/development/cicd/templates.html
-# This specific template is located at:
-# https://gitlab.com/gitlab-org/gitlab/-/blob/master/lib/gitlab/ci/templates/Docker.gitlab-ci.yml
+.helm:
+  image:
+    name: alpine/helm:latest
+    entrypoint: [""]
+  variables:
+    CHART_NAME: bloopyboi
+    REPO_NAME: bloopyboi-charts
+    HELM_REPO_URL: "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/helm/api/stable/charts"
+  basic_publish_script:
+    - helm repo add --username $CI_REGISTRY_USER --password $CI_REGISTRY_PASSWORD $REPO_NAME $HELM_REPO_URL
+    - helm package $CHART_NAME
+    - helm push ${CHART_NAME}.tgz $REPO_NAME
 
-# Build a Docker image with CI/CD and push to the GitLab registry.
-# Docker-in-Docker documentation: https://docs.gitlab.com/ee/ci/docker/using_docker_build.html
-#
-# This template uses one generic job with conditional builds
-# for the default branch and all other (MR) branches.
+.changes:
+  gopkg: &gopkg_changes
+    - bot/*
+    - main.go
+    - VERSION
+    - go.mod
+    - go.sum
+    - Dockerfile
+    - makefile
+  helm: &helm_changes
+    - charts/*
+
+.docker:
+  before_script:
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
 
 stages:
+  - lint
   - build
   - push
   - prepare
   - release
+  - publish_charts
   - deploy
 
 docker_build:
@@ -24,7 +43,7 @@ docker_build:
   services:
     - docker:dind
   before_script:
-    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+    - !reference [.docker, before_script]
   script:
     # Doesn't fail if latest image not found
     - docker pull $CI_REGISTRY_IMAGE:latest || true
@@ -47,12 +66,11 @@ docker_build:
     - if: $CI_COMMIT_BRANCH
       exists:
         - Dockerfile
+    - changes: *gopkg_changes
 
 # Tags only the $CI_DEFAULT_BRANCH as latest
 push_latest:
   image: docker:latest
-  needs:
-    - job: push_tag
   services:
     - docker:dind
   variables:
@@ -60,7 +78,7 @@ push_latest:
     GIT_STRATEGY: none
   stage: push
   before_script:
-    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+    - - !reference [.docker, before_script]
   only:
     - tags
     - main@h3mmy/bloopyboi
@@ -79,12 +97,11 @@ push_tag:
   only:
     - tags
   before_script:
-    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+    - - !reference [.docker, before_script]
   script:
     - docker pull $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
     - docker tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME
     - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME
-
 
 prepare_release:
   stage: prepare
@@ -141,3 +158,24 @@ deploy_neutrino:
     - if: $CI_DEPLOY_FREEZE == null
   script:
     - echo "Deploying to Neutrino. Not really though. It can deploy itself."
+
+helm_lint:
+  stage: lint
+  image: !reference [.helm, image]
+  variables: !reference [.helm, variables]
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      changes: *helm_changes
+  script:
+    - helm lint /charts/${CHART_NAME}
+
+helm_publish:
+  stage: publish_charts
+  needs:
+    - helm_lint
+  image: !reference [.helm, image]
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      changes: *helm_changes
+  variables: !reference [.helm, variables]
+  script: !reference [.helm, basic_publish_script]

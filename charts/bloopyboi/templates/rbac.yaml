@@ -1,13 +1,15 @@
 {{- if .Values.serviceAccount.create }}
+{{- include "common.values.setup" . -}}
+---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   name: {{ include "common.names.fullname" . }}
   labels: {{- include "common.labels" . | nindent 4 }}
 rules:
-- apiGroups: ["", "extensions", "networking.k8s.io"]
-  resources: ["ingresses", "namespaces"]
-  verbs: ["get", "list"]
+  - apiGroups: ["", "extensions", "networking.k8s.io"]
+    resources: ["ingresses", "namespaces"]
+    verbs: ["get", "list"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
@@ -19,7 +21,7 @@ roleRef:
   kind: ClusterRole
   name: {{ include "common.names.fullname" . }}
 subjects:
-- kind: ServiceAccount
-  name: {{ include "common.names.fullname" . }}
-  namespace: {{ .Release.Namespace }}
+  - kind: ServiceAccount
+    name: {{ include "common.names.fullname" . }}
+    namespace: {{ .Release.Namespace }}
 {{- end }}
