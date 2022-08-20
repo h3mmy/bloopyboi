@@ -1,5 +1,5 @@
 apiVersion: v2
-appVersion: v0.2.0
+appVersion: v0.2.2
 description: |
     BloopyBoi is a bot written for the bloopysphere but is capable of being multifunctional with other environments.
 name: bloopyboi
