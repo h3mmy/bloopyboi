@@ -45,7 +45,7 @@ service:
 # @default -- See below
 serviceAccount:
   # -- Create service account
-  create: true
+  create: false
 
 ingress:
   # -- Enable and configure ingress settings for the chart under this key.
