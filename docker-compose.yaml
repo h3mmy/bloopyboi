@@ -1,9 +1,0 @@
-version: '3.7'
-
-services:
-  bloopyboi:
-    image: registry.gitlab.com/h3mmy/bloopyboi:latest
-    container_name: botti
-    # build: .
-    volumes:
-      - ./config.yaml:/config.yaml

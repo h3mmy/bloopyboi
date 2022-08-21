@@ -163,15 +163,16 @@ release_job:
     #       filepath: '/pretty/url/1' # optional
     #       link_type: 'other' # optional
 
-deploy_neutrino:
+deploy_bloopysphere:
   stage: deploy
   environment:
-    name: neutrino
+    name: bloopysphere
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
     - if: $CI_DEPLOY_FREEZE == null
   script:
-    - echo "Deploying to Neutrino. Not really though. It can deploy itself."
+    - echo "Alerting bloopysphere to new release container, or new helm charts using a webhook."
+    - echo "The bloopysphere is smart enough to pick it up from there with a gitOps operator."
 
 helm_lint:
   stage: lint

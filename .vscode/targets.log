@@ -8,7 +8,7 @@ makefile:17: *** missing separator.  Stop.
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Sat Aug 20 16:11:29 2022
+# Make data base, printed on Sun Aug 21 12:49:58 2022
 
 # Variables
 
@@ -67,11 +67,11 @@ GOPATH = /home/h3mmy/.go
 # environment
 NVM_BIN = /home/h3mmy/.nvm/versions/node/v16.13.2/bin
 # makefile (from 'makefile', line 3)
-PKG_LIST := gitlab.com/h3mmy/bloopyboi gitlab.com/h3mmy/bloopyboi/bot/commands gitlab.com/h3mmy/bloopyboi/bot/internal/config gitlab.com/h3mmy/bloopyboi/bot/internal/log gitlab.com/h3mmy/bloopyboi/bot/providers gitlab.com/h3mmy/bloopyboi/bot/util
+PKG_LIST := gitlab.com/h3mmy/bloopyboi gitlab.com/h3mmy/bloopyboi/bot/discord gitlab.com/h3mmy/bloopyboi/bot/discord/commands gitlab.com/h3mmy/bloopyboi/bot/internal/config gitlab.com/h3mmy/bloopyboi/bot/internal/log gitlab.com/h3mmy/bloopyboi/bot/k8s gitlab.com/h3mmy/bloopyboi/bot/providers gitlab.com/h3mmy/bloopyboi/bot/util
 # environment
 ELECTRON_RUN_AS_NODE = 1
 # environment
-VSCODE_IPC_HOOK_CLI = /tmp/vscode-ipc-253cd605-e534-4f99-9de6-8cb665ec1bbc.sock
+VSCODE_IPC_HOOK_CLI = /tmp/vscode-ipc-3f702557-664f-4752-a7c9-91d87ab700c8.sock
 # default
 .FEATURES := target-specific order-only second-expansion else-if shortest-stem undefine oneshell archives jobserver output-sync check-symlink load
 # environment
@@ -85,9 +85,9 @@ PWD = /mnt/c/Users/Zak/Code/projects/bloopyboii
 # makefile (from 'makefile', line 2)
 PKG := "gitlab.com/h3mmy/"bloopyboi""
 # environment
-WSL_INTEROP = /run/WSL/29864_interop
+WSL_INTEROP = /run/WSL/11194_interop
 # environment
-WT_SESSION = edfb7ae7-c6a4-4994-9a1b-d07ea8ff1c1d
+WT_SESSION = 9ca6ac50-37ba-49d8-94ad-5599701beb54
 # environment
 MANPATH = /home/linuxbrew/.linuxbrew/share/man:
 # environment
@@ -177,7 +177,7 @@ SUFFIXES :=
 # default
 .INCLUDE_DIRS = /usr/include /usr/local/include /usr/include
 # makefile (from 'makefile', line 4)
-GO_FILES := ./bot/commands/direct_messages.go ./bot/commands/slash_commands.go ./bot/internal/config/config.go ./bot/internal/log/log.go ./bot/providers/config.go ./bot/providers/log.go ./bot/util/httpClient.go ./bot/util/inspiroClient.go ./main.go
+GO_FILES := ./bot/discord/commands/channel_messages.go ./bot/discord/commands/direct_messages.go ./bot/discord/commands/slash_commands.go ./bot/discord/discord.go ./bot/internal/config/config.go ./bot/internal/log/log.go ./bot/k8s/client.go ./bot/providers/config.go ./bot/providers/healthCheck.go ./bot/providers/log.go ./bot/util/httpClient.go ./bot/util/inspiroClient.go ./main.go
 # default
 .RECIPEPREFIX := 
 # environment
@@ -195,9 +195,9 @@ WSL_DISTRO_NAME = Ubuntu
 
 # Directories
 
-# . (device 68, inode 75153818781783925): 26 files, no impossibilities.
+# . (device 68, inode 75153818781783925): 24 files, no impossibilities.
 
-# 26 files, no impossibilities in 1 directories.
+# 24 files, no impossibilities in 1 directories.
 
 # Implicit Rules
 
@@ -271,7 +271,6 @@ fmt:
 	gofmt -l -w -s .
 
 lint:
- 
 #  Implicit rule search has not been done.
 #  Modification time never checked.
 #  File has not been updated.
@@ -279,6 +278,7 @@ lint:
 	golangci-lint run
 
 # files hash-table stats:
+ 
 # Load=13/1024=1%, Rehash=0, Collisions=0/28=0%
 # VPATH Search Paths
 
@@ -286,12 +286,12 @@ lint:
 
 # No general ('VPATH' variable) search path.
 
-# strcache buffers: 1 (0) / strings = 40 / storage = 362 B / avg = 9 B
-# current buf: size = 8162 B / used = 362 B / count = 40 / avg = 9 B
+# strcache buffers: 1 (0) / strings = 38 / storage = 316 B / avg = 8 B
+# current buf: size = 8162 B / used = 316 B / count = 38 / avg = 8 B
 
-# strcache performance: lookups = 55 / hit rate = 27%
+# strcache performance: lookups = 53 / hit rate = 28%
 # hash-table stats:
-# Load=40/8192=0%, Rehash=0, Collisions=1/55=2%
-# Finished Make data base on Sat Aug 20 16:11:29 2022
+# Load=38/8192=0%, Rehash=0, Collisions=1/53=2%
+# Finished Make data base on Sun Aug 21 12:49:58 2022
 
  

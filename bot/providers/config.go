@@ -14,6 +14,14 @@ func GetBotToken() string {
 	return botConfig.BotToken
 }
 
+func GetBotName() string {
+	botConfig, err := config.GetConfig()
+	if err != nil {
+		logger.Error("Error Loading Config", err)
+	}
+	return botConfig.BotToken
+}
+
 // Retrieves logLevel if set
 func GetLogLevel() string {
 	botConfig, err := config.GetConfig()

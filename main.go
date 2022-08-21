@@ -22,13 +22,20 @@ import (
 	"os/signal"
 	"syscall"
 
-	bloopyCommands "gitlab.com/h3mmy/bloopyboi/bot/commands"
+	"gitlab.com/h3mmy/bloopyboi/bot/discord"
+	bloopyCommands "gitlab.com/h3mmy/bloopyboi/bot/discord/commands"
 	"gitlab.com/h3mmy/bloopyboi/bot/providers"
-	"gitlab.com/h3mmy/bloopyboi/bot/util"
+	"golang.org/x/sync/errgroup"
+	"sigs.k8s.io/controller-runtime/pkg/manager/signals"
 
 	"github.com/alexliesenfeld/health"
 	"github.com/bwmarrin/discordgo"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
+)
+
+const (
+	botLogFieldKey = "bot"
 )
 
 // Variables
@@ -59,49 +66,36 @@ func addHandlers(s *discordgo.Session) {
 			h(s, i)
 		}
 	})
-	s.AddHandler(messageCreate)
+	s.AddHandler(bloopyCommands.MessageCreate)
 	s.AddHandler(bloopyCommands.DirectMessageCreate)
 }
 
 // Where the magic happens
 func main() {
 
-	ctx := context.Background()
+	ctx := signals.SetupSignalHandler()
+	ctx, cancelCtxFn := context.WithCancel(ctx)
 
-	// Get token
-	Token = providers.GetBotToken()
+	defer cancelCtxFn()
 
-	// Create a new Discord session using the provided bot token.
-	s, err := discordgo.New("Bot " + Token)
+	errGroup, ctx := errgroup.WithContext(ctx)
+
+	logger := logrus.New()
+	logger.Formatter = &logrus.TextFormatter{FullTimestamp: true, DisableColors: false}
+
+	commonLogger := logger.WithField("common", "group")
+
+	discordClient, err := discord.NewDiscordClient(commonLogger.WithField(botLogFieldKey, "Discord"))
 	if err != nil {
-		fmt.Println("error creating Discord session,", err)
+		logger.Panicf("Error Creating Discord Client %v", err)
 		return
 	}
 
-	// Just like the ping pong example, we only care about receiving message
-	// events in this example.
-	s.Identify.Intents = discordgo.IntentsGuildMessages
+	errGroup.Go(func() error {
+		return discordClient.Start(ctx)
+	})
 
-	addHandlers(s)
-
-	// Open a websocket connection to Discord and begin listening.
-	err = s.Open()
-	if err != nil {
-		fmt.Println("error opening connection,", err)
-		return
-	}
 	ctx = context.WithValue(ctx, "customReady", "true")
-
-
-	RegisteredCommands = make([]*discordgo.ApplicationCommand, len(bloopyCommands.Commands))
-	for i, v := range bloopyCommands.Commands {
-		// Leaving GuildId empty
-		cmd, err := s.ApplicationCommandCreate(s.State.User.ID, "", v)
-		if err != nil {
-			log.Panicf("Cannot create '%v' command: %v", v.Name, err)
-		}
-		RegisteredCommands[i] = cmd
-	}
 
 	readinessChecker := providers.NewReadinessChecker()
 
@@ -130,71 +124,4 @@ func main() {
 	// Cleanly close down the Discord session.
 	defer s.Close()
 
-	if RemoveCommands {
-		log.Println("Removing commands...")
-		// // We need to fetch the commands, since deleting requires the command ID.
-		// // We are doing this from the returned commands on line 375, because using
-		// // this will delete all the commands, which might not be desirable, so we
-		// // are deleting only the commands that we added.
-		// registeredCommands, err := s.ApplicationCommands(s.State.User.ID, *GuildID)
-		// if err != nil {
-		// 	log.Fatalf("Could not fetch registered commands: %v", err)
-		// }
-
-		for _, v := range RegisteredCommands {
-			err := s.ApplicationCommandDelete(s.State.User.ID, "", v.ID)
-			if err != nil {
-				log.Panicf("Cannot delete '%v' command: %v", v.Name, err)
-			}
-		}
-	}
-}
-
-// Temporary method to check if command is relevant
-func isNotDMCommand(q string) bool {
-	switch q {
-	case "ping":
-		return false
-	}
-	return true
-}
-
-// Temporary method to check if command is relevant
-func isNotChannelCommand(q string) bool {
-	switch q {
-	case "inspire":
-		return false
-	}
-	return true
-}
-
-// This function will be called (due to AddHandler above) every time a new
-// message is created on any channel that the authenticated bot has access to.
-func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
-
-	// Ignore all messages created by the bot itself
-	// This isn't required in this specific example but it's a good practice.
-	if m.Author.ID == s.State.User.ID {
-		return
-	}
-	// If the message is "ping" reply with "Pong!"
-	if m.Content == "inspire" {
-		bttp := util.NewBloopyClient()
-		embed := &discordgo.MessageEmbed{
-			Author: &discordgo.MessageEmbedAuthor{},
-			Image: &discordgo.MessageEmbedImage{
-				URL: bttp.Inspiro_api.GetInspiro(),
-			},
-		}
-		s.ChannelMessageSendEmbed(m.ChannelID, embed)
-	}
-
-	// If the message is "pong" reply with "Ping!"
-	if m.Content == "pong" {
-		s.ChannelMessageSend(m.ChannelID, "Ping!")
-	}
-
-	if m.Content == "Pong!" {
-		s.ChannelMessageSend(m.ChannelID, "-_-")
-	}
 }

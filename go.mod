@@ -22,7 +22,7 @@ require (
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/google/gnostic v0.5.7-v3refs // indirect
 	github.com/google/gofuzz v1.1.0 // indirect
-	github.com/imdario/mergo v0.3.5 // indirect
+	github.com/imdario/mergo v0.3.12 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/mailru/easyjson v0.7.6 // indirect
@@ -43,7 +43,7 @@ require (
 	k8s.io/utils v0.0.0-20220210201930-3a6ce19ff2f9 // indirect
 	sigs.k8s.io/json v0.0.0-20211208200746-9f7c6b3444d2 // indirect
 	sigs.k8s.io/structured-merge-diff/v4 v4.2.1 // indirect
-	sigs.k8s.io/yaml v1.2.0 // indirect
+	sigs.k8s.io/yaml v1.3.0 // indirect
 )
 
 require (
@@ -62,6 +62,7 @@ require (
 	github.com/subosito/gotenv v1.4.0 // indirect
 	github.com/tidwall/gjson v1.14.3 // indirect
 	golang.org/x/crypto v0.0.0-20220817201139-bc19a97f63c8 // indirect
+	golang.org/x/sync v0.0.0-20220819030929-7fc1605a5dde
 	golang.org/x/sys v0.0.0-20220818161305-2296e01440c6 // indirect
 	golang.org/x/text v0.3.7 // indirect
 	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
@@ -69,4 +70,5 @@ require (
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	k8s.io/client-go v0.24.4
+	sigs.k8s.io/controller-runtime v0.12.3
 )
