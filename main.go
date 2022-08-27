@@ -44,6 +44,7 @@ var (
 	RegisteredCommands []*discordgo.ApplicationCommand
 	RemoveCommands     = true
 	s *discordgo.Session
+
 )
 
 func init() {

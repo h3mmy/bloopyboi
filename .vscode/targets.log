@@ -8,7 +8,7 @@ makefile:17: *** missing separator.  Stop.
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Sun Aug 21 12:49:58 2022
+# Make data base, printed on Fri Aug 26 22:46:18 2022
 
 # Variables
 
@@ -67,11 +67,11 @@ GOPATH = /home/h3mmy/.go
 # environment
 NVM_BIN = /home/h3mmy/.nvm/versions/node/v16.13.2/bin
 # makefile (from 'makefile', line 3)
-PKG_LIST := gitlab.com/h3mmy/bloopyboi gitlab.com/h3mmy/bloopyboi/bot/discord gitlab.com/h3mmy/bloopyboi/bot/discord/commands gitlab.com/h3mmy/bloopyboi/bot/internal/config gitlab.com/h3mmy/bloopyboi/bot/internal/log gitlab.com/h3mmy/bloopyboi/bot/k8s gitlab.com/h3mmy/bloopyboi/bot/providers gitlab.com/h3mmy/bloopyboi/bot/util
+PKG_LIST := gitlab.com/h3mmy/bloopyboi gitlab.com/h3mmy/bloopyboi/bot/discord gitlab.com/h3mmy/bloopyboi/bot/discord/commands gitlab.com/h3mmy/bloopyboi/bot/internal/config gitlab.com/h3mmy/bloopyboi/bot/internal/database gitlab.com/h3mmy/bloopyboi/bot/internal/log gitlab.com/h3mmy/bloopyboi/bot/internal/models gitlab.com/h3mmy/bloopyboi/bot/k8s gitlab.com/h3mmy/bloopyboi/bot/k8s/arr gitlab.com/h3mmy/bloopyboi/bot/providers gitlab.com/h3mmy/bloopyboi/bot/util
 # environment
 ELECTRON_RUN_AS_NODE = 1
 # environment
-VSCODE_IPC_HOOK_CLI = /tmp/vscode-ipc-3f702557-664f-4752-a7c9-91d87ab700c8.sock
+VSCODE_IPC_HOOK_CLI = /tmp/vscode-ipc-ef57dc0c-84fd-4d3f-8703-9c8d142a26fc.sock
 # default
 .FEATURES := target-specific order-only second-expansion else-if shortest-stem undefine oneshell archives jobserver output-sync check-symlink load
 # environment
@@ -85,9 +85,9 @@ PWD = /mnt/c/Users/Zak/Code/projects/bloopyboii
 # makefile (from 'makefile', line 2)
 PKG := "gitlab.com/h3mmy/"bloopyboi""
 # environment
-WSL_INTEROP = /run/WSL/11194_interop
+WSL_INTEROP = /run/WSL/2145_interop
 # environment
-WT_SESSION = 9ca6ac50-37ba-49d8-94ad-5599701beb54
+WT_SESSION = 0d5e17c9-3370-4772-a786-95ecd2c54864
 # environment
 MANPATH = /home/linuxbrew/.linuxbrew/share/man:
 # environment
@@ -177,7 +177,7 @@ SUFFIXES :=
 # default
 .INCLUDE_DIRS = /usr/include /usr/local/include /usr/include
 # makefile (from 'makefile', line 4)
-GO_FILES := ./bot/discord/commands/channel_messages.go ./bot/discord/commands/direct_messages.go ./bot/discord/commands/slash_commands.go ./bot/discord/discord.go ./bot/internal/config/config.go ./bot/internal/log/log.go ./bot/k8s/client.go ./bot/providers/config.go ./bot/providers/healthCheck.go ./bot/providers/log.go ./bot/util/httpClient.go ./bot/util/inspiroClient.go ./main.go
+GO_FILES := ./bot/discord/commands/channel_messages.go ./bot/discord/commands/direct_messages.go ./bot/discord/commands/slash_commands.go ./bot/discord/discord.go ./bot/internal/config/config.go ./bot/internal/database/database.go ./bot/internal/log/log.go ./bot/internal/models/users.go ./bot/k8s/arr/arr_client.go ./bot/k8s/client.go ./bot/providers/config.go ./bot/providers/database.go ./bot/providers/healthCheck.go ./bot/providers/log.go ./bot/util/httpClient.go ./bot/util/inspiroClient.go ./main.go
 # default
 .RECIPEPREFIX := 
 # environment
@@ -271,6 +271,7 @@ fmt:
 	gofmt -l -w -s .
 
 lint:
+ 
 #  Implicit rule search has not been done.
 #  Modification time never checked.
 #  File has not been updated.
@@ -278,7 +279,6 @@ lint:
 	golangci-lint run
 
 # files hash-table stats:
- 
 # Load=13/1024=1%, Rehash=0, Collisions=0/28=0%
 # VPATH Search Paths
 
@@ -292,6 +292,6 @@ lint:
 # strcache performance: lookups = 53 / hit rate = 28%
 # hash-table stats:
 # Load=38/8192=0%, Rehash=0, Collisions=1/53=2%
-# Finished Make data base on Sun Aug 21 12:49:58 2022
+# Finished Make data base on Fri Aug 26 22:46:18 2022
 
  

@@ -12,24 +12,34 @@ var (
 )
 
 // Bot Config
-type Config struct {
-	BotToken string
-	BotName  string
-	AppId    int64
-	Features []FeatureConfig
-	LogLevel string
+type BotConfig struct {
+	BotToken	string			`mapstructure:"botToken"`
+	BotName		string			`mapstructure:"botName"`
+	AppId		int64			`mapstructure:"appId"`
+	Features	[]FeatureConfig
+	LogLevel	string			`mapstructure:"logLevel"`
+	DBConfig	BloopyDBConfig	`mapstructure:"db"`
 }
 
 // Feature Specific Config
 type FeatureConfig struct {
-	Name    string
-	Enabled bool
-	Data    map[string]string
+	Name		string				`mapstructure:"name"`
+	Enabled		bool				`mapstructure:"enabled"`
+	Data		map[string]string
 }
 
+type BloopyDBConfig struct {
+	Type			string		`mapstructure:"type"`
+	Host			string		`mapstructure:"host"`
+	Port			string		`mapstructure:"port"`
+	User			string		`mapstructure:"user"`
+	Password		string		`mapstructure:"password"`
+}
+
+
 // GetConfig returns bloopyboi configuration
-func GetConfig() (*Config, error) {
-	var c Config
+func GetConfig() (*BotConfig, error) {
+	var c BotConfig
 	err := viper.Unmarshal(&c)
 	if err != nil {
 		return nil, err
@@ -38,7 +48,7 @@ func GetConfig() (*Config, error) {
 	return &c, nil
 }
 
-func (myConfig *Config) GetFeatureConfig(name string) (FeatureConfig, error) {
+func (myConfig *BotConfig) GetFeatureConfig(name string) (FeatureConfig, error) {
 	for _, feat := range myConfig.Features {
 		if feat.Name == name {
 			return feat, nil
