@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"strings"
 	"github.com/bwmarrin/discordgo"
 	"gitlab.com/h3mmy/bloopyboi/bot/util"
 )
@@ -15,7 +16,7 @@ func MessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 	// If the message is "ping" reply with "Pong!"
-	if m.Content == "inspire" {
+	if strings.ToLower(m.Content) == "inspire" {
 		bttp := util.NewBloopyClient()
 		embed := &discordgo.MessageEmbed{
 			Author: &discordgo.MessageEmbedAuthor{},
