@@ -29,6 +29,7 @@ type FeatureConfig struct {
 }
 
 type BloopyDBConfig struct {
+	Name			string		`mapstructure:"name"`
 	Type			string		`mapstructure:"type"`
 	Host			string		`mapstructure:"host"`
 	Port			string		`mapstructure:"port"`
@@ -56,4 +57,12 @@ func (myConfig *BotConfig) GetFeatureConfig(name string) (FeatureConfig, error) 
 	}
 	logger.Error("Could not find config for feature", name)
 	return FeatureConfig{}, errors.New("could not find config for feature")
+}
+
+func (myConfig *BotConfig) GetConfiguredFeatureNames() []string {
+	var names []string
+	for _, feat := range myConfig.Features {
+		names = append(names, feat.Name)
+	}
+	return names
 }
