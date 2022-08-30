@@ -22,6 +22,7 @@ import (
 	"os/signal"
 	"syscall"
 
+	"gitlab.com/h3mmy/bloopyboi/bot"
 	"gitlab.com/h3mmy/bloopyboi/bot/discord"
 	bloopyCommands "gitlab.com/h3mmy/bloopyboi/bot/discord/commands"
 	"gitlab.com/h3mmy/bloopyboi/bot/providers"
@@ -114,6 +115,12 @@ func main() {
 	// Start the HTTP server
 	log.Fatalln(http.ListenAndServe(":3000", nil))
 
+	bloopyboi := bot.NewBoi(
+		commonLogger.WithField(botLogFieldKey, "Controller"),
+		discordClient,
+		&readinessChecker)
+
+	bloopyboi.DB.Begin()
 	// Wait here until CTRL-C or other term signal is received.
 	fmt.Println("Bot is now running. Press CTRL-C to exit.")
 

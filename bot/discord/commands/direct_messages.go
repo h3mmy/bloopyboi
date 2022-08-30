@@ -27,6 +27,11 @@ func DirectMessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	if IsNotDMCommand(m.Content) {
 		return
 	}
+
+	// Start typing indicator
+	typingStop := make(chan bool, 1)
+	go typeInChannel(typingStop, s, m.ChannelID)
+
 	// We create the private channel with the user who sent the message.
 	channel, err := s.UserChannelCreate(m.Author.ID)
 	if err != nil {
@@ -38,6 +43,7 @@ func DirectMessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		//    label us as abusing the endpoint, blocking us from opening
 		//    new ones.
 		fmt.Println("error creating channel:", err)
+		typingStop <- true
 		s.ChannelMessageSend(
 			m.ChannelID,
 			"Something went wrong while sending the DM!",
@@ -45,6 +51,7 @@ func DirectMessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 	// Then we send the message through the channel we created.
+	typingStop <- true
 	_, err = s.ChannelMessageSend(channel.ID, "Pong!")
 	if err != nil {
 		// If an error occurred, we failed to send the message.

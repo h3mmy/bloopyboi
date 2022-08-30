@@ -15,6 +15,11 @@ func MessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	if m.Author.ID == s.State.User.ID {
 		return
 	}
+
+	// Start typing indicator
+	typingStop := make(chan bool, 1)
+	go typeInChannel(typingStop, s, m.ChannelID)
+
 	// If the message is "ping" reply with "Pong!"
 	if strings.ToLower(m.Content) == "inspire" {
 		bttp := util.NewBloopyClient()
@@ -24,15 +29,18 @@ func MessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 				URL: bttp.Inspiro_api.GetInspiro(),
 			},
 		}
+		typingStop <- true
 		s.ChannelMessageSendEmbed(m.ChannelID, embed)
 	}
 
 	// If the message is "pong" reply with "Ping!"
 	if m.Content == "pong" {
+		typingStop <- true
 		s.ChannelMessageSend(m.ChannelID, "Ping!")
 	}
 
 	if m.Content == "Pong!" {
+		typingStop <- true
 		s.ChannelMessageSend(m.ChannelID, "-_-")
 	}
 }
