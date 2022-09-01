@@ -16,12 +16,12 @@ func MessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
-	// Start typing indicator
-	typingStop := make(chan bool, 1)
-	go typeInChannel(typingStop, s, m.ChannelID)
 
 	// If the message is "ping" reply with "Pong!"
 	if strings.ToLower(m.Content) == "inspire" {
+		// Start typing indicator
+		typingStop := make(chan bool, 1)
+		go typeInChannel(typingStop, s, m.ChannelID)
 		bttp := util.NewBloopyClient()
 		embed := &discordgo.MessageEmbed{
 			Author: &discordgo.MessageEmbedAuthor{},
@@ -35,12 +35,18 @@ func MessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 	// If the message is "pong" reply with "Ping!"
 	if m.Content == "pong" {
-		typingStop <- true
+		// Start typing indicator
+		typingStop := make(chan bool, 1)
+		go typeInChannel(typingStop, s, m.ChannelID)
 		s.ChannelMessageSend(m.ChannelID, "Ping!")
+		typingStop <- true
 	}
 
 	if m.Content == "Pong!" {
-		typingStop <- true
+		// Start typing indicator
+		typingStop := make(chan bool, 1)
+		go typeInChannel(typingStop, s, m.ChannelID)
 		s.ChannelMessageSend(m.ChannelID, "-_-")
+		typingStop <- true
 	}
 }
