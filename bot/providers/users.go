@@ -1,9 +1,9 @@
 package providers
 
-import "gitlab.com/h3mmy/bloopyboi/bot/internal/models"
+import "gitlab.com/h3mmy/bloopyboi/bot/internal/model"
 
-func GetUser(bloopyId string) models.User {
-	return models.User{
+func GetUser(bloopyId string) model.User {
+	return model.User{
 		ID: "iamauser",
 	}
 }

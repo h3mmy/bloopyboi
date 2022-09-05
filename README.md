@@ -8,6 +8,10 @@ Still a work in progress. Templates still alive below.
 
 ## Description
 
+Bot that can be linked to a discord server. Is able to register slash commands and DMs. Includes a command to generate an inspirobot image.
+
+Runs in a container, and comes with a helm chart for k8s integration (WIP)
+
 Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
 
 ## Badges

@@ -22,10 +22,8 @@ import (
 	"os/signal"
 	"syscall"
 
-	"gitlab.com/h3mmy/bloopyboi/bot/discord"
-	bloopyCommands "gitlab.com/h3mmy/bloopyboi/bot/discord/commands"
+	"gitlab.com/h3mmy/bloopyboi/bot"
 	"gitlab.com/h3mmy/bloopyboi/bot/providers"
-	"golang.org/x/sync/errgroup"
 	"sigs.k8s.io/controller-runtime/pkg/manager/signals"
 
 	"github.com/alexliesenfeld/health"
@@ -43,7 +41,6 @@ var (
 	Token              string
 	RegisteredCommands []*discordgo.ApplicationCommand
 	RemoveCommands     = true
-	s *discordgo.Session
 
 )
 
@@ -60,56 +57,42 @@ func init() {
 	}
 }
 
-// Register functions as callbacks for varios signatures
-func addHandlers(s *discordgo.Session) {
-	s.AddHandler(func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-		if h, ok := bloopyCommands.CommandHandlers[i.ApplicationCommandData().Name]; ok {
-			h(s, i)
-		}
-	})
-	s.AddHandler(bloopyCommands.MessageCreate)
-	s.AddHandler(bloopyCommands.DirectMessageCreate)
-}
-
 // Where the magic happens
 func main() {
 
 	ctx := signals.SetupSignalHandler()
 	ctx, cancelCtxFn := context.WithCancel(ctx)
 
-	defer cancelCtxFn()
-
-	errGroup, ctx := errgroup.WithContext(ctx)
+	go func() {
+		sCh := make(chan os.Signal, 1)
+		signal.Notify(sCh, syscall.SIGINT, syscall.SIGTERM, os.Kill, os.Interrupt)
+		<-sCh
+		cancelCtxFn()
+	}()
 
 	logger := logrus.New()
 	logger.Formatter = &logrus.TextFormatter{FullTimestamp: true, DisableColors: false}
 
 	commonLogger := logger.WithField("common", "group")
 
-	discordClient, err := discord.NewDiscordClient(commonLogger.WithField(botLogFieldKey, "Discord"))
-	if err != nil {
-		logger.Panicf("Error Creating Discord Client %v", err)
-		return
-	}
+	boi := bot.New()
+	boi.WithLogger(commonLogger.WithField(botLogFieldKey, "BloopyBoi"))
 
-	errGroup.Go(func() error {
-		return discordClient.Start(ctx)
-	})
-
-	ctx = context.WithValue(ctx, "customReady", "true")
-
-	readinessChecker := providers.NewReadinessChecker()
+	go boi.Start(ctx)
 
 	// Liveness check should mostly contain checks that identify if the service is locked up or in a state that it
 	// cannot recover from (deadlocks, etc.). In most cases it should just respond with 200 OK to avoid unexpected
 	// restarts.
 	livenessChecker := health.NewChecker()
 
+	readinessChecker := providers.NewReadinessChecker()
+
 	// Create a new health check http.Handler that returns the health status
 	// serialized as a JSON string. You can pass pass further configuration
 	// options to NewHandler to modify default configuration.
 	http.Handle("/healthz", health.NewHandler(livenessChecker))
 	http.Handle("/ready", health.NewHandler(readinessChecker))
+
 
 	// Start the HTTP server
 	log.Fatalln(http.ListenAndServe(":3000", nil))
@@ -121,8 +104,5 @@ func main() {
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
 	<-stop
-
-	// Cleanly close down the Discord session.
-	defer s.Close()
 
 }

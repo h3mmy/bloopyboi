@@ -1,6 +1,8 @@
 package bot
 
 import (
+	"context"
+
 	"github.com/alexliesenfeld/health"
 	"github.com/bwmarrin/discordgo"
 	"github.com/google/uuid"
@@ -8,7 +10,12 @@ import (
 	"gitlab.com/h3mmy/bloopyboi/bot/discord"
 	"gitlab.com/h3mmy/bloopyboi/bot/internal/config"
 	"gitlab.com/h3mmy/bloopyboi/bot/providers"
+	"golang.org/x/sync/errgroup"
 	"gorm.io/gorm"
+)
+
+const (
+	botLogFieldKey = "bot"
 )
 
 type BloopyBoi struct {
@@ -16,40 +23,75 @@ type BloopyBoi struct {
 	DB					*gorm.DB
 	DiscordClient		*discord.DiscordClient
 	Config				*config.BotConfig
-	ReadinessChecker	*health.Checker
+	Status				*health.AvailabilityStatus
 }
 
-func New(log				logrus.FieldLogger,
-		db					*gorm.DB,
-		discordClient		*discord.DiscordClient,
-		config				*config.BotConfig,
-		readinessChecker	*health.Checker) *BloopyBoi {
-			return &BloopyBoi{
-				log:				log,
-				DB:					db,
-				DiscordClient:		discordClient,
-				Config:				config,
-				ReadinessChecker:	readinessChecker,
-			}
+func New() *BloopyBoi {
+	return &BloopyBoi{}
 }
 
-func NewBoi(log				logrus.FieldLogger,
-	discordClient		*discord.DiscordClient,
-	readinessChecker	*health.Checker) *BloopyBoi {
-		botConfig, err := config.GetConfig()
+func (bot *BloopyBoi) WithLogger(logger	logrus.FieldLogger) *BloopyBoi {
+	logger.Debug("Adding Logger to boi")
+	return &BloopyBoi{
+		log:			logger,
+	}
+}
+
+func (bot *BloopyBoi) Start(ctx context.Context) error {
+	if bot.log == nil {
+		bot.log = providers.CommonLogger.WithField(botLogFieldKey, "BloopyBoi")
+		bot.log.Info("No Logger Detected. Using default field logger")
+	}
+	errGroup, ctx := errgroup.WithContext(ctx)
+	errGroup.Go(func() error {
+		bot.log.Debug("Starting Discord Client...")
+		return bot.initializeDiscord(ctx)
+	})
+	errGroup.Go(func() error {
+		bot.log.Debug("Initializing Database...")
+		return bot.initializeDatabase(ctx)
+	})
+
+	<- ctx.Done()
+
+	bot.log.Info("Shutting down Boi. context should propogate")
+	return nil
+}
+
+func (bot *BloopyBoi) initializeDatabase(ctx context.Context) error {
+
+	botConfig, err := config.GetConfig()
 		if err != nil {
-			log.Error("Unable to get Config: ", err)
+			bot.log.Error("Unable to get Config: ", err)
 		}
-		dbMgr := providers.NewBloopyDBManager(botConfig)
-		dbMgr.InitSqliteDatabase()
+	dbMgr := providers.NewBloopyDBManager(botConfig)
+	dbMgr, err = dbMgr.WithSqliteDatabase()
+	if err != nil {
+		bot.log.Error("Error Initializing DB for boi")
+		return err
+	}
 
-		return &BloopyBoi{
-			log:				log,
-			DB:					dbMgr.GetDB(),
-			DiscordClient:		discordClient,
-			Config:				botConfig,
-			ReadinessChecker:	readinessChecker,
-		}
+	bot.DB, err = dbMgr.GetDB()
+	if err != nil {
+		bot.log.Error("Could not get DB for boi")
+		return err
+	}
+	return nil
+}
+
+func (bot *BloopyBoi) initializeDiscord(ctx context.Context) error {
+
+	discordClient, err := discord.NewDiscordClient(bot.log.WithField(botLogFieldKey, "Discord"))
+	if err != nil {
+		bot.log.Panicf("Error Creating Discord Client %v", err)
+		return err
+	}
+
+	bot.DiscordClient = discordClient
+
+	bot.log.Debug("Starting Discord Client...")
+	return bot.DiscordClient.Start(ctx)
+
 }
 
 // createMessageEvent logs a given message event into the database.

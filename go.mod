@@ -7,6 +7,8 @@ require (
 	github.com/onrik/logrus v0.9.0
 	github.com/sirupsen/logrus v1.9.0
 	github.com/spf13/viper v1.12.0
+	golift.io/starr v0.14.0
+	gorm.io/gorm v1.23.8
 )
 
 require (
@@ -36,7 +38,7 @@ require (
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/mailru/easyjson v0.7.6 // indirect
-	github.com/mattn/go-sqlite3 v1.14.12 // indirect
+	github.com/mattn/go-sqlite3 v1.14.13 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
@@ -44,11 +46,9 @@ require (
 	golang.org/x/oauth2 v0.0.0-20220411215720-9780585627b5 // indirect
 	golang.org/x/term v0.0.0-20210927222741-03fcf44c2211 // indirect
 	golang.org/x/time v0.0.0-20220210224613-90d013bbcef8 // indirect
-	golift.io/starr v0.14.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/protobuf v1.28.0 // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
-	gorm.io/gorm v1.23.8 // indirect
 	k8s.io/api v0.24.4 // indirect
 	k8s.io/apimachinery v0.24.4 // indirect
 	k8s.io/klog/v2 v2.60.1 // indirect
@@ -60,11 +60,13 @@ require (
 )
 
 require (
+	entgo.io/ent v0.11.2
 	github.com/alexliesenfeld/health v0.6.0
 	github.com/fsnotify/fsnotify v1.5.4 // indirect
 	github.com/google/uuid v1.3.0
 	github.com/gorilla/websocket v1.5.0 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
+	github.com/hellofresh/health-go/v4 v4.6.0
 	github.com/magiconair/properties v1.8.6 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/pelletier/go-toml v1.9.5 // indirect

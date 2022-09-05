@@ -42,3 +42,11 @@ func ParseLevel(logLevel string) logrus.Level {
 		return logrus.InfoLevel
 	}
 }
+
+// Setup New CommonLogger
+func DefaultBloopyFieldLogger() logrus.FieldLogger {
+	myLogger := logrus.New()
+	myLogger.Formatter = &logrus.TextFormatter{FullTimestamp: true, DisableColors: false}
+
+	return myLogger.WithField("common", "group")
+}

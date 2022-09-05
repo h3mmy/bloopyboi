@@ -15,6 +15,7 @@
 *.config.(^sample)
 config.yaml
 bloopyboi_dev
+bloopyboii_dev
 
 charts/*/Chart.lock
 charts/*/charts
