@@ -47,10 +47,10 @@ func (bot *BloopyBoi) Start(ctx context.Context) error {
 		bot.log.Debug("Starting Discord Client...")
 		return bot.initializeDiscord(ctx)
 	})
-	errGroup.Go(func() error {
-		bot.log.Debug("Initializing Database...")
-		return bot.initializeDatabase(ctx)
-	})
+	// errGroup.Go(func() error {
+	// 	bot.log.Debug("Initializing Database...")
+	// 	return bot.initializeDatabase(ctx)
+	// })
 
 	<- ctx.Done()
 
