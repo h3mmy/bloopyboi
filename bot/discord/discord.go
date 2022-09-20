@@ -7,8 +7,8 @@ import (
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/sirupsen/logrus"
-	"gitlab.com/h3mmy/bloopyboi/bot/providers"
 	bloopyCommands "gitlab.com/h3mmy/bloopyboi/bot/discord/commands"
+	"gitlab.com/h3mmy/bloopyboi/bot/providers"
 )
 
 // customTimeFormat holds custom time format string.
@@ -21,11 +21,11 @@ const (
 )
 
 type DiscordClient struct {
-	botMentionRegex      *regexp.Regexp
-	log                  logrus.FieldLogger
-	botId                string
-	api                  *discordgo.Session
-	registeredCommands   []*discordgo.ApplicationCommand
+	botMentionRegex    *regexp.Regexp
+	log                logrus.FieldLogger
+	botId              string
+	api                *discordgo.Session
+	registeredCommands []*discordgo.ApplicationCommand
 }
 
 // Constructs new Discord Client
@@ -45,9 +45,9 @@ func NewDiscordClient(logger logrus.FieldLogger) (*DiscordClient, error) {
 		return nil, fmt.Errorf("Error Creating Discord Session: %w", err)
 	}
 	return &DiscordClient{
-		botId: botID,
-		api: s,
-		log: logger,
+		botId:           botID,
+		api:             s,
+		log:             logger,
 		botMentionRegex: botMentionRegex,
 	}, nil
 }
@@ -62,8 +62,11 @@ func (d *DiscordClient) Start(ctx context.Context) error {
 	})
 	d.api.AddHandler(bloopyCommands.MessageCreate)
 	d.api.AddHandler(bloopyCommands.DirectMessageCreate)
+	d.api.AddHandler(bloopyCommands.DirectedMessageReceive)
 
-	d.api.Identify.Intents = discordgo.IntentsGuildMessages
+	d.log.Debug("Registered Handlers...")
+
+	d.api.Identify.Intents = discordgo.IntentsGuildMessages | discordgo.IntentsDirectMessages
 	// Open a websocket connection to Discord and begin listening.
 	d.log.Info("Opening Websocket Connection")
 	err := d.api.Open()
@@ -82,7 +85,9 @@ func (d *DiscordClient) Start(ctx context.Context) error {
 		d.registeredCommands[i] = cmd
 	}
 
-	<- ctx.Done()
+	<-ctx.Done()
+
+	d.log.Info("Received ctx.Done() Exiting...")
 
 	d.log.Info("Removing registered commands...")
 	for _, v := range d.registeredCommands {
@@ -98,5 +103,6 @@ func (d *DiscordClient) Start(ctx context.Context) error {
 		return fmt.Errorf("while closing connection: %w", err)
 	}
 
+	d.log.Info("...Done")
 	return nil
 }

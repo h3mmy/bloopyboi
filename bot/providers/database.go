@@ -10,7 +10,7 @@ import (
 
 	"github.com/sirupsen/logrus"
 	"gitlab.com/h3mmy/bloopyboi/bot/internal/config"
-	"gitlab.com/h3mmy/bloopyboi/bot/internal/model"
+	"gitlab.com/h3mmy/bloopyboi/bot/internal/models"
 	"gorm.io/driver/postgres"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
@@ -87,7 +87,7 @@ func (dbMgr *BloopyDBManager) WithSqliteDatabase() (*BloopyDBManager, error) {
 
 	dbMgr.Type = "sqlite"
 
-	if err := db.AutoMigrate(&model.User{}); err != nil {
+	if err := db.AutoMigrate(&models.User{}); err != nil {
 		dbMgr.Logger.Error("Unable to migrate schemas: ", err)
 		return dbMgr, err
 	}
