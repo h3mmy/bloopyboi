@@ -22,7 +22,7 @@ var (
 						{
 							Author: &discordgo.MessageEmbedAuthor{},
 							Image: &discordgo.MessageEmbedImage{
-								URL: bttp.Inspiro_api.GetInspiro(),
+								URL: bttp.GetInspiroImageURL(),
 							},
 						},
 					},

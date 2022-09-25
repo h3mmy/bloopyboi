@@ -1,13 +1,40 @@
 package services
 
+import (
+	"gitlab.com/h3mmy/bloopyboi/bot/internal/log"
+	"gitlab.com/h3mmy/bloopyboi/bot/providers"
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
+)
+
 type InspiroClient struct {
-	Inspiro_api *InspiroService
+	inspiroService *InspiroService
+	logger *zap.Logger
 }
 
+// Creates New InspiroClient with specified Service
 func NewInspiroHttpClient(inspiro *InspiroService) *InspiroClient {
-	return &InspiroClient{Inspiro_api: inspiro}
+	lgr := log.NewZapLogger().With(zapcore.Field{
+		Key: providers.ServiceLoggerFieldKey,
+		Type: zapcore.StringType,
+		String: "inspiro",
+	})
+	return &InspiroClient{
+		inspiroService: inspiro,
+		logger: lgr,
+	}
 }
 
+// Creates New InspiroClient with default service
 func NewInspiroClient() *InspiroClient {
 	return NewInspiroHttpClient(NewInspiroService())
+}
+
+func (ic *InspiroClient) GetInspiroImageURL() string {
+	ic.logger.Debug("Getting Inspiro Image")
+	return ic.inspiroService.GetInspiro()
+}
+
+func (ic *InspiroClient) GetService() *InspiroService {
+	return ic.inspiroService
 }

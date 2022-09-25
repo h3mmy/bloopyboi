@@ -53,6 +53,8 @@ type InspiroService struct {
 func NewInspiroServiceWithConfig(myConfig InspiroConfig) *InspiroService {
 	lgr := log.NewZapLogger().With(zapcore.Field{
 		Key: providers.ServiceLoggerFieldKey,
+		Type: zapcore.StringType,
+		String: "inspiro",
 	})
 	return &InspiroService{
 		config: myConfig,

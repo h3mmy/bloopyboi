@@ -23,6 +23,12 @@ func MessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 
 	if strings.ToLower(m.Content) == "inspire" {
+		logger.Debug(
+			fmt.Sprintf(
+				"Received Inspiration Request from %s with ID %s",
+				m.Author.Username,
+				m.Author.ID),
+			)
 		// Start typing indicator
 		typingStop := make(chan bool, 1)
 		go typeInChannel(typingStop, s, m.ChannelID)
@@ -30,7 +36,7 @@ func MessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		embed := &discordgo.MessageEmbed{
 			Author: &discordgo.MessageEmbedAuthor{},
 			Image: &discordgo.MessageEmbedImage{
-				URL: bttp.Inspiro_api.GetInspiro(),
+				URL: bttp.GetInspiroImageURL(),
 			},
 		}
 		typingStop <- true
