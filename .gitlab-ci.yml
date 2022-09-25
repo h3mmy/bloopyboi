@@ -82,8 +82,6 @@ push_latest:
   image: docker:latest
   services:
     - docker:dind
-  needs:
-    - job: docker_build
   variables:
     # Disable fresh pull of source
     GIT_STRATEGY: none
@@ -106,8 +104,6 @@ push_tag:
   variables:
     GIT_STRATEGY: none
   stage: push
-  needs:
-    - job: docker_build
   only:
     refs:
       - tags
