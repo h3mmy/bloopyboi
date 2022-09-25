@@ -6,6 +6,7 @@ import (
 
 	"github.com/bwmarrin/discordgo"
 	"gitlab.com/h3mmy/bloopyboi/bot/internal/log"
+	"go.uber.org/zap/zapcore"
 )
 
 const (
@@ -13,7 +14,12 @@ const (
 )
 
 var (
-	logger = log.DefaultBloopyFieldLogger().WithField("package", "Discord.Commands")
+	logger = log.NewZapLogger().With(
+		zapcore.Field{
+			Key:    "bot",
+			Type:   zapcore.StringType,
+			String: "Discord.Commands",
+		})
 )
 
 // typeInChannel sets the typing indicator for a channel. The indicator is cleared

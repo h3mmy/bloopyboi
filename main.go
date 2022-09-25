@@ -24,11 +24,11 @@ import (
 
 	"gitlab.com/h3mmy/bloopyboi/bot"
 	"gitlab.com/h3mmy/bloopyboi/bot/providers"
+	"go.uber.org/zap/zapcore"
 	"sigs.k8s.io/controller-runtime/pkg/manager/signals"
 
 	"github.com/alexliesenfeld/health"
 	"github.com/bwmarrin/discordgo"
-	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
 
@@ -41,12 +41,11 @@ var (
 	Token              string
 	RegisteredCommands []*discordgo.ApplicationCommand
 	RemoveCommands     = true
-
 )
 
 func init() {
 	viper.SetConfigName("config")           // name of config file (without extension)
-	viper.SetConfigType("yaml") // REQUIRED if the config file does not have the extension in the name
+	viper.SetConfigType("yaml")             // REQUIRED if the config file does not have the extension in the name
 	viper.AddConfigPath("/config")          // path to look for the config file in
 	viper.AddConfigPath("$HOME/.bloopyboi") // call multiple times to add many search paths
 	viper.AddConfigPath(".")                // optionally look for config in the working directory
@@ -70,13 +69,19 @@ func main() {
 		cancelCtxFn()
 	}()
 
-	logger := logrus.New()
-	logger.Formatter = &logrus.TextFormatter{FullTimestamp: true, DisableColors: false}
-
-	commonLogger := logger.WithField("common", "group")
+	logger := providers.NewZapLogger()
+	commonLogger := logger.With(zapcore.Field{
+		Key:    "group",
+		Type:   zapcore.StringType,
+		String: "common",
+	})
 
 	boi := bot.New()
-	boi.WithLogger(commonLogger.WithField(botLogFieldKey, "BloopyBoi"))
+	boi.WithLogger(commonLogger.With(zapcore.Field{
+		Key:    botLogFieldKey,
+		Type:   zapcore.StringType,
+		String: "BloopyBoi",
+	}))
 
 	go boi.Start(ctx)
 
@@ -93,13 +98,11 @@ func main() {
 	http.Handle("/healthz", health.NewHandler(livenessChecker))
 	http.Handle("/ready", health.NewHandler(readinessChecker))
 
-
 	// Start the HTTP server
 	log.Fatalln(http.ListenAndServe(":3000", nil))
 
 	// Wait here until CTRL-C or other term signal is received.
 	fmt.Println("Bot is now running. Press CTRL-C to exit.")
-
 
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)

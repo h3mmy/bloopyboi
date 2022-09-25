@@ -2,7 +2,7 @@ package commands
 
 import (
 	"github.com/bwmarrin/discordgo"
-	"gitlab.com/h3mmy/bloopyboi/bot/util"
+	"gitlab.com/h3mmy/bloopyboi/bot/services"
 )
 
 var (
@@ -14,7 +14,7 @@ var (
 	}
 	CommandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
 		"inspire": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			bttp := util.NewBloopyClient()
+			bttp := services.NewInspiroClient()
 			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 				Type: discordgo.InteractionResponseChannelMessageWithSource,
 				Data: &discordgo.InteractionResponseData{

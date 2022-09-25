@@ -14,7 +14,29 @@ image:
 # @default -- See below
 env:
   # -- Set the container timezone
-  TZ: UTC
+  - name: TZ
+    value: UTC
+  # Downward API stuff. TODO move into template
+  - name: NODE_NAME
+    valueFrom:
+      fieldRef:
+        fieldPath: spec.nodeName
+  - name: POD_NAME
+    valueFrom:
+      fieldRef:
+        fieldPath: metadata.name
+  - name: POD_NAMESPACE
+    valueFrom:
+      fieldRef:
+        fieldPath: metadata.namespace
+  - name: POD_IP
+    valueFrom:
+      fieldRef:
+        fieldPath: status.podIP
+  - name: POD_SERVICE_ACCOUNT
+    valueFrom:
+      fieldRef:
+        fieldPath: spec.serviceAccountName
 
 # -- Configures bot settings for this instance.
 # @default -- See below

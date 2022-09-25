@@ -1,9 +1,15 @@
 package commands
 
 import (
+	"fmt"
 	"strings"
+
 	"github.com/bwmarrin/discordgo"
-	"gitlab.com/h3mmy/bloopyboi/bot/util"
+	"gitlab.com/h3mmy/bloopyboi/bot/services"
+)
+
+var (
+	textResponseMap = map[string]string{"pong": "Ping!", "Pong!": "-_-"}
 )
 
 // This function will be called (due to AddHandler above) every time a new
@@ -16,13 +22,11 @@ func MessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
-
-	// If the message is "ping" reply with "Pong!"
 	if strings.ToLower(m.Content) == "inspire" {
 		// Start typing indicator
 		typingStop := make(chan bool, 1)
 		go typeInChannel(typingStop, s, m.ChannelID)
-		bttp := util.NewBloopyClient()
+		bttp := services.NewInspiroClient()
 		embed := &discordgo.MessageEmbed{
 			Author: &discordgo.MessageEmbedAuthor{},
 			Image: &discordgo.MessageEmbedImage{
@@ -33,20 +37,20 @@ func MessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		s.ChannelMessageSendEmbed(m.ChannelID, embed)
 	}
 
-	// If the message is "pong" reply with "Ping!"
-	if m.Content == "pong" {
-		// Start typing indicator
-		typingStop := make(chan bool, 1)
-		go typeInChannel(typingStop, s, m.ChannelID)
-		s.ChannelMessageSend(m.ChannelID, "Ping!")
-		typingStop <- true
+	resp, ok := textResponseMap[m.Content]
+	if !ok {
+		// Means nothing stored for canned Response
+		return
 	}
-
-	if m.Content == "Pong!" {
-		// Start typing indicator
-		typingStop := make(chan bool, 1)
-		go typeInChannel(typingStop, s, m.ChannelID)
-		s.ChannelMessageSend(m.ChannelID, "-_-")
-		typingStop <- true
-	}
+	logger.Debug(
+		fmt.Sprintf(
+			"Received Message from %s with ID %s",
+			m.Author.Username,
+			m.Author.ID),
+		)
+	// Send with typing indicators
+	typingStop := make(chan bool, 1)
+	go typeInChannel(typingStop, s, m.ChannelID)
+	s.ChannelMessageSend(m.ChannelID, resp)
+	typingStop <- true
 }

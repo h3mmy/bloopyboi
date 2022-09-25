@@ -9,15 +9,15 @@ import (
 
 
 func onComponentStatusChanged(_ context.Context, name string, state health.CheckState) {
-	logger.Println(fmt.Sprintf("component %s changed status to %s", name, state.Status))
+	logger.Info(fmt.Sprintf("component %s changed status to %s", name, state.Status))
 }
 
 func onSystemStatusChanged(_ context.Context, state health.CheckerState) {
-	logger.Println(fmt.Sprintf("system status changed to %s", state.Status))
+	logger.Info(fmt.Sprintf("system status changed to %s", state.Status))
 }
 
 func onReadinessStatusChanged(_ context.Context, state health.CheckerState) {
-	logger.Println(fmt.Sprintf("readiness status changed to %s", state.Status))
+	logger.Info(fmt.Sprintf("readiness status changed to %s", state.Status))
 }
 
 func NewReadinessChecker() health.Checker {

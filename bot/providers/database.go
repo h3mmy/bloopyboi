@@ -8,9 +8,9 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/sirupsen/logrus"
 	"gitlab.com/h3mmy/bloopyboi/bot/internal/config"
 	"gitlab.com/h3mmy/bloopyboi/bot/internal/models"
+	"go.uber.org/zap"
 	"gorm.io/driver/postgres"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
@@ -18,14 +18,14 @@ import (
 )
 
 var (
-	sqlitePath	string = "/var/go-bloopyboi/local.sqlite"
+	sqlitePath string = "/var/go-bloopyboi/local.sqlite"
 )
 
 type BloopyDBManager struct {
-	Type		string
-	DB			*gorm.DB
-	Logger		*logrus.Logger
-	DbLogConfig	glogger.Interface
+	Type        string
+	DB          *gorm.DB
+	Logger      *zap.Logger
+	DbLogConfig glogger.Interface
 }
 
 func NewBloopyDBManager(botConfig *config.BotConfig) *BloopyDBManager {
@@ -35,8 +35,8 @@ func NewBloopyDBManager(botConfig *config.BotConfig) *BloopyDBManager {
 		logConfig = glogger.Default.LogMode(glogger.Info)
 	}
 	return &BloopyDBManager{
-		Logger:			logger,
-		DbLogConfig:	logConfig,
+		Logger:      logger,
+		DbLogConfig: logConfig,
 	}
 }
 
@@ -56,7 +56,7 @@ func (dbMgr *BloopyDBManager) WithPostgresDatabase(dbConfig *config.BloopyDBConf
 	db, err := gorm.Open(postgres.New(postgres.Config{DSN: dsn}), &gorm.Config{Logger: dbMgr.DbLogConfig})
 
 	if err != nil {
-		dbMgr.Logger.Error("Unable to initialize postgres session", err)
+		dbMgr.Logger.Sugar().Error("Unable to initialize postgres session", err)
 		return dbMgr, err
 	}
 
@@ -68,12 +68,12 @@ func (dbMgr *BloopyDBManager) WithPostgresDatabase(dbConfig *config.BloopyDBConf
 // Initializes sqliteDB. To be used for development
 func (dbMgr *BloopyDBManager) WithSqliteDatabase() (*BloopyDBManager, error) {
 	var sqlitePath string
-		// Create the folder path if it doesn't exist
+	// Create the folder path if it doesn't exist
 	_, err := os.Stat(sqlitePath)
 	if errors.Is(err, fs.ErrNotExist) {
 		dirPath := filepath.Dir(sqlitePath)
 		if err := os.MkdirAll(dirPath, 0660); err != nil {
-			dbMgr.Logger.Error("unable to make directory path ", dirPath, " err: ", err)
+			dbMgr.Logger.Sugar().Error("unable to make directory path ", dirPath, " err: ", err)
 			sqlitePath = "./local.db"
 			return dbMgr, err
 		}
@@ -81,14 +81,14 @@ func (dbMgr *BloopyDBManager) WithSqliteDatabase() (*BloopyDBManager, error) {
 	db, err := gorm.Open(sqlite.Open(sqlitePath), &gorm.Config{Logger: dbMgr.DbLogConfig})
 
 	if err != nil {
-		dbMgr.Logger.Error("Unable to initialize sqlite: ", err)
+		dbMgr.Logger.Sugar().Error("Unable to initialize sqlite: ", err)
 		return dbMgr, err
 	}
 
 	dbMgr.Type = "sqlite"
 
 	if err := db.AutoMigrate(&models.User{}); err != nil {
-		dbMgr.Logger.Error("Unable to migrate schemas: ", err)
+		dbMgr.Logger.Sugar().Error("Unable to migrate schemas: ", err)
 		return dbMgr, err
 	}
 

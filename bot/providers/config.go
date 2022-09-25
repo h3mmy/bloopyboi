@@ -2,6 +2,7 @@ package providers
 
 import (
 	"strings"
+
 	"gitlab.com/h3mmy/bloopyboi/bot/internal/config"
 )
 
@@ -9,7 +10,7 @@ import (
 func GetBotToken() string {
 	botConfig, err := config.GetConfig()
 	if err != nil {
-		logger.Error("Error Loading Config", err)
+		logger.Sugar().Error("Error Loading Config", err)
 	}
 	return botConfig.BotToken
 }
@@ -17,7 +18,7 @@ func GetBotToken() string {
 func GetBotName() string {
 	botConfig, err := config.GetConfig()
 	if err != nil {
-		logger.Error("Error Loading Config", err)
+		logger.Sugar().Error("Error Loading Config", err)
 	}
 	return botConfig.BotToken
 }
@@ -26,7 +27,17 @@ func GetBotName() string {
 func GetLogLevel() string {
 	botConfig, err := config.GetConfig()
 	if err != nil {
-		logger.Error("Error Loading Config", err)
+		logger.Sugar().Error("Error Loading Config", err)
 	}
 	return strings.ToLower(botConfig.LogLevel)
+}
+
+// Checks FeatureConfigs for key
+func IsFeaturedConfigured(key string) bool {
+	botConfig, err := config.GetConfig()
+	if err != nil {
+		logger.Sugar().Error("Error Loading Config", err)
+	}
+	_, ok := botConfig.FeatureMap[key]
+	return ok
 }

@@ -6,9 +6,9 @@ import (
 	"regexp"
 
 	"github.com/bwmarrin/discordgo"
-	"github.com/sirupsen/logrus"
 	bloopyCommands "gitlab.com/h3mmy/bloopyboi/bot/discord/commands"
 	"gitlab.com/h3mmy/bloopyboi/bot/providers"
+	"go.uber.org/zap"
 )
 
 // customTimeFormat holds custom time format string.
@@ -22,14 +22,14 @@ const (
 
 type DiscordClient struct {
 	botMentionRegex    *regexp.Regexp
-	log                logrus.FieldLogger
+	log                *zap.Logger
 	botId              string
 	api                *discordgo.Session
 	registeredCommands []*discordgo.ApplicationCommand
 }
 
 // Constructs new Discord Client
-func NewDiscordClient(logger logrus.FieldLogger) (*DiscordClient, error) {
+func NewDiscordClient(logger *zap.Logger) (*DiscordClient, error) {
 	// Get token
 	token := providers.GetBotToken()
 	botID := providers.GetBotName()
@@ -80,7 +80,7 @@ func (d *DiscordClient) Start(ctx context.Context) error {
 		// Leaving GuildId empty
 		cmd, err := d.api.ApplicationCommandCreate(d.api.State.User.ID, "", v)
 		if err != nil {
-			d.log.Panicf("Cannot create '%v' command: %v", v.Name, err)
+			d.log.Sugar().Panicf("Cannot create '%v' command: %v", v.Name, err)
 		}
 		d.registeredCommands[i] = cmd
 	}
@@ -93,7 +93,7 @@ func (d *DiscordClient) Start(ctx context.Context) error {
 	for _, v := range d.registeredCommands {
 		err := d.api.ApplicationCommandDelete(d.api.State.User.ID, "", v.ID)
 		if err != nil {
-			d.log.Panicf("Cannot delete '%v' command: %v", v.Name, err)
+			d.log.Sugar().Panicf("Cannot delete '%v' command: %v", v.Name, err)
 		}
 	}
 

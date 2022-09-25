@@ -1,18 +1,24 @@
-package util
+package services
 
 import (
+	"fmt"
 	"io"
 	"net/http"
 
 	"github.com/sirupsen/logrus"
 	"gitlab.com/h3mmy/bloopyboi/bot/internal/config"
 	"gitlab.com/h3mmy/bloopyboi/bot/internal/log"
+	"gitlab.com/h3mmy/bloopyboi/bot/providers"
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 )
 
-var logger = log.New()
-var InspiroFeatureName = "inspiro"
-var InspiroAPIKey = "api_url"
-var InspiroBackupURLKey = "backup_image_link"
+var (
+	logger              = log.New()
+	InspiroFeatureName  = "inspiro"
+	InspiroAPIKey       = "api_url"
+	InspiroBackupURLKey = "backup_image_link"
+)
 
 // Basically a static var for this 'Object'
 type InspiroConfig struct {
@@ -38,26 +44,31 @@ func GetInspiroConfig() InspiroConfig {
 }
 
 // should add uri validation
-type InspiroClient struct {
+type InspiroService struct {
 	config InspiroConfig
+	logger *zap.Logger
 }
 
-// 'Constructs' InspiroClient with declared Config
-func NewInspiroClientWithConfig(myConfig InspiroConfig) *InspiroClient {
-	return &InspiroClient{
+// 'Constructs' InspiroService with declared Config
+func NewInspiroServiceWithConfig(myConfig InspiroConfig) *InspiroService {
+	lgr := log.NewZapLogger().With(zapcore.Field{
+		Key: providers.ServiceLoggerFieldKey,
+	})
+	return &InspiroService{
 		config: myConfig,
+		logger: lgr,
 	}
 }
 
 // Abstracted 'Constructor'
-func NewInspiroClient() *InspiroClient {
-	return NewInspiroClientWithConfig(GetInspiroConfig())
+func NewInspiroService() *InspiroService {
+	return NewInspiroServiceWithConfig(GetInspiroConfig())
 }
 
 // returns raw uri as string without validation
-func (inspiroClient *InspiroClient) GetInspiro() string {
+func (inspiroService *InspiroService) GetInspiro() string {
 
-	image_link, err := http.Get(inspiroClient.config.API_url)
+	image_link, err := http.Get(inspiroService.config.API_url)
 
 	if err != nil {
 		return err.Error()
@@ -66,9 +77,9 @@ func (inspiroClient *InspiroClient) GetInspiro() string {
 
 	result, err := io.ReadAll(image_link.Body)
 	if err != nil {
-		logger.Error("IO Error while reading body", err)
+		inspiroService.logger.Sugar().Error("IO Error while reading body", err)
 		return err.Error()
 	}
-	logger.Debug("Got Link", result)
+	inspiroService.logger.Debug(fmt.Sprintf("Got Link %s", result))
 	return string(result)
 }

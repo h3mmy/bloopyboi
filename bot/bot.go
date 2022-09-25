@@ -6,10 +6,13 @@ import (
 	"github.com/alexliesenfeld/health"
 	"github.com/bwmarrin/discordgo"
 	"github.com/google/uuid"
-	"github.com/sirupsen/logrus"
 	"gitlab.com/h3mmy/bloopyboi/bot/discord"
 	"gitlab.com/h3mmy/bloopyboi/bot/internal/config"
+	"gitlab.com/h3mmy/bloopyboi/bot/internal/models"
 	"gitlab.com/h3mmy/bloopyboi/bot/providers"
+	"gitlab.com/h3mmy/bloopyboi/bot/services"
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 	"golang.org/x/sync/errgroup"
 	"gorm.io/gorm"
 )
@@ -19,27 +22,33 @@ const (
 )
 
 type BloopyBoi struct {
-	log					logrus.FieldLogger
-	DB					*gorm.DB
-	DiscordClient		*discord.DiscordClient
-	Config				*config.BotConfig
-	Status				*health.AvailabilityStatus
+	log             *zap.Logger
+	DB              *gorm.DB
+	DiscordClient   *discord.DiscordClient
+	Config          *config.BotConfig
+	Status          *health.AvailabilityStatus
+	ServiceRegistry models.ServiceRegistry
 }
 
 func New() *BloopyBoi {
 	return &BloopyBoi{}
 }
 
-func (bot *BloopyBoi) WithLogger(logger	logrus.FieldLogger) *BloopyBoi {
+func (bot *BloopyBoi) WithLogger(logger *zap.Logger) *BloopyBoi {
 	logger.Debug("Adding Logger to boi")
 	return &BloopyBoi{
-		log:			logger,
+		log: logger,
 	}
 }
 
 func (bot *BloopyBoi) Start(ctx context.Context) error {
 	if bot.log == nil {
-		bot.log = providers.CommonLogger.WithField(botLogFieldKey, "BloopyBoi")
+		bot.log = providers.NewZapLogger().With(
+			zapcore.Field{
+				Key:    botLogFieldKey,
+				Type:   zapcore.StringType,
+				String: "BloopyBoi",
+			})
 		bot.log.Info("No Logger Detected. Using default field logger")
 	}
 	errGroup, ctx := errgroup.WithContext(ctx)
@@ -48,11 +57,15 @@ func (bot *BloopyBoi) Start(ctx context.Context) error {
 		return bot.initializeDiscord(ctx)
 	})
 	// errGroup.Go(func() error {
+	// 	bot.log.Debug("Starting K8s Service")
+	// 	return bot.initializeK8sService(ctx)
+	// })
+	// errGroup.Go(func() error {
 	// 	bot.log.Debug("Initializing Database...")
 	// 	return bot.initializeDatabase(ctx)
 	// })
 
-	<- ctx.Done()
+	<-ctx.Done()
 
 	bot.log.Info("Shutting down Boi. context should propogate")
 	return nil
@@ -61,9 +74,9 @@ func (bot *BloopyBoi) Start(ctx context.Context) error {
 func (bot *BloopyBoi) initializeDatabase(ctx context.Context) error {
 
 	botConfig, err := config.GetConfig()
-		if err != nil {
-			bot.log.Error("Unable to get Config: ", err)
-		}
+	if err != nil {
+		bot.log.Sugar().Error("Unable to get Config: ", err)
+	}
 	dbMgr := providers.NewBloopyDBManager(botConfig)
 	dbMgr, err = dbMgr.WithSqliteDatabase()
 	if err != nil {
@@ -73,7 +86,7 @@ func (bot *BloopyBoi) initializeDatabase(ctx context.Context) error {
 
 	bot.DB, err = dbMgr.GetDB()
 	if err != nil {
-		bot.log.Error("Could not get DB for boi")
+		bot.log.Sugar().Error("Could not get DB for boi")
 		return err
 	}
 	return nil
@@ -81,9 +94,13 @@ func (bot *BloopyBoi) initializeDatabase(ctx context.Context) error {
 
 func (bot *BloopyBoi) initializeDiscord(ctx context.Context) error {
 
-	discordClient, err := discord.NewDiscordClient(bot.log.WithField(botLogFieldKey, "Discord"))
+	discordClient, err := discord.NewDiscordClient(bot.log.With(zapcore.Field{
+		Key:    botLogFieldKey,
+		Type:   zapcore.StringType,
+		String: "Discord",
+	}))
 	if err != nil {
-		bot.log.Panicf("Error Creating Discord Client %v", err)
+		bot.log.Sugar().Panicf("Error Creating Discord Client %v", err)
 		return err
 	}
 
@@ -92,6 +109,18 @@ func (bot *BloopyBoi) initializeDiscord(ctx context.Context) error {
 	bot.log.Debug("Starting Discord Client...")
 	return bot.DiscordClient.Start(ctx)
 
+}
+
+func (bot *BloopyBoi) initializeK8sService(ctx context.Context) error {
+	k8sService := services.NewK8sService()
+	for _, ns := range k8sService.ListNamespaces(ctx) {
+		bot.log.Sugar().Info(ns)
+	}
+	return nil
+}
+
+func (bot *BloopyBoi) initializeAuthentikService(ctx context.Context) error {
+	return nil
 }
 
 // createMessageEvent logs a given message event into the database.

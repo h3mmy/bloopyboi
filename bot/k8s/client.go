@@ -7,6 +7,7 @@ import (
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
+	"k8s.io/metrics/pkg/client/clientset/versioned"
 )
 
 var (
@@ -26,6 +27,18 @@ func GetClient() kubernetes.Interface {
 	return kubeClient
 }
 
+func GetMetricsClient() versioned.Clientset {
+	var kubeClient versioned.Clientset
+	_, err := rest.InClusterConfig()
+	if err != nil {
+		kubeClient = *getMetricsClientOutOfCluster()
+	} else {
+		kubeClient = *getMetricsClientInCluster()
+	}
+
+	return kubeClient
+}
+
 // GetClientInCluster returns a k8s clientset to the request from inside of cluster
 func getClientInCluster() kubernetes.Interface {
 	config, err := rest.InClusterConfig()
@@ -36,6 +49,21 @@ func getClientInCluster() kubernetes.Interface {
 	clientset, err := kubernetes.NewForConfig(config)
 	if err != nil {
 		logger.Fatalf("Can not create kubernetes client: %v", err)
+	}
+
+	return clientset
+}
+
+// GetClientInCluster returns a k8s clientset to the request from inside of cluster
+func getMetricsClientInCluster() *versioned.Clientset {
+	config, err := rest.InClusterConfig()
+	if err != nil {
+		logger.Fatalf("Can not get kubernetes config: %v", err)
+	}
+
+	clientset, err := versioned.NewForConfig(config)
+	if err != nil {
+		logger.Fatalf("Can not create metrics client: %v", err)
 	}
 
 	return clientset
@@ -60,6 +88,22 @@ func getClientOutOfCluster() kubernetes.Interface {
 
 	if err != nil {
 		logger.Fatalf("Cannot create new kubernetes client from config: %v", err)
+	}
+
+	return clientset
+}
+
+// GetClientOutOfCluster returns a k8s clientset to the request from outside of cluster
+func getMetricsClientOutOfCluster() *versioned.Clientset {
+	config, err := buildOutOfClusterConfig()
+	if err != nil {
+		logger.Fatalf("Cannot get kubernetes config: %v", err)
+	}
+
+	clientset, err := versioned.NewForConfig(config)
+
+	if err != nil {
+		logger.Fatalf("Cannot create new metrics client from config: %v", err)
 	}
 
 	return clientset
