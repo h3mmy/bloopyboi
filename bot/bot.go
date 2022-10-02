@@ -4,8 +4,6 @@ import (
 	"context"
 
 	"github.com/alexliesenfeld/health"
-	"github.com/bwmarrin/discordgo"
-	"github.com/google/uuid"
 	"gitlab.com/h3mmy/bloopyboi/bot/discord"
 	"gitlab.com/h3mmy/bloopyboi/bot/internal/config"
 	"gitlab.com/h3mmy/bloopyboi/bot/internal/models"
@@ -71,27 +69,6 @@ func (bot *BloopyBoi) Start(ctx context.Context) error {
 	return nil
 }
 
-func (bot *BloopyBoi) initializeDatabase(ctx context.Context) error {
-
-	botConfig, err := config.GetConfig()
-	if err != nil {
-		bot.log.Sugar().Error("Unable to get Config: ", err)
-	}
-	dbMgr := providers.NewBloopyDBManager(botConfig)
-	dbMgr, err = dbMgr.WithSqliteDatabase()
-	if err != nil {
-		bot.log.Error("Error Initializing DB for boi")
-		return err
-	}
-
-	bot.DB, err = dbMgr.GetDB()
-	if err != nil {
-		bot.log.Sugar().Error("Could not get DB for boi")
-		return err
-	}
-	return nil
-}
-
 func (bot *BloopyBoi) initializeDiscord(ctx context.Context) error {
 
 	discordClient, err := discord.NewDiscordClient(bot.log.With(zapcore.Field{
@@ -121,18 +98,4 @@ func (bot *BloopyBoi) initializeK8sService(ctx context.Context) error {
 
 func (bot *BloopyBoi) initializeAuthentikService(ctx context.Context) error {
 	return nil
-}
-
-// createMessageEvent logs a given message event into the database.
-func (bot *BloopyBoi) createMessageEvent(c string, m *discordgo.Message) {
-	uuid := uuid.New().String()
-	bot.DB.Create(&discord.MessageEvent{
-		UUID:           uuid,
-		AuthorId:       m.Author.ID,
-		AuthorUsername: m.Author.Username,
-		MessageId:      m.ID,
-		Command:        c,
-		ChannelId:      m.ChannelID,
-		ServerID:       m.GuildID,
-	})
 }

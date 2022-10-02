@@ -5,7 +5,6 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/sirupsen/logrus"
 	"gitlab.com/h3mmy/bloopyboi/bot/internal/config"
 	"gitlab.com/h3mmy/bloopyboi/bot/internal/log"
 	"gitlab.com/h3mmy/bloopyboi/bot/providers"
@@ -14,7 +13,7 @@ import (
 )
 
 var (
-	logger              = log.New()
+	logger              = log.NewZapLogger()
 	InspiroFeatureName  = "inspiro"
 	InspiroAPIKey       = "api_url"
 	InspiroBackupURLKey = "backup_image_link"
@@ -23,7 +22,7 @@ var (
 // Basically a static var for this 'Object'
 type InspiroConfig struct {
 	API_url           string
-	Logger            *logrus.Logger
+	Logger            *zap.Logger
 	Backup_image_link string
 }
 
@@ -31,11 +30,11 @@ type InspiroConfig struct {
 func GetInspiroConfig() InspiroConfig {
 	botConfig, err := config.GetConfig()
 	if err != nil {
-		logger.Error("Error loading config", err)
+		logger.Sugar().Error("Error loading config", err)
 	}
 	inspiroCfg, err := botConfig.GetFeatureConfig(InspiroFeatureName)
 	if err != nil {
-		logger.Error("Error loading FeatureConfig", err)
+		logger.Sugar().Error("Error loading FeatureConfig", err)
 	}
 	return InspiroConfig{
 		API_url:           inspiroCfg.Data[InspiroAPIKey],

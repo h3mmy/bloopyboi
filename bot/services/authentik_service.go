@@ -5,22 +5,23 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/sirupsen/logrus"
 	"gitlab.com/h3mmy/bloopyboi/bot/internal/log"
 	"gitlab.com/h3mmy/bloopyboi/bot/providers"
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 	api "goauthentik.io/api/v3"
 	"golang.org/x/sync/errgroup"
 )
 
 type AuthentikService struct {
 	client *api.APIClient
-	logger logrus.FieldLogger
+	logger *zap.Logger
 }
 
 func NewAuthentikService(clientgen *AuthentikClientGenerator) *AuthentikService {
 	return &AuthentikService{
 		client: clientgen.generateClient(),
-		logger: log.DefaultBloopyFieldLogger().WithField(providers.ServiceLoggerFieldKey, "authentik"),
+		logger: log.NewZapLogger().With(zapcore.Field{Key: providers.ServiceLoggerFieldKey, Type: zapcore.StringType, String: "authentik"}),
 	}
 }
 
@@ -33,7 +34,7 @@ func (s *AuthentikService) Verify(ctx context.Context) bool {
 	errGroup.Go(func() error {
 		_, res, err := s.client.CoreApi.CoreUsersList(ctx).Execute()
 		if err != nil {
-			s.logger.Error(err)
+			s.logger.Sugar().Error(err)
 			return err
 		}
 		if res.StatusCode >= 200 && res.StatusCode < 300 {

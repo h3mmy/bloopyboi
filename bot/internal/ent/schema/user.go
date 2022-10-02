@@ -15,7 +15,7 @@ type User struct {
 // Fields of the User.
 func (User) Fields() []ent.Field {
 	return []ent.Field{
-		field.UUID("ID", uuid.New()),
+		field.UUID("bloopyId", uuid.New()),
 		field.String("discordid").
 			Default("unknown"),
 		field.String("Plexid").
@@ -28,11 +28,11 @@ func (User) Fields() []ent.Field {
 // Edges of the User.
 func (User) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.To("requests", Request.Type),
 		// create an inverse-edge called "groups" of type `Group`
 		// and reference it to the "users" edge (in Group schema)
 		// explicitly using the `Ref` method.
 		edge.From("groups", Group.Type).
 			Ref("users"),
+			edge.To("mediaRequest", MediaRequest.Type),
 	}
 }

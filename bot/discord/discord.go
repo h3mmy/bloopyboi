@@ -7,8 +7,10 @@ import (
 
 	"github.com/bwmarrin/discordgo"
 	bloopyCommands "gitlab.com/h3mmy/bloopyboi/bot/discord/commands"
+	"gitlab.com/h3mmy/bloopyboi/bot/handlers"
 	"gitlab.com/h3mmy/bloopyboi/bot/providers"
 	"go.uber.org/zap"
+	"golang.org/x/sync/errgroup"
 )
 
 // customTimeFormat holds custom time format string.
@@ -66,7 +68,7 @@ func (d *DiscordClient) Start(ctx context.Context) error {
 
 	d.log.Debug("Registered Handlers...")
 
-	d.api.Identify.Intents = discordgo.IntentsGuildMessages | discordgo.IntentsDirectMessages
+	d.api.Identify.Intents = discordgo.IntentsGuildMessages | discordgo.IntentsDirectMessages | discordgo.IntentDirectMessageReactions | discordgo.IntentGuildMessageReactions | discordgo.IntentGuildEmojis
 	// Open a websocket connection to Discord and begin listening.
 	d.log.Info("Opening Websocket Connection")
 	err := d.api.Open()
@@ -84,6 +86,17 @@ func (d *DiscordClient) Start(ctx context.Context) error {
 		}
 		d.registeredCommands[i] = cmd
 	}
+
+	d.log.Info("Initializing Experimental Handler")
+	expHandler := getBloopyChanHandler(d.api)
+
+	ctx, cancelFn := context.WithCancel(ctx)
+	defer cancelFn()
+
+	errGroup, ctx := errgroup.WithContext(ctx)
+	errGroup.Go(func() error {
+		return expHandler.Start(ctx)
+	})
 
 	<-ctx.Done()
 
@@ -105,4 +118,12 @@ func (d *DiscordClient) Start(ctx context.Context) error {
 
 	d.log.Info("...Done")
 	return nil
+}
+
+func getBloopyChanHandler(s *discordgo.Session) *handlers.MessageChanBlooper {
+	createCh := bloopyCommands.NextMessageCreateC(s)
+	reactACh := bloopyCommands.NextMessageReactionAddC(s)
+	reactRCh := bloopyCommands.NextMessageReactionRemoveC(s)
+
+	return handlers.NewMessageChanBlooper(&createCh, &reactACh, &reactRCh)
 }
