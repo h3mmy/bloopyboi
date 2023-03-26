@@ -19,3 +19,5 @@ bloopyboii_dev
 
 charts/*/Chart.lock
 charts/*/charts
+
+*.log
