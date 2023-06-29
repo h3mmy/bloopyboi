@@ -8,6 +8,7 @@ import (
 	"github.com/bwmarrin/discordgo"
 	bloopyCommands "gitlab.com/h3mmy/bloopyboi/bot/discord/commands"
 	"gitlab.com/h3mmy/bloopyboi/bot/handlers"
+	"gitlab.com/h3mmy/bloopyboi/bot/internal/models"
 	"gitlab.com/h3mmy/bloopyboi/bot/providers"
 	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
@@ -58,11 +59,10 @@ func NewDiscordClient(logger *zap.Logger) (*DiscordClient, error) {
 func (d *DiscordClient) Start(ctx context.Context) error {
 	d.log.Info("Starting Bot")
 	d.api.AddHandler(func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-		if h, ok := bloopyCommands.CommandHandlers[i.ApplicationCommandData().Name]; ok {
+		if h, ok := providers.AppCommandHandlers[i.ApplicationCommandData().Name]; ok {
 			h(s, i)
 		}
 	})
-	d.api.AddHandler(bloopyCommands.MessageCreate)
 	d.api.AddHandler(bloopyCommands.DirectMessageCreate)
 	d.api.AddHandler(bloopyCommands.DirectedMessageReceive)
 
@@ -77,8 +77,8 @@ func (d *DiscordClient) Start(ctx context.Context) error {
 	}
 
 	d.log.Info("Registering Commands")
-	d.registeredCommands = make([]*discordgo.ApplicationCommand, len(bloopyCommands.Commands))
-	for i, v := range bloopyCommands.Commands {
+	d.registeredCommands = make([]*discordgo.ApplicationCommand, len(providers.AppCommands))
+	for i, v := range providers.AppCommands {
 		// Leaving GuildId empty
 		cmd, err := d.api.ApplicationCommandCreate(d.api.State.User.ID, "", v)
 		if err != nil {
@@ -88,7 +88,8 @@ func (d *DiscordClient) Start(ctx context.Context) error {
 	}
 
 	d.log.Info("Initializing Experimental Handler")
-	expHandler := getBloopyChanHandler(d.api)
+	msgSendChan := make(chan *models.DiscordMessageSendRequest, 20)
+	expHandler := getBloopyChanHandler(d.api, &msgSendChan)
 
 	ctx, cancelFn := context.WithCancel(ctx)
 	defer cancelFn()
@@ -96,6 +97,9 @@ func (d *DiscordClient) Start(ctx context.Context) error {
 	errGroup, ctx := errgroup.WithContext(ctx)
 	errGroup.Go(func() error {
 		return expHandler.Start(ctx)
+	})
+	errGroup.Go(func() error {
+		return bloopyCommands.StartChannelMessageActor(ctx, d.api, &msgSendChan)
 	})
 
 	<-ctx.Done()
@@ -120,10 +124,10 @@ func (d *DiscordClient) Start(ctx context.Context) error {
 	return nil
 }
 
-func getBloopyChanHandler(s *discordgo.Session) *handlers.MessageChanBlooper {
+func getBloopyChanHandler(s *discordgo.Session, msgSendChan *chan *models.DiscordMessageSendRequest) *handlers.MessageChanBlooper {
 	createCh := bloopyCommands.NextMessageCreateC(s)
 	reactACh := bloopyCommands.NextMessageReactionAddC(s)
 	reactRCh := bloopyCommands.NextMessageReactionRemoveC(s)
 
-	return handlers.NewMessageChanBlooper(&createCh, &reactACh, &reactRCh)
+	return handlers.NewMessageChanBlooper(&createCh, &reactACh, &reactRCh, msgSendChan)
 }

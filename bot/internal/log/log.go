@@ -17,7 +17,7 @@ func BaseZapConfig(level zapcore.Level) *zap.Config {
 
 // Generate new zap logger
 func NewZapLogger() *zap.Logger {
-	zapConfig := zap.NewDevelopmentConfig()
+	zapConfig := BaseZapConfig(zapcore.DebugLevel)
 
 	zlogger, _ := zapConfig.Build()
 	return zlogger.With(*zloggerCommonKey)

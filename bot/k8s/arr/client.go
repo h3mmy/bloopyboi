@@ -1,64 +1,64 @@
 package arr
 
 import (
-	"golift.io/starr"
-	"golift.io/starr/sonarr"
-	"golift.io/starr/radarr"
-	"golift.io/starr/prowlarr"
-	"golift.io/starr/readarr"
 	"gitlab.com/h3mmy/bloopyboi/bot/internal/config"
+	"golift.io/starr"
+	"golift.io/starr/prowlarr"
+	"golift.io/starr/radarr"
+	"golift.io/starr/readarr"
+	"golift.io/starr/sonarr"
 )
 
 var (
 	supportedFeatures = []BloopyArrFeature{
-		BloopyArrFeature{Name: "sonarr"},
-		BloopyArrFeature{Name: "sonarrUHD"},
-		BloopyArrFeature{Name: "radarr"},
-		BloopyArrFeature{Name: "radarrUHD"},
-		BloopyArrFeature{Name: "readarr"},
-		BloopyArrFeature{Name: "readarrAudio"},
-		BloopyArrFeature{Name: "prowlarr"},
+		{Name: "sonarr"},
+		{Name: "sonarrUHD"},
+		{Name: "radarr"},
+		{Name: "radarrUHD"},
+		{Name: "readarr"},
+		{Name: "readarrAudio"},
+		{Name: "prowlarr"},
 	}
 
 	featureMap = map[string]BloopyArrFeature{
-		"sonarr": supportedFeatures[0],
-		"sonarrUHD": supportedFeatures[1],
-		"radarr": supportedFeatures[2],
-		"radarrUHD": supportedFeatures[3],
-		"readarr": supportedFeatures[4],
+		"sonarr":       supportedFeatures[0],
+		"sonarrUHD":    supportedFeatures[1],
+		"radarr":       supportedFeatures[2],
+		"radarrUHD":    supportedFeatures[3],
+		"readarr":      supportedFeatures[4],
 		"readarrAudio": supportedFeatures[5],
-		"prowlarr": supportedFeatures[6],
+		"prowlarr":     supportedFeatures[6],
 	}
 )
 
 type BloopyArrFeature struct {
-	Name				string
-	ClientGenerator		func (params map[string]string) *starr.App
+	Name            string
+	ClientGenerator func(params map[string]string) *starr.App
 }
 
 type ArrFeature interface {
-	GetFeature()							*BloopyArrFeature
-	GenerateClient(config.FeatureConfig)	*starr.App
+	GetFeature() *BloopyArrFeature
+	GenerateClient(config.FeatureConfig) *starr.App
 }
 
 type FeatureKeys struct {
-	Sonarr			string
-	Radarr			string
-	SonarrUHD		string
-	RadarrUHD		string
-	Readarr			string
-	ReadarrAudio	string
-	Prowlarr		string
+	Sonarr       string
+	Radarr       string
+	SonarrUHD    string
+	RadarrUHD    string
+	Readarr      string
+	ReadarrAudio string
+	Prowlarr     string
 }
 
-type BloopyArrClientSet map[string] *starr.App;
+type BloopyArrClientSet map[string]*starr.App
 
 func NewArrClientSet(botConfig config.BotConfig) {
 
 }
 
 func GetBloopyArrClientSet(botConfig config.BotConfig) *BloopyArrClientSet {
-	var clientSet BloopyArrClientSet
+	var clientSet BloopyArrClientSet = make(map[string]*starr.App)
 	for _, featName := range botConfig.GetConfiguredFeatureNames() {
 		if isArrFeature(featName) {
 			feat := featureMap[featName]

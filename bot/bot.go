@@ -2,6 +2,7 @@ package bot
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/alexliesenfeld/health"
 	"gitlab.com/h3mmy/bloopyboi/bot/discord"
@@ -12,7 +13,6 @@ import (
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"golang.org/x/sync/errgroup"
-	"gorm.io/gorm"
 )
 
 const (
@@ -21,7 +21,6 @@ const (
 
 type BloopyBoi struct {
 	log             *zap.Logger
-	DB              *gorm.DB
 	DiscordClient   *discord.DiscordClient
 	Config          *config.BotConfig
 	Status          *health.AvailabilityStatus
@@ -49,6 +48,10 @@ func (bot *BloopyBoi) Start(ctx context.Context) error {
 			})
 		bot.log.Info("No Logger Detected. Using default field logger")
 	}
+
+	bot.log.Debug(fmt.Sprintf("FeatureMap contains %d entries", len(providers.GetFeatures())))
+	bot.log.Debug(fmt.Sprintf("Experimental is enabled: %v", providers.IsFeaturedConfigured("experimental")))
+
 	errGroup, ctx := errgroup.WithContext(ctx)
 	errGroup.Go(func() error {
 		bot.log.Debug("Starting Discord Client...")
@@ -57,10 +60,6 @@ func (bot *BloopyBoi) Start(ctx context.Context) error {
 	// errGroup.Go(func() error {
 	// 	bot.log.Debug("Starting K8s Service")
 	// 	return bot.initializeK8sService(ctx)
-	// })
-	// errGroup.Go(func() error {
-	// 	bot.log.Debug("Initializing Database...")
-	// 	return bot.initializeDatabase(ctx)
 	// })
 
 	<-ctx.Done()

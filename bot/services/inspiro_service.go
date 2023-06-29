@@ -7,7 +7,6 @@ import (
 
 	"gitlab.com/h3mmy/bloopyboi/bot/internal/config"
 	"gitlab.com/h3mmy/bloopyboi/bot/internal/log"
-	"gitlab.com/h3mmy/bloopyboi/bot/providers"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
@@ -51,8 +50,8 @@ type InspiroService struct {
 // 'Constructs' InspiroService with declared Config
 func NewInspiroServiceWithConfig(myConfig InspiroConfig) *InspiroService {
 	lgr := log.NewZapLogger().With(zapcore.Field{
-		Key: providers.ServiceLoggerFieldKey,
-		Type: zapcore.StringType,
+		Key:    ServiceLoggerFieldKey,
+		Type:   zapcore.StringType,
 		String: "inspiro",
 	})
 	return &InspiroService{

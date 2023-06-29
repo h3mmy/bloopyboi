@@ -6,7 +6,6 @@ import (
 	"fmt"
 
 	"gitlab.com/h3mmy/bloopyboi/bot/internal/log"
-	"gitlab.com/h3mmy/bloopyboi/bot/providers"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	api "goauthentik.io/api/v3"
@@ -21,7 +20,7 @@ type AuthentikService struct {
 func NewAuthentikService(clientgen *AuthentikClientGenerator) *AuthentikService {
 	return &AuthentikService{
 		client: clientgen.generateClient(),
-		logger: log.NewZapLogger().With(zapcore.Field{Key: providers.ServiceLoggerFieldKey, Type: zapcore.StringType, String: "authentik"}),
+		logger: log.NewZapLogger().With(zapcore.Field{Key: ServiceLoggerFieldKey, Type: zapcore.StringType, String: "authentik"}),
 	}
 }
 

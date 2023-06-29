@@ -8,7 +8,7 @@ import (
 // requires our attention
 type MessageEvent struct {
 	CreatedAt      time.Time
-	UUID           string `gorm:"primaryKey"`
+	UUID           string
 	AuthorId       string
 	AuthorUsername string
 	MessageId      string

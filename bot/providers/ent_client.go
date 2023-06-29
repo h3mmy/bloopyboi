@@ -12,6 +12,11 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
+const (
+	ServiceLoggerFieldKey = "service_name"
+)
+
+
 type BloopyEnt struct {
 	client *ent.Client
 	quit   *chan struct{}

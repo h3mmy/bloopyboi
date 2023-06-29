@@ -3,17 +3,25 @@ package handlers
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/bwmarrin/discordgo"
+	"gitlab.com/h3mmy/bloopyboi/bot/internal/models"
 	"gitlab.com/h3mmy/bloopyboi/bot/providers"
+	"gitlab.com/h3mmy/bloopyboi/bot/services"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
+)
+
+var (
+	textResponseMap = map[string]string{"pong": "Ping!", "Pong!": "-_-"}
 )
 
 type MessageChanBlooper struct {
 	msgCreateChan *chan *discordgo.MessageCreate
 	msgReactAChan *chan *discordgo.MessageReactionAdd
 	msgReactRChan *chan *discordgo.MessageReactionRemove
+	msgSendChan   *chan *models.DiscordMessageSendRequest
 	logger        *zap.Logger
 	msgRegistry   map[string]*discordgo.Message
 }
@@ -22,6 +30,7 @@ func NewMessageChanBlooper(
 	createCh *chan *discordgo.MessageCreate,
 	reactACh *chan *discordgo.MessageReactionAdd,
 	reactRCh *chan *discordgo.MessageReactionRemove,
+	msgSendChan *chan *models.DiscordMessageSendRequest,
 ) *MessageChanBlooper {
 
 	lgr := providers.NewZapLogger().With(zapcore.Field{
@@ -34,6 +43,7 @@ func NewMessageChanBlooper(
 		msgCreateChan: createCh,
 		msgReactAChan: reactACh,
 		msgReactRChan: reactRCh,
+		msgSendChan:   msgSendChan,
 		logger:        lgr,
 		msgRegistry:   make(map[string]*discordgo.Message),
 	}
@@ -66,10 +76,57 @@ func (mcb *MessageChanBlooper) Start(ctx context.Context) error {
 }
 
 func (mcb *MessageChanBlooper) processIncomingMessage(msg *discordgo.MessageCreate) {
+	logger := mcb.logger.With(zapcore.Field{Key: "method", Type: zapcore.StringType, String: "processIncomingMessage"})
 	mcb.logger.Debug(fmt.Sprintf("processing new message with ID %s from user %s", msg.ID, msg.Author.Username))
+
+	// Check for test message
 	if msg.Content == "test reaction thingy" {
-		mcb.logger.Debug(fmt.Sprintf("Adding msg %s from user %s to registry", msg.ID, msg.Author.Username))
+		logger.Debug(fmt.Sprintf("Adding msg %s from user %s to registry", msg.ID, msg.Author.Username))
 		mcb.msgRegistry[msg.ID] = msg.Message
+	}
+
+	// Check for inspiro request
+	if strings.ToLower(msg.Content) == "inspire" {
+		logger.Debug(
+			fmt.Sprintf(
+				"Received Inspiration Request from %s with ID %s",
+				msg.Author.Username,
+				msg.Author.ID),
+		)
+
+		bttp := services.NewInspiroClient()
+		embed := &discordgo.MessageEmbed{
+			Author: &discordgo.MessageEmbedAuthor{},
+			Image: &discordgo.MessageEmbedImage{
+				URL: bttp.GetInspiroImageURL(),
+			},
+		}
+		inspRes := &models.DiscordMessageSendRequest{
+			ChannelID: msg.ChannelID,
+			MessageComplex: &discordgo.MessageSend{
+				Embeds: []*discordgo.MessageEmbed{embed},
+			},
+		}
+		*mcb.msgSendChan <- inspRes
+	}
+
+	resp, ok := textResponseMap[msg.Content]
+	if !ok {
+		// Means nothing stored for canned Response
+		return
+	}
+	logger.Debug(
+		fmt.Sprintf(
+			"Received Message from %s with ID %s",
+			msg.Author.Username,
+			msg.Author.ID),
+	)
+
+	*mcb.msgSendChan <- &models.DiscordMessageSendRequest{
+		ChannelID: msg.ChannelID,
+		MessageComplex: &discordgo.MessageSend{
+			Content: resp,
+		},
 	}
 	return
 }

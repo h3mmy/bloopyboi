@@ -2,7 +2,6 @@ package services
 
 import (
 	"gitlab.com/h3mmy/bloopyboi/bot/internal/log"
-	"gitlab.com/h3mmy/bloopyboi/bot/providers"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
@@ -15,7 +14,7 @@ type InspiroClient struct {
 // Creates New InspiroClient with specified Service
 func NewInspiroHttpClient(inspiro *InspiroService) *InspiroClient {
 	lgr := log.NewZapLogger().With(zapcore.Field{
-		Key: providers.ServiceLoggerFieldKey,
+		Key: ServiceLoggerFieldKey,
 		Type: zapcore.StringType,
 		String: "inspiro",
 	})

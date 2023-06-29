@@ -9,7 +9,6 @@ import (
 
 	"gitlab.com/h3mmy/bloopyboi/bot/internal/log"
 	"gitlab.com/h3mmy/bloopyboi/bot/k8s"
-	"gitlab.com/h3mmy/bloopyboi/bot/providers"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	coreV1 "k8s.io/api/core/v1"
@@ -34,7 +33,7 @@ func NewK8sService() *K8sService {
 		botMeta:    &BotK8sMeta{},
 		kubeClient: k8s.GetClient(),
 		logger: log.NewZapLogger().With(zapcore.Field{
-			Key:    providers.ServiceLoggerFieldKey,
+			Key:    ServiceLoggerFieldKey,
 			Type:   zapcore.StringType,
 			String: "k8s",
 		}),

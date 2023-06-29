@@ -6,10 +6,6 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
-const (
-	ServiceLoggerFieldKey = "service_name"
-)
-
 var (
 	logger = log.NewZapLogger()
 )
