@@ -1,9 +1,33 @@
 {
     "yaml.schemas": {
-        "https://gitlab.com/gitlab-org/gitlab/-/raw/master/app/assets/javascripts/editor/schema/ci.json": "file:///c%3A/Users/Zak/code/projects/bloopyboii/.gitlab-ci.yml"
+        "https://gitlab.com/gitlab-org/gitlab/-/raw/master/app/assets/javascripts/editor/schema/ci.json": [
+            "file:///c%3A/Users/Zak/code/projects/bloopyboii/.gitlab-ci.yml"
+        ],
+        "https://json.schemastore.org/taskfile.json": [
+            "Taskfile.yaml",
+            ".taskfiles/*.yaml"
+          ],
+          "http://json.schemastore.org/github-workflow.json": [
+            ".github/workflows/*.yaml"
+          ],
+          "https://squidfunk.github.io/mkdocs-material/schema.json": [
+              "mkdocs.yml"
+          ]
     },
     "files.eol": "\n",
     "scm.alwaysShowRepositories": true,
     "git.alwaysSignOff": true,
-    "git.autoStash": true
+    "git.autoStash": true,
+
+
+"prettier.configPath": ".ci/prettier/.prettierrc.yaml",
+"prettier.ignorePath": ".ci/prettier/.prettierignore",
+
+"yaml.customTags": [
+  "!ENV scalar",
+  "!ENV sequence",
+  "tag:yaml.org,2002:python/name:material.extensions.emoji.to_svg",
+  "tag:yaml.org,2002:python/name:material.extensions.emoji.twemoji",
+  "tag:yaml.org,2002:python/name:pymdownx.superfences.fence_code_format"
+]
 }

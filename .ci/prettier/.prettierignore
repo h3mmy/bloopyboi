@@ -1,0 +1,8 @@
+.direnv
+.private
+.vscode
+*.sops.*
+
+*.go
+*.mod
+*.sum
