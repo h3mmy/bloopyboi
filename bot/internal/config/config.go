@@ -15,6 +15,7 @@ var (
 			Type:   zapcore.StringType,
 			String: "config",
 		}).Sugar()
+	currentConfig *AppConfig
 )
 
 // Bot Config
@@ -45,7 +46,7 @@ type BloopyDBConfig struct {
 }
 
 // GetConfig returns bloopyboi configuration
-func GetConfig() (*BotConfig, error) {
+func buildConfig() (*BotConfig, error) {
 	var c BotConfig
 	err := viper.Unmarshal(&c)
 	if err != nil {
@@ -101,4 +102,17 @@ func (myConfig *BotConfig) GetConfiguredFeatureNames() []string {
 		names = append(names, feat.Name)
 	}
 	return names
+}
+
+func GetAppConfig() *AppConfig {
+	if currentConfig != nil {
+		return currentConfig
+	}
+	botConfig, _ := buildConfig()
+	currentConfig = NewAppConfig(botConfig)
+	return currentConfig
+}
+
+func GetConfig() *BotConfig {
+	return GetAppConfig().GetConfig()
 }

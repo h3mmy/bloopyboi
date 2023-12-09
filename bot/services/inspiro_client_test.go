@@ -13,7 +13,7 @@ var stubInspiroService InspiroService = *NewInspiroServiceWithConfig(
 	},
 )
 
-func TestNewBloopyHttpClient(t *testing.T) {
+func TestNewInspiroClient(t *testing.T) {
 	type args struct {
 		inspiro *InspiroService
 	}
@@ -30,28 +30,32 @@ func TestNewBloopyHttpClient(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := NewInspiroHttpClient(tt.args.inspiro); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("NewBloopyHttpClient() = %v, want %v", got, tt.want)
+			if got := NewInspiroHttpClient(tt.args.inspiro); !reflect.DeepEqual(got.inspiroService, tt.want.inspiroService) {
+				t.Errorf("NewBloopyHttpClient() = %v, want %v", got.inspiroService, tt.want.inspiroService)
 			}
 		})
 	}
 }
 
-func TestNewBloopyClient(t *testing.T) {
+func TestGetsService(t *testing.T) {
+	type args struct {
+		inspiro *InspiroService
+	}
 	tests := []struct {
 		name string
-		want *InspiroClient
+		args args
+		want *InspiroService
 	}{
-		// Replace with actual useful test after learning how to mock in golang
 		{
 			name: "Constructs basic",
-			want: NewInspiroClient(),
+			args: args{inspiro: &stubInspiroService},
+			want: &stubInspiroService,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := NewInspiroClient(); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("NewBloopyClient() = %v, want %v", got, tt.want)
+			if got := NewInspiroHttpClient(tt.args.inspiro).GetService(); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("NewBloopyClient().GetService() = %v, want %v", got, tt.want)
 			}
 		})
 	}
