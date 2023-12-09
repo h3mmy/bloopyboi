@@ -8,7 +8,6 @@ import (
 	"github.com/bwmarrin/discordgo"
 	"gitlab.com/h3mmy/bloopyboi/bot/internal/models"
 	"gitlab.com/h3mmy/bloopyboi/bot/providers"
-	"gitlab.com/h3mmy/bloopyboi/bot/services"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
@@ -94,7 +93,7 @@ func (mcb *MessageChanBlooper) processIncomingMessage(msg *discordgo.MessageCrea
 				msg.Author.ID),
 		)
 
-		bttp := services.NewInspiroClient()
+		bttp := providers.GetInspiroClient()
 		embed := &discordgo.MessageEmbed{
 			Author: &discordgo.MessageEmbedAuthor{},
 			Image: &discordgo.MessageEmbedImage{

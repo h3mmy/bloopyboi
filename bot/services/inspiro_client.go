@@ -24,11 +24,6 @@ func NewInspiroHttpClient(inspiro *InspiroService) *InspiroClient {
 	}
 }
 
-// Creates New InspiroClient with default service
-func NewInspiroClient() *InspiroClient {
-	return NewInspiroHttpClient(NewInspiroService())
-}
-
 func (ic *InspiroClient) GetInspiroImageURL() string {
 	ic.logger.Debug("Getting Inspiro Image")
 	return ic.inspiroService.GetInspiro()

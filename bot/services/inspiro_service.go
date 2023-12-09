@@ -27,10 +27,7 @@ type InspiroConfig struct {
 
 // Unmarshal config from file
 func GetInspiroConfig() InspiroConfig {
-	botConfig, err := config.GetConfig()
-	if err != nil {
-		logger.Sugar().Error("Error loading config", err)
-	}
+	botConfig:= config.GetConfig()
 	inspiroCfg, err := botConfig.GetFeatureConfig(InspiroFeatureName)
 	if err != nil {
 		logger.Sugar().Error("Error loading FeatureConfig", err)
