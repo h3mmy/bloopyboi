@@ -5,8 +5,8 @@ import (
 	"io"
 	"net/http"
 
-	"gitlab.com/h3mmy/bloopyboi/bot/internal/config"
-	"gitlab.com/h3mmy/bloopyboi/bot/internal/log"
+	"github.com/h3mmy/bloopyboi/bot/internal/config"
+	"github.com/h3mmy/bloopyboi/bot/internal/log"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
@@ -27,8 +27,8 @@ type InspiroConfig struct {
 
 // Unmarshal config from file
 func GetInspiroConfig() InspiroConfig {
-	botConfig:= config.GetConfig()
-	inspiroCfg, err := botConfig.GetFeatureConfig(InspiroFeatureName)
+	AppConfig := config.GetConfig()
+	inspiroCfg, err := AppConfig.GetFeatureConfig(InspiroFeatureName)
 	if err != nil {
 		logger.Sugar().Error("Error loading FeatureConfig", err)
 	}

@@ -5,12 +5,12 @@ package enttest
 import (
 	"context"
 
-	"gitlab.com/h3mmy/bloopyboi/bot/internal/ent"
+	"github.com/h3mmy/bloopyboi/bot/internal/ent"
 	// required by schema hooks.
-	_ "gitlab.com/h3mmy/bloopyboi/bot/internal/ent/runtime"
+	_ "github.com/h3mmy/bloopyboi/bot/internal/ent/runtime"
 
 	"entgo.io/ent/dialect/sql/schema"
-	"gitlab.com/h3mmy/bloopyboi/bot/internal/ent/migrate"
+	"github.com/h3mmy/bloopyboi/bot/internal/ent/migrate"
 )
 
 type (

@@ -6,7 +6,7 @@ import (
 	"context"
 	"fmt"
 
-	"gitlab.com/h3mmy/bloopyboi/bot/internal/ent"
+	"github.com/h3mmy/bloopyboi/bot/internal/ent"
 )
 
 // The DiscordMessageFunc type is an adapter to allow the use of ordinary

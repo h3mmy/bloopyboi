@@ -8,12 +8,12 @@ import (
 	"fmt"
 	"log"
 
-	"gitlab.com/h3mmy/bloopyboi/bot/internal/ent/migrate"
+	"github.com/h3mmy/bloopyboi/bot/internal/ent/migrate"
 
-	"gitlab.com/h3mmy/bloopyboi/bot/internal/ent/discordmessage"
-	"gitlab.com/h3mmy/bloopyboi/bot/internal/ent/group"
-	"gitlab.com/h3mmy/bloopyboi/bot/internal/ent/mediarequest"
-	"gitlab.com/h3mmy/bloopyboi/bot/internal/ent/user"
+	"github.com/h3mmy/bloopyboi/bot/internal/ent/discordmessage"
+	"github.com/h3mmy/bloopyboi/bot/internal/ent/group"
+	"github.com/h3mmy/bloopyboi/bot/internal/ent/mediarequest"
+	"github.com/h3mmy/bloopyboi/bot/internal/ent/user"
 
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"

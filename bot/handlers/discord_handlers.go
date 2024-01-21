@@ -6,8 +6,8 @@ import (
 	"strings"
 
 	"github.com/bwmarrin/discordgo"
-	"gitlab.com/h3mmy/bloopyboi/bot/internal/models"
-	"gitlab.com/h3mmy/bloopyboi/bot/providers"
+	"github.com/h3mmy/bloopyboi/bot/internal/models"
+	"github.com/h3mmy/bloopyboi/bot/providers"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )

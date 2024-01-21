@@ -9,8 +9,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"gitlab.com/h3mmy/bloopyboi/bot/internal/ent/group"
-	"gitlab.com/h3mmy/bloopyboi/bot/internal/ent/predicate"
+	"github.com/h3mmy/bloopyboi/bot/internal/ent/group"
+	"github.com/h3mmy/bloopyboi/bot/internal/ent/predicate"
 )
 
 // GroupDelete is the builder for deleting a Group entity.

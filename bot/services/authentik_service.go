@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 
-	"gitlab.com/h3mmy/bloopyboi/bot/internal/log"
+	"github.com/h3mmy/bloopyboi/bot/internal/log"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	api "goauthentik.io/api/v3"

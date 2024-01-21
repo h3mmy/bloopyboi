@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"entgo.io/ent/dialect/sql"
-	"gitlab.com/h3mmy/bloopyboi/bot/internal/ent/group"
+	"github.com/h3mmy/bloopyboi/bot/internal/ent/group"
 )
 
 // Group is the model entity for the Group schema.

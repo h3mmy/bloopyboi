@@ -11,7 +11,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/bwmarrin/discordgo"
-	"gitlab.com/h3mmy/bloopyboi/bot/internal/ent/discordmessage"
+	"github.com/h3mmy/bloopyboi/bot/internal/ent/discordmessage"
 )
 
 // DiscordMessageCreate is the builder for creating a DiscordMessage entity.

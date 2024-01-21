@@ -5,10 +5,10 @@ package ent
 import (
 	"time"
 
-	"gitlab.com/h3mmy/bloopyboi/bot/internal/ent/discordmessage"
-	"gitlab.com/h3mmy/bloopyboi/bot/internal/ent/group"
-	"gitlab.com/h3mmy/bloopyboi/bot/internal/ent/schema"
-	"gitlab.com/h3mmy/bloopyboi/bot/internal/ent/user"
+	"github.com/h3mmy/bloopyboi/bot/internal/ent/discordmessage"
+	"github.com/h3mmy/bloopyboi/bot/internal/ent/group"
+	"github.com/h3mmy/bloopyboi/bot/internal/ent/schema"
+	"github.com/h3mmy/bloopyboi/bot/internal/ent/user"
 )
 
 // The init function reads all schema descriptors with runtime code

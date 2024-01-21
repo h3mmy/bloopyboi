@@ -9,8 +9,8 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"gitlab.com/h3mmy/bloopyboi/bot/internal/ent/mediarequest"
-	"gitlab.com/h3mmy/bloopyboi/bot/internal/ent/user"
+	"github.com/h3mmy/bloopyboi/bot/internal/ent/mediarequest"
+	"github.com/h3mmy/bloopyboi/bot/internal/ent/user"
 )
 
 // MediaRequestCreate is the builder for creating a MediaRequest entity.

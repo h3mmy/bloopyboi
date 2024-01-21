@@ -11,10 +11,10 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
-	"gitlab.com/h3mmy/bloopyboi/bot/internal/ent/group"
-	"gitlab.com/h3mmy/bloopyboi/bot/internal/ent/mediarequest"
-	"gitlab.com/h3mmy/bloopyboi/bot/internal/ent/predicate"
-	"gitlab.com/h3mmy/bloopyboi/bot/internal/ent/user"
+	"github.com/h3mmy/bloopyboi/bot/internal/ent/group"
+	"github.com/h3mmy/bloopyboi/bot/internal/ent/mediarequest"
+	"github.com/h3mmy/bloopyboi/bot/internal/ent/predicate"
+	"github.com/h3mmy/bloopyboi/bot/internal/ent/user"
 )
 
 // UserUpdate is the builder for updating User entities.

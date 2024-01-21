@@ -1,7 +1,7 @@
 package arr
 
 import (
-	"gitlab.com/h3mmy/bloopyboi/bot/internal/config"
+	"github.com/h3mmy/bloopyboi/bot/internal/config"
 	"golift.io/starr"
 	"golift.io/starr/prowlarr"
 	"golift.io/starr/radarr"
@@ -53,16 +53,16 @@ type FeatureKeys struct {
 
 type BloopyArrClientSet map[string]*starr.App
 
-func NewArrClientSet(botConfig config.BotConfig) {
+func NewArrClientSet(AppConfig config.AppConfig) {
 
 }
 
-func GetBloopyArrClientSet(botConfig config.BotConfig) *BloopyArrClientSet {
+func GetBloopyArrClientSet(AppConfig config.AppConfig) *BloopyArrClientSet {
 	var clientSet BloopyArrClientSet = make(map[string]*starr.App)
-	for _, featName := range botConfig.GetConfiguredFeatureNames() {
+	for _, featName := range AppConfig.GetConfiguredFeatureNames() {
 		if isArrFeature(featName) {
 			feat := featureMap[featName]
-			featConfig, err := botConfig.GetFeatureConfig(featName)
+			featConfig, err := AppConfig.GetFeatureConfig(featName)
 			if err != nil {
 				panic(err)
 			}

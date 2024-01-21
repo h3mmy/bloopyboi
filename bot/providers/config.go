@@ -4,38 +4,38 @@ import (
 	"fmt"
 	"strings"
 
-	"gitlab.com/h3mmy/bloopyboi/bot/internal/config"
+	"github.com/h3mmy/bloopyboi/bot/internal/config"
 	"go.uber.org/zap/zapcore"
 )
 
 // Retrieves Bot Token
 func GetBotToken() string {
-	botConfig := config.GetConfig()
-	return botConfig.BotToken
+	AppConfig := config.GetConfig()
+	return AppConfig.BotToken
 }
 
 func GetBotName() string {
-	botConfig := config.GetConfig()
-	return botConfig.BotToken
+	AppConfig := config.GetConfig()
+	return AppConfig.BotToken
 }
 
 // Retrieves logLevel if set
 func GetLogLevel() string {
-	botConfig := config.GetConfig()
-	return strings.ToLower(botConfig.LogLevel)
+	AppConfig := config.GetConfig()
+	return strings.ToLower(AppConfig.LogLevel)
 }
 
 // Returns
 func GetFeatures() map[string]config.FeatureConfig {
-	botConfig:= config.GetConfig()
-	logger.Debug(fmt.Sprintf("Got FeatureMap %v", botConfig.FeatureMap), zapcore.Field{Key: "package", Type: zapcore.StringType, String: "providers"})
-	return botConfig.FeatureMap
+	AppConfig := config.GetConfig()
+	logger.Debug(fmt.Sprintf("Got FeatureMap %v", AppConfig.FeatureMap), zapcore.Field{Key: "package", Type: zapcore.StringType, String: "providers"})
+	return AppConfig.FeatureMap
 }
 
 // Checks FeatureConfigs for key
 func IsFeaturedConfigured(key string) bool {
-	botConfig := config.GetConfig()
-	fCfg, ok := botConfig.FeatureMap[key]
+	AppConfig := config.GetConfig()
+	fCfg, ok := AppConfig.FeatureMap[key]
 	if !ok {
 		return false
 	}

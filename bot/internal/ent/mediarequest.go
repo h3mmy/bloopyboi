@@ -7,8 +7,8 @@ import (
 	"strings"
 
 	"entgo.io/ent/dialect/sql"
-	"gitlab.com/h3mmy/bloopyboi/bot/internal/ent/mediarequest"
-	"gitlab.com/h3mmy/bloopyboi/bot/internal/ent/user"
+	"github.com/h3mmy/bloopyboi/bot/internal/ent/mediarequest"
+	"github.com/h3mmy/bloopyboi/bot/internal/ent/user"
 )
 
 // MediaRequest is the model entity for the MediaRequest schema.

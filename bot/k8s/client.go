@@ -3,7 +3,7 @@ package k8s
 import (
 	"os"
 
-	"gitlab.com/h3mmy/bloopyboi/bot/internal/log"
+	"github.com/h3mmy/bloopyboi/bot/internal/log"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"

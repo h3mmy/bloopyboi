@@ -5,11 +5,11 @@ import (
 	"fmt"
 
 	"github.com/alexliesenfeld/health"
-	"gitlab.com/h3mmy/bloopyboi/bot/discord"
-	"gitlab.com/h3mmy/bloopyboi/bot/internal/config"
-	"gitlab.com/h3mmy/bloopyboi/bot/internal/models"
-	"gitlab.com/h3mmy/bloopyboi/bot/providers"
-	"gitlab.com/h3mmy/bloopyboi/bot/services"
+	"github.com/h3mmy/bloopyboi/bot/discord"
+	"github.com/h3mmy/bloopyboi/bot/internal/config"
+	"github.com/h3mmy/bloopyboi/bot/internal/models"
+	"github.com/h3mmy/bloopyboi/bot/providers"
+	"github.com/h3mmy/bloopyboi/bot/services"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"golang.org/x/sync/errgroup"
@@ -22,7 +22,7 @@ const (
 type BloopyBoi struct {
 	log             *zap.Logger
 	DiscordClient   *discord.DiscordClient
-	Config          *config.BotConfig
+	Config          *config.AppConfig
 	Status          *health.AvailabilityStatus
 	ServiceRegistry models.ServiceRegistry
 }

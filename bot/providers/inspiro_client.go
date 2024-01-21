@@ -1,8 +1,8 @@
 package providers
 
 import (
-	"gitlab.com/h3mmy/bloopyboi/bot/internal/config"
-	"gitlab.com/h3mmy/bloopyboi/bot/services"
+	"github.com/h3mmy/bloopyboi/bot/internal/config"
+	"github.com/h3mmy/bloopyboi/bot/services"
 )
 
 func GetInspiroClient() *services.InspiroClient {

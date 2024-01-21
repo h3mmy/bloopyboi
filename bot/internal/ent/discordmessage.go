@@ -10,7 +10,7 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"github.com/bwmarrin/discordgo"
-	"gitlab.com/h3mmy/bloopyboi/bot/internal/ent/discordmessage"
+	"github.com/h3mmy/bloopyboi/bot/internal/ent/discordmessage"
 )
 
 // DiscordMessage is the model entity for the DiscordMessage schema.

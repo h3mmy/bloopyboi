@@ -12,8 +12,8 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/bwmarrin/discordgo"
-	"gitlab.com/h3mmy/bloopyboi/bot/internal/ent/discordmessage"
-	"gitlab.com/h3mmy/bloopyboi/bot/internal/ent/predicate"
+	"github.com/h3mmy/bloopyboi/bot/internal/ent/discordmessage"
+	"github.com/h3mmy/bloopyboi/bot/internal/ent/predicate"
 )
 
 // DiscordMessageUpdate is the builder for updating DiscordMessage entities.

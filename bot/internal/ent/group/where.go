@@ -5,7 +5,7 @@ package group
 import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
-	"gitlab.com/h3mmy/bloopyboi/bot/internal/ent/predicate"
+	"github.com/h3mmy/bloopyboi/bot/internal/ent/predicate"
 )
 
 // ID filters vertices based on their ID field.

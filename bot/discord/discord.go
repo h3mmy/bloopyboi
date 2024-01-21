@@ -6,10 +6,10 @@ import (
 	"regexp"
 
 	"github.com/bwmarrin/discordgo"
-	bloopyCommands "gitlab.com/h3mmy/bloopyboi/bot/discord/commands"
-	"gitlab.com/h3mmy/bloopyboi/bot/handlers"
-	"gitlab.com/h3mmy/bloopyboi/bot/internal/models"
-	"gitlab.com/h3mmy/bloopyboi/bot/providers"
+	bloopyCommands "github.com/h3mmy/bloopyboi/bot/discord/commands"
+	"github.com/h3mmy/bloopyboi/bot/handlers"
+	"github.com/h3mmy/bloopyboi/bot/internal/models"
+	"github.com/h3mmy/bloopyboi/bot/providers"
 	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
 )

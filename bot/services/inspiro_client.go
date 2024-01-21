@@ -1,26 +1,26 @@
 package services
 
 import (
-	"gitlab.com/h3mmy/bloopyboi/bot/internal/log"
+	"github.com/h3mmy/bloopyboi/bot/internal/log"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
 
 type InspiroClient struct {
 	inspiroService *InspiroService
-	logger *zap.Logger
+	logger         *zap.Logger
 }
 
 // Creates New InspiroClient with specified Service
 func NewInspiroHttpClient(inspiro *InspiroService) *InspiroClient {
 	lgr := log.NewZapLogger().With(zapcore.Field{
-		Key: ServiceLoggerFieldKey,
-		Type: zapcore.StringType,
+		Key:    ServiceLoggerFieldKey,
+		Type:   zapcore.StringType,
 		String: "inspiro",
 	})
 	return &InspiroClient{
 		inspiroService: inspiro,
-		logger: lgr,
+		logger:         lgr,
 	}
 }
 

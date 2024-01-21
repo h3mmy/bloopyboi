@@ -11,9 +11,9 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"gitlab.com/h3mmy/bloopyboi/bot/internal/ent/mediarequest"
-	"gitlab.com/h3mmy/bloopyboi/bot/internal/ent/predicate"
-	"gitlab.com/h3mmy/bloopyboi/bot/internal/ent/user"
+	"github.com/h3mmy/bloopyboi/bot/internal/ent/mediarequest"
+	"github.com/h3mmy/bloopyboi/bot/internal/ent/predicate"
+	"github.com/h3mmy/bloopyboi/bot/internal/ent/user"
 )
 
 // MediaRequestQuery is the builder for querying MediaRequest entities.
