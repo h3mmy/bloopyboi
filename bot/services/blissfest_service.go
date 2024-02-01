@@ -5,6 +5,7 @@ import (
 
 	"github.com/h3mmy/bloopyboi/bot/internal/log"
 	"github.com/h3mmy/bloopyboi/bot/internal/models"
+	pkgmodels "github.com/h3mmy/bloopyboi/pkg/models"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
@@ -16,11 +17,11 @@ var apiPrefix = "/wp-json/wp/v2"
 
 type BlissfestService struct {
 	bloopymeta models.BloopyMeta
-	config     models.BlissfestConfig
+	config     pkgmodels.BlissfestConfig
 	logger     *zap.Logger
 }
 
-func NewBlissfestService(config models.BlissfestConfig) *BlissfestService {
+func NewBlissfestService(config pkgmodels.BlissfestConfig) *BlissfestService {
 	lgr := log.NewZapLogger().With(
 		zapcore.Field{Type: zapcore.StringType, Key: ServiceLoggerFieldKey, String: "blissfest_service"},
 	)

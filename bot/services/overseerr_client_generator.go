@@ -3,7 +3,7 @@ package services
 import (
 	"net/http"
 
-	overseerr_go "github.com/h3mmy/bloopyboi/bot/clients/overseerr"
+	overseerr_go "github.com/devopsarr/overseerr-go/overseerr"
 	"github.com/h3mmy/bloopyboi/bot/internal/models"
 )
 

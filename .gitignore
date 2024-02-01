@@ -16,6 +16,9 @@
 config.yaml
 bloopyboi_dev
 bloopyboii_dev
+*.exe
+bloopy-ops-*.json
+keycloak*.xml
 
 charts/*/Chart.lock
 charts/*/charts

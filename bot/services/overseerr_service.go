@@ -1,7 +1,7 @@
 package services
 
 import (
-	overseerr_go "github.com/h3mmy/overseerr_go"
+	overseerr_go "github.com/devopsarr/overseerr-go/overseerr"
 	"github.com/h3mmy/bloopyboi/bot/internal/log"
 	"github.com/h3mmy/bloopyboi/bot/internal/models"
 	"go.uber.org/zap"
@@ -14,7 +14,7 @@ type OverseerrService struct {
 	overseerrClient *overseerr_go.APIClient
 }
 
-func NewOverseerrService(clientgen *OverseerrClientGenerator) {
+func NewOverseerrService(clientgen *OverseerrClientGenerator) *OverseerrService {
 	lgr := log.NewZapLogger().With(
 		zapcore.Field{Type: zapcore.StringType, Key: ServiceLoggerFieldKey, String: "overseerr_service"},
 	)

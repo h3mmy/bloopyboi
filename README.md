@@ -26,6 +26,8 @@ Active-ish
 
 ## Developing
 
+`go generate ent`
+
 Local Testing
 
 `docker build . -t bloopyboi_dev`

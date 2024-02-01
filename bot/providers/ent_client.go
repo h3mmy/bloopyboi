@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/h3mmy/bloopyboi/bot/internal/ent"
+	"github.com/h3mmy/bloopyboi/ent"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 

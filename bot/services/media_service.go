@@ -1,7 +1,7 @@
 package services
 
 import (
-	overseerr_go "github.com/h3mmy/overseerr_go"
+	overseerr_go "github.com/devopsarr/overseerr-go/overseerr"
 	"github.com/h3mmy/bloopyboi/bot/internal/log"
 	"github.com/h3mmy/bloopyboi/bot/internal/models"
 	"go.uber.org/zap"

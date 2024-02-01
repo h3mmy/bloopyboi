@@ -59,8 +59,19 @@ func NewDiscordClient(logger *zap.Logger) (*DiscordClient, error) {
 func (d *DiscordClient) Start(ctx context.Context) error {
 	d.log.Info("Starting Bot")
 	d.api.AddHandler(func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-		if h, ok := providers.AppCommandHandlers[i.ApplicationCommandData().Name]; ok {
-			h(s, i)
+		switch i.Type {
+			case discordgo.InteractionApplicationCommand:
+				if h, ok := providers.AppCommandHandlers[i.ApplicationCommandData().Name]; ok {
+					h(s, i)
+				}
+			case discordgo.InteractionMessageComponent:
+				if h, ok := providers.MessageComponentHandlers[i.MessageComponentData().CustomID]; ok {
+					h(s, i)
+				}
+			case discordgo.InteractionModalSubmit:
+				if h, ok := providers.ModalSubmitHandlers[i.ModalSubmitData().CustomID]; ok {
+					h(s, i)
+				}
 		}
 	})
 	d.api.AddHandler(bloopyCommands.DirectMessageCreate)
