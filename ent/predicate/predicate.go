@@ -6,14 +6,14 @@ import (
 	"entgo.io/ent/dialect/sql"
 )
 
+// Book is the predicate function for book builders.
+type Book func(*sql.Selector)
+
+// BookAuthor is the predicate function for bookauthor builders.
+type BookAuthor func(*sql.Selector)
+
 // DiscordMessage is the predicate function for discordmessage builders.
 type DiscordMessage func(*sql.Selector)
 
-// Group is the predicate function for group builders.
-type Group func(*sql.Selector)
-
-// MediaRequest is the predicate function for mediarequest builders.
-type MediaRequest func(*sql.Selector)
-
-// User is the predicate function for user builders.
-type User func(*sql.Selector)
+// DiscordUser is the predicate function for discorduser builders.
+type DiscordUser func(*sql.Selector)

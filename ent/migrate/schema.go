@@ -8,6 +8,33 @@ import (
 )
 
 var (
+	// BooksColumns holds the columns for the "books" table.
+	BooksColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "title", Type: field.TypeString},
+		{Name: "description", Type: field.TypeString},
+		{Name: "goodreads_id", Type: field.TypeString},
+		{Name: "google_volume_id", Type: field.TypeString},
+		{Name: "isbn_10", Type: field.TypeString},
+		{Name: "isbn_13", Type: field.TypeString},
+	}
+	// BooksTable holds the schema information for the "books" table.
+	BooksTable = &schema.Table{
+		Name:       "books",
+		Columns:    BooksColumns,
+		PrimaryKey: []*schema.Column{BooksColumns[0]},
+	}
+	// BookAuthorsColumns holds the columns for the "book_authors" table.
+	BookAuthorsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
+		{Name: "full_name", Type: field.TypeString},
+	}
+	// BookAuthorsTable holds the schema information for the "book_authors" table.
+	BookAuthorsTable = &schema.Table{
+		Name:       "book_authors",
+		Columns:    BookAuthorsColumns,
+		PrimaryKey: []*schema.Column{BookAuthorsColumns[0]},
+	}
 	// DiscordMessagesColumns holds the columns for the "discord_messages" table.
 	DiscordMessagesColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeString},
@@ -21,91 +48,82 @@ var (
 		Columns:    DiscordMessagesColumns,
 		PrimaryKey: []*schema.Column{DiscordMessagesColumns[0]},
 	}
-	// GroupsColumns holds the columns for the "groups" table.
-	GroupsColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "name", Type: field.TypeString},
-	}
-	// GroupsTable holds the schema information for the "groups" table.
-	GroupsTable = &schema.Table{
-		Name:       "groups",
-		Columns:    GroupsColumns,
-		PrimaryKey: []*schema.Column{GroupsColumns[0]},
-	}
-	// MediaRequestsColumns holds the columns for the "media_requests" table.
-	MediaRequestsColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "status", Type: field.TypeString},
-		{Name: "media_type", Type: field.TypeEnum, Enums: []string{"movie", "tv", "book", "music"}},
-		{Name: "request_id", Type: field.TypeString},
-		{Name: "user_media_request", Type: field.TypeInt, Nullable: true},
-	}
-	// MediaRequestsTable holds the schema information for the "media_requests" table.
-	MediaRequestsTable = &schema.Table{
-		Name:       "media_requests",
-		Columns:    MediaRequestsColumns,
-		PrimaryKey: []*schema.Column{MediaRequestsColumns[0]},
-		ForeignKeys: []*schema.ForeignKey{
-			{
-				Symbol:     "media_requests_users_mediaRequest",
-				Columns:    []*schema.Column{MediaRequestsColumns[4]},
-				RefColumns: []*schema.Column{UsersColumns[0]},
-				OnDelete:   schema.SetNull,
-			},
-		},
-	}
-	// UsersColumns holds the columns for the "users" table.
-	UsersColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "bloopy_id", Type: field.TypeUUID},
+	// DiscordUsersColumns holds the columns for the "discord_users" table.
+	DiscordUsersColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID},
 		{Name: "discordid", Type: field.TypeString, Default: "unknown"},
-		{Name: "plexid", Type: field.TypeString, Default: "unknown"},
-		{Name: "bloopnetid", Type: field.TypeString},
-		{Name: "authentikpkid", Type: field.TypeString},
+		{Name: "username", Type: field.TypeString},
 	}
-	// UsersTable holds the schema information for the "users" table.
-	UsersTable = &schema.Table{
-		Name:       "users",
-		Columns:    UsersColumns,
-		PrimaryKey: []*schema.Column{UsersColumns[0]},
+	// DiscordUsersTable holds the schema information for the "discord_users" table.
+	DiscordUsersTable = &schema.Table{
+		Name:       "discord_users",
+		Columns:    DiscordUsersColumns,
+		PrimaryKey: []*schema.Column{DiscordUsersColumns[0]},
 	}
-	// GroupUsersColumns holds the columns for the "group_users" table.
-	GroupUsersColumns = []*schema.Column{
-		{Name: "group_id", Type: field.TypeInt},
-		{Name: "user_id", Type: field.TypeInt},
+	// BookAuthorBooksColumns holds the columns for the "book_author_books" table.
+	BookAuthorBooksColumns = []*schema.Column{
+		{Name: "book_author_id", Type: field.TypeUUID},
+		{Name: "book_id", Type: field.TypeUUID},
 	}
-	// GroupUsersTable holds the schema information for the "group_users" table.
-	GroupUsersTable = &schema.Table{
-		Name:       "group_users",
-		Columns:    GroupUsersColumns,
-		PrimaryKey: []*schema.Column{GroupUsersColumns[0], GroupUsersColumns[1]},
+	// BookAuthorBooksTable holds the schema information for the "book_author_books" table.
+	BookAuthorBooksTable = &schema.Table{
+		Name:       "book_author_books",
+		Columns:    BookAuthorBooksColumns,
+		PrimaryKey: []*schema.Column{BookAuthorBooksColumns[0], BookAuthorBooksColumns[1]},
 		ForeignKeys: []*schema.ForeignKey{
 			{
-				Symbol:     "group_users_group_id",
-				Columns:    []*schema.Column{GroupUsersColumns[0]},
-				RefColumns: []*schema.Column{GroupsColumns[0]},
+				Symbol:     "book_author_books_book_author_id",
+				Columns:    []*schema.Column{BookAuthorBooksColumns[0]},
+				RefColumns: []*schema.Column{BookAuthorsColumns[0]},
 				OnDelete:   schema.Cascade,
 			},
 			{
-				Symbol:     "group_users_user_id",
-				Columns:    []*schema.Column{GroupUsersColumns[1]},
-				RefColumns: []*schema.Column{UsersColumns[0]},
+				Symbol:     "book_author_books_book_id",
+				Columns:    []*schema.Column{BookAuthorBooksColumns[1]},
+				RefColumns: []*schema.Column{BooksColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+		},
+	}
+	// DiscordUserDiscordMessagesColumns holds the columns for the "discord_user_discord_messages" table.
+	DiscordUserDiscordMessagesColumns = []*schema.Column{
+		{Name: "discord_user_id", Type: field.TypeUUID},
+		{Name: "discord_message_id", Type: field.TypeString},
+	}
+	// DiscordUserDiscordMessagesTable holds the schema information for the "discord_user_discord_messages" table.
+	DiscordUserDiscordMessagesTable = &schema.Table{
+		Name:       "discord_user_discord_messages",
+		Columns:    DiscordUserDiscordMessagesColumns,
+		PrimaryKey: []*schema.Column{DiscordUserDiscordMessagesColumns[0], DiscordUserDiscordMessagesColumns[1]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "discord_user_discord_messages_discord_user_id",
+				Columns:    []*schema.Column{DiscordUserDiscordMessagesColumns[0]},
+				RefColumns: []*schema.Column{DiscordUsersColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+			{
+				Symbol:     "discord_user_discord_messages_discord_message_id",
+				Columns:    []*schema.Column{DiscordUserDiscordMessagesColumns[1]},
+				RefColumns: []*schema.Column{DiscordMessagesColumns[0]},
 				OnDelete:   schema.Cascade,
 			},
 		},
 	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
+		BooksTable,
+		BookAuthorsTable,
 		DiscordMessagesTable,
-		GroupsTable,
-		MediaRequestsTable,
-		UsersTable,
-		GroupUsersTable,
+		DiscordUsersTable,
+		BookAuthorBooksTable,
+		DiscordUserDiscordMessagesTable,
 	}
 )
 
 func init() {
-	MediaRequestsTable.ForeignKeys[0].RefTable = UsersTable
-	GroupUsersTable.ForeignKeys[0].RefTable = GroupsTable
-	GroupUsersTable.ForeignKeys[1].RefTable = UsersTable
+	BookAuthorBooksTable.ForeignKeys[0].RefTable = BookAuthorsTable
+	BookAuthorBooksTable.ForeignKeys[1].RefTable = BooksTable
+	DiscordUserDiscordMessagesTable.ForeignKeys[0].RefTable = DiscordUsersTable
+	DiscordUserDiscordMessagesTable.ForeignKeys[1].RefTable = DiscordMessagesTable
 }

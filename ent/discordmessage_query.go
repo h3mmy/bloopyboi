@@ -4,6 +4,7 @@ package ent
 
 import (
 	"context"
+	"database/sql/driver"
 	"fmt"
 	"math"
 
@@ -11,18 +12,22 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 	"github.com/h3mmy/bloopyboi/ent/discordmessage"
+	"github.com/h3mmy/bloopyboi/ent/discorduser"
 	"github.com/h3mmy/bloopyboi/ent/predicate"
 )
 
 // DiscordMessageQuery is the builder for querying DiscordMessage entities.
 type DiscordMessageQuery struct {
 	config
-	ctx        *QueryContext
-	order      []discordmessage.OrderOption
-	inters     []Interceptor
-	predicates []predicate.DiscordMessage
-	modifiers  []func(*sql.Selector)
+	ctx             *QueryContext
+	order           []discordmessage.OrderOption
+	inters          []Interceptor
+	predicates      []predicate.DiscordMessage
+	withAuthor      *DiscordUserQuery
+	modifiers       []func(*sql.Selector)
+	withNamedAuthor map[string]*DiscordUserQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -57,6 +62,28 @@ func (dmq *DiscordMessageQuery) Unique(unique bool) *DiscordMessageQuery {
 func (dmq *DiscordMessageQuery) Order(o ...discordmessage.OrderOption) *DiscordMessageQuery {
 	dmq.order = append(dmq.order, o...)
 	return dmq
+}
+
+// QueryAuthor chains the current query on the "author" edge.
+func (dmq *DiscordMessageQuery) QueryAuthor() *DiscordUserQuery {
+	query := (&DiscordUserClient{config: dmq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := dmq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := dmq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(discordmessage.Table, discordmessage.FieldID, selector),
+			sqlgraph.To(discorduser.Table, discorduser.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, true, discordmessage.AuthorTable, discordmessage.AuthorPrimaryKey...),
+		)
+		fromU = sqlgraph.SetNeighbors(dmq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
 }
 
 // First returns the first DiscordMessage entity from the query.
@@ -251,10 +278,22 @@ func (dmq *DiscordMessageQuery) Clone() *DiscordMessageQuery {
 		order:      append([]discordmessage.OrderOption{}, dmq.order...),
 		inters:     append([]Interceptor{}, dmq.inters...),
 		predicates: append([]predicate.DiscordMessage{}, dmq.predicates...),
+		withAuthor: dmq.withAuthor.Clone(),
 		// clone intermediate query.
 		sql:  dmq.sql.Clone(),
 		path: dmq.path,
 	}
+}
+
+// WithAuthor tells the query-builder to eager-load the nodes that are connected to
+// the "author" edge. The optional arguments are used to configure the query builder of the edge.
+func (dmq *DiscordMessageQuery) WithAuthor(opts ...func(*DiscordUserQuery)) *DiscordMessageQuery {
+	query := (&DiscordUserClient{config: dmq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	dmq.withAuthor = query
+	return dmq
 }
 
 // GroupBy is used to group vertices by one or more fields/columns.
@@ -333,8 +372,11 @@ func (dmq *DiscordMessageQuery) prepareQuery(ctx context.Context) error {
 
 func (dmq *DiscordMessageQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*DiscordMessage, error) {
 	var (
-		nodes = []*DiscordMessage{}
-		_spec = dmq.querySpec()
+		nodes       = []*DiscordMessage{}
+		_spec       = dmq.querySpec()
+		loadedTypes = [1]bool{
+			dmq.withAuthor != nil,
+		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*DiscordMessage).scanValues(nil, columns)
@@ -342,6 +384,7 @@ func (dmq *DiscordMessageQuery) sqlAll(ctx context.Context, hooks ...queryHook) 
 	_spec.Assign = func(columns []string, values []any) error {
 		node := &DiscordMessage{config: dmq.config}
 		nodes = append(nodes, node)
+		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
 	}
 	if len(dmq.modifiers) > 0 {
@@ -356,7 +399,83 @@ func (dmq *DiscordMessageQuery) sqlAll(ctx context.Context, hooks ...queryHook) 
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
+	if query := dmq.withAuthor; query != nil {
+		if err := dmq.loadAuthor(ctx, query, nodes,
+			func(n *DiscordMessage) { n.Edges.Author = []*DiscordUser{} },
+			func(n *DiscordMessage, e *DiscordUser) { n.Edges.Author = append(n.Edges.Author, e) }); err != nil {
+			return nil, err
+		}
+	}
+	for name, query := range dmq.withNamedAuthor {
+		if err := dmq.loadAuthor(ctx, query, nodes,
+			func(n *DiscordMessage) { n.appendNamedAuthor(name) },
+			func(n *DiscordMessage, e *DiscordUser) { n.appendNamedAuthor(name, e) }); err != nil {
+			return nil, err
+		}
+	}
 	return nodes, nil
+}
+
+func (dmq *DiscordMessageQuery) loadAuthor(ctx context.Context, query *DiscordUserQuery, nodes []*DiscordMessage, init func(*DiscordMessage), assign func(*DiscordMessage, *DiscordUser)) error {
+	edgeIDs := make([]driver.Value, len(nodes))
+	byID := make(map[string]*DiscordMessage)
+	nids := make(map[uuid.UUID]map[*DiscordMessage]struct{})
+	for i, node := range nodes {
+		edgeIDs[i] = node.ID
+		byID[node.ID] = node
+		if init != nil {
+			init(node)
+		}
+	}
+	query.Where(func(s *sql.Selector) {
+		joinT := sql.Table(discordmessage.AuthorTable)
+		s.Join(joinT).On(s.C(discorduser.FieldID), joinT.C(discordmessage.AuthorPrimaryKey[0]))
+		s.Where(sql.InValues(joinT.C(discordmessage.AuthorPrimaryKey[1]), edgeIDs...))
+		columns := s.SelectedColumns()
+		s.Select(joinT.C(discordmessage.AuthorPrimaryKey[1]))
+		s.AppendSelect(columns...)
+		s.SetDistinct(false)
+	})
+	if err := query.prepareQuery(ctx); err != nil {
+		return err
+	}
+	qr := QuerierFunc(func(ctx context.Context, q Query) (Value, error) {
+		return query.sqlAll(ctx, func(_ context.Context, spec *sqlgraph.QuerySpec) {
+			assign := spec.Assign
+			values := spec.ScanValues
+			spec.ScanValues = func(columns []string) ([]any, error) {
+				values, err := values(columns[1:])
+				if err != nil {
+					return nil, err
+				}
+				return append([]any{new(sql.NullString)}, values...), nil
+			}
+			spec.Assign = func(columns []string, values []any) error {
+				outValue := values[0].(*sql.NullString).String
+				inValue := *values[1].(*uuid.UUID)
+				if nids[inValue] == nil {
+					nids[inValue] = map[*DiscordMessage]struct{}{byID[outValue]: {}}
+					return assign(columns[1:], values[1:])
+				}
+				nids[inValue][byID[outValue]] = struct{}{}
+				return nil
+			}
+		})
+	})
+	neighbors, err := withInterceptors[[]*DiscordUser](ctx, query, qr, query.inters)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected "author" node returned %v`, n.ID)
+		}
+		for kn := range nodes {
+			assign(kn, n)
+		}
+	}
+	return nil
 }
 
 func (dmq *DiscordMessageQuery) sqlCount(ctx context.Context) (int, error) {
@@ -469,6 +588,20 @@ func (dmq *DiscordMessageQuery) ForShare(opts ...sql.LockOption) *DiscordMessage
 	dmq.modifiers = append(dmq.modifiers, func(s *sql.Selector) {
 		s.ForShare(opts...)
 	})
+	return dmq
+}
+
+// WithNamedAuthor tells the query-builder to eager-load the nodes that are connected to the "author"
+// edge with the given name. The optional arguments are used to configure the query builder of the edge.
+func (dmq *DiscordMessageQuery) WithNamedAuthor(name string, opts ...func(*DiscordUserQuery)) *DiscordMessageQuery {
+	query := (&DiscordUserClient{config: dmq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	if dmq.withNamedAuthor == nil {
+		dmq.withNamedAuthor = make(map[string]*DiscordUserQuery)
+	}
+	dmq.withNamedAuthor[name] = query
 	return dmq
 }
 

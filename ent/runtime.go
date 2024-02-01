@@ -6,9 +6,8 @@ import (
 	"time"
 
 	"github.com/h3mmy/bloopyboi/ent/discordmessage"
-	"github.com/h3mmy/bloopyboi/ent/group"
+	"github.com/h3mmy/bloopyboi/ent/discorduser"
 	"github.com/h3mmy/bloopyboi/ent/schema"
-	"github.com/h3mmy/bloopyboi/ent/user"
 )
 
 // The init function reads all schema descriptors with runtime code
@@ -30,20 +29,10 @@ func init() {
 	discordmessage.DefaultUpdateTime = discordmessageDescUpdateTime.Default.(func() time.Time)
 	// discordmessage.UpdateDefaultUpdateTime holds the default value on update for the update_time field.
 	discordmessage.UpdateDefaultUpdateTime = discordmessageDescUpdateTime.UpdateDefault.(func() time.Time)
-	groupFields := schema.Group{}.Fields()
-	_ = groupFields
-	// groupDescName is the schema descriptor for name field.
-	groupDescName := groupFields[0].Descriptor()
-	// group.NameValidator is a validator for the "name" field. It is called by the builders before save.
-	group.NameValidator = groupDescName.Validators[0].(func(string) error)
-	userFields := schema.User{}.Fields()
-	_ = userFields
-	// userDescDiscordid is the schema descriptor for discordid field.
-	userDescDiscordid := userFields[1].Descriptor()
-	// user.DefaultDiscordid holds the default value on creation for the discordid field.
-	user.DefaultDiscordid = userDescDiscordid.Default.(string)
-	// userDescPlexid is the schema descriptor for Plexid field.
-	userDescPlexid := userFields[2].Descriptor()
-	// user.DefaultPlexid holds the default value on creation for the Plexid field.
-	user.DefaultPlexid = userDescPlexid.Default.(string)
+	discorduserFields := schema.DiscordUser{}.Fields()
+	_ = discorduserFields
+	// discorduserDescDiscordid is the schema descriptor for discordid field.
+	discorduserDescDiscordid := discorduserFields[1].Descriptor()
+	// discorduser.DefaultDiscordid holds the default value on creation for the discordid field.
+	discorduser.DefaultDiscordid = discorduserDescDiscordid.Default.(string)
 }

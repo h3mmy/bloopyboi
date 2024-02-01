@@ -12,14 +12,14 @@ import (
 // Tx is a transactional client that is created by calling Client.Tx().
 type Tx struct {
 	config
+	// Book is the client for interacting with the Book builders.
+	Book *BookClient
+	// BookAuthor is the client for interacting with the BookAuthor builders.
+	BookAuthor *BookAuthorClient
 	// DiscordMessage is the client for interacting with the DiscordMessage builders.
 	DiscordMessage *DiscordMessageClient
-	// Group is the client for interacting with the Group builders.
-	Group *GroupClient
-	// MediaRequest is the client for interacting with the MediaRequest builders.
-	MediaRequest *MediaRequestClient
-	// User is the client for interacting with the User builders.
-	User *UserClient
+	// DiscordUser is the client for interacting with the DiscordUser builders.
+	DiscordUser *DiscordUserClient
 
 	// lazily loaded.
 	client     *Client
@@ -151,10 +151,10 @@ func (tx *Tx) Client() *Client {
 }
 
 func (tx *Tx) init() {
+	tx.Book = NewBookClient(tx.config)
+	tx.BookAuthor = NewBookAuthorClient(tx.config)
 	tx.DiscordMessage = NewDiscordMessageClient(tx.config)
-	tx.Group = NewGroupClient(tx.config)
-	tx.MediaRequest = NewMediaRequestClient(tx.config)
-	tx.User = NewUserClient(tx.config)
+	tx.DiscordUser = NewDiscordUserClient(tx.config)
 }
 
 // txDriver wraps the given dialect.Tx with a nop dialect.Driver implementation.
@@ -164,7 +164,7 @@ func (tx *Tx) init() {
 // of them in order to commit or rollback the transaction.
 //
 // If a closed transaction is embedded in one of the generated entities, and the entity
-// applies a query, for example: DiscordMessage.QueryXXX(), the query will be executed
+// applies a query, for example: Book.QueryXXX(), the query will be executed
 // through the driver which created this transaction.
 //
 // Note that txDriver is not goroutine safe.

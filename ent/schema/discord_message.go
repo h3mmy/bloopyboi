@@ -2,6 +2,7 @@ package schema
 
 import (
 	"entgo.io/ent"
+	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
 	"entgo.io/ent/schema/mixin"
 	"github.com/bwmarrin/discordgo"
@@ -22,7 +23,11 @@ func (DiscordMessage) Fields() []ent.Field {
 
 // Edges of the DiscordMessage.
 func (DiscordMessage) Edges() []ent.Edge {
-	return nil
+	return []ent.Edge{
+		edge.From("author", DiscordUser.Type).Ref("discord_messages"),
+		// edge.To("channel", DiscordChannel.Type),
+		// edge.To("guild", DiscordGuild.Type)
+	}
 }
 
 func (DiscordMessage) Mixin() []ent.Mixin {

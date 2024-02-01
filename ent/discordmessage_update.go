@@ -12,7 +12,9 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/bwmarrin/discordgo"
+	"github.com/google/uuid"
 	"github.com/h3mmy/bloopyboi/ent/discordmessage"
+	"github.com/h3mmy/bloopyboi/ent/discorduser"
 	"github.com/h3mmy/bloopyboi/ent/predicate"
 )
 
@@ -41,9 +43,45 @@ func (dmu *DiscordMessageUpdate) SetRaw(d discordgo.Message) *DiscordMessageUpda
 	return dmu
 }
 
+// AddAuthorIDs adds the "author" edge to the DiscordUser entity by IDs.
+func (dmu *DiscordMessageUpdate) AddAuthorIDs(ids ...uuid.UUID) *DiscordMessageUpdate {
+	dmu.mutation.AddAuthorIDs(ids...)
+	return dmu
+}
+
+// AddAuthor adds the "author" edges to the DiscordUser entity.
+func (dmu *DiscordMessageUpdate) AddAuthor(d ...*DiscordUser) *DiscordMessageUpdate {
+	ids := make([]uuid.UUID, len(d))
+	for i := range d {
+		ids[i] = d[i].ID
+	}
+	return dmu.AddAuthorIDs(ids...)
+}
+
 // Mutation returns the DiscordMessageMutation object of the builder.
 func (dmu *DiscordMessageUpdate) Mutation() *DiscordMessageMutation {
 	return dmu.mutation
+}
+
+// ClearAuthor clears all "author" edges to the DiscordUser entity.
+func (dmu *DiscordMessageUpdate) ClearAuthor() *DiscordMessageUpdate {
+	dmu.mutation.ClearAuthor()
+	return dmu
+}
+
+// RemoveAuthorIDs removes the "author" edge to DiscordUser entities by IDs.
+func (dmu *DiscordMessageUpdate) RemoveAuthorIDs(ids ...uuid.UUID) *DiscordMessageUpdate {
+	dmu.mutation.RemoveAuthorIDs(ids...)
+	return dmu
+}
+
+// RemoveAuthor removes "author" edges to DiscordUser entities.
+func (dmu *DiscordMessageUpdate) RemoveAuthor(d ...*DiscordUser) *DiscordMessageUpdate {
+	ids := make([]uuid.UUID, len(d))
+	for i := range d {
+		ids[i] = d[i].ID
+	}
+	return dmu.RemoveAuthorIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -97,6 +135,51 @@ func (dmu *DiscordMessageUpdate) sqlSave(ctx context.Context) (n int, err error)
 	if value, ok := dmu.mutation.Raw(); ok {
 		_spec.SetField(discordmessage.FieldRaw, field.TypeJSON, value)
 	}
+	if dmu.mutation.AuthorCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   discordmessage.AuthorTable,
+			Columns: discordmessage.AuthorPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(discorduser.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := dmu.mutation.RemovedAuthorIDs(); len(nodes) > 0 && !dmu.mutation.AuthorCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   discordmessage.AuthorTable,
+			Columns: discordmessage.AuthorPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(discorduser.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := dmu.mutation.AuthorIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   discordmessage.AuthorTable,
+			Columns: discordmessage.AuthorPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(discorduser.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	if n, err = sqlgraph.UpdateNodes(ctx, dmu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{discordmessage.Label}
@@ -129,9 +212,45 @@ func (dmuo *DiscordMessageUpdateOne) SetRaw(d discordgo.Message) *DiscordMessage
 	return dmuo
 }
 
+// AddAuthorIDs adds the "author" edge to the DiscordUser entity by IDs.
+func (dmuo *DiscordMessageUpdateOne) AddAuthorIDs(ids ...uuid.UUID) *DiscordMessageUpdateOne {
+	dmuo.mutation.AddAuthorIDs(ids...)
+	return dmuo
+}
+
+// AddAuthor adds the "author" edges to the DiscordUser entity.
+func (dmuo *DiscordMessageUpdateOne) AddAuthor(d ...*DiscordUser) *DiscordMessageUpdateOne {
+	ids := make([]uuid.UUID, len(d))
+	for i := range d {
+		ids[i] = d[i].ID
+	}
+	return dmuo.AddAuthorIDs(ids...)
+}
+
 // Mutation returns the DiscordMessageMutation object of the builder.
 func (dmuo *DiscordMessageUpdateOne) Mutation() *DiscordMessageMutation {
 	return dmuo.mutation
+}
+
+// ClearAuthor clears all "author" edges to the DiscordUser entity.
+func (dmuo *DiscordMessageUpdateOne) ClearAuthor() *DiscordMessageUpdateOne {
+	dmuo.mutation.ClearAuthor()
+	return dmuo
+}
+
+// RemoveAuthorIDs removes the "author" edge to DiscordUser entities by IDs.
+func (dmuo *DiscordMessageUpdateOne) RemoveAuthorIDs(ids ...uuid.UUID) *DiscordMessageUpdateOne {
+	dmuo.mutation.RemoveAuthorIDs(ids...)
+	return dmuo
+}
+
+// RemoveAuthor removes "author" edges to DiscordUser entities.
+func (dmuo *DiscordMessageUpdateOne) RemoveAuthor(d ...*DiscordUser) *DiscordMessageUpdateOne {
+	ids := make([]uuid.UUID, len(d))
+	for i := range d {
+		ids[i] = d[i].ID
+	}
+	return dmuo.RemoveAuthorIDs(ids...)
 }
 
 // Where appends a list predicates to the DiscordMessageUpdate builder.
@@ -214,6 +333,51 @@ func (dmuo *DiscordMessageUpdateOne) sqlSave(ctx context.Context) (_node *Discor
 	}
 	if value, ok := dmuo.mutation.Raw(); ok {
 		_spec.SetField(discordmessage.FieldRaw, field.TypeJSON, value)
+	}
+	if dmuo.mutation.AuthorCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   discordmessage.AuthorTable,
+			Columns: discordmessage.AuthorPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(discorduser.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := dmuo.mutation.RemovedAuthorIDs(); len(nodes) > 0 && !dmuo.mutation.AuthorCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   discordmessage.AuthorTable,
+			Columns: discordmessage.AuthorPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(discorduser.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := dmuo.mutation.AuthorIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   discordmessage.AuthorTable,
+			Columns: discordmessage.AuthorPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(discorduser.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_node = &DiscordMessage{config: dmuo.config}
 	_spec.Assign = _node.assignValues

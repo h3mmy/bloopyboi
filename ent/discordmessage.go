@@ -24,8 +24,30 @@ type DiscordMessage struct {
 	// UpdateTime holds the value of the "update_time" field.
 	UpdateTime time.Time `json:"update_time,omitempty"`
 	// Raw holds the value of the "raw" field.
-	Raw          discordgo.Message `json:"raw,omitempty"`
+	Raw discordgo.Message `json:"raw,omitempty"`
+	// Edges holds the relations/edges for other nodes in the graph.
+	// The values are being populated by the DiscordMessageQuery when eager-loading is set.
+	Edges        DiscordMessageEdges `json:"edges"`
 	selectValues sql.SelectValues
+}
+
+// DiscordMessageEdges holds the relations/edges for other nodes in the graph.
+type DiscordMessageEdges struct {
+	// Author holds the value of the author edge.
+	Author []*DiscordUser `json:"author,omitempty"`
+	// loadedTypes holds the information for reporting if a
+	// type was loaded (or requested) in eager-loading or not.
+	loadedTypes [1]bool
+	namedAuthor map[string][]*DiscordUser
+}
+
+// AuthorOrErr returns the Author value or an error if the edge
+// was not loaded in eager-loading.
+func (e DiscordMessageEdges) AuthorOrErr() ([]*DiscordUser, error) {
+	if e.loadedTypes[0] {
+		return e.Author, nil
+	}
+	return nil, &NotLoadedError{edge: "author"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -93,6 +115,11 @@ func (dm *DiscordMessage) Value(name string) (ent.Value, error) {
 	return dm.selectValues.Get(name)
 }
 
+// QueryAuthor queries the "author" edge of the DiscordMessage entity.
+func (dm *DiscordMessage) QueryAuthor() *DiscordUserQuery {
+	return NewDiscordMessageClient(dm.config).QueryAuthor(dm)
+}
+
 // Update returns a builder for updating this DiscordMessage.
 // Note that you need to call DiscordMessage.Unwrap() before calling this method if this DiscordMessage
 // was returned from a transaction, and the transaction was committed or rolled back.
@@ -126,6 +153,30 @@ func (dm *DiscordMessage) String() string {
 	builder.WriteString(fmt.Sprintf("%v", dm.Raw))
 	builder.WriteByte(')')
 	return builder.String()
+}
+
+// NamedAuthor returns the Author named value or an error if the edge was not
+// loaded in eager-loading with this name.
+func (dm *DiscordMessage) NamedAuthor(name string) ([]*DiscordUser, error) {
+	if dm.Edges.namedAuthor == nil {
+		return nil, &NotLoadedError{edge: name}
+	}
+	nodes, ok := dm.Edges.namedAuthor[name]
+	if !ok {
+		return nil, &NotLoadedError{edge: name}
+	}
+	return nodes, nil
+}
+
+func (dm *DiscordMessage) appendNamedAuthor(name string, edges ...*DiscordUser) {
+	if dm.Edges.namedAuthor == nil {
+		dm.Edges.namedAuthor = make(map[string][]*DiscordUser)
+	}
+	if len(edges) == 0 {
+		dm.Edges.namedAuthor[name] = []*DiscordUser{}
+	} else {
+		dm.Edges.namedAuthor[name] = append(dm.Edges.namedAuthor[name], edges...)
+	}
 }
 
 // DiscordMessages is a parsable slice of DiscordMessage.

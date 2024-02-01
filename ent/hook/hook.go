@@ -9,6 +9,30 @@ import (
 	"github.com/h3mmy/bloopyboi/ent"
 )
 
+// The BookFunc type is an adapter to allow the use of ordinary
+// function as Book mutator.
+type BookFunc func(context.Context, *ent.BookMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f BookFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.BookMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.BookMutation", m)
+}
+
+// The BookAuthorFunc type is an adapter to allow the use of ordinary
+// function as BookAuthor mutator.
+type BookAuthorFunc func(context.Context, *ent.BookAuthorMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f BookAuthorFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.BookAuthorMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.BookAuthorMutation", m)
+}
+
 // The DiscordMessageFunc type is an adapter to allow the use of ordinary
 // function as DiscordMessage mutator.
 type DiscordMessageFunc func(context.Context, *ent.DiscordMessageMutation) (ent.Value, error)
@@ -21,40 +45,16 @@ func (f DiscordMessageFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Val
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.DiscordMessageMutation", m)
 }
 
-// The GroupFunc type is an adapter to allow the use of ordinary
-// function as Group mutator.
-type GroupFunc func(context.Context, *ent.GroupMutation) (ent.Value, error)
+// The DiscordUserFunc type is an adapter to allow the use of ordinary
+// function as DiscordUser mutator.
+type DiscordUserFunc func(context.Context, *ent.DiscordUserMutation) (ent.Value, error)
 
 // Mutate calls f(ctx, m).
-func (f GroupFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
-	if mv, ok := m.(*ent.GroupMutation); ok {
+func (f DiscordUserFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.DiscordUserMutation); ok {
 		return f(ctx, mv)
 	}
-	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.GroupMutation", m)
-}
-
-// The MediaRequestFunc type is an adapter to allow the use of ordinary
-// function as MediaRequest mutator.
-type MediaRequestFunc func(context.Context, *ent.MediaRequestMutation) (ent.Value, error)
-
-// Mutate calls f(ctx, m).
-func (f MediaRequestFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
-	if mv, ok := m.(*ent.MediaRequestMutation); ok {
-		return f(ctx, mv)
-	}
-	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.MediaRequestMutation", m)
-}
-
-// The UserFunc type is an adapter to allow the use of ordinary
-// function as User mutator.
-type UserFunc func(context.Context, *ent.UserMutation) (ent.Value, error)
-
-// Mutate calls f(ctx, m).
-func (f UserFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
-	if mv, ok := m.(*ent.UserMutation); ok {
-		return f(ctx, mv)
-	}
-	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.UserMutation", m)
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.DiscordUserMutation", m)
 }
 
 // Condition is a hook condition function.

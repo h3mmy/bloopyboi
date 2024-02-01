@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 )
 
 const (
@@ -19,8 +20,15 @@ const (
 	FieldUpdateTime = "update_time"
 	// FieldRaw holds the string denoting the raw field in the database.
 	FieldRaw = "raw"
+	// EdgeAuthor holds the string denoting the author edge name in mutations.
+	EdgeAuthor = "author"
 	// Table holds the table name of the discordmessage in the database.
 	Table = "discord_messages"
+	// AuthorTable is the table that holds the author relation/edge. The primary key declared below.
+	AuthorTable = "discord_user_discord_messages"
+	// AuthorInverseTable is the table name for the DiscordUser entity.
+	// It exists in this package in order to avoid circular dependency with the "discorduser" package.
+	AuthorInverseTable = "discord_users"
 )
 
 // Columns holds all SQL columns for discordmessage fields.
@@ -30,6 +38,12 @@ var Columns = []string{
 	FieldUpdateTime,
 	FieldRaw,
 }
+
+var (
+	// AuthorPrimaryKey and AuthorColumn2 are the table columns denoting the
+	// primary key for the author relation (M2M).
+	AuthorPrimaryKey = []string{"discord_user_id", "discord_message_id"}
+)
 
 // ValidColumn reports if the column name is valid (part of the table columns).
 func ValidColumn(column string) bool {
@@ -66,4 +80,25 @@ func ByCreateTime(opts ...sql.OrderTermOption) OrderOption {
 // ByUpdateTime orders the results by the update_time field.
 func ByUpdateTime(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldUpdateTime, opts...).ToFunc()
+}
+
+// ByAuthorCount orders the results by author count.
+func ByAuthorCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newAuthorStep(), opts...)
+	}
+}
+
+// ByAuthor orders the results by author terms.
+func ByAuthor(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newAuthorStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+func newAuthorStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(AuthorInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2M, true, AuthorTable, AuthorPrimaryKey...),
+	)
 }

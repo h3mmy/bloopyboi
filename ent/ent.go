@@ -12,10 +12,10 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/h3mmy/bloopyboi/ent/book"
+	"github.com/h3mmy/bloopyboi/ent/bookauthor"
 	"github.com/h3mmy/bloopyboi/ent/discordmessage"
-	"github.com/h3mmy/bloopyboi/ent/group"
-	"github.com/h3mmy/bloopyboi/ent/mediarequest"
-	"github.com/h3mmy/bloopyboi/ent/user"
+	"github.com/h3mmy/bloopyboi/ent/discorduser"
 )
 
 // ent aliases to avoid import conflicts in user's code.
@@ -76,10 +76,10 @@ var (
 func checkColumn(table, column string) error {
 	initCheck.Do(func() {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
+			book.Table:           book.ValidColumn,
+			bookauthor.Table:     bookauthor.ValidColumn,
 			discordmessage.Table: discordmessage.ValidColumn,
-			group.Table:          group.ValidColumn,
-			mediarequest.Table:   mediarequest.ValidColumn,
-			user.Table:           user.ValidColumn,
+			discorduser.Table:    discorduser.ValidColumn,
 		})
 	})
 	return columnCheck(table, column)

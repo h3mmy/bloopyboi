@@ -8,16 +8,17 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/google/uuid"
 	"github.com/h3mmy/bloopyboi/ent/migrate"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/h3mmy/bloopyboi/ent/book"
+	"github.com/h3mmy/bloopyboi/ent/bookauthor"
 	"github.com/h3mmy/bloopyboi/ent/discordmessage"
-	"github.com/h3mmy/bloopyboi/ent/group"
-	"github.com/h3mmy/bloopyboi/ent/mediarequest"
-	"github.com/h3mmy/bloopyboi/ent/user"
+	"github.com/h3mmy/bloopyboi/ent/discorduser"
 )
 
 // Client is the client that holds all ent builders.
@@ -25,14 +26,14 @@ type Client struct {
 	config
 	// Schema is the client for creating, migrating and dropping schema.
 	Schema *migrate.Schema
+	// Book is the client for interacting with the Book builders.
+	Book *BookClient
+	// BookAuthor is the client for interacting with the BookAuthor builders.
+	BookAuthor *BookAuthorClient
 	// DiscordMessage is the client for interacting with the DiscordMessage builders.
 	DiscordMessage *DiscordMessageClient
-	// Group is the client for interacting with the Group builders.
-	Group *GroupClient
-	// MediaRequest is the client for interacting with the MediaRequest builders.
-	MediaRequest *MediaRequestClient
-	// User is the client for interacting with the User builders.
-	User *UserClient
+	// DiscordUser is the client for interacting with the DiscordUser builders.
+	DiscordUser *DiscordUserClient
 }
 
 // NewClient creates a new client configured with the given options.
@@ -46,10 +47,10 @@ func NewClient(opts ...Option) *Client {
 
 func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
+	c.Book = NewBookClient(c.config)
+	c.BookAuthor = NewBookAuthorClient(c.config)
 	c.DiscordMessage = NewDiscordMessageClient(c.config)
-	c.Group = NewGroupClient(c.config)
-	c.MediaRequest = NewMediaRequestClient(c.config)
-	c.User = NewUserClient(c.config)
+	c.DiscordUser = NewDiscordUserClient(c.config)
 }
 
 type (
@@ -132,10 +133,10 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 	return &Tx{
 		ctx:            ctx,
 		config:         cfg,
+		Book:           NewBookClient(cfg),
+		BookAuthor:     NewBookAuthorClient(cfg),
 		DiscordMessage: NewDiscordMessageClient(cfg),
-		Group:          NewGroupClient(cfg),
-		MediaRequest:   NewMediaRequestClient(cfg),
-		User:           NewUserClient(cfg),
+		DiscordUser:    NewDiscordUserClient(cfg),
 	}, nil
 }
 
@@ -155,17 +156,17 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 	return &Tx{
 		ctx:            ctx,
 		config:         cfg,
+		Book:           NewBookClient(cfg),
+		BookAuthor:     NewBookAuthorClient(cfg),
 		DiscordMessage: NewDiscordMessageClient(cfg),
-		Group:          NewGroupClient(cfg),
-		MediaRequest:   NewMediaRequestClient(cfg),
-		User:           NewUserClient(cfg),
+		DiscordUser:    NewDiscordUserClient(cfg),
 	}, nil
 }
 
 // Debug returns a new debug-client. It's used to get verbose logging on specific operations.
 //
 //	client.Debug().
-//		DiscordMessage.
+//		Book.
 //		Query().
 //		Count(ctx)
 func (c *Client) Debug() *Client {
@@ -187,34 +188,302 @@ func (c *Client) Close() error {
 // Use adds the mutation hooks to all the entity clients.
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
+	c.Book.Use(hooks...)
+	c.BookAuthor.Use(hooks...)
 	c.DiscordMessage.Use(hooks...)
-	c.Group.Use(hooks...)
-	c.MediaRequest.Use(hooks...)
-	c.User.Use(hooks...)
+	c.DiscordUser.Use(hooks...)
 }
 
 // Intercept adds the query interceptors to all the entity clients.
 // In order to add interceptors to a specific client, call: `client.Node.Intercept(...)`.
 func (c *Client) Intercept(interceptors ...Interceptor) {
+	c.Book.Intercept(interceptors...)
+	c.BookAuthor.Intercept(interceptors...)
 	c.DiscordMessage.Intercept(interceptors...)
-	c.Group.Intercept(interceptors...)
-	c.MediaRequest.Intercept(interceptors...)
-	c.User.Intercept(interceptors...)
+	c.DiscordUser.Intercept(interceptors...)
 }
 
 // Mutate implements the ent.Mutator interface.
 func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 	switch m := m.(type) {
+	case *BookMutation:
+		return c.Book.mutate(ctx, m)
+	case *BookAuthorMutation:
+		return c.BookAuthor.mutate(ctx, m)
 	case *DiscordMessageMutation:
 		return c.DiscordMessage.mutate(ctx, m)
-	case *GroupMutation:
-		return c.Group.mutate(ctx, m)
-	case *MediaRequestMutation:
-		return c.MediaRequest.mutate(ctx, m)
-	case *UserMutation:
-		return c.User.mutate(ctx, m)
+	case *DiscordUserMutation:
+		return c.DiscordUser.mutate(ctx, m)
 	default:
 		return nil, fmt.Errorf("ent: unknown mutation type %T", m)
+	}
+}
+
+// BookClient is a client for the Book schema.
+type BookClient struct {
+	config
+}
+
+// NewBookClient returns a client for the Book from the given config.
+func NewBookClient(c config) *BookClient {
+	return &BookClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `book.Hooks(f(g(h())))`.
+func (c *BookClient) Use(hooks ...Hook) {
+	c.hooks.Book = append(c.hooks.Book, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `book.Intercept(f(g(h())))`.
+func (c *BookClient) Intercept(interceptors ...Interceptor) {
+	c.inters.Book = append(c.inters.Book, interceptors...)
+}
+
+// Create returns a builder for creating a Book entity.
+func (c *BookClient) Create() *BookCreate {
+	mutation := newBookMutation(c.config, OpCreate)
+	return &BookCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of Book entities.
+func (c *BookClient) CreateBulk(builders ...*BookCreate) *BookCreateBulk {
+	return &BookCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for Book.
+func (c *BookClient) Update() *BookUpdate {
+	mutation := newBookMutation(c.config, OpUpdate)
+	return &BookUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *BookClient) UpdateOne(b *Book) *BookUpdateOne {
+	mutation := newBookMutation(c.config, OpUpdateOne, withBook(b))
+	return &BookUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *BookClient) UpdateOneID(id uuid.UUID) *BookUpdateOne {
+	mutation := newBookMutation(c.config, OpUpdateOne, withBookID(id))
+	return &BookUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for Book.
+func (c *BookClient) Delete() *BookDelete {
+	mutation := newBookMutation(c.config, OpDelete)
+	return &BookDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *BookClient) DeleteOne(b *Book) *BookDeleteOne {
+	return c.DeleteOneID(b.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *BookClient) DeleteOneID(id uuid.UUID) *BookDeleteOne {
+	builder := c.Delete().Where(book.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &BookDeleteOne{builder}
+}
+
+// Query returns a query builder for Book.
+func (c *BookClient) Query() *BookQuery {
+	return &BookQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeBook},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a Book entity by its id.
+func (c *BookClient) Get(ctx context.Context, id uuid.UUID) (*Book, error) {
+	return c.Query().Where(book.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *BookClient) GetX(ctx context.Context, id uuid.UUID) *Book {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryBookAuthor queries the book_author edge of a Book.
+func (c *BookClient) QueryBookAuthor(b *Book) *BookAuthorQuery {
+	query := (&BookAuthorClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := b.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(book.Table, book.FieldID, id),
+			sqlgraph.To(bookauthor.Table, bookauthor.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, true, book.BookAuthorTable, book.BookAuthorPrimaryKey...),
+		)
+		fromV = sqlgraph.Neighbors(b.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *BookClient) Hooks() []Hook {
+	return c.hooks.Book
+}
+
+// Interceptors returns the client interceptors.
+func (c *BookClient) Interceptors() []Interceptor {
+	return c.inters.Book
+}
+
+func (c *BookClient) mutate(ctx context.Context, m *BookMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&BookCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&BookUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&BookUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&BookDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown Book mutation op: %q", m.Op())
+	}
+}
+
+// BookAuthorClient is a client for the BookAuthor schema.
+type BookAuthorClient struct {
+	config
+}
+
+// NewBookAuthorClient returns a client for the BookAuthor from the given config.
+func NewBookAuthorClient(c config) *BookAuthorClient {
+	return &BookAuthorClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `bookauthor.Hooks(f(g(h())))`.
+func (c *BookAuthorClient) Use(hooks ...Hook) {
+	c.hooks.BookAuthor = append(c.hooks.BookAuthor, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `bookauthor.Intercept(f(g(h())))`.
+func (c *BookAuthorClient) Intercept(interceptors ...Interceptor) {
+	c.inters.BookAuthor = append(c.inters.BookAuthor, interceptors...)
+}
+
+// Create returns a builder for creating a BookAuthor entity.
+func (c *BookAuthorClient) Create() *BookAuthorCreate {
+	mutation := newBookAuthorMutation(c.config, OpCreate)
+	return &BookAuthorCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of BookAuthor entities.
+func (c *BookAuthorClient) CreateBulk(builders ...*BookAuthorCreate) *BookAuthorCreateBulk {
+	return &BookAuthorCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for BookAuthor.
+func (c *BookAuthorClient) Update() *BookAuthorUpdate {
+	mutation := newBookAuthorMutation(c.config, OpUpdate)
+	return &BookAuthorUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *BookAuthorClient) UpdateOne(ba *BookAuthor) *BookAuthorUpdateOne {
+	mutation := newBookAuthorMutation(c.config, OpUpdateOne, withBookAuthor(ba))
+	return &BookAuthorUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *BookAuthorClient) UpdateOneID(id uuid.UUID) *BookAuthorUpdateOne {
+	mutation := newBookAuthorMutation(c.config, OpUpdateOne, withBookAuthorID(id))
+	return &BookAuthorUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for BookAuthor.
+func (c *BookAuthorClient) Delete() *BookAuthorDelete {
+	mutation := newBookAuthorMutation(c.config, OpDelete)
+	return &BookAuthorDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *BookAuthorClient) DeleteOne(ba *BookAuthor) *BookAuthorDeleteOne {
+	return c.DeleteOneID(ba.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *BookAuthorClient) DeleteOneID(id uuid.UUID) *BookAuthorDeleteOne {
+	builder := c.Delete().Where(bookauthor.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &BookAuthorDeleteOne{builder}
+}
+
+// Query returns a query builder for BookAuthor.
+func (c *BookAuthorClient) Query() *BookAuthorQuery {
+	return &BookAuthorQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeBookAuthor},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a BookAuthor entity by its id.
+func (c *BookAuthorClient) Get(ctx context.Context, id uuid.UUID) (*BookAuthor, error) {
+	return c.Query().Where(bookauthor.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *BookAuthorClient) GetX(ctx context.Context, id uuid.UUID) *BookAuthor {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryBooks queries the books edge of a BookAuthor.
+func (c *BookAuthorClient) QueryBooks(ba *BookAuthor) *BookQuery {
+	query := (&BookClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := ba.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(bookauthor.Table, bookauthor.FieldID, id),
+			sqlgraph.To(book.Table, book.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, false, bookauthor.BooksTable, bookauthor.BooksPrimaryKey...),
+		)
+		fromV = sqlgraph.Neighbors(ba.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *BookAuthorClient) Hooks() []Hook {
+	return c.hooks.BookAuthor
+}
+
+// Interceptors returns the client interceptors.
+func (c *BookAuthorClient) Interceptors() []Interceptor {
+	return c.inters.BookAuthor
+}
+
+func (c *BookAuthorClient) mutate(ctx context.Context, m *BookAuthorMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&BookAuthorCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&BookAuthorUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&BookAuthorUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&BookAuthorDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown BookAuthor mutation op: %q", m.Op())
 	}
 }
 
@@ -311,6 +580,22 @@ func (c *DiscordMessageClient) GetX(ctx context.Context, id string) *DiscordMess
 	return obj
 }
 
+// QueryAuthor queries the author edge of a DiscordMessage.
+func (c *DiscordMessageClient) QueryAuthor(dm *DiscordMessage) *DiscordUserQuery {
+	query := (&DiscordUserClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := dm.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(discordmessage.Table, discordmessage.FieldID, id),
+			sqlgraph.To(discorduser.Table, discorduser.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, true, discordmessage.AuthorTable, discordmessage.AuthorPrimaryKey...),
+		)
+		fromV = sqlgraph.Neighbors(dm.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *DiscordMessageClient) Hooks() []Hook {
 	return c.hooks.DiscordMessage
@@ -336,92 +621,92 @@ func (c *DiscordMessageClient) mutate(ctx context.Context, m *DiscordMessageMuta
 	}
 }
 
-// GroupClient is a client for the Group schema.
-type GroupClient struct {
+// DiscordUserClient is a client for the DiscordUser schema.
+type DiscordUserClient struct {
 	config
 }
 
-// NewGroupClient returns a client for the Group from the given config.
-func NewGroupClient(c config) *GroupClient {
-	return &GroupClient{config: c}
+// NewDiscordUserClient returns a client for the DiscordUser from the given config.
+func NewDiscordUserClient(c config) *DiscordUserClient {
+	return &DiscordUserClient{config: c}
 }
 
 // Use adds a list of mutation hooks to the hooks stack.
-// A call to `Use(f, g, h)` equals to `group.Hooks(f(g(h())))`.
-func (c *GroupClient) Use(hooks ...Hook) {
-	c.hooks.Group = append(c.hooks.Group, hooks...)
+// A call to `Use(f, g, h)` equals to `discorduser.Hooks(f(g(h())))`.
+func (c *DiscordUserClient) Use(hooks ...Hook) {
+	c.hooks.DiscordUser = append(c.hooks.DiscordUser, hooks...)
 }
 
 // Intercept adds a list of query interceptors to the interceptors stack.
-// A call to `Intercept(f, g, h)` equals to `group.Intercept(f(g(h())))`.
-func (c *GroupClient) Intercept(interceptors ...Interceptor) {
-	c.inters.Group = append(c.inters.Group, interceptors...)
+// A call to `Intercept(f, g, h)` equals to `discorduser.Intercept(f(g(h())))`.
+func (c *DiscordUserClient) Intercept(interceptors ...Interceptor) {
+	c.inters.DiscordUser = append(c.inters.DiscordUser, interceptors...)
 }
 
-// Create returns a builder for creating a Group entity.
-func (c *GroupClient) Create() *GroupCreate {
-	mutation := newGroupMutation(c.config, OpCreate)
-	return &GroupCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+// Create returns a builder for creating a DiscordUser entity.
+func (c *DiscordUserClient) Create() *DiscordUserCreate {
+	mutation := newDiscordUserMutation(c.config, OpCreate)
+	return &DiscordUserCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
-// CreateBulk returns a builder for creating a bulk of Group entities.
-func (c *GroupClient) CreateBulk(builders ...*GroupCreate) *GroupCreateBulk {
-	return &GroupCreateBulk{config: c.config, builders: builders}
+// CreateBulk returns a builder for creating a bulk of DiscordUser entities.
+func (c *DiscordUserClient) CreateBulk(builders ...*DiscordUserCreate) *DiscordUserCreateBulk {
+	return &DiscordUserCreateBulk{config: c.config, builders: builders}
 }
 
-// Update returns an update builder for Group.
-func (c *GroupClient) Update() *GroupUpdate {
-	mutation := newGroupMutation(c.config, OpUpdate)
-	return &GroupUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+// Update returns an update builder for DiscordUser.
+func (c *DiscordUserClient) Update() *DiscordUserUpdate {
+	mutation := newDiscordUserMutation(c.config, OpUpdate)
+	return &DiscordUserUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
 // UpdateOne returns an update builder for the given entity.
-func (c *GroupClient) UpdateOne(gr *Group) *GroupUpdateOne {
-	mutation := newGroupMutation(c.config, OpUpdateOne, withGroup(gr))
-	return &GroupUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+func (c *DiscordUserClient) UpdateOne(du *DiscordUser) *DiscordUserUpdateOne {
+	mutation := newDiscordUserMutation(c.config, OpUpdateOne, withDiscordUser(du))
+	return &DiscordUserUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
 // UpdateOneID returns an update builder for the given id.
-func (c *GroupClient) UpdateOneID(id int) *GroupUpdateOne {
-	mutation := newGroupMutation(c.config, OpUpdateOne, withGroupID(id))
-	return &GroupUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+func (c *DiscordUserClient) UpdateOneID(id uuid.UUID) *DiscordUserUpdateOne {
+	mutation := newDiscordUserMutation(c.config, OpUpdateOne, withDiscordUserID(id))
+	return &DiscordUserUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
-// Delete returns a delete builder for Group.
-func (c *GroupClient) Delete() *GroupDelete {
-	mutation := newGroupMutation(c.config, OpDelete)
-	return &GroupDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+// Delete returns a delete builder for DiscordUser.
+func (c *DiscordUserClient) Delete() *DiscordUserDelete {
+	mutation := newDiscordUserMutation(c.config, OpDelete)
+	return &DiscordUserDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
 // DeleteOne returns a builder for deleting the given entity.
-func (c *GroupClient) DeleteOne(gr *Group) *GroupDeleteOne {
-	return c.DeleteOneID(gr.ID)
+func (c *DiscordUserClient) DeleteOne(du *DiscordUser) *DiscordUserDeleteOne {
+	return c.DeleteOneID(du.ID)
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *GroupClient) DeleteOneID(id int) *GroupDeleteOne {
-	builder := c.Delete().Where(group.ID(id))
+func (c *DiscordUserClient) DeleteOneID(id uuid.UUID) *DiscordUserDeleteOne {
+	builder := c.Delete().Where(discorduser.ID(id))
 	builder.mutation.id = &id
 	builder.mutation.op = OpDeleteOne
-	return &GroupDeleteOne{builder}
+	return &DiscordUserDeleteOne{builder}
 }
 
-// Query returns a query builder for Group.
-func (c *GroupClient) Query() *GroupQuery {
-	return &GroupQuery{
+// Query returns a query builder for DiscordUser.
+func (c *DiscordUserClient) Query() *DiscordUserQuery {
+	return &DiscordUserQuery{
 		config: c.config,
-		ctx:    &QueryContext{Type: TypeGroup},
+		ctx:    &QueryContext{Type: TypeDiscordUser},
 		inters: c.Interceptors(),
 	}
 }
 
-// Get returns a Group entity by its id.
-func (c *GroupClient) Get(ctx context.Context, id int) (*Group, error) {
-	return c.Query().Where(group.ID(id)).Only(ctx)
+// Get returns a DiscordUser entity by its id.
+func (c *DiscordUserClient) Get(ctx context.Context, id uuid.UUID) (*DiscordUser, error) {
+	return c.Query().Where(discorduser.ID(id)).Only(ctx)
 }
 
 // GetX is like Get, but panics if an error occurs.
-func (c *GroupClient) GetX(ctx context.Context, id int) *Group {
+func (c *DiscordUserClient) GetX(ctx context.Context, id uuid.UUID) *DiscordUser {
 	obj, err := c.Get(ctx, id)
 	if err != nil {
 		panic(err)
@@ -429,337 +714,53 @@ func (c *GroupClient) GetX(ctx context.Context, id int) *Group {
 	return obj
 }
 
-// QueryUsers queries the users edge of a Group.
-func (c *GroupClient) QueryUsers(gr *Group) *UserQuery {
-	query := (&UserClient{config: c.config}).Query()
+// QueryDiscordMessages queries the discord_messages edge of a DiscordUser.
+func (c *DiscordUserClient) QueryDiscordMessages(du *DiscordUser) *DiscordMessageQuery {
+	query := (&DiscordMessageClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := gr.ID
+		id := du.ID
 		step := sqlgraph.NewStep(
-			sqlgraph.From(group.Table, group.FieldID, id),
-			sqlgraph.To(user.Table, user.FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, false, group.UsersTable, group.UsersPrimaryKey...),
+			sqlgraph.From(discorduser.Table, discorduser.FieldID, id),
+			sqlgraph.To(discordmessage.Table, discordmessage.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, false, discorduser.DiscordMessagesTable, discorduser.DiscordMessagesPrimaryKey...),
 		)
-		fromV = sqlgraph.Neighbors(gr.driver.Dialect(), step)
+		fromV = sqlgraph.Neighbors(du.driver.Dialect(), step)
 		return fromV, nil
 	}
 	return query
 }
 
 // Hooks returns the client hooks.
-func (c *GroupClient) Hooks() []Hook {
-	return c.hooks.Group
+func (c *DiscordUserClient) Hooks() []Hook {
+	return c.hooks.DiscordUser
 }
 
 // Interceptors returns the client interceptors.
-func (c *GroupClient) Interceptors() []Interceptor {
-	return c.inters.Group
+func (c *DiscordUserClient) Interceptors() []Interceptor {
+	return c.inters.DiscordUser
 }
 
-func (c *GroupClient) mutate(ctx context.Context, m *GroupMutation) (Value, error) {
+func (c *DiscordUserClient) mutate(ctx context.Context, m *DiscordUserMutation) (Value, error) {
 	switch m.Op() {
 	case OpCreate:
-		return (&GroupCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+		return (&DiscordUserCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
 	case OpUpdate:
-		return (&GroupUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+		return (&DiscordUserUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
 	case OpUpdateOne:
-		return (&GroupUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+		return (&DiscordUserUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
 	case OpDelete, OpDeleteOne:
-		return (&GroupDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+		return (&DiscordUserDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
-		return nil, fmt.Errorf("ent: unknown Group mutation op: %q", m.Op())
-	}
-}
-
-// MediaRequestClient is a client for the MediaRequest schema.
-type MediaRequestClient struct {
-	config
-}
-
-// NewMediaRequestClient returns a client for the MediaRequest from the given config.
-func NewMediaRequestClient(c config) *MediaRequestClient {
-	return &MediaRequestClient{config: c}
-}
-
-// Use adds a list of mutation hooks to the hooks stack.
-// A call to `Use(f, g, h)` equals to `mediarequest.Hooks(f(g(h())))`.
-func (c *MediaRequestClient) Use(hooks ...Hook) {
-	c.hooks.MediaRequest = append(c.hooks.MediaRequest, hooks...)
-}
-
-// Intercept adds a list of query interceptors to the interceptors stack.
-// A call to `Intercept(f, g, h)` equals to `mediarequest.Intercept(f(g(h())))`.
-func (c *MediaRequestClient) Intercept(interceptors ...Interceptor) {
-	c.inters.MediaRequest = append(c.inters.MediaRequest, interceptors...)
-}
-
-// Create returns a builder for creating a MediaRequest entity.
-func (c *MediaRequestClient) Create() *MediaRequestCreate {
-	mutation := newMediaRequestMutation(c.config, OpCreate)
-	return &MediaRequestCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// CreateBulk returns a builder for creating a bulk of MediaRequest entities.
-func (c *MediaRequestClient) CreateBulk(builders ...*MediaRequestCreate) *MediaRequestCreateBulk {
-	return &MediaRequestCreateBulk{config: c.config, builders: builders}
-}
-
-// Update returns an update builder for MediaRequest.
-func (c *MediaRequestClient) Update() *MediaRequestUpdate {
-	mutation := newMediaRequestMutation(c.config, OpUpdate)
-	return &MediaRequestUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOne returns an update builder for the given entity.
-func (c *MediaRequestClient) UpdateOne(mr *MediaRequest) *MediaRequestUpdateOne {
-	mutation := newMediaRequestMutation(c.config, OpUpdateOne, withMediaRequest(mr))
-	return &MediaRequestUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOneID returns an update builder for the given id.
-func (c *MediaRequestClient) UpdateOneID(id int) *MediaRequestUpdateOne {
-	mutation := newMediaRequestMutation(c.config, OpUpdateOne, withMediaRequestID(id))
-	return &MediaRequestUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// Delete returns a delete builder for MediaRequest.
-func (c *MediaRequestClient) Delete() *MediaRequestDelete {
-	mutation := newMediaRequestMutation(c.config, OpDelete)
-	return &MediaRequestDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// DeleteOne returns a builder for deleting the given entity.
-func (c *MediaRequestClient) DeleteOne(mr *MediaRequest) *MediaRequestDeleteOne {
-	return c.DeleteOneID(mr.ID)
-}
-
-// DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *MediaRequestClient) DeleteOneID(id int) *MediaRequestDeleteOne {
-	builder := c.Delete().Where(mediarequest.ID(id))
-	builder.mutation.id = &id
-	builder.mutation.op = OpDeleteOne
-	return &MediaRequestDeleteOne{builder}
-}
-
-// Query returns a query builder for MediaRequest.
-func (c *MediaRequestClient) Query() *MediaRequestQuery {
-	return &MediaRequestQuery{
-		config: c.config,
-		ctx:    &QueryContext{Type: TypeMediaRequest},
-		inters: c.Interceptors(),
-	}
-}
-
-// Get returns a MediaRequest entity by its id.
-func (c *MediaRequestClient) Get(ctx context.Context, id int) (*MediaRequest, error) {
-	return c.Query().Where(mediarequest.ID(id)).Only(ctx)
-}
-
-// GetX is like Get, but panics if an error occurs.
-func (c *MediaRequestClient) GetX(ctx context.Context, id int) *MediaRequest {
-	obj, err := c.Get(ctx, id)
-	if err != nil {
-		panic(err)
-	}
-	return obj
-}
-
-// QueryUser queries the user edge of a MediaRequest.
-func (c *MediaRequestClient) QueryUser(mr *MediaRequest) *UserQuery {
-	query := (&UserClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := mr.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(mediarequest.Table, mediarequest.FieldID, id),
-			sqlgraph.To(user.Table, user.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, mediarequest.UserTable, mediarequest.UserColumn),
-		)
-		fromV = sqlgraph.Neighbors(mr.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// Hooks returns the client hooks.
-func (c *MediaRequestClient) Hooks() []Hook {
-	return c.hooks.MediaRequest
-}
-
-// Interceptors returns the client interceptors.
-func (c *MediaRequestClient) Interceptors() []Interceptor {
-	return c.inters.MediaRequest
-}
-
-func (c *MediaRequestClient) mutate(ctx context.Context, m *MediaRequestMutation) (Value, error) {
-	switch m.Op() {
-	case OpCreate:
-		return (&MediaRequestCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdate:
-		return (&MediaRequestUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdateOne:
-		return (&MediaRequestUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpDelete, OpDeleteOne:
-		return (&MediaRequestDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
-	default:
-		return nil, fmt.Errorf("ent: unknown MediaRequest mutation op: %q", m.Op())
-	}
-}
-
-// UserClient is a client for the User schema.
-type UserClient struct {
-	config
-}
-
-// NewUserClient returns a client for the User from the given config.
-func NewUserClient(c config) *UserClient {
-	return &UserClient{config: c}
-}
-
-// Use adds a list of mutation hooks to the hooks stack.
-// A call to `Use(f, g, h)` equals to `user.Hooks(f(g(h())))`.
-func (c *UserClient) Use(hooks ...Hook) {
-	c.hooks.User = append(c.hooks.User, hooks...)
-}
-
-// Intercept adds a list of query interceptors to the interceptors stack.
-// A call to `Intercept(f, g, h)` equals to `user.Intercept(f(g(h())))`.
-func (c *UserClient) Intercept(interceptors ...Interceptor) {
-	c.inters.User = append(c.inters.User, interceptors...)
-}
-
-// Create returns a builder for creating a User entity.
-func (c *UserClient) Create() *UserCreate {
-	mutation := newUserMutation(c.config, OpCreate)
-	return &UserCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// CreateBulk returns a builder for creating a bulk of User entities.
-func (c *UserClient) CreateBulk(builders ...*UserCreate) *UserCreateBulk {
-	return &UserCreateBulk{config: c.config, builders: builders}
-}
-
-// Update returns an update builder for User.
-func (c *UserClient) Update() *UserUpdate {
-	mutation := newUserMutation(c.config, OpUpdate)
-	return &UserUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOne returns an update builder for the given entity.
-func (c *UserClient) UpdateOne(u *User) *UserUpdateOne {
-	mutation := newUserMutation(c.config, OpUpdateOne, withUser(u))
-	return &UserUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOneID returns an update builder for the given id.
-func (c *UserClient) UpdateOneID(id int) *UserUpdateOne {
-	mutation := newUserMutation(c.config, OpUpdateOne, withUserID(id))
-	return &UserUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// Delete returns a delete builder for User.
-func (c *UserClient) Delete() *UserDelete {
-	mutation := newUserMutation(c.config, OpDelete)
-	return &UserDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// DeleteOne returns a builder for deleting the given entity.
-func (c *UserClient) DeleteOne(u *User) *UserDeleteOne {
-	return c.DeleteOneID(u.ID)
-}
-
-// DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *UserClient) DeleteOneID(id int) *UserDeleteOne {
-	builder := c.Delete().Where(user.ID(id))
-	builder.mutation.id = &id
-	builder.mutation.op = OpDeleteOne
-	return &UserDeleteOne{builder}
-}
-
-// Query returns a query builder for User.
-func (c *UserClient) Query() *UserQuery {
-	return &UserQuery{
-		config: c.config,
-		ctx:    &QueryContext{Type: TypeUser},
-		inters: c.Interceptors(),
-	}
-}
-
-// Get returns a User entity by its id.
-func (c *UserClient) Get(ctx context.Context, id int) (*User, error) {
-	return c.Query().Where(user.ID(id)).Only(ctx)
-}
-
-// GetX is like Get, but panics if an error occurs.
-func (c *UserClient) GetX(ctx context.Context, id int) *User {
-	obj, err := c.Get(ctx, id)
-	if err != nil {
-		panic(err)
-	}
-	return obj
-}
-
-// QueryGroups queries the groups edge of a User.
-func (c *UserClient) QueryGroups(u *User) *GroupQuery {
-	query := (&GroupClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := u.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(user.Table, user.FieldID, id),
-			sqlgraph.To(group.Table, group.FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, true, user.GroupsTable, user.GroupsPrimaryKey...),
-		)
-		fromV = sqlgraph.Neighbors(u.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryMediaRequest queries the mediaRequest edge of a User.
-func (c *UserClient) QueryMediaRequest(u *User) *MediaRequestQuery {
-	query := (&MediaRequestClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := u.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(user.Table, user.FieldID, id),
-			sqlgraph.To(mediarequest.Table, mediarequest.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, user.MediaRequestTable, user.MediaRequestColumn),
-		)
-		fromV = sqlgraph.Neighbors(u.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// Hooks returns the client hooks.
-func (c *UserClient) Hooks() []Hook {
-	return c.hooks.User
-}
-
-// Interceptors returns the client interceptors.
-func (c *UserClient) Interceptors() []Interceptor {
-	return c.inters.User
-}
-
-func (c *UserClient) mutate(ctx context.Context, m *UserMutation) (Value, error) {
-	switch m.Op() {
-	case OpCreate:
-		return (&UserCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdate:
-		return (&UserUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdateOne:
-		return (&UserUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpDelete, OpDeleteOne:
-		return (&UserDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
-	default:
-		return nil, fmt.Errorf("ent: unknown User mutation op: %q", m.Op())
+		return nil, fmt.Errorf("ent: unknown DiscordUser mutation op: %q", m.Op())
 	}
 }
 
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		DiscordMessage, Group, MediaRequest, User []ent.Hook
+		Book, BookAuthor, DiscordMessage, DiscordUser []ent.Hook
 	}
 	inters struct {
-		DiscordMessage, Group, MediaRequest, User []ent.Interceptor
+		Book, BookAuthor, DiscordMessage, DiscordUser []ent.Interceptor
 	}
 )
