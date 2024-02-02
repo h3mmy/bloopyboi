@@ -1,4 +1,9 @@
 {
+
+    "files.associations": {
+        "*.json5": "jsonc"
+    },
+
     "yaml.schemas": {
         "https://gitlab.com/gitlab-org/gitlab/-/raw/master/app/assets/javascripts/editor/schema/ci.json": [
             "file:///c%3A/Users/Zak/code/projects/bloopyboii/.gitlab-ci.yml"

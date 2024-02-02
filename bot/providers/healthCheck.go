@@ -1,9 +1,10 @@
 package providers
 
 import (
+	"context"
 	"fmt"
 	"time"
-	"context"
+
 	"github.com/alexliesenfeld/health"
 )
 
@@ -20,7 +21,7 @@ func onReadinessStatusChanged(_ context.Context, state health.CheckerState) {
 	logger.Info(fmt.Sprintf("readiness status changed to %s", state.Status))
 }
 
-func NewReadinessChecker() health.Checker {
+func NewReadinessChecker(discordReady func() bool) health.Checker {
 	return health.NewChecker(
 		health.WithTimeout(10*time.Second),
 		// The following check will be executed periodically every 15 seconds
@@ -31,6 +32,9 @@ func NewReadinessChecker() health.Checker {
 			// If the check function returns an error, this component will be considered unavailable ("down").
 			// The context contains a deadline according to the configuration of the Checker.
 			Check: func(ctx context.Context) error {
+				if !discordReady() {
+					return fmt.Errorf("discord session not ready")
+				}
 				return nil
 			},
 		}),
