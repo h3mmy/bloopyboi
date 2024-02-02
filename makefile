@@ -8,10 +8,10 @@ GO_FILES := $(shell find . -name '*.go' | grep -v /vendor/ | grep -v _test.go)
 all: build
 
 fmt: ## Format the project with gofmt
-	gofmt -l -w -s .
+	gofmt ./...
 
 lint: ## Lint code with golangci-lint
-	golangci-lint run
+	golangci-lint run -c .github/lint/golangci.yaml
 
 test: ## Run unittests
 	@go test -short ${PKG_LIST}
