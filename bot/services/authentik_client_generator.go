@@ -5,8 +5,7 @@ import (
 	"net/http"
 	"net/url"
 
-	httptransport "github.com/go-openapi/runtime/client"
-	"gitlab.com/h3mmy/bloopyboi/bot/internal/models"
+	"github.com/h3mmy/bloopyboi/bot/internal/models"
 	api "goauthentik.io/api/v3"
 )
 
@@ -38,15 +37,4 @@ func (s *AuthentikClientGenerator) generateClient() *api.APIClient {
 	apiClient := api.NewAPIClient(config)
 
 	return apiClient
-}
-
-// GetTLSTransport Get a TLS transport instance, that skips verification if configured via environment variables.
-func GetTLSTransport(insecure bool) http.RoundTripper {
-	tlsTransport, err := httptransport.TLSTransport(httptransport.TLSClientOptions{
-		InsecureSkipVerify: insecure,
-	})
-	if err != nil {
-		panic(err)
-	}
-	return tlsTransport
 }

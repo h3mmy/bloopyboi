@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/bwmarrin/discordgo"
-	"gitlab.com/h3mmy/bloopyboi/bot/internal/models"
+	"github.com/h3mmy/bloopyboi/bot/internal/models"
 )
 
 // NextMessageReactionRemoveC returns a channel for the next MessageReactionRemove event

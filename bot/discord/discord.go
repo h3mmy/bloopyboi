@@ -6,10 +6,10 @@ import (
 	"regexp"
 
 	"github.com/bwmarrin/discordgo"
-	bloopyCommands "gitlab.com/h3mmy/bloopyboi/bot/discord/commands"
-	"gitlab.com/h3mmy/bloopyboi/bot/handlers"
-	"gitlab.com/h3mmy/bloopyboi/bot/internal/models"
-	"gitlab.com/h3mmy/bloopyboi/bot/providers"
+	bloopyCommands "github.com/h3mmy/bloopyboi/bot/discord/commands"
+	"github.com/h3mmy/bloopyboi/bot/handlers"
+	"github.com/h3mmy/bloopyboi/bot/internal/models"
+	"github.com/h3mmy/bloopyboi/bot/providers"
 	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
 )
@@ -59,8 +59,19 @@ func NewDiscordClient(logger *zap.Logger) (*DiscordClient, error) {
 func (d *DiscordClient) Start(ctx context.Context) error {
 	d.log.Info("Starting Bot")
 	d.api.AddHandler(func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-		if h, ok := providers.AppCommandHandlers[i.ApplicationCommandData().Name]; ok {
-			h(s, i)
+		switch i.Type {
+		case discordgo.InteractionApplicationCommand:
+			if h, ok := providers.AppCommandHandlers[i.ApplicationCommandData().Name]; ok {
+				h(s, i)
+			}
+		case discordgo.InteractionMessageComponent:
+			if h, ok := providers.MessageComponentHandlers[i.MessageComponentData().CustomID]; ok {
+				h(s, i)
+			}
+		case discordgo.InteractionModalSubmit:
+			if h, ok := providers.ModalSubmitHandlers[i.ModalSubmitData().CustomID]; ok {
+				h(s, i)
+			}
 		}
 	})
 	d.api.AddHandler(bloopyCommands.DirectMessageCreate)
@@ -130,4 +141,8 @@ func getBloopyChanHandler(s *discordgo.Session, msgSendChan *chan *models.Discor
 	reactRCh := bloopyCommands.NextMessageReactionRemoveC(s)
 
 	return handlers.NewMessageChanBlooper(&createCh, &reactACh, &reactRCh, msgSendChan)
+}
+
+func (d *DiscordClient) IsReady() bool {
+	return d.api.DataReady
 }

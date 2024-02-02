@@ -7,8 +7,8 @@ import (
 	"os"
 	"strings"
 
-	"gitlab.com/h3mmy/bloopyboi/bot/internal/log"
-	"gitlab.com/h3mmy/bloopyboi/bot/k8s"
+	"github.com/h3mmy/bloopyboi/bot/internal/log"
+	"github.com/h3mmy/bloopyboi/bot/k8s"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	coreV1 "k8s.io/api/core/v1"

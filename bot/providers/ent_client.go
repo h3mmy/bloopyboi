@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"gitlab.com/h3mmy/bloopyboi/bot/internal/ent"
+	"github.com/h3mmy/bloopyboi/ent"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 
@@ -15,7 +15,6 @@ import (
 const (
 	ServiceLoggerFieldKey = "service_name"
 )
-
 
 type BloopyEnt struct {
 	client *ent.Client
@@ -74,8 +73,7 @@ func (be *BloopyEnt) Quit(ctx context.Context) error {
 	return nil
 }
 
-
-func(be *BloopyEnt) AddDiscordMessage(ctx context.Context, dmsg *discordgo.Message) error {
+func (be *BloopyEnt) AddDiscordMessage(ctx context.Context, dmsg *discordgo.Message) error {
 	mzField := zapcore.Field{Key: "func", Type: zapcore.StringType, String: "AddDiscordMessage"}
 	if !be.active {
 		be.logger.Error("client not initialized", mzField)

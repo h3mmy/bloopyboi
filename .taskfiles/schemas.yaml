@@ -1,0 +1,22 @@
+---
+version: "3"
+
+tasks:
+
+  refresh-deps:
+    desc: Get Project Dependencies
+    cmds:
+      # go mod download is a side effect of go get
+      - go get -v -d ./...
+  ent:
+    desc: Generate entgo files
+    cmds:
+      - task: refresh-deps
+      - go generate {{.ENT_FILES}}
+    sources:
+      - "{{.ENT_FILES}}/generate.go"
+      - "{{.ENT_FILES}}/schemas"
+    generates:
+      - "{{.ENT_FILES}}/[!schemas]*"
+    vars:
+      ENT_FILES: "./ent"

@@ -1,4 +1,4 @@
-FROM golang:1.20-alpine as build
+FROM golang:1.21-alpine as build
 
 ARG TARGETPLATFORM
 ENV TARGETPLATFORM=${TARGETPLATFORM:-linux/amd64}
@@ -16,9 +16,9 @@ RUN export GOOS=$(echo ${TARGETPLATFORM} | cut -d / -f1) \
     && \
     GOARM=$(echo ${TARGETPLATFORM} | cut -d / -f3); export GOARM=${GOARM:1}
 RUN go mod download
-# RUN go vet -v
+RUN go vet -v
 RUN go test -v
-RUN go build -ldflags="-w -s" .
+RUN go build -x -ldflags="-w -s" .
 RUN echo $(ls .)
 
 FROM gcr.io/distroless/static
