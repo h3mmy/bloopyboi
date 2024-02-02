@@ -6,6 +6,10 @@ inputs:
   token:
     description: Github token
     required: true
+  # channel:
+  #   description: Whether this is a stable release or develop
+  #   required: true
+  #   default: develop
 
 runs:
   using: composite
