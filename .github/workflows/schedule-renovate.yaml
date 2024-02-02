@@ -35,4 +35,4 @@ jobs:
       renovateLogLevel: ${{ inputs.logLevel || 'debug' }}
     secrets:
       app_id: ${{ secrets.APP_ID }}
-      app_private_key: ${{ secrets.APP_SECRET }}
+      app_private_key: ${{ secrets.APP_PRIVATE_KEY }}
