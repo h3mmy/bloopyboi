@@ -26,10 +26,17 @@ jobs:
       - name: Checkout
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
 
+      - name: Generate Token
+        uses: actions/create-github-app-token@v1.6.1
+        id: generate-token
+        with:
+          app-id: "${{ secrets.APP_ID }}"
+          private-key: "${{ secrets.APP_PRIVATE_KEY }}"
+
       - name: Build
         uses: ./.github/actions/docker-image
         with:
-          token: "${{ secrets.GITHUB_TOKEN }}"
+          token: "${{ steps.generate-token.outputs.token }}"
 
   release-binaries:
     runs-on: ubuntu-latest
@@ -38,7 +45,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
 
+      - name: Generate Token
+        uses: actions/create-github-app-token@v1.6.1
+        id: generate-token
+        with:
+          app-id: "${{ secrets.APP_ID }}"
+          private-key: "${{ secrets.APP_PRIVATE_KEY }}"
+
       - name: Release
         uses: ./.github/actions/go-release
         with:
-          token: "${{ secrets.GITHUB_TOKEN }}"
+          token: "${{ steps.generate-token.outputs.token }}"
