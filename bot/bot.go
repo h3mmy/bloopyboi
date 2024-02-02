@@ -25,10 +25,12 @@ type BloopyBoi struct {
 	Config          *config.AppConfig
 	Status          *health.AvailabilityStatus
 	ServiceRegistry models.ServiceRegistry
+	Running bool
 }
 
 func New() *BloopyBoi {
-	return &BloopyBoi{}
+	return &BloopyBoi{
+	}
 }
 
 func (bot *BloopyBoi) WithLogger(logger *zap.Logger) *BloopyBoi {
@@ -38,7 +40,7 @@ func (bot *BloopyBoi) WithLogger(logger *zap.Logger) *BloopyBoi {
 	}
 }
 
-func (bot *BloopyBoi) Start(ctx context.Context) error {
+func (bot *BloopyBoi) Run(ctx context.Context) error {
 	if bot.log == nil {
 		bot.log = providers.NewZapLogger().With(
 			zapcore.Field{
@@ -57,11 +59,18 @@ func (bot *BloopyBoi) Start(ctx context.Context) error {
 		bot.log.Debug("Starting Discord Client...")
 		return bot.initializeDiscord(ctx)
 	})
+	bot.Running = true
 	// errGroup.Go(func() error {
 	// 	bot.log.Debug("Starting K8s Service")
 	// 	return bot.initializeK8sService(ctx)
 	// })
-
+	go func ()  {
+		err:= errGroup.Wait(); if err != nil {
+			bot.log.Error("Error in bot errGroup", zap.Error(err))
+		}
+		bot.log.Info("bot.Run monitor gofunc exiting")
+		bot.Running = false
+	}()
 	<-ctx.Done()
 
 	bot.log.Info("Shutting down Boi. context should propogate")
@@ -97,4 +106,21 @@ func (bot *BloopyBoi) initializeK8sService(ctx context.Context) error {
 
 func (bot *BloopyBoi) initializeAuthentikService(ctx context.Context) error {
 	return nil
+}
+
+func (bot *BloopyBoi) Ping(ctx context.Context) error {
+	return nil
+}
+
+func (bot *BloopyBoi) GetStatus(ctx context.Context) *health.AvailabilityStatus {
+	return bot.Status
+}
+
+
+func (bot *BloopyBoi) GetReadinessChecker() health.Checker {
+	discordReady := func() bool {
+		return bot.Running
+	}
+
+	return providers.NewReadinessChecker(discordReady)
 }

@@ -19,7 +19,7 @@ bloopyboii_dev
 *.exe
 bloopy-ops-*.json
 keycloak*.xml
-
+dry-run/*
 charts/*/Chart.lock
 charts/*/charts
 
