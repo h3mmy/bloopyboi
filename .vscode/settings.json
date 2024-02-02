@@ -23,7 +23,9 @@
     "scm.alwaysShowRepositories": true,
     "git.alwaysSignOff": true,
     "git.autoStash": true,
-
+    "[yaml]": {
+      "editor.tabSize": 2
+  },
 
 "prettier.configPath": ".ci/prettier/.prettierrc.yaml",
 "prettier.ignorePath": ".ci/prettier/.prettierignore",
