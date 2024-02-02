@@ -35,14 +35,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
 
-      - name: Generate Token
-        uses: actions/create-github-app-token@v1.6.1
-        id: generate-token
-        with:
-          app-id: "${{ secrets.APP_ID }}"
-          private-key: "${{ secrets.APP_PRIVATE_KEY }}"
+      # - name: Generate Token
+      #   uses: actions/create-github-app-token@v1.6.1
+      #   id: generate-token
+      #   with:
+      #     app-id: "${{ secrets.APP_ID }}"
+      #     private-key: "${{ secrets.APP_PRIVATE_KEY }}"
 
       - name: Build
         uses: ./.github/actions/docker-image
         with:
-          token: "${{ steps.generate-token.outputs.token }}"
+          token: ${{ secrets.GITHUB_TOKEN }}
+          # token: "${{ steps.generate-token.outputs.token }}"
