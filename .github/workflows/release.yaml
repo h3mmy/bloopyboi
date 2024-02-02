@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
 
       - name: Tests
         uses: ./.github/actions/tests
@@ -24,7 +24,7 @@ jobs:
     needs: tests
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
 
       - name: Build
         uses: ./.github/actions/docker-image
@@ -36,7 +36,7 @@ jobs:
     needs: tests
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
 
       - name: Release
         uses: ./.github/actions/go-release
