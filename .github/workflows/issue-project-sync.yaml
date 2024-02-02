@@ -1,0 +1,28 @@
+---
+# yamllint disable rule:line-length
+
+name: Automatically add issues to project tracking board
+
+on:  # yamllint disable-line rule:truthy
+  issues:
+    types:
+      - opened
+      - transferred
+
+jobs:
+  add-to-project:
+    name: Add issue to project board
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate Token
+        uses: actions/create-github-app-token@v1.6.1
+        id: generate-token
+        with:
+          app-id: "${{ secrets.APP_ID }}"
+          private-key: "${{ secrets.APP_PRIVATE_KEY }}"
+      # https://github.com/actions/add-to-project
+      - uses: actions/add-to-project@31b3f3ccdc584546fc445612dec3f38ff5edb41c  # v0.5.0
+        with:
+          project-url: https://github.com/users/h3mmy/projects/3
+          # PAT needs repo & project scope
+          github-token: ${{ steps.generate-token.outputs.token }}

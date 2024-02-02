@@ -2,7 +2,6 @@ package services
 
 import (
 	"context"
-	"errors"
 	"fmt"
 
 	"github.com/h3mmy/bloopyboi/bot/internal/log"
@@ -39,7 +38,7 @@ func (s *AuthentikService) Verify(ctx context.Context) bool {
 		if res.StatusCode >= 200 && res.StatusCode < 300 {
 			return nil
 		} else {
-			return errors.New(fmt.Sprintf("non-2xx response code: %v", res))
+			return fmt.Errorf("non-2xx response code: %v", res)
 		}
 	})
 

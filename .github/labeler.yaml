@@ -1,0 +1,38 @@
+---
+area/ansible:
+  - changed-files:
+      - any-glob-to-any-file:
+        - "provision/ansible/**/*"
+area/ci:
+  - changed-files:
+      - any-glob-to-any-file:
+        - ".github/**/*"
+        - ".ci/**/*"
+        - "metadata.rules.cue"
+        - ".goreleaser.yaml"
+        - ".dockerignore"
+        - "Dockerfile"
+area/local:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "./taskfiles/**/*"
+          - "Taskfile.yaml"
+          - ".vscode/**/*"
+          - "makefile"
+          - ".gitlab-ci.yml"
+area/charts:
+  - changed-files:
+      - any-glob-to-any-file:
+        - "charts/**/*"
+area/docs:
+  - changed-files:
+      - any-glob-to-any-file:
+        - "docs/**/*"
+area/app:
+  - changed-files:
+      - any-glob-to-any-file:
+        - "cmd/**/*"
+        - "bot/**/*"
+        - "ent/**/*"
+        - "pkg/**/*"
+        - "main.go"

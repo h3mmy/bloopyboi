@@ -9,7 +9,6 @@ import (
 	"github.com/h3mmy/bloopyboi/bot/internal/config"
 	"github.com/h3mmy/bloopyboi/bot/internal/models"
 	"github.com/h3mmy/bloopyboi/bot/providers"
-	"github.com/h3mmy/bloopyboi/bot/services"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"golang.org/x/sync/errgroup"
@@ -96,17 +95,17 @@ func (bot *BloopyBoi) initializeDiscord(ctx context.Context) error {
 
 }
 
-func (bot *BloopyBoi) initializeK8sService(ctx context.Context) error {
-	k8sService := services.NewK8sService()
-	for _, ns := range k8sService.ListNamespaces(ctx) {
-		bot.log.Sugar().Info(ns)
-	}
-	return nil
-}
+// func (bot *BloopyBoi) initializeK8sService(ctx context.Context) error {
+// 	k8sService := services.NewK8sService()
+// 	for _, ns := range k8sService.ListNamespaces(ctx) {
+// 		bot.log.Sugar().Info(ns)
+// 	}
+// 	return nil
+// }
 
-func (bot *BloopyBoi) initializeAuthentikService(ctx context.Context) error {
-	return nil
-}
+// func (bot *BloopyBoi) initializeAuthentikService(ctx context.Context) error {
+// 	return nil
+// }
 
 func (bot *BloopyBoi) Ping(ctx context.Context) error {
 	return nil
