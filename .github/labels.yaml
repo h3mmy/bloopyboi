@@ -83,10 +83,10 @@
   color: "72ccf3"
   description: >-
     Changes made in pipeline related files
-- name: area/bot
+- name: area/app
   color: "72ccf3"
   description: >-
-    Changes made in the core bot code
+    Changes made in the core app code
 - name: area/docs
   color: "72ccf3"
   description: >-

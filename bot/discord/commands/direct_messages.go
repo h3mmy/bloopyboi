@@ -44,10 +44,13 @@ func DirectMessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		//    new ones.
 		fmt.Println("error creating channel:", err)
 		typingStop <- true
-		s.ChannelMessageSend(
+		_, err= s.ChannelMessageSend(
 			m.ChannelID,
 			"Something went wrong while sending the DM!",
 		)
+		if err!= nil {
+			fmt.Println("error sending message:", err)
+		}
 		return
 	}
 	// Then we send the message through the channel we created.
@@ -60,10 +63,13 @@ func DirectMessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		// user (highly unlikely as we just received a message) or
 		// the user disabled DM in their settings (more likely).
 		fmt.Println("error sending DM message:", err)
-		s.ChannelMessageSend(
+		_, err = s.ChannelMessageSend(
 			m.ChannelID,
 			"Failed to send you a DM. "+
 				"Did you disable DM in your privacy settings?",
 		)
+		if err!= nil {
+			fmt.Println("error sending message:", err)
+		}
 	}
 }

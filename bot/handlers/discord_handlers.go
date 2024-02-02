@@ -127,7 +127,6 @@ func (mcb *MessageChanBlooper) processIncomingMessage(msg *discordgo.MessageCrea
 			Content: resp,
 		},
 	}
-	return
 }
 
 func (mcb *MessageChanBlooper) processReactionAdd(msgRAdd *discordgo.MessageReactionAdd) {
@@ -138,7 +137,6 @@ func (mcb *MessageChanBlooper) processReactionAdd(msgRAdd *discordgo.MessageReac
 	if smsg, ok := mcb.msgRegistry[msgRAdd.MessageID]; ok {
 		mcb.logger.Debug(fmt.Sprintf("found message id %s in registry", smsg.ID))
 	}
-	return
 }
 
 func (mcb *MessageChanBlooper) processReactionRemove(msgRMinus *discordgo.MessageReactionRemove) {
@@ -149,5 +147,4 @@ func (mcb *MessageChanBlooper) processReactionRemove(msgRMinus *discordgo.Messag
 	if smsg, ok := mcb.msgRegistry[msgRMinus.MessageID]; ok {
 		mcb.logger.Debug(fmt.Sprintf("found message id %s in registry", smsg.ID))
 	}
-	return
 }

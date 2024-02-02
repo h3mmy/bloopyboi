@@ -3,7 +3,6 @@ package services
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"strings"
 
@@ -68,7 +67,7 @@ func (ks *K8sService) GetPodNamespace(ctx context.Context) (string, error) {
 		ks.logger.Sugar().Debug("Found in os.env: ", ns)
 		return ns, nil
 	}
-	if data, err := ioutil.ReadFile("/var/run/secrets/kubernetes.io/serviceaccount/namespace"); err == nil {
+	if data, err := os.ReadFile("/var/run/secrets/kubernetes.io/serviceaccount/namespace"); err == nil {
 		if ns := strings.TrimSpace(string(data)); len(ns) > 0 {
 			ks.logger.Sugar().Debug("Found in serviceaccount: ", ns)
 			return ns, nil
