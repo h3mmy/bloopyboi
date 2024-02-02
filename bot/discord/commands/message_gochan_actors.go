@@ -5,6 +5,7 @@ import (
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/h3mmy/bloopyboi/bot/internal/models"
+	"go.uber.org/zap"
 )
 
 // NextMessageReactionRemoveC returns a channel for the next MessageReactionRemove event
@@ -12,7 +13,10 @@ func StartChannelMessageActor(ctx context.Context, s *discordgo.Session, msCh *c
 	for {
 		select {
 		case msg := <-*msCh:
-			s.ChannelMessageSendComplex(msg.ChannelID, msg.MessageComplex)
+			_, err := s.ChannelMessageSendComplex(msg.ChannelID, msg.MessageComplex)
+			if err != nil {
+				logger.Error("error sending message", zap.Error(err))
+			}
 		case <-ctx.Done():
 			return nil
 		}

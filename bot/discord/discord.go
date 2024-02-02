@@ -16,7 +16,7 @@ import (
 
 // customTimeFormat holds custom time format string.
 const (
-	customTimeFormat = "2006-01-02T15:04:05Z"
+	// customTimeFormat = "2006-01-02T15:04:05Z"
 
 	// discordBotMentionRegexFmt supports also nicknames (the exclamation mark).
 	// Read more: https://discordjs.guide/miscellaneous/parsing-mention-arguments.html#how-discord-mentions-work

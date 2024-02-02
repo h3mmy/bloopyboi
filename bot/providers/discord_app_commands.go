@@ -123,7 +123,7 @@ var (
 			})
 			if err != nil {
 				logger.Error("error searching for book", zap.Error(err))
-				s.InteractionRespond(i.Interaction,
+				err = s.InteractionRespond(i.Interaction,
 					&discordgo.InteractionResponse{
 						Type: discordgo.InteractionResponseChannelMessageWithSource,
 						Data: &discordgo.InteractionResponseData{
@@ -131,6 +131,9 @@ var (
 						},
 					},
 				)
+				if err != nil {
+					logger.Error("error responding to interaction", zap.Error(err))
+				}
 			} else {
 				buttonOpts := []discordgo.MessageComponent{}
 				selectOpts := []discordgo.SelectMenuOption{}
@@ -235,10 +238,13 @@ var (
 				}
 			}
 
-			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+			err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 				Type: discordgo.InteractionResponseChannelMessageWithSource,
 				Data: &resData,
 			})
+			if err != nil {
+				logger.Error("error responding to interaction", zap.Error(err))
+			}
 		},
 	}
 	MessageComponentHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
@@ -292,7 +298,6 @@ var (
 			err = s.InteractionRespond(i.Interaction, response)
 			if err != nil {
 				logger.Error("failed responding with book selection", zap.Error(err))
-				err = nil
 			}
 			_, err = s.FollowupMessageCreate(i.Interaction, true, &discordgo.WebhookParams{
 				Content: "I might be able to do something useful with this someday. Hopefully soon...",

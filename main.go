@@ -50,7 +50,7 @@ func main() {
 
 	go func() {
 		sCh := make(chan os.Signal, 1)
-		signal.Notify(sCh, syscall.SIGINT, syscall.SIGTERM, os.Kill, os.Interrupt)
+		signal.Notify(sCh, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
 		<-sCh
 		cancelCtxFn()
 	}()
