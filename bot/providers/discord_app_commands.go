@@ -9,6 +9,7 @@ import (
 	"github.com/dustin/go-humanize"
 	"github.com/h3mmy/bloopyboi/bot/internal/models"
 	"go.uber.org/zap"
+	"github.com/cdfmlr/ellipsis"
 )
 
 var (
@@ -149,6 +150,7 @@ var (
 					default:
 						blabel = fmt.Sprintf("%s by %s", volume.VolumeInfo.Title, volume.VolumeInfo.Authors[0])
 					}
+					blabel = ellipsis.Ending(blabel, 100)
 					buttonOpts = append(buttonOpts,
 						discordgo.ActionsRow{
 							Components: []discordgo.MessageComponent{
