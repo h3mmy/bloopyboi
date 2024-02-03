@@ -248,14 +248,54 @@ var (
 		},
 	}
 	MessageComponentHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
+		"request_book": func(s *discordgo.Session, i *discordgo.InteractionCreate){
+			logger.Debug(fmt.Sprintf("received book request with %v", i.Data), zap.String("message_id", i.Message.ID))
+			fields := i.Message.Embeds[0].Fields
+			for _, field := range fields {
+				if field.Name == "Volume ID" {
+					logger.Info(fmt.Sprintf("Received Request for volumeId %s", field.Value))
+				}
+			}
+			err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+				Type: discordgo.InteractionResponseUpdateMessage,
+				Data: &discordgo.InteractionResponseData{
+					Content: "Request Received. My request box doesn't have a bottom yet so they do tend to disappear. Still working on that",
+					Embeds: i.Message.Embeds,
+				},
+			})
+			if err != nil {
+				logger.Error("error responding to book request")
+			}
+		},
+		"ignore_book": func(s *discordgo.Session, i *discordgo.InteractionCreate){
+
+			err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+				Type: discordgo.InteractionResponseUpdateMessage,
+				Data: &discordgo.InteractionResponseData{
+					Content: "No Worries. I'll go read it myself",
+					Flags: discordgo.MessageFlagsEphemeral,
+				},
+			})
+			if err != nil {
+				logger.Error("error responding to book ignore")
+			}
+			_, err = s.FollowupMessageCreate(i.Interaction, true, &discordgo.WebhookParams{
+					Content: "lol, jk. I can't read!",
+					Flags: discordgo.MessageFlagsEphemeral,
+				},
+			)
+			if err != nil {
+				logger.Error("error with follow up to book ignore")
+			}
+		},
 		"select_book": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			var response *discordgo.InteractionResponse
 
 			data := i.MessageComponentData()
 			selectionInfo := data.Values[0]
-			logger.Debug(fmt.Sprintf("messageData: %v",data))
+			logger.Debug(fmt.Sprintf("messageData: %v", data))
 			selectedVol, err := GetBookService().GetVolume(selectionInfo)
-			if err != nil{
+			if err != nil {
 				logger.Error("error getting volume", zap.String("volume", selectionInfo))
 			}
 			volumeEmbed := &discordgo.MessageEmbed{
@@ -263,28 +303,30 @@ var (
 					URL: selectedVol.VolumeInfo.ImageLinks.Thumbnail,
 				},
 				Title: fmt.Sprintf("%s by %s", selectedVol.VolumeInfo.Title, strings.Join(selectedVol.VolumeInfo.Authors, "")),
-				URL: selectedVol.VolumeInfo.InfoLink,
+				URL:   selectedVol.VolumeInfo.InfoLink,
+
 				Fields: []*discordgo.MessageEmbedField{
 					{
-						Name: "Publisher",
+						Name:  "Publisher",
 						Value: selectedVol.VolumeInfo.Publisher,
 					},
 					{
-						Name: "Published Date",
+						Name:  "Published Date",
 						Value: selectedVol.VolumeInfo.PublishedDate,
 					},
 					{
-						Name: "Average Rating",
-						Value: fmt.Sprintf("%.2f",selectedVol.VolumeInfo.AverageRating),
+						Name: "Volume ID",
+						Value: selectionInfo,
 					},
 				},
 			}
 			for _, identifier := range selectedVol.VolumeInfo.IndustryIdentifiers {
 				volumeEmbed.Fields = append(volumeEmbed.Fields, &discordgo.MessageEmbedField{
-					Name: identifier.Type,
+					Name:  identifier.Type,
 					Value: identifier.Identifier,
 				})
 			}
+
 			response = &discordgo.InteractionResponse{
 				Type: discordgo.InteractionResponseUpdateMessage,
 				Data: &discordgo.InteractionResponseData{
@@ -292,19 +334,35 @@ var (
 					Embeds: []*discordgo.MessageEmbed{
 						volumeEmbed,
 					},
-					Flags:   discordgo.MessageFlagsEphemeral,
+					Components: []discordgo.MessageComponent{
+						discordgo.ActionsRow{
+							Components: []discordgo.MessageComponent{
+								discordgo.Button{
+									Label:    "Request",
+									Style:    discordgo.SuccessButton,
+									CustomID: "request_book",
+									Emoji: discordgo.ComponentEmoji{
+										Name: "✅",
+									},
+								},
+								discordgo.Button{
+									Label:    "Ignore",
+									Style:    discordgo.SecondaryButton,
+									CustomID: "ignore_book",
+									Emoji: discordgo.ComponentEmoji{
+										Name: "⭕",
+									},
+								},
+							},
+						},
+					},
+					Flags: discordgo.MessageFlagsEphemeral,
 				},
 			}
+
 			err = s.InteractionRespond(i.Interaction, response)
 			if err != nil {
 				logger.Error("failed responding with book selection", zap.Error(err))
-			}
-			_, err = s.FollowupMessageCreate(i.Interaction, true, &discordgo.WebhookParams{
-				Content: "I might be able to do something useful with this someday. Hopefully soon...",
-				Flags:   discordgo.MessageFlagsEphemeral,
-			})
-			if err != nil {
-				logger.Error("failed responding with book selection followup", zap.Error(err))
 			}
 		},
 	}

@@ -20,16 +20,15 @@ const (
 
 type BloopyBoi struct {
 	log             *zap.Logger
-	DiscordClient   *discord.DiscordClient
+	DiscordManager  *discord.DiscordManager
 	Config          *config.AppConfig
 	Status          *health.AvailabilityStatus
 	ServiceRegistry models.ServiceRegistry
-	Running bool
+	Running         bool
 }
 
 func New() *BloopyBoi {
-	return &BloopyBoi{
-	}
+	return &BloopyBoi{}
 }
 
 func (bot *BloopyBoi) WithLogger(logger *zap.Logger) *BloopyBoi {
@@ -63,8 +62,9 @@ func (bot *BloopyBoi) Run(ctx context.Context) error {
 	// 	bot.log.Debug("Starting K8s Service")
 	// 	return bot.initializeK8sService(ctx)
 	// })
-	go func ()  {
-		err:= errGroup.Wait(); if err != nil {
+	go func() {
+		err := errGroup.Wait()
+		if err != nil {
 			bot.log.Error("Error in bot errGroup", zap.Error(err))
 		}
 		bot.log.Info("bot.Run monitor gofunc exiting")
@@ -78,7 +78,7 @@ func (bot *BloopyBoi) Run(ctx context.Context) error {
 
 func (bot *BloopyBoi) initializeDiscord(ctx context.Context) error {
 
-	discordClient, err := discord.NewDiscordClient(bot.log.With(zapcore.Field{
+	discordClient, err := discord.NewDiscordManager(bot.log.With(zapcore.Field{
 		Key:    botLogFieldKey,
 		Type:   zapcore.StringType,
 		String: "Discord",
@@ -88,10 +88,10 @@ func (bot *BloopyBoi) initializeDiscord(ctx context.Context) error {
 		return err
 	}
 
-	bot.DiscordClient = discordClient
+	bot.DiscordManager = discordClient
 
 	bot.log.Debug("Starting Discord Client...")
-	return bot.DiscordClient.Start(ctx)
+	return bot.DiscordManager.Start(ctx)
 
 }
 
@@ -114,7 +114,6 @@ func (bot *BloopyBoi) Ping(ctx context.Context) error {
 func (bot *BloopyBoi) GetStatus(ctx context.Context) *health.AvailabilityStatus {
 	return bot.Status
 }
-
 
 func (bot *BloopyBoi) GetReadinessChecker() health.Checker {
 	discordReady := func() bool {
