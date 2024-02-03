@@ -18,7 +18,7 @@ type MessageEvent struct {
 }
 
 // createMessageEvent logs a given message event into the database.
-// func (dc *DiscordClient) createMessageEvent(c string, m *discordgo.Message) {
+// func (dc *DiscordManager) createMessageEvent(c string, m *discordgo.Message) {
 // 	uuid := uuid.New().String()
 // 	bot.DB.Create(&MessageEvent{
 // 		UUID:           uuid,
