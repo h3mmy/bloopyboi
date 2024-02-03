@@ -267,6 +267,27 @@ var (
 				logger.Error("error responding to book request")
 			}
 		},
+		"ignore_book": func(s *discordgo.Session, i *discordgo.InteractionCreate){
+
+			err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+				Type: discordgo.InteractionResponseUpdateMessage,
+				Data: &discordgo.InteractionResponseData{
+					Content: "No Worries. I'll go read it myself",
+					Flags: discordgo.MessageFlagsEphemeral,
+				},
+			})
+			if err != nil {
+				logger.Error("error responding to book ignore")
+			}
+			_, err = s.FollowupMessageCreate(i.Interaction, true, &discordgo.WebhookParams{
+					Content: "lol, jk. I can't read!",
+					Flags: discordgo.MessageFlagsEphemeral,
+				},
+			)
+			if err != nil {
+				logger.Error("error with follow up to book ignore")
+			}
+		},
 		"select_book": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			var response *discordgo.InteractionResponse
 
