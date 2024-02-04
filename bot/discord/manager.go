@@ -64,7 +64,7 @@ func (d *DiscordManager) Start(ctx context.Context) error {
 	d.discordSvc.AddHandler(bloopyCommands.DirectMessageCreate)
 	d.discordSvc.AddHandler(bloopyCommands.DirectedMessageReceive)
 
-	d.log.Debug("Registered Handlers...")
+	d.log.Debug("Registered some Handlers... and the proxy")
 
 	d.discordSvc.GetSession().Identify.Intents = discordgo.IntentsGuildMessages | discordgo.IntentsDirectMessages | discordgo.IntentDirectMessageReactions | discordgo.IntentGuildMessageReactions | discordgo.IntentGuildEmojis
 	// Open a websocket connection to Discord and begin listening.
@@ -74,7 +74,7 @@ func (d *DiscordManager) Start(ctx context.Context) error {
 		return fmt.Errorf("While opening a connection: %w", err)
 	}
 
-	d.log.Info("Registering Commands")
+	d.log.Info("Registering App Commands")
 	for _, v := range providers.GetDiscordAppCommands() {
 		_, err := d.discordSvc.RegisterAppCommand(v)
 		if err != nil {

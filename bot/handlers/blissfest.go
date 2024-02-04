@@ -24,7 +24,7 @@ func NewBlissfestCommand(svc *services.BlissfestService) *BlissfestCommand {
 		meta:        models.NewBloopyMeta(),
 		Name:        "blissfest",
 		Description: "Gets blissfest related information",
-		logger:      zap.L().Named("BlissfestCommand"),
+		logger:      log.NewZapLogger().Named("blissfest_command"),
 		blissSvc:    svc,
 	}
 }

@@ -4,6 +4,7 @@ import (
 	"strings"
 
 	"github.com/bwmarrin/discordgo"
+	"github.com/h3mmy/bloopyboi/bot/internal/log"
 	"github.com/h3mmy/bloopyboi/bot/internal/models"
 	"github.com/h3mmy/bloopyboi/bot/services"
 	"go.uber.org/zap"
@@ -23,7 +24,7 @@ func NewInspiroCommand(svc *services.InspiroService) *InspiroCommand {
 		Name:        "inspire",
 		Description: "Summons Inspiration",
 		inspiroSvc:  svc,
-		logger:      zap.L().Named("InspiroCommand"),
+		logger:      log.NewZapLogger().Named("inspiro_command"),
 	}
 }
 

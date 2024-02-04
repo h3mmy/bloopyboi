@@ -27,7 +27,7 @@ func NewBookCommand(bookSvc *services.BookService) *BookCommand {
 		Name:        "book",
 		Description: "(Xperimental) Get book info",
 		bookSvc:     bookSvc,
-		logger:      log.NewZapLogger(),
+		logger:      log.NewZapLogger().Named("book_command"),
 	}
 }
 
