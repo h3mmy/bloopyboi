@@ -28,7 +28,7 @@ jobs:
   renovate:
     name: Renovate
     # https://github.com/h3mmy/bloopyboi/blob/main/.github/workflows/run-renovate.yaml
-    uses: ./.github/workflows/run-renovate.yaml@main
+    uses: ./.github/workflows/run-renovate.yaml
     with:
       configurationFile: ".github/renovate.json5"
       dryRun: ${{ inputs.dryRun || 'false' }}
