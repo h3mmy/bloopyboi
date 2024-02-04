@@ -49,12 +49,12 @@ jobs:
           helm: "${{ env.HELM_VERSION }}"
           kubectl: "${{ matrix.k8s_version }}"
 
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
       - name: Set up chart-testing
-        uses: helm/chart-testing-action@v2.6.1
+        uses: helm/chart-testing-action@v2.4.0
 
       - name: Create k3d cluster
         uses: nolar/setup-k3d-k3s@v1
