@@ -166,7 +166,7 @@ jobs:
 
       - name: Upload Digest
         if: ${{ inputs.pushImages == 'true' }}
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.image.chan_image_name }}
           path: /tmp/${{ matrix.image.chan_image_name }}/*
