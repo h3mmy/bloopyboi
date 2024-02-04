@@ -26,7 +26,7 @@ runs:
       with:
         images: ghcr.io/${{ github.repository }}
         flavor: |
-          latest={{inputs.latest}}
+          latest=${{inputs.latest}}
         tags: |
           type=ref,event=branch
           type=edge,enable=true,priority=700,prefix=,suffix=,branch=$repo.default_branch
