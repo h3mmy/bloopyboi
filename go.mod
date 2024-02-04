@@ -94,7 +94,7 @@ require (
 	github.com/alexliesenfeld/health v0.8.0
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
 	github.com/go-openapi/runtime v0.27.1
-	github.com/google/uuid v1.5.0
+	github.com/google/uuid v1.6.0
 	github.com/gorilla/websocket v1.5.0 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/magiconair/properties v1.8.7 // indirect
