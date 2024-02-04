@@ -11,7 +11,6 @@ func GetInspiroClient() *services.InspiroClient {
 		API_url:           conf.Data[services.InspiroAPIKey],
 		Backup_image_link: conf.Data[services.InspiroBackupURLKey],
 	})
-
 }
 
 func GetInspiroClientWithConfig(config *services.InspiroConfig) *services.InspiroClient {

@@ -15,3 +15,13 @@ type TypingIndicatorChange struct {
 	IsTyping bool
 	ChannelID string
 }
+
+type DiscordAppCommand interface {
+	GetAppCommand() *discordgo.ApplicationCommand
+	GetAppCommandHandler() func(s *discordgo.Session, i *discordgo.InteractionCreate)
+}
+
+type DiscordCommand interface {
+	GetCommand() *discordgo.ApplicationCommand
+	GetCommandHandler() func(s *discordgo.Session, i *discordgo.InteractionCreate)
+}

@@ -224,6 +224,7 @@ var (
 							Author: &discordgo.MessageEmbedAuthor{},
 							Image: &discordgo.MessageEmbedImage{
 								URL: bsvc.GetLineupImageURI(),
+									
 							},
 						},
 					},
