@@ -93,13 +93,8 @@ func (mcb *MessageChanBlooper) processIncomingMessage(msg *discordgo.MessageCrea
 				msg.Author.ID),
 		)
 
-		bttp := providers.GetInspiroClient()
-		embed := &discordgo.MessageEmbed{
-			Author: &discordgo.MessageEmbedAuthor{},
-			Image: &discordgo.MessageEmbedImage{
-				URL: bttp.GetInspiroImageURL(),
-			},
-		}
+		bttp := providers.GetInspiroService()
+		embed := bttp.CreateInsprioEmbed()
 		inspRes := &models.DiscordMessageSendRequest{
 			ChannelID: msg.ChannelID,
 			MessageComplex: &discordgo.MessageSend{

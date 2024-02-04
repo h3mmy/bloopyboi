@@ -1,6 +1,8 @@
 package services
 
 import (
+	"fmt"
+
 	"github.com/bwmarrin/discordgo"
 	"github.com/h3mmy/bloopyboi/bot/internal/log"
 	"github.com/h3mmy/bloopyboi/bot/internal/models"
@@ -13,7 +15,7 @@ type DiscordService struct {
 	logger         *zap.Logger
 	discordSession *discordgo.Session
 	// The handlers registered with this service, keyed by the command name
-	handlerRegistry map[string]models.DiscordAppCommand
+	handlerRegistry map[string]func(*discordgo.Session, *discordgo.InteractionCreate)
 	// The commands registered with discord that will need to be de-registered on shutdown
 	commandRegistry map[string]*discordgo.ApplicationCommand
 }
@@ -51,7 +53,9 @@ func (d *DiscordService) GetDataReady() bool {
 }
 
 func (d *DiscordService) RegisterAppCommand(command models.DiscordAppCommand) (*discordgo.ApplicationCommand, error) {
-	d.handlerRegistry[command.GetAppCommand().Name] = command
+	d.logger.Debug(fmt.Sprintf("adding handler for %s to registry", command.GetAppCommand().Name))
+	d.handlerRegistry[command.GetAppCommand().Name] = command.GetAppCommandHandler()
+
 	cmd, err := d.discordSession.ApplicationCommandCreate(d.discordSession.State.User.ID, "", command.GetAppCommand())
 	if err != nil {
 		d.logger.Error("error registering app command")
@@ -61,6 +65,14 @@ func (d *DiscordService) RegisterAppCommand(command models.DiscordAppCommand) (*
 	return cmd, nil
 }
 
+func (d *DiscordService) RegisterMessageComponentHandlers(additionalHandlers *map[string]func(*discordgo.Session, *discordgo.InteractionCreate)) error {
+	for k, h := range *additionalHandlers {
+		d.logger.Debug(fmt.Sprintf("adding handler for %s to registry", k))
+		d.handlerRegistry[k] = h
+	}
+	return nil
+}
+
 // Proxies InteractionCreate events to the handlers in the svc handler registry
 func (d *DiscordService) AddInteractionHandlerProxy() {
 	d.discordSession.AddHandler(
@@ -68,20 +80,20 @@ func (d *DiscordService) AddInteractionHandlerProxy() {
 			switch i.Type {
 			case discordgo.InteractionApplicationCommand:
 				if h, ok := d.handlerRegistry[i.ApplicationCommandData().Name]; ok {
-					h.GetAppCommandHandler()(s, i)
+					h(s, i)
 				} else {
 					logger.Info("no handler registered for command", zap.String("command", i.ApplicationCommandData().Name))
 				}
 			case discordgo.InteractionMessageComponent:
 				if h, ok := d.handlerRegistry[i.MessageComponentData().CustomID]; ok {
-					h.GetAppCommandHandler()(s, i)
-				}else {
+					h(s, i)
+				} else {
 					logger.Info("no handler registered for message component", zap.String("customID", i.MessageComponentData().CustomID))
 				}
 			case discordgo.InteractionModalSubmit:
 				if h, ok := d.handlerRegistry[i.ModalSubmitData().CustomID]; ok {
-					h.GetAppCommandHandler()(s, i)
-				}else {
+					h(s, i)
+				} else {
 					logger.Info("no handler registered for modal submit data", zap.String("customID", i.ModalSubmitData().CustomID))
 				}
 			}

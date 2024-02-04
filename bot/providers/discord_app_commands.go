@@ -6,10 +6,10 @@ import (
 	"strings"
 
 	"github.com/bwmarrin/discordgo"
+	"github.com/cdfmlr/ellipsis"
 	"github.com/dustin/go-humanize"
 	"github.com/h3mmy/bloopyboi/bot/internal/models"
 	"go.uber.org/zap"
-	"github.com/cdfmlr/ellipsis"
 )
 
 var (
@@ -75,21 +75,9 @@ var (
 	}
 	AppCommandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
 		"inspire": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			bttp := GetInspiroClient()
+			bttp := GetInspiroService()
 
-			err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-				Type: discordgo.InteractionResponseChannelMessageWithSource,
-				Data: &discordgo.InteractionResponseData{
-					Embeds: []*discordgo.MessageEmbed{
-						{
-							Author: &discordgo.MessageEmbedAuthor{},
-							Image: &discordgo.MessageEmbedImage{
-								URL: bttp.GetInspiroImageURL(),
-							},
-						},
-					},
-				},
-			})
+			err := s.InteractionRespond(i.Interaction, bttp.CreateInteractionResponse())
 			if err != nil {
 				logger.Error("Failed to respond to interaction", zap.Error(err), zap.String("command", "inspire"))
 			}
@@ -224,7 +212,6 @@ var (
 							Author: &discordgo.MessageEmbedAuthor{},
 							Image: &discordgo.MessageEmbedImage{
 								URL: bsvc.GetLineupImageURI(),
-									
 							},
 						},
 					},
@@ -251,7 +238,7 @@ var (
 		},
 	}
 	MessageComponentHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
-		"request_book": func(s *discordgo.Session, i *discordgo.InteractionCreate){
+		"request_book": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			logger.Debug(fmt.Sprintf("received book request with %v", i.Data), zap.String("message_id", i.Message.ID))
 			fields := i.Message.Embeds[0].Fields
 			for _, field := range fields {
@@ -263,29 +250,29 @@ var (
 				Type: discordgo.InteractionResponseUpdateMessage,
 				Data: &discordgo.InteractionResponseData{
 					Content: "Request Received. My request box doesn't have a bottom yet so they do tend to disappear. Still working on that",
-					Embeds: i.Message.Embeds,
+					Embeds:  i.Message.Embeds,
 				},
 			})
 			if err != nil {
 				logger.Error("error responding to book request")
 			}
 		},
-		"ignore_book": func(s *discordgo.Session, i *discordgo.InteractionCreate){
+		"ignore_book": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 
 			err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 				Type: discordgo.InteractionResponseUpdateMessage,
 				Data: &discordgo.InteractionResponseData{
 					Content: "No Worries. I'll go read it myself",
-					Flags: discordgo.MessageFlagsEphemeral,
+					Flags:   discordgo.MessageFlagsEphemeral,
 				},
 			})
 			if err != nil {
 				logger.Error("error responding to book ignore")
 			}
 			_, err = s.FollowupMessageCreate(i.Interaction, true, &discordgo.WebhookParams{
-					Content: "lol, jk. I can't read!",
-					Flags: discordgo.MessageFlagsEphemeral,
-				},
+				Content: "lol, jk. I can't read!",
+				Flags:   discordgo.MessageFlagsEphemeral,
+			},
 			)
 			if err != nil {
 				logger.Error("error with follow up to book ignore")
@@ -318,7 +305,7 @@ var (
 						Value: selectedVol.VolumeInfo.PublishedDate,
 					},
 					{
-						Name: "Volume ID",
+						Name:  "Volume ID",
 						Value: selectionInfo,
 					},
 				},
