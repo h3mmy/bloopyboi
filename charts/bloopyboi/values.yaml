@@ -8,7 +8,7 @@ image:
   # -- image pull policy
   pullPolicy: IfNotPresent
   # -- image tag
-  tag: v0.3.0
+  tag: v0.4.0@sha256:149a0f529c1fb25bb93ccf6e5de026ff1a1f3c1b6cc4d69580ede86792efc4a8
 
 # -- environment variables.
 # @default -- See below
