@@ -30,7 +30,6 @@ type DiscordManager struct {
 	log                *zap.Logger
 	botId              string
 	discordSvc         *services.DiscordService
-	registeredCommands []*discordgo.ApplicationCommand
 }
 
 // Constructs new Discord Manager
@@ -81,7 +80,10 @@ func (d *DiscordManager) Start(ctx context.Context) error {
 			d.log.Sugar().Panicf("Cannot create '%v' command: %v", v.GetAppCommand().Name, err)
 		}
 		if v.GetMessageComponentHandlers() != nil {
-			d.discordSvc.RegisterMessageComponentHandlers(v.GetMessageComponentHandlers())
+			err = d.discordSvc.RegisterMessageComponentHandlers(v.GetMessageComponentHandlers())
+			if err != nil {
+				d.log.Error("wasnt expecting this to be possible", zap.Error(err))
+			}
 		}
 	}
 
