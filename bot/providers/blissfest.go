@@ -10,8 +10,8 @@ import (
 func GetBlissfestService() *services.BlissfestService {
 	location, _ := time.LoadLocation("America/Detroit")
 	config := pkgmodels.BlissfestConfig{
-		Start:    time.Date(2023, 7, 7, 9, 0, 0, 0, location),
-		End:      time.Date(2023, 7, 7, 9, 0, 0, 0, location),
+		Start:    time.Date(2024, 7, 12, 9, 0, 0, 0, location),
+		End:      time.Date(2024, 7, 14, 9, 0, 0, 0, location),
 		Homepage: "https://www.blissfest.org/",
 	}
 	return services.NewBlissfestService(config)
