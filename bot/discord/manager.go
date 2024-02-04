@@ -10,6 +10,7 @@ import (
 	"github.com/h3mmy/bloopyboi/bot/handlers"
 	"github.com/h3mmy/bloopyboi/bot/internal/models"
 	"github.com/h3mmy/bloopyboi/bot/providers"
+	"github.com/h3mmy/bloopyboi/bot/services"
 	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
 )
@@ -23,16 +24,16 @@ const (
 	discordBotMentionRegexFmt = "^<@!?%s>"
 )
 
-type DiscordClient struct {
+// DiscordManager is responsible for interfacing with the discord session
+type DiscordManager struct {
 	botMentionRegex    *regexp.Regexp
 	log                *zap.Logger
 	botId              string
-	api                *discordgo.Session
-	registeredCommands []*discordgo.ApplicationCommand
+	discordSvc         *services.DiscordService
 }
 
-// Constructs new Discord Client
-func NewDiscordClient(logger *zap.Logger) (*DiscordClient, error) {
+// Constructs new Discord Manager
+func NewDiscordManager(logger *zap.Logger) (*DiscordManager, error) {
 	// Get token
 	token := providers.GetBotToken()
 	botID := providers.GetBotName()
@@ -43,64 +44,52 @@ func NewDiscordClient(logger *zap.Logger) (*DiscordClient, error) {
 	}
 
 	// Create a new Discord session using the provided bot token.
-	s, err := discordgo.New("Bot " + token)
+	s, err := providers.NewDiscordServiceWithToken(token)
 	if err != nil {
 		return nil, fmt.Errorf("Error Creating Discord Session: %w", err)
 	}
-	return &DiscordClient{
+	return &DiscordManager{
 		botId:           botID,
-		api:             s,
+		discordSvc:      s,
 		log:             logger,
 		botMentionRegex: botMentionRegex,
 	}, nil
 }
 
 // Initiates websocket connection with Discord and starts listening
-func (d *DiscordClient) Start(ctx context.Context) error {
+func (d *DiscordManager) Start(ctx context.Context) error {
 	d.log.Info("Starting Bot")
-	d.api.AddHandler(func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-		switch i.Type {
-		case discordgo.InteractionApplicationCommand:
-			if h, ok := providers.AppCommandHandlers[i.ApplicationCommandData().Name]; ok {
-				h(s, i)
-			}
-		case discordgo.InteractionMessageComponent:
-			if h, ok := providers.MessageComponentHandlers[i.MessageComponentData().CustomID]; ok {
-				h(s, i)
-			}
-		case discordgo.InteractionModalSubmit:
-			if h, ok := providers.ModalSubmitHandlers[i.ModalSubmitData().CustomID]; ok {
-				h(s, i)
-			}
-		}
-	})
-	d.api.AddHandler(bloopyCommands.DirectMessageCreate)
-	d.api.AddHandler(bloopyCommands.DirectedMessageReceive)
+	d.discordSvc.AddInteractionHandlerProxy()
+	d.discordSvc.AddHandler(bloopyCommands.DirectMessageCreate)
+	d.discordSvc.AddHandler(bloopyCommands.DirectedMessageReceive)
 
-	d.log.Debug("Registered Handlers...")
+	d.log.Debug("Registered some Handlers... and the proxy")
 
-	d.api.Identify.Intents = discordgo.IntentsGuildMessages | discordgo.IntentsDirectMessages | discordgo.IntentDirectMessageReactions | discordgo.IntentGuildMessageReactions | discordgo.IntentGuildEmojis
+	d.discordSvc.GetSession().Identify.Intents = discordgo.IntentsGuildMessages | discordgo.IntentsDirectMessages | discordgo.IntentDirectMessageReactions | discordgo.IntentGuildMessageReactions | discordgo.IntentGuildEmojis
 	// Open a websocket connection to Discord and begin listening.
 	d.log.Info("Opening Websocket Connection")
-	err := d.api.Open()
+	err := d.discordSvc.GetSession().Open()
 	if err != nil {
 		return fmt.Errorf("While opening a connection: %w", err)
 	}
 
-	d.log.Info("Registering Commands")
-	d.registeredCommands = make([]*discordgo.ApplicationCommand, len(providers.AppCommands))
-	for i, v := range providers.AppCommands {
-		// Leaving GuildId empty
-		cmd, err := d.api.ApplicationCommandCreate(d.api.State.User.ID, "", v)
+	d.log.Info("Registering App Commands")
+	for _, v := range providers.GetDiscordAppCommands() {
+		_, err := d.discordSvc.RegisterAppCommand(v)
 		if err != nil {
-			d.log.Sugar().Panicf("Cannot create '%v' command: %v", v.Name, err)
+			d.log.Sugar().Panicf("Cannot create '%v' command: %v", v.GetAppCommand().Name, err)
 		}
-		d.registeredCommands[i] = cmd
+		if v.GetMessageComponentHandlers() != nil {
+			err = d.discordSvc.RegisterMessageComponentHandlers(v.GetMessageComponentHandlers())
+			if err != nil {
+				d.log.Error("wasnt expecting this to be possible", zap.Error(err))
+			}
+		}
 	}
 
 	d.log.Info("Initializing Experimental Handler")
 	msgSendChan := make(chan *models.DiscordMessageSendRequest, 20)
-	expHandler := getBloopyChanHandler(d.api, &msgSendChan)
+	expHandler := getBloopyChanHandler(d.discordSvc.GetSession(), &msgSendChan)
 
 	ctx, cancelFn := context.WithCancel(ctx)
 	defer cancelFn()
@@ -110,7 +99,7 @@ func (d *DiscordClient) Start(ctx context.Context) error {
 		return expHandler.Start(ctx)
 	})
 	errGroup.Go(func() error {
-		return bloopyCommands.StartChannelMessageActor(ctx, d.api, &msgSendChan)
+		return bloopyCommands.StartChannelMessageActor(ctx, d.discordSvc.GetSession(), &msgSendChan)
 	})
 
 	<-ctx.Done()
@@ -118,15 +107,10 @@ func (d *DiscordClient) Start(ctx context.Context) error {
 	d.log.Info("Received ctx.Done() Exiting...")
 
 	d.log.Info("Removing registered commands...")
-	for _, v := range d.registeredCommands {
-		err := d.api.ApplicationCommandDelete(d.api.State.User.ID, "", v.ID)
-		if err != nil {
-			d.log.Sugar().Panicf("Cannot delete '%v' command: %v", v.Name, err)
-		}
-	}
+	d.discordSvc.DeleteAppCommands()
 
 	d.log.Info("Closing Connection")
-	err = d.api.Close()
+	err = d.discordSvc.GetSession().Close()
 	if err != nil {
 		return fmt.Errorf("while closing connection: %w", err)
 	}
@@ -140,9 +124,9 @@ func getBloopyChanHandler(s *discordgo.Session, msgSendChan *chan *models.Discor
 	reactACh := bloopyCommands.NextMessageReactionAddC(s)
 	reactRCh := bloopyCommands.NextMessageReactionRemoveC(s)
 
-	return handlers.NewMessageChanBlooper(&createCh, &reactACh, &reactRCh, msgSendChan)
+	return handlers.NewMessageChanBlooper(providers.GetInspiroService(), &createCh, &reactACh, &reactRCh, msgSendChan)
 }
 
-func (d *DiscordClient) IsReady() bool {
-	return d.api.DataReady
+func (d *DiscordManager) IsReady() bool {
+	return d.discordSvc.GetDataReady()
 }

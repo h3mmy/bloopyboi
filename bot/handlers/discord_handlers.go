@@ -6,8 +6,9 @@ import (
 	"strings"
 
 	"github.com/bwmarrin/discordgo"
+	"github.com/h3mmy/bloopyboi/bot/internal/log"
 	"github.com/h3mmy/bloopyboi/bot/internal/models"
-	"github.com/h3mmy/bloopyboi/bot/providers"
+	"github.com/h3mmy/bloopyboi/bot/services"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
@@ -23,22 +24,25 @@ type MessageChanBlooper struct {
 	msgSendChan   *chan *models.DiscordMessageSendRequest
 	logger        *zap.Logger
 	msgRegistry   map[string]*discordgo.Message
+	inspiroSvc    *services.InspiroService
 }
 
 func NewMessageChanBlooper(
+	insproSvc *services.InspiroService,
 	createCh *chan *discordgo.MessageCreate,
 	reactACh *chan *discordgo.MessageReactionAdd,
 	reactRCh *chan *discordgo.MessageReactionRemove,
 	msgSendChan *chan *models.DiscordMessageSendRequest,
 ) *MessageChanBlooper {
 
-	lgr := providers.NewZapLogger().With(zapcore.Field{
+	lgr := log.NewZapLogger().With(zapcore.Field{
 		Key:    HandlerLoggerFieldKey,
 		Type:   zapcore.StringType,
 		String: "messageChan",
 	})
 
 	return &MessageChanBlooper{
+		inspiroSvc:    insproSvc,
 		msgCreateChan: createCh,
 		msgReactAChan: reactACh,
 		msgReactRChan: reactRCh,
@@ -93,13 +97,8 @@ func (mcb *MessageChanBlooper) processIncomingMessage(msg *discordgo.MessageCrea
 				msg.Author.ID),
 		)
 
-		bttp := providers.GetInspiroClient()
-		embed := &discordgo.MessageEmbed{
-			Author: &discordgo.MessageEmbedAuthor{},
-			Image: &discordgo.MessageEmbedImage{
-				URL: bttp.GetInspiroImageURL(),
-			},
-		}
+		bttp := mcb.inspiroSvc
+		embed := bttp.CreateInsprioEmbed()
 		inspRes := &models.DiscordMessageSendRequest{
 			ChannelID: msg.ChannelID,
 			MessageComplex: &discordgo.MessageSend{

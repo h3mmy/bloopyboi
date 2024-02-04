@@ -1,5 +1,5 @@
 {
-  extends: [
+  "extends": [
     "github>h3mmy/renovate-config:default.json5",
     "github>h3mmy/renovate-config:automerge-github-actions",
     "github>h3mmy/renovate-config:automerge-docker-digest",

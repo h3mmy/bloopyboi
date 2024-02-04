@@ -1,82 +1,62 @@
 package services
 
 import (
-	"fmt"
-	"io"
-	"net/http"
-
-	"github.com/h3mmy/bloopyboi/bot/internal/config"
+	"github.com/bwmarrin/discordgo"
 	"github.com/h3mmy/bloopyboi/bot/internal/log"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
 
-var (
-	logger              = log.NewZapLogger()
-	InspiroFeatureName  = "inspiro"
-	InspiroAPIKey       = "api_url"
-	InspiroBackupURLKey = "backup_image_link"
-)
-
-// Basically a static var for this 'Object'
-type InspiroConfig struct {
-	API_url           string
-	Logger            *zap.Logger
-	Backup_image_link string
-}
-
-// Unmarshal config from file
-func GetInspiroConfig() InspiroConfig {
-	AppConfig := config.GetConfig()
-	inspiroCfg, err := AppConfig.GetFeatureConfig(InspiroFeatureName)
-	if err != nil {
-		logger.Sugar().Error("Error loading FeatureConfig", err)
-	}
-	return InspiroConfig{
-		API_url:           inspiroCfg.Data[InspiroAPIKey],
-		Logger:            logger,
-		Backup_image_link: inspiroCfg.Data[InspiroBackupURLKey]}
-}
-
-// should add uri validation
 type InspiroService struct {
-	config InspiroConfig
-	logger *zap.Logger
+	inspiroClient *InspiroClient
+	logger         *zap.Logger
 }
 
-// 'Constructs' InspiroService with declared Config
-func NewInspiroServiceWithConfig(myConfig InspiroConfig) *InspiroService {
+// Creates New InspiroService with specified Service
+func NewInspiroHttpClient(inspiro *InspiroClient) *InspiroService {
 	lgr := log.NewZapLogger().With(zapcore.Field{
 		Key:    ServiceLoggerFieldKey,
 		Type:   zapcore.StringType,
 		String: "inspiro",
 	})
 	return &InspiroService{
-		config: myConfig,
-		logger: lgr,
+		inspiroClient: inspiro,
+		logger:         lgr,
 	}
 }
 
-// Abstracted 'Constructor'
-func NewInspiroService() *InspiroService {
-	return NewInspiroServiceWithConfig(GetInspiroConfig())
+func (ic *InspiroService) GetInspiroImageURL() string {
+	ic.logger.Debug("Getting Inspiro Image")
+	return ic.inspiroClient.GetInspiro()
 }
 
-// returns raw uri as string without validation
-func (inspiroService *InspiroService) GetInspiro() string {
+func (ic *InspiroService) GetClient() *InspiroClient {
+	return ic.inspiroClient
+}
 
-	image_link, err := http.Get(inspiroService.config.API_url)
-
-	if err != nil {
-		return err.Error()
+// Creates the discord.Embed object to be used in a message
+func (ic *InspiroService) CreateInsprioEmbed() *discordgo.MessageEmbed {
+	return &discordgo.MessageEmbed{
+		Author: &discordgo.MessageEmbedAuthor{},
+		Image: &discordgo.MessageEmbedImage{
+			URL: ic.GetInspiroImageURL(),
+		},
 	}
-	defer image_link.Body.Close()
+}
 
-	result, err := io.ReadAll(image_link.Body)
-	if err != nil {
-		inspiroService.logger.Sugar().Error("IO Error while reading body", err)
-		return err.Error()
+// Creates InteractionResponseData with to be used with custom flags, etc
+func (ic *InspiroService) CreateInteractionResponseData() *discordgo.InteractionResponseData {
+	return &discordgo.InteractionResponseData{
+		Embeds: []*discordgo.MessageEmbed{
+			ic.CreateInsprioEmbed(),
+		},
 	}
-	inspiroService.logger.Debug(fmt.Sprintf("Got Link %s", result))
-	return string(result)
+}
+
+// Creates InteractionResponse with default Type and Flags, etc.
+func (ic *InspiroService) CreateInteractionResponse() *discordgo.InteractionResponse {
+	return &discordgo.InteractionResponse{
+		Type: discordgo.InteractionResponseChannelMessageWithSource,
+		Data: ic.CreateInteractionResponseData(),
+	}
 }
