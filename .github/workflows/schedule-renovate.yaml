@@ -31,6 +31,7 @@ jobs:
     uses: ./.github/workflows/run-renovate.yaml
     with:
       configurationFile: ".github/renovate.json5"
+      app_name: "bloopyboi"
       dryRun: ${{ inputs.dryRun || 'false' }}
       renovateLogLevel: ${{ inputs.logLevel || 'debug' }}
     secrets:
