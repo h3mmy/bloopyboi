@@ -13,11 +13,11 @@ on:
         description: "Log-Level"
         default: "debug"
         required: false
-  # schedule:
-  #   - cron: "0 * * * *"
-  # push:
-  #   branches:
-  #     - main
+  schedule:
+    - cron: "0 * * * *"
+  push:
+    branches:
+      - main
     paths:
       - ".github/renovate.json5"
       - ".github/renovate/**.json"
@@ -27,8 +27,8 @@ on:
 jobs:
   renovate:
     name: Renovate
-    # https://github.com/bjw-s/gh-workflows/blob/main/.github/workflows/run-renovate.yaml
-    uses: bjw-s/gh-workflows/.github/workflows/run-renovate.yaml@main
+    # https://github.com/h3mmy/bloopyboi/blob/main/.github/workflows/run-renovate.yaml
+    uses: .github/run-renovate.yaml@main
     with:
       configurationFile: ".github/renovate.json5"
       dryRun: ${{ inputs.dryRun || 'false' }}
