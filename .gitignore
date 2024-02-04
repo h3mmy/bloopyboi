@@ -24,3 +24,4 @@ charts/*/Chart.lock
 charts/*/charts
 
 *.log
+sample_response_showclix.json5

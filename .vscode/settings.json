@@ -36,9 +36,7 @@
   ],
 
   "go.lintTool": "golangci-lint",
-  "go.lintFlags": [
-    "--fast",
-    "-c .github/lint/golangci.yaml"
-  ],
-  "editor.formatOnSave": true
+  "go.lintFlags": ["--fast", "-c .github/lint/golangci.yaml"],
+  "editor.formatOnSave": true,
+  "go.vetOnSave": "off"
 }

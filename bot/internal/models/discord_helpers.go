@@ -19,9 +19,5 @@ type TypingIndicatorChange struct {
 type DiscordAppCommand interface {
 	GetAppCommand() *discordgo.ApplicationCommand
 	GetAppCommandHandler() func(s *discordgo.Session, i *discordgo.InteractionCreate)
-}
-
-type DiscordCommand interface {
-	GetCommand() *discordgo.ApplicationCommand
-	GetCommandHandler() func(s *discordgo.Session, i *discordgo.InteractionCreate)
+	GetMessageComponentHandlers() map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate)
 }

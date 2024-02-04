@@ -42,3 +42,7 @@ func (p *InspiroCommand) GetAppCommandHandler() func(s *discordgo.Session, i *di
 		}
 	}
 }
+
+func (p *InspiroCommand) GetMessageComponentHandlers() map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+	return nil
+}

@@ -32,6 +32,8 @@ func NewDiscordService(session *discordgo.Session) *DiscordService {
 		meta:           models.NewBloopyMeta(),
 		logger:         lgr,
 		discordSession: session,
+		handlerRegistry: make(map[string]func(*discordgo.Session, *discordgo.InteractionCreate)),
+		commandRegistry: make(map[string]*discordgo.ApplicationCommand),
 	}
 }
 
@@ -52,6 +54,7 @@ func (d *DiscordService) GetDataReady() bool {
 	return d.discordSession.DataReady
 }
 
+// Registers an app command with discord and adds the respective handler to the svc handler registry.
 func (d *DiscordService) RegisterAppCommand(command models.DiscordAppCommand) (*discordgo.ApplicationCommand, error) {
 	d.logger.Debug(fmt.Sprintf("adding handler for %s to registry", command.GetAppCommand().Name))
 	d.handlerRegistry[command.GetAppCommand().Name] = command.GetAppCommandHandler()
@@ -65,8 +68,10 @@ func (d *DiscordService) RegisterAppCommand(command models.DiscordAppCommand) (*
 	return cmd, nil
 }
 
-func (d *DiscordService) RegisterMessageComponentHandlers(additionalHandlers *map[string]func(*discordgo.Session, *discordgo.InteractionCreate)) error {
-	for k, h := range *additionalHandlers {
+// Adds additional handlers to the svc handler registry.
+// Intended for use by MessageComponent handlers
+func (d *DiscordService) RegisterMessageComponentHandlers(additionalHandlers map[string]func(*discordgo.Session, *discordgo.InteractionCreate)) error {
+	for k, h := range additionalHandlers {
 		d.logger.Debug(fmt.Sprintf("adding handler for %s to registry", k))
 		d.handlerRegistry[k] = h
 	}
@@ -98,4 +103,16 @@ func (d *DiscordService) AddInteractionHandlerProxy() {
 				}
 			}
 		})
+}
+
+// De-registers all app commands registered with this service.
+// Intended for use by the shutdown handler.
+func (d *DiscordService) DeleteAppCommands() {
+	d.logger.Debug("deleting app commands")
+	for _, cmd := range d.commandRegistry {
+		err:= d.discordSession.ApplicationCommandDelete(d.discordSession.State.User.ID, "", cmd.ID)
+		if err != nil {
+			d.logger.Error(fmt.Sprintf("Cannot delete '%s' command", cmd.Name), zap.Error(err))
+		}
+	}
 }

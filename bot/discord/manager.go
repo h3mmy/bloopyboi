@@ -29,7 +29,7 @@ type DiscordManager struct {
 	botMentionRegex    *regexp.Regexp
 	log                *zap.Logger
 	botId              string
-	discordSvc            *services.DiscordService
+	discordSvc         *services.DiscordService
 	registeredCommands []*discordgo.ApplicationCommand
 }
 
@@ -51,7 +51,7 @@ func NewDiscordManager(logger *zap.Logger) (*DiscordManager, error) {
 	}
 	return &DiscordManager{
 		botId:           botID,
-		discordSvc:         s,
+		discordSvc:      s,
 		log:             logger,
 		botMentionRegex: botMentionRegex,
 	}, nil
@@ -60,22 +60,7 @@ func NewDiscordManager(logger *zap.Logger) (*DiscordManager, error) {
 // Initiates websocket connection with Discord and starts listening
 func (d *DiscordManager) Start(ctx context.Context) error {
 	d.log.Info("Starting Bot")
-	d.discordSvc.AddHandler(func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-		switch i.Type {
-		case discordgo.InteractionApplicationCommand:
-			if h, ok := providers.AppCommandHandlers[i.ApplicationCommandData().Name]; ok {
-				h(s, i)
-			}
-		case discordgo.InteractionMessageComponent:
-			if h, ok := providers.MessageComponentHandlers[i.MessageComponentData().CustomID]; ok {
-				h(s, i)
-			}
-		case discordgo.InteractionModalSubmit:
-			if h, ok := providers.ModalSubmitHandlers[i.ModalSubmitData().CustomID]; ok {
-				h(s, i)
-			}
-		}
-	})
+	d.discordSvc.AddInteractionHandlerProxy()
 	d.discordSvc.AddHandler(bloopyCommands.DirectMessageCreate)
 	d.discordSvc.AddHandler(bloopyCommands.DirectedMessageReceive)
 
@@ -90,14 +75,14 @@ func (d *DiscordManager) Start(ctx context.Context) error {
 	}
 
 	d.log.Info("Registering Commands")
-	d.registeredCommands = make([]*discordgo.ApplicationCommand, len(providers.AppCommands))
-	for i, v := range providers.AppCommands {
-		// Leaving GuildId empty
-		cmd, err := d.discordSvc.GetSession().ApplicationCommandCreate(d.discordSvc.GetSession().State.User.ID, "", v)
+	for _, v := range providers.GetDiscordAppCommands() {
+		_, err := d.discordSvc.RegisterAppCommand(v)
 		if err != nil {
-			d.log.Sugar().Panicf("Cannot create '%v' command: %v", v.Name, err)
+			d.log.Sugar().Panicf("Cannot create '%v' command: %v", v.GetAppCommand().Name, err)
 		}
-		d.registeredCommands[i] = cmd
+		if v.GetMessageComponentHandlers() != nil {
+			d.discordSvc.RegisterMessageComponentHandlers(v.GetMessageComponentHandlers())
+		}
 	}
 
 	d.log.Info("Initializing Experimental Handler")
@@ -120,12 +105,7 @@ func (d *DiscordManager) Start(ctx context.Context) error {
 	d.log.Info("Received ctx.Done() Exiting...")
 
 	d.log.Info("Removing registered commands...")
-	for _, v := range d.registeredCommands {
-		err := d.discordSvc.GetSession().ApplicationCommandDelete(d.discordSvc.GetSession().State.User.ID, "", v.ID)
-		if err != nil {
-			d.log.Sugar().Panicf("Cannot delete '%v' command: %v", v.Name, err)
-		}
-	}
+	d.discordSvc.DeleteAppCommands()
 
 	d.log.Info("Closing Connection")
 	err = d.discordSvc.GetSession().Close()
@@ -142,7 +122,7 @@ func getBloopyChanHandler(s *discordgo.Session, msgSendChan *chan *models.Discor
 	reactACh := bloopyCommands.NextMessageReactionAddC(s)
 	reactRCh := bloopyCommands.NextMessageReactionRemoveC(s)
 
-	return handlers.NewMessageChanBlooper(&createCh, &reactACh, &reactRCh, msgSendChan)
+	return handlers.NewMessageChanBlooper(providers.GetInspiroService(), &createCh, &reactACh, &reactRCh, msgSendChan)
 }
 
 func (d *DiscordManager) IsReady() bool {
