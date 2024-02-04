@@ -5,4 +5,7 @@
     "github>h3mmy/renovate-config:automerge-docker-digest",
     "github>h3mmy/renovate-config:renovate-bot.json5"
   ],
+  "postUpdateOptions: [
+     "goModTidy"
+  ]
 }
