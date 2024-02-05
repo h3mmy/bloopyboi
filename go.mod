@@ -12,7 +12,7 @@ require (
 	github.com/mattn/go-sqlite3 v1.14.22
 	github.com/spf13/viper v1.18.2
 	go.uber.org/zap v1.26.0
-	golift.io/starr v0.14.0
+	golift.io/starr v1.0.0
 	k8s.io/api v0.29.1
 	k8s.io/apimachinery v0.29.1
 )
