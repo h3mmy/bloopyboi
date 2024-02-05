@@ -19,7 +19,6 @@ func (DiscordUser) Fields() []ent.Field {
 		field.String("discordid").
 			Default("unknown"),
 		field.String("username"),
-
 	}
 }
 

@@ -5,8 +5,10 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/h3mmy/bloopyboi/bot/internal/database"
 	"github.com/h3mmy/bloopyboi/bot/internal/log"
 	"github.com/h3mmy/bloopyboi/bot/internal/models"
+	"github.com/h3mmy/bloopyboi/ent"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	books "google.golang.org/api/books/v1"
@@ -17,18 +19,27 @@ type BookService struct {
 	bloopyMeta models.BloopyMeta
 	logger     *zap.Logger
 	svc        *books.Service
+	db         *ent.Client
+	dbEnabled  bool
 }
 
 func NewBookService(ctx context.Context, options ...option.ClientOption) *BookService {
 	lgr := log.NewZapLogger().With(
 		zapcore.Field{Type: zapcore.StringType, Key: ServiceLoggerFieldKey, String: "book_service"},
 	)
+	dbEnabled := true
 	bookSvc, _ := books.NewService(ctx, options...)
-
+	dbClient, err := database.Open()
+	if err != nil {
+		lgr.Error("failed to open database", zap.Error(err))
+		dbEnabled = false
+	}
 	return &BookService{
 		svc:        bookSvc,
 		logger:     lgr,
 		bloopyMeta: models.NewBloopyMeta(),
+		db:         dbClient,
+		dbEnabled:  dbEnabled,
 	}
 }
 
@@ -37,7 +48,7 @@ func (b *BookService) SearchBook(ctx context.Context, req *models.BookSearchRequ
 	// See https://developers.google.com/books/docs/v1/using#PerformingSearch
 	q := b.buildSearchString(req)
 	b.logger.Info(fmt.Sprintf("book req, %v", req))
-	b.logger.Info(fmt.Sprintf("searching for book %s",q))
+	b.logger.Info(fmt.Sprintf("searching for book %s", q))
 	volume, err := b.svc.Volumes.List(q).Context(ctx).MaxResults(4).Do()
 	if err != nil {
 		b.logger.Error("failed to get book", zap.Error(err))
@@ -61,10 +72,10 @@ func (b *BookService) buildSearchString(req *models.BookSearchRequest) string {
 	if req.Publisher != "" {
 		q += "inpublisher:" + req.Publisher
 	}
-	if  req.ISBN != "" {
+	if req.ISBN != "" {
 		q += "isbn:" + req.ISBN
 	}
-	if  req.TextSnippet !="" {
+	if req.TextSnippet != "" {
 		q += "intext:" + req.TextSnippet
 	}
 	return q
@@ -72,10 +83,8 @@ func (b *BookService) buildSearchString(req *models.BookSearchRequest) string {
 
 func (b *BookService) GetVolume(volumeId string) (*books.Volume, error) {
 	volume, err := b.svc.Volumes.Get(volumeId).Context(context.TODO()).Do()
-	if err!= nil {
+	if err != nil {
 		b.logger.Error("failed to get book", zap.Error(err))
 	}
 	return volume, err
 }
-
-
