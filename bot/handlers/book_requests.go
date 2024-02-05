@@ -169,6 +169,21 @@ func (b *BookCommand) GetAppCommandHandler() func(s *discordgo.Session, i *disco
 				},
 			}
 			b.logger.Debug(fmt.Sprintf("made %d buttons", len(buttonOpts)))
+			b.logger.Debug(fmt.Sprintf("made %d select menu options", len(selectOpts)))
+			if len(selectOpts) == 0 {
+				err = s.InteractionRespond(i.Interaction,
+					&discordgo.InteractionResponse{
+						Type: discordgo.InteractionResponseChannelMessageWithSource,
+						Data: &discordgo.InteractionResponseData{
+							Content: "I couldn't find any books. Sorry I failed you. I wrote the reason down in the logs",
+						},
+					},
+				)
+				if err != nil {
+					b.logger.Error("error responding to interaction", zap.Error(err))
+				}
+				return
+			}
 			err = s.InteractionRespond(i.Interaction,
 				&discordgo.InteractionResponse{
 					Type: discordgo.InteractionResponseChannelMessageWithSource,
@@ -310,3 +325,4 @@ func (b *BookCommand) GetMessageComponentHandlers() map[string]func(s *discordgo
 		},
 	}
 }
+
