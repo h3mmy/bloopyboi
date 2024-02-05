@@ -45,7 +45,7 @@ func (b *BookService) SearchBook(ctx context.Context, req *models.BookSearchRequ
 	}
 	b.logger.Info(fmt.Sprintf("found %d books", len(volume.Items)))
 	for _, book := range volume.Items {
-		b.logger.Debug(fmt.Sprintf("book: %s, by %s - ISBN %s", book.VolumeInfo.Title, strings.Join(book.VolumeInfo.Authors, ""), book.VolumeInfo.IndustryIdentifiers[0].Identifier))
+		b.logger.Debug(fmt.Sprintf("book: %s, by %s", book.VolumeInfo.Title, strings.Join(book.VolumeInfo.Authors, "")))
 	}
 	return volume, nil
 }
@@ -77,5 +77,3 @@ func (b *BookService) GetVolume(volumeId string) (*books.Volume, error) {
 	}
 	return volume, err
 }
-
-
