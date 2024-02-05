@@ -9,7 +9,7 @@
     ":automergeDigest",
     ":enablePreCommit",
     ":gomod",
-    "github>h3mmy/renovate-config:commit-message",
+    //"github>h3mmy/renovate-config:commit-message",
     "github>h3mmy/renovate-config:pr-labels",
     "github>h3mmy/renovate-config:semantic-commits",
     "github>h3mmy/renovate-config:generic-regex-manager",
