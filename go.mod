@@ -9,16 +9,16 @@ require (
 	github.com/cdfmlr/ellipsis v0.0.1
 	github.com/devopsarr/overseerr-go v0.1.1
 	github.com/dustin/go-humanize v1.0.1
-	github.com/mattn/go-sqlite3 v1.14.20
+	github.com/mattn/go-sqlite3 v1.14.22
 	github.com/spf13/viper v1.18.2
 	go.uber.org/zap v1.26.0
-	golift.io/starr v0.14.0
+	golift.io/starr v1.0.0
 	k8s.io/api v0.29.1
 	k8s.io/apimachinery v0.29.1
 )
 
 require (
-	ariga.io/atlas v0.12.0 // indirect
+	ariga.io/atlas v0.14.1-0.20230918065911-83ad451a4935 // indirect
 	cloud.google.com/go/compute v1.23.3 // indirect
 	cloud.google.com/go/compute/metadata v0.2.3 // indirect
 	github.com/agext/levenshtein v1.2.3 // indirect
@@ -90,11 +90,11 @@ require (
 )
 
 require (
-	entgo.io/ent v0.12.3
+	entgo.io/ent v0.12.5
 	github.com/alexliesenfeld/health v0.8.0
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
 	github.com/go-openapi/runtime v0.27.1
-	github.com/google/uuid v1.5.0
+	github.com/google/uuid v1.6.0
 	github.com/gorilla/websocket v1.5.0 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/magiconair/properties v1.8.7 // indirect
