@@ -15,6 +15,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/h3mmy/bloopyboi/ent/discordmessage"
 	"github.com/h3mmy/bloopyboi/ent/discorduser"
+	"github.com/h3mmy/bloopyboi/ent/mediarequest"
 	"github.com/h3mmy/bloopyboi/ent/predicate"
 )
 
@@ -26,8 +27,10 @@ type DiscordUserQuery struct {
 	inters                   []Interceptor
 	predicates               []predicate.DiscordUser
 	withDiscordMessages      *DiscordMessageQuery
+	withMediaRequests        *MediaRequestQuery
 	modifiers                []func(*sql.Selector)
 	withNamedDiscordMessages map[string]*DiscordMessageQuery
+	withNamedMediaRequests   map[string]*MediaRequestQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -79,6 +82,28 @@ func (duq *DiscordUserQuery) QueryDiscordMessages() *DiscordMessageQuery {
 			sqlgraph.From(discorduser.Table, discorduser.FieldID, selector),
 			sqlgraph.To(discordmessage.Table, discordmessage.FieldID),
 			sqlgraph.Edge(sqlgraph.M2M, false, discorduser.DiscordMessagesTable, discorduser.DiscordMessagesPrimaryKey...),
+		)
+		fromU = sqlgraph.SetNeighbors(duq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryMediaRequests chains the current query on the "media_requests" edge.
+func (duq *DiscordUserQuery) QueryMediaRequests() *MediaRequestQuery {
+	query := (&MediaRequestClient{config: duq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := duq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := duq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(discorduser.Table, discorduser.FieldID, selector),
+			sqlgraph.To(mediarequest.Table, mediarequest.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, discorduser.MediaRequestsTable, discorduser.MediaRequestsColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(duq.driver.Dialect(), step)
 		return fromU, nil
@@ -279,6 +304,7 @@ func (duq *DiscordUserQuery) Clone() *DiscordUserQuery {
 		inters:              append([]Interceptor{}, duq.inters...),
 		predicates:          append([]predicate.DiscordUser{}, duq.predicates...),
 		withDiscordMessages: duq.withDiscordMessages.Clone(),
+		withMediaRequests:   duq.withMediaRequests.Clone(),
 		// clone intermediate query.
 		sql:  duq.sql.Clone(),
 		path: duq.path,
@@ -293,6 +319,17 @@ func (duq *DiscordUserQuery) WithDiscordMessages(opts ...func(*DiscordMessageQue
 		opt(query)
 	}
 	duq.withDiscordMessages = query
+	return duq
+}
+
+// WithMediaRequests tells the query-builder to eager-load the nodes that are connected to
+// the "media_requests" edge. The optional arguments are used to configure the query builder of the edge.
+func (duq *DiscordUserQuery) WithMediaRequests(opts ...func(*MediaRequestQuery)) *DiscordUserQuery {
+	query := (&MediaRequestClient{config: duq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	duq.withMediaRequests = query
 	return duq
 }
 
@@ -374,8 +411,9 @@ func (duq *DiscordUserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]
 	var (
 		nodes       = []*DiscordUser{}
 		_spec       = duq.querySpec()
-		loadedTypes = [1]bool{
+		loadedTypes = [2]bool{
 			duq.withDiscordMessages != nil,
+			duq.withMediaRequests != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -406,10 +444,24 @@ func (duq *DiscordUserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]
 			return nil, err
 		}
 	}
+	if query := duq.withMediaRequests; query != nil {
+		if err := duq.loadMediaRequests(ctx, query, nodes,
+			func(n *DiscordUser) { n.Edges.MediaRequests = []*MediaRequest{} },
+			func(n *DiscordUser, e *MediaRequest) { n.Edges.MediaRequests = append(n.Edges.MediaRequests, e) }); err != nil {
+			return nil, err
+		}
+	}
 	for name, query := range duq.withNamedDiscordMessages {
 		if err := duq.loadDiscordMessages(ctx, query, nodes,
 			func(n *DiscordUser) { n.appendNamedDiscordMessages(name) },
 			func(n *DiscordUser, e *DiscordMessage) { n.appendNamedDiscordMessages(name, e) }); err != nil {
+			return nil, err
+		}
+	}
+	for name, query := range duq.withNamedMediaRequests {
+		if err := duq.loadMediaRequests(ctx, query, nodes,
+			func(n *DiscordUser) { n.appendNamedMediaRequests(name) },
+			func(n *DiscordUser, e *MediaRequest) { n.appendNamedMediaRequests(name, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -474,6 +526,37 @@ func (duq *DiscordUserQuery) loadDiscordMessages(ctx context.Context, query *Dis
 		for kn := range nodes {
 			assign(kn, n)
 		}
+	}
+	return nil
+}
+func (duq *DiscordUserQuery) loadMediaRequests(ctx context.Context, query *MediaRequestQuery, nodes []*DiscordUser, init func(*DiscordUser), assign func(*DiscordUser, *MediaRequest)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*DiscordUser)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	query.withFKs = true
+	query.Where(predicate.MediaRequest(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(discorduser.MediaRequestsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.discord_user_media_requests
+		if fk == nil {
+			return fmt.Errorf(`foreign-key "discord_user_media_requests" is nil for node %v`, n.ID)
+		}
+		node, ok := nodeids[*fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "discord_user_media_requests" returned %v for node %v`, *fk, n.ID)
+		}
+		assign(node, n)
 	}
 	return nil
 }
@@ -602,6 +685,20 @@ func (duq *DiscordUserQuery) WithNamedDiscordMessages(name string, opts ...func(
 		duq.withNamedDiscordMessages = make(map[string]*DiscordMessageQuery)
 	}
 	duq.withNamedDiscordMessages[name] = query
+	return duq
+}
+
+// WithNamedMediaRequests tells the query-builder to eager-load the nodes that are connected to the "media_requests"
+// edge with the given name. The optional arguments are used to configure the query builder of the edge.
+func (duq *DiscordUserQuery) WithNamedMediaRequests(name string, opts ...func(*MediaRequestQuery)) *DiscordUserQuery {
+	query := (&MediaRequestClient{config: duq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	if duq.withNamedMediaRequests == nil {
+		duq.withNamedMediaRequests = make(map[string]*MediaRequestQuery)
+	}
+	duq.withNamedMediaRequests[name] = query
 	return duq
 }
 

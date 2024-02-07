@@ -29,6 +29,10 @@ type Book struct {
 	Isbn10 string `json:"isbn_10,omitempty"`
 	// Isbn13 holds the value of the "isbn_13" field.
 	Isbn13 string `json:"isbn_13,omitempty"`
+	// Publisher holds the value of the "publisher" field.
+	Publisher string `json:"publisher,omitempty"`
+	// ImageURL holds the value of the "image_url" field.
+	ImageURL string `json:"image_url,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the BookQuery when eager-loading is set.
 	Edges        BookEdges `json:"edges"`
@@ -39,10 +43,13 @@ type Book struct {
 type BookEdges struct {
 	// BookAuthor holds the value of the book_author edge.
 	BookAuthor []*BookAuthor `json:"book_author,omitempty"`
+	// MediaRequest holds the value of the media_request edge.
+	MediaRequest []*MediaRequest `json:"media_request,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes     [1]bool
-	namedBookAuthor map[string][]*BookAuthor
+	loadedTypes       [2]bool
+	namedBookAuthor   map[string][]*BookAuthor
+	namedMediaRequest map[string][]*MediaRequest
 }
 
 // BookAuthorOrErr returns the BookAuthor value or an error if the edge
@@ -54,12 +61,21 @@ func (e BookEdges) BookAuthorOrErr() ([]*BookAuthor, error) {
 	return nil, &NotLoadedError{edge: "book_author"}
 }
 
+// MediaRequestOrErr returns the MediaRequest value or an error if the edge
+// was not loaded in eager-loading.
+func (e BookEdges) MediaRequestOrErr() ([]*MediaRequest, error) {
+	if e.loadedTypes[1] {
+		return e.MediaRequest, nil
+	}
+	return nil, &NotLoadedError{edge: "media_request"}
+}
+
 // scanValues returns the types for scanning values from sql.Rows.
 func (*Book) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case book.FieldTitle, book.FieldDescription, book.FieldGoodreadsID, book.FieldGoogleVolumeID, book.FieldIsbn10, book.FieldIsbn13:
+		case book.FieldTitle, book.FieldDescription, book.FieldGoodreadsID, book.FieldGoogleVolumeID, book.FieldIsbn10, book.FieldIsbn13, book.FieldPublisher, book.FieldImageURL:
 			values[i] = new(sql.NullString)
 		case book.FieldID:
 			values[i] = new(uuid.UUID)
@@ -120,6 +136,18 @@ func (b *Book) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				b.Isbn13 = value.String
 			}
+		case book.FieldPublisher:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field publisher", values[i])
+			} else if value.Valid {
+				b.Publisher = value.String
+			}
+		case book.FieldImageURL:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field image_url", values[i])
+			} else if value.Valid {
+				b.ImageURL = value.String
+			}
 		default:
 			b.selectValues.Set(columns[i], values[i])
 		}
@@ -136,6 +164,11 @@ func (b *Book) Value(name string) (ent.Value, error) {
 // QueryBookAuthor queries the "book_author" edge of the Book entity.
 func (b *Book) QueryBookAuthor() *BookAuthorQuery {
 	return NewBookClient(b.config).QueryBookAuthor(b)
+}
+
+// QueryMediaRequest queries the "media_request" edge of the Book entity.
+func (b *Book) QueryMediaRequest() *MediaRequestQuery {
+	return NewBookClient(b.config).QueryMediaRequest(b)
 }
 
 // Update returns a builder for updating this Book.
@@ -178,6 +211,12 @@ func (b *Book) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("isbn_13=")
 	builder.WriteString(b.Isbn13)
+	builder.WriteString(", ")
+	builder.WriteString("publisher=")
+	builder.WriteString(b.Publisher)
+	builder.WriteString(", ")
+	builder.WriteString("image_url=")
+	builder.WriteString(b.ImageURL)
 	builder.WriteByte(')')
 	return builder.String()
 }
@@ -203,6 +242,30 @@ func (b *Book) appendNamedBookAuthor(name string, edges ...*BookAuthor) {
 		b.Edges.namedBookAuthor[name] = []*BookAuthor{}
 	} else {
 		b.Edges.namedBookAuthor[name] = append(b.Edges.namedBookAuthor[name], edges...)
+	}
+}
+
+// NamedMediaRequest returns the MediaRequest named value or an error if the edge was not
+// loaded in eager-loading with this name.
+func (b *Book) NamedMediaRequest(name string) ([]*MediaRequest, error) {
+	if b.Edges.namedMediaRequest == nil {
+		return nil, &NotLoadedError{edge: name}
+	}
+	nodes, ok := b.Edges.namedMediaRequest[name]
+	if !ok {
+		return nil, &NotLoadedError{edge: name}
+	}
+	return nodes, nil
+}
+
+func (b *Book) appendNamedMediaRequest(name string, edges ...*MediaRequest) {
+	if b.Edges.namedMediaRequest == nil {
+		b.Edges.namedMediaRequest = make(map[string][]*MediaRequest)
+	}
+	if len(edges) == 0 {
+		b.Edges.namedMediaRequest[name] = []*MediaRequest{}
+	} else {
+		b.Edges.namedMediaRequest[name] = append(b.Edges.namedMediaRequest[name], edges...)
 	}
 }
 

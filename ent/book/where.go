@@ -84,6 +84,16 @@ func Isbn13(v string) predicate.Book {
 	return predicate.Book(sql.FieldEQ(FieldIsbn13, v))
 }
 
+// Publisher applies equality check predicate on the "publisher" field. It's identical to PublisherEQ.
+func Publisher(v string) predicate.Book {
+	return predicate.Book(sql.FieldEQ(FieldPublisher, v))
+}
+
+// ImageURL applies equality check predicate on the "image_url" field. It's identical to ImageURLEQ.
+func ImageURL(v string) predicate.Book {
+	return predicate.Book(sql.FieldEQ(FieldImageURL, v))
+}
+
 // TitleEQ applies the EQ predicate on the "title" field.
 func TitleEQ(v string) predicate.Book {
 	return predicate.Book(sql.FieldEQ(FieldTitle, v))
@@ -204,6 +214,16 @@ func DescriptionHasSuffix(v string) predicate.Book {
 	return predicate.Book(sql.FieldHasSuffix(FieldDescription, v))
 }
 
+// DescriptionIsNil applies the IsNil predicate on the "description" field.
+func DescriptionIsNil() predicate.Book {
+	return predicate.Book(sql.FieldIsNull(FieldDescription))
+}
+
+// DescriptionNotNil applies the NotNil predicate on the "description" field.
+func DescriptionNotNil() predicate.Book {
+	return predicate.Book(sql.FieldNotNull(FieldDescription))
+}
+
 // DescriptionEqualFold applies the EqualFold predicate on the "description" field.
 func DescriptionEqualFold(v string) predicate.Book {
 	return predicate.Book(sql.FieldEqualFold(FieldDescription, v))
@@ -267,6 +287,16 @@ func GoodreadsIDHasPrefix(v string) predicate.Book {
 // GoodreadsIDHasSuffix applies the HasSuffix predicate on the "goodreads_id" field.
 func GoodreadsIDHasSuffix(v string) predicate.Book {
 	return predicate.Book(sql.FieldHasSuffix(FieldGoodreadsID, v))
+}
+
+// GoodreadsIDIsNil applies the IsNil predicate on the "goodreads_id" field.
+func GoodreadsIDIsNil() predicate.Book {
+	return predicate.Book(sql.FieldIsNull(FieldGoodreadsID))
+}
+
+// GoodreadsIDNotNil applies the NotNil predicate on the "goodreads_id" field.
+func GoodreadsIDNotNil() predicate.Book {
+	return predicate.Book(sql.FieldNotNull(FieldGoodreadsID))
 }
 
 // GoodreadsIDEqualFold applies the EqualFold predicate on the "goodreads_id" field.
@@ -399,6 +429,16 @@ func Isbn10HasSuffix(v string) predicate.Book {
 	return predicate.Book(sql.FieldHasSuffix(FieldIsbn10, v))
 }
 
+// Isbn10IsNil applies the IsNil predicate on the "isbn_10" field.
+func Isbn10IsNil() predicate.Book {
+	return predicate.Book(sql.FieldIsNull(FieldIsbn10))
+}
+
+// Isbn10NotNil applies the NotNil predicate on the "isbn_10" field.
+func Isbn10NotNil() predicate.Book {
+	return predicate.Book(sql.FieldNotNull(FieldIsbn10))
+}
+
 // Isbn10EqualFold applies the EqualFold predicate on the "isbn_10" field.
 func Isbn10EqualFold(v string) predicate.Book {
 	return predicate.Book(sql.FieldEqualFold(FieldIsbn10, v))
@@ -464,6 +504,16 @@ func Isbn13HasSuffix(v string) predicate.Book {
 	return predicate.Book(sql.FieldHasSuffix(FieldIsbn13, v))
 }
 
+// Isbn13IsNil applies the IsNil predicate on the "isbn_13" field.
+func Isbn13IsNil() predicate.Book {
+	return predicate.Book(sql.FieldIsNull(FieldIsbn13))
+}
+
+// Isbn13NotNil applies the NotNil predicate on the "isbn_13" field.
+func Isbn13NotNil() predicate.Book {
+	return predicate.Book(sql.FieldNotNull(FieldIsbn13))
+}
+
 // Isbn13EqualFold applies the EqualFold predicate on the "isbn_13" field.
 func Isbn13EqualFold(v string) predicate.Book {
 	return predicate.Book(sql.FieldEqualFold(FieldIsbn13, v))
@@ -472,6 +522,156 @@ func Isbn13EqualFold(v string) predicate.Book {
 // Isbn13ContainsFold applies the ContainsFold predicate on the "isbn_13" field.
 func Isbn13ContainsFold(v string) predicate.Book {
 	return predicate.Book(sql.FieldContainsFold(FieldIsbn13, v))
+}
+
+// PublisherEQ applies the EQ predicate on the "publisher" field.
+func PublisherEQ(v string) predicate.Book {
+	return predicate.Book(sql.FieldEQ(FieldPublisher, v))
+}
+
+// PublisherNEQ applies the NEQ predicate on the "publisher" field.
+func PublisherNEQ(v string) predicate.Book {
+	return predicate.Book(sql.FieldNEQ(FieldPublisher, v))
+}
+
+// PublisherIn applies the In predicate on the "publisher" field.
+func PublisherIn(vs ...string) predicate.Book {
+	return predicate.Book(sql.FieldIn(FieldPublisher, vs...))
+}
+
+// PublisherNotIn applies the NotIn predicate on the "publisher" field.
+func PublisherNotIn(vs ...string) predicate.Book {
+	return predicate.Book(sql.FieldNotIn(FieldPublisher, vs...))
+}
+
+// PublisherGT applies the GT predicate on the "publisher" field.
+func PublisherGT(v string) predicate.Book {
+	return predicate.Book(sql.FieldGT(FieldPublisher, v))
+}
+
+// PublisherGTE applies the GTE predicate on the "publisher" field.
+func PublisherGTE(v string) predicate.Book {
+	return predicate.Book(sql.FieldGTE(FieldPublisher, v))
+}
+
+// PublisherLT applies the LT predicate on the "publisher" field.
+func PublisherLT(v string) predicate.Book {
+	return predicate.Book(sql.FieldLT(FieldPublisher, v))
+}
+
+// PublisherLTE applies the LTE predicate on the "publisher" field.
+func PublisherLTE(v string) predicate.Book {
+	return predicate.Book(sql.FieldLTE(FieldPublisher, v))
+}
+
+// PublisherContains applies the Contains predicate on the "publisher" field.
+func PublisherContains(v string) predicate.Book {
+	return predicate.Book(sql.FieldContains(FieldPublisher, v))
+}
+
+// PublisherHasPrefix applies the HasPrefix predicate on the "publisher" field.
+func PublisherHasPrefix(v string) predicate.Book {
+	return predicate.Book(sql.FieldHasPrefix(FieldPublisher, v))
+}
+
+// PublisherHasSuffix applies the HasSuffix predicate on the "publisher" field.
+func PublisherHasSuffix(v string) predicate.Book {
+	return predicate.Book(sql.FieldHasSuffix(FieldPublisher, v))
+}
+
+// PublisherIsNil applies the IsNil predicate on the "publisher" field.
+func PublisherIsNil() predicate.Book {
+	return predicate.Book(sql.FieldIsNull(FieldPublisher))
+}
+
+// PublisherNotNil applies the NotNil predicate on the "publisher" field.
+func PublisherNotNil() predicate.Book {
+	return predicate.Book(sql.FieldNotNull(FieldPublisher))
+}
+
+// PublisherEqualFold applies the EqualFold predicate on the "publisher" field.
+func PublisherEqualFold(v string) predicate.Book {
+	return predicate.Book(sql.FieldEqualFold(FieldPublisher, v))
+}
+
+// PublisherContainsFold applies the ContainsFold predicate on the "publisher" field.
+func PublisherContainsFold(v string) predicate.Book {
+	return predicate.Book(sql.FieldContainsFold(FieldPublisher, v))
+}
+
+// ImageURLEQ applies the EQ predicate on the "image_url" field.
+func ImageURLEQ(v string) predicate.Book {
+	return predicate.Book(sql.FieldEQ(FieldImageURL, v))
+}
+
+// ImageURLNEQ applies the NEQ predicate on the "image_url" field.
+func ImageURLNEQ(v string) predicate.Book {
+	return predicate.Book(sql.FieldNEQ(FieldImageURL, v))
+}
+
+// ImageURLIn applies the In predicate on the "image_url" field.
+func ImageURLIn(vs ...string) predicate.Book {
+	return predicate.Book(sql.FieldIn(FieldImageURL, vs...))
+}
+
+// ImageURLNotIn applies the NotIn predicate on the "image_url" field.
+func ImageURLNotIn(vs ...string) predicate.Book {
+	return predicate.Book(sql.FieldNotIn(FieldImageURL, vs...))
+}
+
+// ImageURLGT applies the GT predicate on the "image_url" field.
+func ImageURLGT(v string) predicate.Book {
+	return predicate.Book(sql.FieldGT(FieldImageURL, v))
+}
+
+// ImageURLGTE applies the GTE predicate on the "image_url" field.
+func ImageURLGTE(v string) predicate.Book {
+	return predicate.Book(sql.FieldGTE(FieldImageURL, v))
+}
+
+// ImageURLLT applies the LT predicate on the "image_url" field.
+func ImageURLLT(v string) predicate.Book {
+	return predicate.Book(sql.FieldLT(FieldImageURL, v))
+}
+
+// ImageURLLTE applies the LTE predicate on the "image_url" field.
+func ImageURLLTE(v string) predicate.Book {
+	return predicate.Book(sql.FieldLTE(FieldImageURL, v))
+}
+
+// ImageURLContains applies the Contains predicate on the "image_url" field.
+func ImageURLContains(v string) predicate.Book {
+	return predicate.Book(sql.FieldContains(FieldImageURL, v))
+}
+
+// ImageURLHasPrefix applies the HasPrefix predicate on the "image_url" field.
+func ImageURLHasPrefix(v string) predicate.Book {
+	return predicate.Book(sql.FieldHasPrefix(FieldImageURL, v))
+}
+
+// ImageURLHasSuffix applies the HasSuffix predicate on the "image_url" field.
+func ImageURLHasSuffix(v string) predicate.Book {
+	return predicate.Book(sql.FieldHasSuffix(FieldImageURL, v))
+}
+
+// ImageURLIsNil applies the IsNil predicate on the "image_url" field.
+func ImageURLIsNil() predicate.Book {
+	return predicate.Book(sql.FieldIsNull(FieldImageURL))
+}
+
+// ImageURLNotNil applies the NotNil predicate on the "image_url" field.
+func ImageURLNotNil() predicate.Book {
+	return predicate.Book(sql.FieldNotNull(FieldImageURL))
+}
+
+// ImageURLEqualFold applies the EqualFold predicate on the "image_url" field.
+func ImageURLEqualFold(v string) predicate.Book {
+	return predicate.Book(sql.FieldEqualFold(FieldImageURL, v))
+}
+
+// ImageURLContainsFold applies the ContainsFold predicate on the "image_url" field.
+func ImageURLContainsFold(v string) predicate.Book {
+	return predicate.Book(sql.FieldContainsFold(FieldImageURL, v))
 }
 
 // HasBookAuthor applies the HasEdge predicate on the "book_author" edge.
@@ -497,34 +697,40 @@ func HasBookAuthorWith(preds ...predicate.BookAuthor) predicate.Book {
 	})
 }
 
+// HasMediaRequest applies the HasEdge predicate on the "media_request" edge.
+func HasMediaRequest() predicate.Book {
+	return predicate.Book(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, true, MediaRequestTable, MediaRequestPrimaryKey...),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasMediaRequestWith applies the HasEdge predicate on the "media_request" edge with a given conditions (other predicates).
+func HasMediaRequestWith(preds ...predicate.MediaRequest) predicate.Book {
+	return predicate.Book(func(s *sql.Selector) {
+		step := newMediaRequestStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
 // And groups predicates with the AND operator between them.
 func And(predicates ...predicate.Book) predicate.Book {
-	return predicate.Book(func(s *sql.Selector) {
-		s1 := s.Clone().SetP(nil)
-		for _, p := range predicates {
-			p(s1)
-		}
-		s.Where(s1.P())
-	})
+	return predicate.Book(sql.AndPredicates(predicates...))
 }
 
 // Or groups predicates with the OR operator between them.
 func Or(predicates ...predicate.Book) predicate.Book {
-	return predicate.Book(func(s *sql.Selector) {
-		s1 := s.Clone().SetP(nil)
-		for i, p := range predicates {
-			if i > 0 {
-				s1.Or()
-			}
-			p(s1)
-		}
-		s.Where(s1.P())
-	})
+	return predicate.Book(sql.OrPredicates(predicates...))
 }
 
 // Not applies the not operator on the given predicate.
 func Not(p predicate.Book) predicate.Book {
-	return predicate.Book(func(s *sql.Selector) {
-		p(s.Not())
-	})
+	return predicate.Book(sql.NotPredicates(p))
 }

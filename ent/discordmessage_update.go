@@ -43,6 +43,14 @@ func (dmu *DiscordMessageUpdate) SetRaw(d discordgo.Message) *DiscordMessageUpda
 	return dmu
 }
 
+// SetNillableRaw sets the "raw" field if the given value is not nil.
+func (dmu *DiscordMessageUpdate) SetNillableRaw(d *discordgo.Message) *DiscordMessageUpdate {
+	if d != nil {
+		dmu.SetRaw(*d)
+	}
+	return dmu
+}
+
 // AddAuthorIDs adds the "author" edge to the DiscordUser entity by IDs.
 func (dmu *DiscordMessageUpdate) AddAuthorIDs(ids ...uuid.UUID) *DiscordMessageUpdate {
 	dmu.mutation.AddAuthorIDs(ids...)
@@ -209,6 +217,14 @@ func (dmuo *DiscordMessageUpdateOne) SetUpdateTime(t time.Time) *DiscordMessageU
 // SetRaw sets the "raw" field.
 func (dmuo *DiscordMessageUpdateOne) SetRaw(d discordgo.Message) *DiscordMessageUpdateOne {
 	dmuo.mutation.SetRaw(d)
+	return dmuo
+}
+
+// SetNillableRaw sets the "raw" field if the given value is not nil.
+func (dmuo *DiscordMessageUpdateOne) SetNillableRaw(d *discordgo.Message) *DiscordMessageUpdateOne {
+	if d != nil {
+		dmuo.SetRaw(*d)
+	}
 	return dmuo
 }
 

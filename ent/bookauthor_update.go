@@ -35,6 +35,14 @@ func (bau *BookAuthorUpdate) SetFullName(s string) *BookAuthorUpdate {
 	return bau
 }
 
+// SetNillableFullName sets the "full_name" field if the given value is not nil.
+func (bau *BookAuthorUpdate) SetNillableFullName(s *string) *BookAuthorUpdate {
+	if s != nil {
+		bau.SetFullName(*s)
+	}
+	return bau
+}
+
 // AddBookIDs adds the "books" edge to the Book entity by IDs.
 func (bau *BookAuthorUpdate) AddBookIDs(ids ...uuid.UUID) *BookAuthorUpdate {
 	bau.mutation.AddBookIDs(ids...)
@@ -183,6 +191,14 @@ type BookAuthorUpdateOne struct {
 // SetFullName sets the "full_name" field.
 func (bauo *BookAuthorUpdateOne) SetFullName(s string) *BookAuthorUpdateOne {
 	bauo.mutation.SetFullName(s)
+	return bauo
+}
+
+// SetNillableFullName sets the "full_name" field if the given value is not nil.
+func (bauo *BookAuthorUpdateOne) SetNillableFullName(s *string) *BookAuthorUpdateOne {
+	if s != nil {
+		bauo.SetFullName(*s)
+	}
 	return bauo
 }
 
