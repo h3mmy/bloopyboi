@@ -20,7 +20,7 @@ jobs:
         with:
           go-version-file: 'go.mod'
       - name: Verify ent files
-        uses: ent/contrib/ci
+        uses: ent/contrib/ci@master
 
   lint:
     runs-on: ubuntu-latest
