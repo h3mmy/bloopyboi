@@ -18,6 +18,9 @@ import (
 var logger *zap.Logger = zap.L().Named("ent_store")
 
 func Open() (*ent.Client, error) {
+	if cfg := config.GetConfig().DBConfig; cfg == nil {
+		return nil, fmt.Errorf("database config is nil. No can persist")
+	}
 	dsnString := config.GetConfig().DBConfig.GetDSN()
 	oteldb, err := otelsql.Open("pgx", dsnString)
 	if err != nil {

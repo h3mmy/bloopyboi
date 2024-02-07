@@ -131,7 +131,7 @@ func (d *DiscordService) DeleteAppCommands() {
 	}
 }
 
-func (d *DiscordService) SaveDiscordUser(user *discordgo.User) error {
+func (d *DiscordService) saveDiscordUser(user *discordgo.User) error {
 	if !d.dbEnabled {
 		return nil
 	}
@@ -163,7 +163,7 @@ func (d *DiscordService) syncGuildUsers(guildId string) error {
 			SetUsername(member.User.Username).
 			SetDiscordid(member.User.ID).
 			SetEmail(member.User.Email).
-			// SetDiscriminator(user.Discriminator).
+			SetDiscriminator(member.User.Discriminator).
 			Save(context.Background())
 		if err != nil {
 			return err

@@ -153,42 +153,18 @@ func (b *BookService) SubmitBookRequest(ctx context.Context, discUser *discordgo
 			b.logger.Debug(fmt.Sprintf("found discord user id: %s", discordUserId))
 		}
 
-		// TODO: Parse and include ISBNs
-		err = database.WithTx(ctx, b.db, func(tx *ent.Tx) error {
-			return tx.Book.
-				Create().
-				SetID(uuid.New()).
-				SetGoogleVolumeID(volumeId).
-				SetDescription(volume.VolumeInfo.Description).
-				SetTitle(volume.VolumeInfo.Title).
-				SetPublisher(volume.VolumeInfo.Publisher).
-				SetImageURL(volume.VolumeInfo.ImageLinks.Thumbnail).
-				OnConflict(sql.ConflictColumns(book.FieldGoogleVolumeID)).
-				UpdateNewValues().
-				Exec(ctx)
-		})
+		bookid, err := b.SaveBook(ctx, volume)
 
 		if err != nil {
 			return fmt.Errorf("failed to save book: %w", err)
-		} else {
-			b.logger.Debug(fmt.Sprintf("saved book id: %s", volumeId))
 		}
-
-		bookid, err := b.db.Book.Query().
-			Where(book.GoogleVolumeIDEQ(volumeId)).
-			FirstID(ctx)
-
-		if err != nil {
-			return fmt.Errorf("failed to find book with volume id %s: %w", volumeId, err)
-		}
-		b.logger.Debug(fmt.Sprintf("found book id: %s", bookid))
 
 		err = database.WithTx(ctx, b.db, func(tx *ent.Tx) error {
 			return tx.MediaRequest.
 				Create().
 				SetID(uuid.New()).
 				AddBookIDs(bookid).
-				SetNillableDiscordUserID(&discordUserId).
+				SetDiscordUserID(discordUserId).
 				SetStatus("requested").
 				Exec(ctx)
 		})
@@ -216,4 +192,38 @@ func (b *BookService) SubmitBookRequest(ctx context.Context, discUser *discordgo
 		return nil
 	}
 	return nil
+}
+
+
+func (b *BookService) SaveBook(ctx context.Context, volume *books.Volume) (uuid.UUID, error) {
+	// TODO: Parse and include ISBNs
+	err := database.WithTx(ctx, b.db, func(tx *ent.Tx) error {
+		return tx.Book.
+			Create().
+			SetID(uuid.New()).
+			SetGoogleVolumeID(volume.Id).
+			SetDescription(volume.VolumeInfo.Description).
+			SetTitle(volume.VolumeInfo.Title).
+			SetPublisher(volume.VolumeInfo.Publisher).
+			SetImageURL(volume.VolumeInfo.ImageLinks.Thumbnail).
+			OnConflict(sql.ConflictColumns(book.FieldGoogleVolumeID)).
+			UpdateNewValues().
+			Exec(ctx)
+	})
+
+	if err != nil {
+		return uuid.Nil, fmt.Errorf("failed persisting book to db: %w", err)
+	} else {
+		b.logger.Debug(fmt.Sprintf("saved book id: %s", volume.Id))
+	}
+
+	bookid, err := b.db.Book.Query().
+		Where(book.GoogleVolumeIDEQ(volume.Id)).
+		FirstID(ctx)
+
+	if err != nil {
+		return uuid.Nil, fmt.Errorf("failed to find book with volume id %s: %w", volume.Id, err)
+	}
+	b.logger.Debug(fmt.Sprintf("found book id: %s", bookid))
+	return bookid, nil
 }
