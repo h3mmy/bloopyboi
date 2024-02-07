@@ -20,6 +20,8 @@ type Tx struct {
 	DiscordMessage *DiscordMessageClient
 	// DiscordUser is the client for interacting with the DiscordUser builders.
 	DiscordUser *DiscordUserClient
+	// MediaRequest is the client for interacting with the MediaRequest builders.
+	MediaRequest *MediaRequestClient
 
 	// lazily loaded.
 	client     *Client
@@ -155,6 +157,7 @@ func (tx *Tx) init() {
 	tx.BookAuthor = NewBookAuthorClient(tx.config)
 	tx.DiscordMessage = NewDiscordMessageClient(tx.config)
 	tx.DiscordUser = NewDiscordUserClient(tx.config)
+	tx.MediaRequest = NewMediaRequestClient(tx.config)
 }
 
 // txDriver wraps the given dialect.Tx with a nop dialect.Driver implementation.

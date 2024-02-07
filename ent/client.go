@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"reflect"
 
 	"github.com/google/uuid"
 	"github.com/h3mmy/bloopyboi/ent/migrate"
@@ -19,6 +20,7 @@ import (
 	"github.com/h3mmy/bloopyboi/ent/bookauthor"
 	"github.com/h3mmy/bloopyboi/ent/discordmessage"
 	"github.com/h3mmy/bloopyboi/ent/discorduser"
+	"github.com/h3mmy/bloopyboi/ent/mediarequest"
 )
 
 // Client is the client that holds all ent builders.
@@ -34,13 +36,13 @@ type Client struct {
 	DiscordMessage *DiscordMessageClient
 	// DiscordUser is the client for interacting with the DiscordUser builders.
 	DiscordUser *DiscordUserClient
+	// MediaRequest is the client for interacting with the MediaRequest builders.
+	MediaRequest *MediaRequestClient
 }
 
 // NewClient creates a new client configured with the given options.
 func NewClient(opts ...Option) *Client {
-	cfg := config{log: log.Println, hooks: &hooks{}, inters: &inters{}}
-	cfg.options(opts...)
-	client := &Client{config: cfg}
+	client := &Client{config: newConfig(opts...)}
 	client.init()
 	return client
 }
@@ -51,6 +53,7 @@ func (c *Client) init() {
 	c.BookAuthor = NewBookAuthorClient(c.config)
 	c.DiscordMessage = NewDiscordMessageClient(c.config)
 	c.DiscordUser = NewDiscordUserClient(c.config)
+	c.MediaRequest = NewMediaRequestClient(c.config)
 }
 
 type (
@@ -70,6 +73,13 @@ type (
 	// Option function to configure the client.
 	Option func(*config)
 )
+
+// newConfig creates a new config for the client.
+func newConfig(opts ...Option) config {
+	cfg := config{log: log.Println, hooks: &hooks{}, inters: &inters{}}
+	cfg.options(opts...)
+	return cfg
+}
 
 // options applies the options on the config object.
 func (c *config) options(opts ...Option) {
@@ -118,11 +128,14 @@ func Open(driverName, dataSourceName string, options ...Option) (*Client, error)
 	}
 }
 
+// ErrTxStarted is returned when trying to start a new transaction from a transactional client.
+var ErrTxStarted = errors.New("ent: cannot start a transaction within a transaction")
+
 // Tx returns a new transactional client. The provided context
 // is used until the transaction is committed or rolled back.
 func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 	if _, ok := c.driver.(*txDriver); ok {
-		return nil, errors.New("ent: cannot start a transaction within a transaction")
+		return nil, ErrTxStarted
 	}
 	tx, err := newTx(ctx, c.driver)
 	if err != nil {
@@ -137,6 +150,7 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		BookAuthor:     NewBookAuthorClient(cfg),
 		DiscordMessage: NewDiscordMessageClient(cfg),
 		DiscordUser:    NewDiscordUserClient(cfg),
+		MediaRequest:   NewMediaRequestClient(cfg),
 	}, nil
 }
 
@@ -160,6 +174,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		BookAuthor:     NewBookAuthorClient(cfg),
 		DiscordMessage: NewDiscordMessageClient(cfg),
 		DiscordUser:    NewDiscordUserClient(cfg),
+		MediaRequest:   NewMediaRequestClient(cfg),
 	}, nil
 }
 
@@ -192,6 +207,7 @@ func (c *Client) Use(hooks ...Hook) {
 	c.BookAuthor.Use(hooks...)
 	c.DiscordMessage.Use(hooks...)
 	c.DiscordUser.Use(hooks...)
+	c.MediaRequest.Use(hooks...)
 }
 
 // Intercept adds the query interceptors to all the entity clients.
@@ -201,6 +217,7 @@ func (c *Client) Intercept(interceptors ...Interceptor) {
 	c.BookAuthor.Intercept(interceptors...)
 	c.DiscordMessage.Intercept(interceptors...)
 	c.DiscordUser.Intercept(interceptors...)
+	c.MediaRequest.Intercept(interceptors...)
 }
 
 // Mutate implements the ent.Mutator interface.
@@ -214,6 +231,8 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.DiscordMessage.mutate(ctx, m)
 	case *DiscordUserMutation:
 		return c.DiscordUser.mutate(ctx, m)
+	case *MediaRequestMutation:
+		return c.MediaRequest.mutate(ctx, m)
 	default:
 		return nil, fmt.Errorf("ent: unknown mutation type %T", m)
 	}
@@ -249,6 +268,21 @@ func (c *BookClient) Create() *BookCreate {
 
 // CreateBulk returns a builder for creating a bulk of Book entities.
 func (c *BookClient) CreateBulk(builders ...*BookCreate) *BookCreateBulk {
+	return &BookCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *BookClient) MapCreateBulk(slice any, setFunc func(*BookCreate, int)) *BookCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &BookCreateBulk{err: fmt.Errorf("calling to BookClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*BookCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
 	return &BookCreateBulk{config: c.config, builders: builders}
 }
 
@@ -328,6 +362,22 @@ func (c *BookClient) QueryBookAuthor(b *Book) *BookAuthorQuery {
 	return query
 }
 
+// QueryMediaRequest queries the media_request edge of a Book.
+func (c *BookClient) QueryMediaRequest(b *Book) *MediaRequestQuery {
+	query := (&MediaRequestClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := b.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(book.Table, book.FieldID, id),
+			sqlgraph.To(mediarequest.Table, mediarequest.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, true, book.MediaRequestTable, book.MediaRequestPrimaryKey...),
+		)
+		fromV = sqlgraph.Neighbors(b.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *BookClient) Hooks() []Hook {
 	return c.hooks.Book
@@ -383,6 +433,21 @@ func (c *BookAuthorClient) Create() *BookAuthorCreate {
 
 // CreateBulk returns a builder for creating a bulk of BookAuthor entities.
 func (c *BookAuthorClient) CreateBulk(builders ...*BookAuthorCreate) *BookAuthorCreateBulk {
+	return &BookAuthorCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *BookAuthorClient) MapCreateBulk(slice any, setFunc func(*BookAuthorCreate, int)) *BookAuthorCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &BookAuthorCreateBulk{err: fmt.Errorf("calling to BookAuthorClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*BookAuthorCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
 	return &BookAuthorCreateBulk{config: c.config, builders: builders}
 }
 
@@ -520,6 +585,21 @@ func (c *DiscordMessageClient) CreateBulk(builders ...*DiscordMessageCreate) *Di
 	return &DiscordMessageCreateBulk{config: c.config, builders: builders}
 }
 
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *DiscordMessageClient) MapCreateBulk(slice any, setFunc func(*DiscordMessageCreate, int)) *DiscordMessageCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &DiscordMessageCreateBulk{err: fmt.Errorf("calling to DiscordMessageClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*DiscordMessageCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &DiscordMessageCreateBulk{config: c.config, builders: builders}
+}
+
 // Update returns an update builder for DiscordMessage.
 func (c *DiscordMessageClient) Update() *DiscordMessageUpdate {
 	mutation := newDiscordMessageMutation(c.config, OpUpdate)
@@ -654,6 +734,21 @@ func (c *DiscordUserClient) CreateBulk(builders ...*DiscordUserCreate) *DiscordU
 	return &DiscordUserCreateBulk{config: c.config, builders: builders}
 }
 
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *DiscordUserClient) MapCreateBulk(slice any, setFunc func(*DiscordUserCreate, int)) *DiscordUserCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &DiscordUserCreateBulk{err: fmt.Errorf("calling to DiscordUserClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*DiscordUserCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &DiscordUserCreateBulk{config: c.config, builders: builders}
+}
+
 // Update returns an update builder for DiscordUser.
 func (c *DiscordUserClient) Update() *DiscordUserUpdate {
 	mutation := newDiscordUserMutation(c.config, OpUpdate)
@@ -730,6 +825,22 @@ func (c *DiscordUserClient) QueryDiscordMessages(du *DiscordUser) *DiscordMessag
 	return query
 }
 
+// QueryMediaRequests queries the media_requests edge of a DiscordUser.
+func (c *DiscordUserClient) QueryMediaRequests(du *DiscordUser) *MediaRequestQuery {
+	query := (&MediaRequestClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := du.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(discorduser.Table, discorduser.FieldID, id),
+			sqlgraph.To(mediarequest.Table, mediarequest.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, discorduser.MediaRequestsTable, discorduser.MediaRequestsColumn),
+		)
+		fromV = sqlgraph.Neighbors(du.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *DiscordUserClient) Hooks() []Hook {
 	return c.hooks.DiscordUser
@@ -755,12 +866,177 @@ func (c *DiscordUserClient) mutate(ctx context.Context, m *DiscordUserMutation) 
 	}
 }
 
+// MediaRequestClient is a client for the MediaRequest schema.
+type MediaRequestClient struct {
+	config
+}
+
+// NewMediaRequestClient returns a client for the MediaRequest from the given config.
+func NewMediaRequestClient(c config) *MediaRequestClient {
+	return &MediaRequestClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `mediarequest.Hooks(f(g(h())))`.
+func (c *MediaRequestClient) Use(hooks ...Hook) {
+	c.hooks.MediaRequest = append(c.hooks.MediaRequest, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `mediarequest.Intercept(f(g(h())))`.
+func (c *MediaRequestClient) Intercept(interceptors ...Interceptor) {
+	c.inters.MediaRequest = append(c.inters.MediaRequest, interceptors...)
+}
+
+// Create returns a builder for creating a MediaRequest entity.
+func (c *MediaRequestClient) Create() *MediaRequestCreate {
+	mutation := newMediaRequestMutation(c.config, OpCreate)
+	return &MediaRequestCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of MediaRequest entities.
+func (c *MediaRequestClient) CreateBulk(builders ...*MediaRequestCreate) *MediaRequestCreateBulk {
+	return &MediaRequestCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *MediaRequestClient) MapCreateBulk(slice any, setFunc func(*MediaRequestCreate, int)) *MediaRequestCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &MediaRequestCreateBulk{err: fmt.Errorf("calling to MediaRequestClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*MediaRequestCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &MediaRequestCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for MediaRequest.
+func (c *MediaRequestClient) Update() *MediaRequestUpdate {
+	mutation := newMediaRequestMutation(c.config, OpUpdate)
+	return &MediaRequestUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *MediaRequestClient) UpdateOne(mr *MediaRequest) *MediaRequestUpdateOne {
+	mutation := newMediaRequestMutation(c.config, OpUpdateOne, withMediaRequest(mr))
+	return &MediaRequestUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *MediaRequestClient) UpdateOneID(id uuid.UUID) *MediaRequestUpdateOne {
+	mutation := newMediaRequestMutation(c.config, OpUpdateOne, withMediaRequestID(id))
+	return &MediaRequestUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for MediaRequest.
+func (c *MediaRequestClient) Delete() *MediaRequestDelete {
+	mutation := newMediaRequestMutation(c.config, OpDelete)
+	return &MediaRequestDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *MediaRequestClient) DeleteOne(mr *MediaRequest) *MediaRequestDeleteOne {
+	return c.DeleteOneID(mr.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *MediaRequestClient) DeleteOneID(id uuid.UUID) *MediaRequestDeleteOne {
+	builder := c.Delete().Where(mediarequest.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &MediaRequestDeleteOne{builder}
+}
+
+// Query returns a query builder for MediaRequest.
+func (c *MediaRequestClient) Query() *MediaRequestQuery {
+	return &MediaRequestQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeMediaRequest},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a MediaRequest entity by its id.
+func (c *MediaRequestClient) Get(ctx context.Context, id uuid.UUID) (*MediaRequest, error) {
+	return c.Query().Where(mediarequest.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *MediaRequestClient) GetX(ctx context.Context, id uuid.UUID) *MediaRequest {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryDiscordUser queries the discord_user edge of a MediaRequest.
+func (c *MediaRequestClient) QueryDiscordUser(mr *MediaRequest) *DiscordUserQuery {
+	query := (&DiscordUserClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := mr.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(mediarequest.Table, mediarequest.FieldID, id),
+			sqlgraph.To(discorduser.Table, discorduser.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, mediarequest.DiscordUserTable, mediarequest.DiscordUserColumn),
+		)
+		fromV = sqlgraph.Neighbors(mr.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryBooks queries the books edge of a MediaRequest.
+func (c *MediaRequestClient) QueryBooks(mr *MediaRequest) *BookQuery {
+	query := (&BookClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := mr.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(mediarequest.Table, mediarequest.FieldID, id),
+			sqlgraph.To(book.Table, book.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, false, mediarequest.BooksTable, mediarequest.BooksPrimaryKey...),
+		)
+		fromV = sqlgraph.Neighbors(mr.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *MediaRequestClient) Hooks() []Hook {
+	return c.hooks.MediaRequest
+}
+
+// Interceptors returns the client interceptors.
+func (c *MediaRequestClient) Interceptors() []Interceptor {
+	return c.inters.MediaRequest
+}
+
+func (c *MediaRequestClient) mutate(ctx context.Context, m *MediaRequestMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&MediaRequestCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&MediaRequestUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&MediaRequestUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&MediaRequestDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown MediaRequest mutation op: %q", m.Op())
+	}
+}
+
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		Book, BookAuthor, DiscordMessage, DiscordUser []ent.Hook
+		Book, BookAuthor, DiscordMessage, DiscordUser, MediaRequest []ent.Hook
 	}
 	inters struct {
-		Book, BookAuthor, DiscordMessage, DiscordUser []ent.Interceptor
+		Book, BookAuthor, DiscordMessage, DiscordUser, MediaRequest []ent.Interceptor
 	}
 )

@@ -57,6 +57,18 @@ func (f DiscordUserFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value,
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.DiscordUserMutation", m)
 }
 
+// The MediaRequestFunc type is an adapter to allow the use of ordinary
+// function as MediaRequest mutator.
+type MediaRequestFunc func(context.Context, *ent.MediaRequestMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f MediaRequestFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.MediaRequestMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.MediaRequestMutation", m)
+}
+
 // Condition is a hook condition function.
 type Condition func(context.Context, ent.Mutation) bool
 
