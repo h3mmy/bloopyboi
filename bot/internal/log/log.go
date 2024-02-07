@@ -8,6 +8,7 @@ import (
 	"github.com/alexliesenfeld/health"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
+	"github.com/uptrace/opentelemetry-go-extra/otelzap"
 )
 
 const DefaultHealthCheckLoggerName = "health_check"
@@ -28,6 +29,13 @@ func NewZapLogger() *zap.Logger {
 
 	zlogger, _ := zapConfig.Build()
 	return zlogger.With(*zloggerCommonKey)
+}
+
+func NewTracingLogger() *otelzap.Logger {
+	zapConfig := BaseZapConfig(zapcore.DebugLevel)
+
+	zlogger, _ := zapConfig.Build()
+	return otelzap.New(zlogger.With(zapcore.Field{Key: "group", Type: zapcore.StringType, String: "tracing"}))
 }
 
 // LoggingInterceptor for HealthCheckers

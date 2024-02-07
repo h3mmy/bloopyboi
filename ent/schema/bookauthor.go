@@ -15,8 +15,8 @@ type BookAuthor struct {
 // Fields of the BookAuthor.
 func (BookAuthor) Fields() []ent.Field {
 	return []ent.Field{
-		field.UUID("id", uuid.New()),
-		field.String("full_name"),
+		field.UUID("id", uuid.New()).Unique(),
+		field.String("full_name").Unique(), // This may not be true but I need to meet postgres constraints
 	}
 }
 

@@ -13,6 +13,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/h3mmy/bloopyboi/ent/book"
 	"github.com/h3mmy/bloopyboi/ent/bookauthor"
+	"github.com/h3mmy/bloopyboi/ent/mediarequest"
 	"github.com/h3mmy/bloopyboi/ent/predicate"
 )
 
@@ -35,9 +36,31 @@ func (bu *BookUpdate) SetTitle(s string) *BookUpdate {
 	return bu
 }
 
+// SetNillableTitle sets the "title" field if the given value is not nil.
+func (bu *BookUpdate) SetNillableTitle(s *string) *BookUpdate {
+	if s != nil {
+		bu.SetTitle(*s)
+	}
+	return bu
+}
+
 // SetDescription sets the "description" field.
 func (bu *BookUpdate) SetDescription(s string) *BookUpdate {
 	bu.mutation.SetDescription(s)
+	return bu
+}
+
+// SetNillableDescription sets the "description" field if the given value is not nil.
+func (bu *BookUpdate) SetNillableDescription(s *string) *BookUpdate {
+	if s != nil {
+		bu.SetDescription(*s)
+	}
+	return bu
+}
+
+// ClearDescription clears the value of the "description" field.
+func (bu *BookUpdate) ClearDescription() *BookUpdate {
+	bu.mutation.ClearDescription()
 	return bu
 }
 
@@ -47,9 +70,31 @@ func (bu *BookUpdate) SetGoodreadsID(s string) *BookUpdate {
 	return bu
 }
 
+// SetNillableGoodreadsID sets the "goodreads_id" field if the given value is not nil.
+func (bu *BookUpdate) SetNillableGoodreadsID(s *string) *BookUpdate {
+	if s != nil {
+		bu.SetGoodreadsID(*s)
+	}
+	return bu
+}
+
+// ClearGoodreadsID clears the value of the "goodreads_id" field.
+func (bu *BookUpdate) ClearGoodreadsID() *BookUpdate {
+	bu.mutation.ClearGoodreadsID()
+	return bu
+}
+
 // SetGoogleVolumeID sets the "google_volume_id" field.
 func (bu *BookUpdate) SetGoogleVolumeID(s string) *BookUpdate {
 	bu.mutation.SetGoogleVolumeID(s)
+	return bu
+}
+
+// SetNillableGoogleVolumeID sets the "google_volume_id" field if the given value is not nil.
+func (bu *BookUpdate) SetNillableGoogleVolumeID(s *string) *BookUpdate {
+	if s != nil {
+		bu.SetGoogleVolumeID(*s)
+	}
 	return bu
 }
 
@@ -59,9 +104,77 @@ func (bu *BookUpdate) SetIsbn10(s string) *BookUpdate {
 	return bu
 }
 
+// SetNillableIsbn10 sets the "isbn_10" field if the given value is not nil.
+func (bu *BookUpdate) SetNillableIsbn10(s *string) *BookUpdate {
+	if s != nil {
+		bu.SetIsbn10(*s)
+	}
+	return bu
+}
+
+// ClearIsbn10 clears the value of the "isbn_10" field.
+func (bu *BookUpdate) ClearIsbn10() *BookUpdate {
+	bu.mutation.ClearIsbn10()
+	return bu
+}
+
 // SetIsbn13 sets the "isbn_13" field.
 func (bu *BookUpdate) SetIsbn13(s string) *BookUpdate {
 	bu.mutation.SetIsbn13(s)
+	return bu
+}
+
+// SetNillableIsbn13 sets the "isbn_13" field if the given value is not nil.
+func (bu *BookUpdate) SetNillableIsbn13(s *string) *BookUpdate {
+	if s != nil {
+		bu.SetIsbn13(*s)
+	}
+	return bu
+}
+
+// ClearIsbn13 clears the value of the "isbn_13" field.
+func (bu *BookUpdate) ClearIsbn13() *BookUpdate {
+	bu.mutation.ClearIsbn13()
+	return bu
+}
+
+// SetPublisher sets the "publisher" field.
+func (bu *BookUpdate) SetPublisher(s string) *BookUpdate {
+	bu.mutation.SetPublisher(s)
+	return bu
+}
+
+// SetNillablePublisher sets the "publisher" field if the given value is not nil.
+func (bu *BookUpdate) SetNillablePublisher(s *string) *BookUpdate {
+	if s != nil {
+		bu.SetPublisher(*s)
+	}
+	return bu
+}
+
+// ClearPublisher clears the value of the "publisher" field.
+func (bu *BookUpdate) ClearPublisher() *BookUpdate {
+	bu.mutation.ClearPublisher()
+	return bu
+}
+
+// SetImageURL sets the "image_url" field.
+func (bu *BookUpdate) SetImageURL(s string) *BookUpdate {
+	bu.mutation.SetImageURL(s)
+	return bu
+}
+
+// SetNillableImageURL sets the "image_url" field if the given value is not nil.
+func (bu *BookUpdate) SetNillableImageURL(s *string) *BookUpdate {
+	if s != nil {
+		bu.SetImageURL(*s)
+	}
+	return bu
+}
+
+// ClearImageURL clears the value of the "image_url" field.
+func (bu *BookUpdate) ClearImageURL() *BookUpdate {
+	bu.mutation.ClearImageURL()
 	return bu
 }
 
@@ -78,6 +191,21 @@ func (bu *BookUpdate) AddBookAuthor(b ...*BookAuthor) *BookUpdate {
 		ids[i] = b[i].ID
 	}
 	return bu.AddBookAuthorIDs(ids...)
+}
+
+// AddMediaRequestIDs adds the "media_request" edge to the MediaRequest entity by IDs.
+func (bu *BookUpdate) AddMediaRequestIDs(ids ...uuid.UUID) *BookUpdate {
+	bu.mutation.AddMediaRequestIDs(ids...)
+	return bu
+}
+
+// AddMediaRequest adds the "media_request" edges to the MediaRequest entity.
+func (bu *BookUpdate) AddMediaRequest(m ...*MediaRequest) *BookUpdate {
+	ids := make([]uuid.UUID, len(m))
+	for i := range m {
+		ids[i] = m[i].ID
+	}
+	return bu.AddMediaRequestIDs(ids...)
 }
 
 // Mutation returns the BookMutation object of the builder.
@@ -104,6 +232,27 @@ func (bu *BookUpdate) RemoveBookAuthor(b ...*BookAuthor) *BookUpdate {
 		ids[i] = b[i].ID
 	}
 	return bu.RemoveBookAuthorIDs(ids...)
+}
+
+// ClearMediaRequest clears all "media_request" edges to the MediaRequest entity.
+func (bu *BookUpdate) ClearMediaRequest() *BookUpdate {
+	bu.mutation.ClearMediaRequest()
+	return bu
+}
+
+// RemoveMediaRequestIDs removes the "media_request" edge to MediaRequest entities by IDs.
+func (bu *BookUpdate) RemoveMediaRequestIDs(ids ...uuid.UUID) *BookUpdate {
+	bu.mutation.RemoveMediaRequestIDs(ids...)
+	return bu
+}
+
+// RemoveMediaRequest removes "media_request" edges to MediaRequest entities.
+func (bu *BookUpdate) RemoveMediaRequest(m ...*MediaRequest) *BookUpdate {
+	ids := make([]uuid.UUID, len(m))
+	for i := range m {
+		ids[i] = m[i].ID
+	}
+	return bu.RemoveMediaRequestIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -148,8 +297,14 @@ func (bu *BookUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := bu.mutation.Description(); ok {
 		_spec.SetField(book.FieldDescription, field.TypeString, value)
 	}
+	if bu.mutation.DescriptionCleared() {
+		_spec.ClearField(book.FieldDescription, field.TypeString)
+	}
 	if value, ok := bu.mutation.GoodreadsID(); ok {
 		_spec.SetField(book.FieldGoodreadsID, field.TypeString, value)
+	}
+	if bu.mutation.GoodreadsIDCleared() {
+		_spec.ClearField(book.FieldGoodreadsID, field.TypeString)
 	}
 	if value, ok := bu.mutation.GoogleVolumeID(); ok {
 		_spec.SetField(book.FieldGoogleVolumeID, field.TypeString, value)
@@ -157,8 +312,26 @@ func (bu *BookUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := bu.mutation.Isbn10(); ok {
 		_spec.SetField(book.FieldIsbn10, field.TypeString, value)
 	}
+	if bu.mutation.Isbn10Cleared() {
+		_spec.ClearField(book.FieldIsbn10, field.TypeString)
+	}
 	if value, ok := bu.mutation.Isbn13(); ok {
 		_spec.SetField(book.FieldIsbn13, field.TypeString, value)
+	}
+	if bu.mutation.Isbn13Cleared() {
+		_spec.ClearField(book.FieldIsbn13, field.TypeString)
+	}
+	if value, ok := bu.mutation.Publisher(); ok {
+		_spec.SetField(book.FieldPublisher, field.TypeString, value)
+	}
+	if bu.mutation.PublisherCleared() {
+		_spec.ClearField(book.FieldPublisher, field.TypeString)
+	}
+	if value, ok := bu.mutation.ImageURL(); ok {
+		_spec.SetField(book.FieldImageURL, field.TypeString, value)
+	}
+	if bu.mutation.ImageURLCleared() {
+		_spec.ClearField(book.FieldImageURL, field.TypeString)
 	}
 	if bu.mutation.BookAuthorCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -205,6 +378,51 @@ func (bu *BookUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
+	if bu.mutation.MediaRequestCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   book.MediaRequestTable,
+			Columns: book.MediaRequestPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(mediarequest.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := bu.mutation.RemovedMediaRequestIDs(); len(nodes) > 0 && !bu.mutation.MediaRequestCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   book.MediaRequestTable,
+			Columns: book.MediaRequestPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(mediarequest.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := bu.mutation.MediaRequestIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   book.MediaRequestTable,
+			Columns: book.MediaRequestPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(mediarequest.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	if n, err = sqlgraph.UpdateNodes(ctx, bu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{book.Label}
@@ -231,9 +449,31 @@ func (buo *BookUpdateOne) SetTitle(s string) *BookUpdateOne {
 	return buo
 }
 
+// SetNillableTitle sets the "title" field if the given value is not nil.
+func (buo *BookUpdateOne) SetNillableTitle(s *string) *BookUpdateOne {
+	if s != nil {
+		buo.SetTitle(*s)
+	}
+	return buo
+}
+
 // SetDescription sets the "description" field.
 func (buo *BookUpdateOne) SetDescription(s string) *BookUpdateOne {
 	buo.mutation.SetDescription(s)
+	return buo
+}
+
+// SetNillableDescription sets the "description" field if the given value is not nil.
+func (buo *BookUpdateOne) SetNillableDescription(s *string) *BookUpdateOne {
+	if s != nil {
+		buo.SetDescription(*s)
+	}
+	return buo
+}
+
+// ClearDescription clears the value of the "description" field.
+func (buo *BookUpdateOne) ClearDescription() *BookUpdateOne {
+	buo.mutation.ClearDescription()
 	return buo
 }
 
@@ -243,9 +483,31 @@ func (buo *BookUpdateOne) SetGoodreadsID(s string) *BookUpdateOne {
 	return buo
 }
 
+// SetNillableGoodreadsID sets the "goodreads_id" field if the given value is not nil.
+func (buo *BookUpdateOne) SetNillableGoodreadsID(s *string) *BookUpdateOne {
+	if s != nil {
+		buo.SetGoodreadsID(*s)
+	}
+	return buo
+}
+
+// ClearGoodreadsID clears the value of the "goodreads_id" field.
+func (buo *BookUpdateOne) ClearGoodreadsID() *BookUpdateOne {
+	buo.mutation.ClearGoodreadsID()
+	return buo
+}
+
 // SetGoogleVolumeID sets the "google_volume_id" field.
 func (buo *BookUpdateOne) SetGoogleVolumeID(s string) *BookUpdateOne {
 	buo.mutation.SetGoogleVolumeID(s)
+	return buo
+}
+
+// SetNillableGoogleVolumeID sets the "google_volume_id" field if the given value is not nil.
+func (buo *BookUpdateOne) SetNillableGoogleVolumeID(s *string) *BookUpdateOne {
+	if s != nil {
+		buo.SetGoogleVolumeID(*s)
+	}
 	return buo
 }
 
@@ -255,9 +517,77 @@ func (buo *BookUpdateOne) SetIsbn10(s string) *BookUpdateOne {
 	return buo
 }
 
+// SetNillableIsbn10 sets the "isbn_10" field if the given value is not nil.
+func (buo *BookUpdateOne) SetNillableIsbn10(s *string) *BookUpdateOne {
+	if s != nil {
+		buo.SetIsbn10(*s)
+	}
+	return buo
+}
+
+// ClearIsbn10 clears the value of the "isbn_10" field.
+func (buo *BookUpdateOne) ClearIsbn10() *BookUpdateOne {
+	buo.mutation.ClearIsbn10()
+	return buo
+}
+
 // SetIsbn13 sets the "isbn_13" field.
 func (buo *BookUpdateOne) SetIsbn13(s string) *BookUpdateOne {
 	buo.mutation.SetIsbn13(s)
+	return buo
+}
+
+// SetNillableIsbn13 sets the "isbn_13" field if the given value is not nil.
+func (buo *BookUpdateOne) SetNillableIsbn13(s *string) *BookUpdateOne {
+	if s != nil {
+		buo.SetIsbn13(*s)
+	}
+	return buo
+}
+
+// ClearIsbn13 clears the value of the "isbn_13" field.
+func (buo *BookUpdateOne) ClearIsbn13() *BookUpdateOne {
+	buo.mutation.ClearIsbn13()
+	return buo
+}
+
+// SetPublisher sets the "publisher" field.
+func (buo *BookUpdateOne) SetPublisher(s string) *BookUpdateOne {
+	buo.mutation.SetPublisher(s)
+	return buo
+}
+
+// SetNillablePublisher sets the "publisher" field if the given value is not nil.
+func (buo *BookUpdateOne) SetNillablePublisher(s *string) *BookUpdateOne {
+	if s != nil {
+		buo.SetPublisher(*s)
+	}
+	return buo
+}
+
+// ClearPublisher clears the value of the "publisher" field.
+func (buo *BookUpdateOne) ClearPublisher() *BookUpdateOne {
+	buo.mutation.ClearPublisher()
+	return buo
+}
+
+// SetImageURL sets the "image_url" field.
+func (buo *BookUpdateOne) SetImageURL(s string) *BookUpdateOne {
+	buo.mutation.SetImageURL(s)
+	return buo
+}
+
+// SetNillableImageURL sets the "image_url" field if the given value is not nil.
+func (buo *BookUpdateOne) SetNillableImageURL(s *string) *BookUpdateOne {
+	if s != nil {
+		buo.SetImageURL(*s)
+	}
+	return buo
+}
+
+// ClearImageURL clears the value of the "image_url" field.
+func (buo *BookUpdateOne) ClearImageURL() *BookUpdateOne {
+	buo.mutation.ClearImageURL()
 	return buo
 }
 
@@ -274,6 +604,21 @@ func (buo *BookUpdateOne) AddBookAuthor(b ...*BookAuthor) *BookUpdateOne {
 		ids[i] = b[i].ID
 	}
 	return buo.AddBookAuthorIDs(ids...)
+}
+
+// AddMediaRequestIDs adds the "media_request" edge to the MediaRequest entity by IDs.
+func (buo *BookUpdateOne) AddMediaRequestIDs(ids ...uuid.UUID) *BookUpdateOne {
+	buo.mutation.AddMediaRequestIDs(ids...)
+	return buo
+}
+
+// AddMediaRequest adds the "media_request" edges to the MediaRequest entity.
+func (buo *BookUpdateOne) AddMediaRequest(m ...*MediaRequest) *BookUpdateOne {
+	ids := make([]uuid.UUID, len(m))
+	for i := range m {
+		ids[i] = m[i].ID
+	}
+	return buo.AddMediaRequestIDs(ids...)
 }
 
 // Mutation returns the BookMutation object of the builder.
@@ -300,6 +645,27 @@ func (buo *BookUpdateOne) RemoveBookAuthor(b ...*BookAuthor) *BookUpdateOne {
 		ids[i] = b[i].ID
 	}
 	return buo.RemoveBookAuthorIDs(ids...)
+}
+
+// ClearMediaRequest clears all "media_request" edges to the MediaRequest entity.
+func (buo *BookUpdateOne) ClearMediaRequest() *BookUpdateOne {
+	buo.mutation.ClearMediaRequest()
+	return buo
+}
+
+// RemoveMediaRequestIDs removes the "media_request" edge to MediaRequest entities by IDs.
+func (buo *BookUpdateOne) RemoveMediaRequestIDs(ids ...uuid.UUID) *BookUpdateOne {
+	buo.mutation.RemoveMediaRequestIDs(ids...)
+	return buo
+}
+
+// RemoveMediaRequest removes "media_request" edges to MediaRequest entities.
+func (buo *BookUpdateOne) RemoveMediaRequest(m ...*MediaRequest) *BookUpdateOne {
+	ids := make([]uuid.UUID, len(m))
+	for i := range m {
+		ids[i] = m[i].ID
+	}
+	return buo.RemoveMediaRequestIDs(ids...)
 }
 
 // Where appends a list predicates to the BookUpdate builder.
@@ -374,8 +740,14 @@ func (buo *BookUpdateOne) sqlSave(ctx context.Context) (_node *Book, err error) 
 	if value, ok := buo.mutation.Description(); ok {
 		_spec.SetField(book.FieldDescription, field.TypeString, value)
 	}
+	if buo.mutation.DescriptionCleared() {
+		_spec.ClearField(book.FieldDescription, field.TypeString)
+	}
 	if value, ok := buo.mutation.GoodreadsID(); ok {
 		_spec.SetField(book.FieldGoodreadsID, field.TypeString, value)
+	}
+	if buo.mutation.GoodreadsIDCleared() {
+		_spec.ClearField(book.FieldGoodreadsID, field.TypeString)
 	}
 	if value, ok := buo.mutation.GoogleVolumeID(); ok {
 		_spec.SetField(book.FieldGoogleVolumeID, field.TypeString, value)
@@ -383,8 +755,26 @@ func (buo *BookUpdateOne) sqlSave(ctx context.Context) (_node *Book, err error) 
 	if value, ok := buo.mutation.Isbn10(); ok {
 		_spec.SetField(book.FieldIsbn10, field.TypeString, value)
 	}
+	if buo.mutation.Isbn10Cleared() {
+		_spec.ClearField(book.FieldIsbn10, field.TypeString)
+	}
 	if value, ok := buo.mutation.Isbn13(); ok {
 		_spec.SetField(book.FieldIsbn13, field.TypeString, value)
+	}
+	if buo.mutation.Isbn13Cleared() {
+		_spec.ClearField(book.FieldIsbn13, field.TypeString)
+	}
+	if value, ok := buo.mutation.Publisher(); ok {
+		_spec.SetField(book.FieldPublisher, field.TypeString, value)
+	}
+	if buo.mutation.PublisherCleared() {
+		_spec.ClearField(book.FieldPublisher, field.TypeString)
+	}
+	if value, ok := buo.mutation.ImageURL(); ok {
+		_spec.SetField(book.FieldImageURL, field.TypeString, value)
+	}
+	if buo.mutation.ImageURLCleared() {
+		_spec.ClearField(book.FieldImageURL, field.TypeString)
 	}
 	if buo.mutation.BookAuthorCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -424,6 +814,51 @@ func (buo *BookUpdateOne) sqlSave(ctx context.Context) (_node *Book, err error) 
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(bookauthor.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if buo.mutation.MediaRequestCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   book.MediaRequestTable,
+			Columns: book.MediaRequestPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(mediarequest.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := buo.mutation.RemovedMediaRequestIDs(); len(nodes) > 0 && !buo.mutation.MediaRequestCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   book.MediaRequestTable,
+			Columns: book.MediaRequestPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(mediarequest.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := buo.mutation.MediaRequestIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   book.MediaRequestTable,
+			Columns: book.MediaRequestPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(mediarequest.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

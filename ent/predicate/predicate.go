@@ -17,3 +17,6 @@ type DiscordMessage func(*sql.Selector)
 
 // DiscordUser is the predicate function for discorduser builders.
 type DiscordUser func(*sql.Selector)
+
+// MediaRequest is the predicate function for mediarequest builders.
+type MediaRequest func(*sql.Selector)

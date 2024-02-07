@@ -1,11 +1,15 @@
 package services
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/bwmarrin/discordgo"
+	"github.com/google/uuid"
+	"github.com/h3mmy/bloopyboi/bot/internal/database"
 	"github.com/h3mmy/bloopyboi/bot/internal/log"
 	"github.com/h3mmy/bloopyboi/bot/internal/models"
+	"github.com/h3mmy/bloopyboi/ent"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
@@ -18,9 +22,12 @@ type DiscordService struct {
 	handlerRegistry map[string]func(*discordgo.Session, *discordgo.InteractionCreate)
 	// The commands registered with discord that will need to be de-registered on shutdown
 	commandRegistry map[string]*discordgo.ApplicationCommand
+	db              *ent.Client
+	dbEnabled       bool
 }
 
 func NewDiscordService(session *discordgo.Session) *DiscordService {
+	dbEnabled := true
 	lgr := log.NewZapLogger().
 		Named("discord_service").
 		With(zapcore.Field{
@@ -28,10 +35,17 @@ func NewDiscordService(session *discordgo.Session) *DiscordService {
 			Type:   zapcore.StringType,
 			String: "discord",
 		})
+	dbClient, err := database.Open()
+	if err != nil {
+		lgr.Error("failed to open database", zap.Error(err))
+		dbEnabled = false
+	}
 	return &DiscordService{
-		meta:           models.NewBloopyMeta(),
-		logger:         lgr,
-		discordSession: session,
+		meta:            models.NewBloopyMeta(),
+		logger:          lgr,
+		discordSession:  session,
+		dbEnabled:       dbEnabled,
+		db:              dbClient,
 		handlerRegistry: make(map[string]func(*discordgo.Session, *discordgo.InteractionCreate)),
 		commandRegistry: make(map[string]*discordgo.ApplicationCommand),
 	}
@@ -110,9 +124,50 @@ func (d *DiscordService) AddInteractionHandlerProxy() {
 func (d *DiscordService) DeleteAppCommands() {
 	d.logger.Debug("deleting app commands")
 	for _, cmd := range d.commandRegistry {
-		err:= d.discordSession.ApplicationCommandDelete(d.discordSession.State.User.ID, "", cmd.ID)
+		err := d.discordSession.ApplicationCommandDelete(d.discordSession.State.User.ID, "", cmd.ID)
 		if err != nil {
 			d.logger.Error(fmt.Sprintf("Cannot delete '%s' command", cmd.Name), zap.Error(err))
 		}
 	}
+}
+
+func (d *DiscordService) SaveDiscordUser(user *discordgo.User) error {
+	if !d.dbEnabled {
+		return nil
+	}
+	_, err := d.db.DiscordUser.
+		Create().
+		SetID(uuid.New()).
+		SetUsername(user.Username).
+		SetDiscordid(user.ID).
+		SetEmail(user.Email).
+		SetDiscriminator(user.Discriminator).
+		Save(context.Background())
+	return err
+}
+
+func (d *DiscordService) syncGuildUsers(guildId string) error {
+	if !d.dbEnabled {
+		return nil
+	}
+	guild, err := d.discordSession.Guild(guildId)
+	if err != nil {
+		d.logger.Error("error getting guild", zap.Error(err))
+		return err
+	}
+
+	for _, member := range guild.Members {
+		_, err := d.db.DiscordUser.
+			Create().
+			SetID(uuid.New()).
+			SetUsername(member.User.Username).
+			SetDiscordid(member.User.ID).
+			SetEmail(member.User.Email).
+			// SetDiscriminator(user.Discriminator).
+			Save(context.Background())
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }

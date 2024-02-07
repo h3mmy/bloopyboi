@@ -311,12 +311,16 @@ func (u *BookAuthorUpsertOne) IDX(ctx context.Context) uuid.UUID {
 // BookAuthorCreateBulk is the builder for creating many BookAuthor entities in bulk.
 type BookAuthorCreateBulk struct {
 	config
+	err      error
 	builders []*BookAuthorCreate
 	conflict []sql.ConflictOption
 }
 
 // Save creates the BookAuthor entities in the database.
 func (bacb *BookAuthorCreateBulk) Save(ctx context.Context) ([]*BookAuthor, error) {
+	if bacb.err != nil {
+		return nil, bacb.err
+	}
 	specs := make([]*sqlgraph.CreateSpec, len(bacb.builders))
 	nodes := make([]*BookAuthor, len(bacb.builders))
 	mutators := make([]Mutator, len(bacb.builders))
@@ -496,6 +500,9 @@ func (u *BookAuthorUpsertBulk) UpdateFullName() *BookAuthorUpsertBulk {
 
 // Exec executes the query.
 func (u *BookAuthorUpsertBulk) Exec(ctx context.Context) error {
+	if u.create.err != nil {
+		return u.create.err
+	}
 	for i, b := range u.create.builders {
 		if len(b.conflict) != 0 {
 			return fmt.Errorf("ent: OnConflict was set for builder %d. Set it on the BookAuthorCreateBulk instead", i)

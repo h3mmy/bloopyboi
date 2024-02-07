@@ -397,12 +397,16 @@ func (u *DiscordMessageUpsertOne) IDX(ctx context.Context) string {
 // DiscordMessageCreateBulk is the builder for creating many DiscordMessage entities in bulk.
 type DiscordMessageCreateBulk struct {
 	config
+	err      error
 	builders []*DiscordMessageCreate
 	conflict []sql.ConflictOption
 }
 
 // Save creates the DiscordMessage entities in the database.
 func (dmcb *DiscordMessageCreateBulk) Save(ctx context.Context) ([]*DiscordMessage, error) {
+	if dmcb.err != nil {
+		return nil, dmcb.err
+	}
 	specs := make([]*sqlgraph.CreateSpec, len(dmcb.builders))
 	nodes := make([]*DiscordMessage, len(dmcb.builders))
 	mutators := make([]Mutator, len(dmcb.builders))
@@ -600,6 +604,9 @@ func (u *DiscordMessageUpsertBulk) UpdateRaw() *DiscordMessageUpsertBulk {
 
 // Exec executes the query.
 func (u *DiscordMessageUpsertBulk) Exec(ctx context.Context) error {
+	if u.create.err != nil {
+		return u.create.err
+	}
 	for i, b := range u.create.builders {
 		if len(b.conflict) != 0 {
 			return fmt.Errorf("ent: OnConflict was set for builder %d. Set it on the DiscordMessageCreateBulk instead", i)

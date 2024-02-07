@@ -16,8 +16,14 @@ const (
 	FieldDiscordid = "discordid"
 	// FieldUsername holds the string denoting the username field in the database.
 	FieldUsername = "username"
+	// FieldEmail holds the string denoting the email field in the database.
+	FieldEmail = "email"
+	// FieldDiscriminator holds the string denoting the discriminator field in the database.
+	FieldDiscriminator = "discriminator"
 	// EdgeDiscordMessages holds the string denoting the discord_messages edge name in mutations.
 	EdgeDiscordMessages = "discord_messages"
+	// EdgeMediaRequests holds the string denoting the media_requests edge name in mutations.
+	EdgeMediaRequests = "media_requests"
 	// Table holds the table name of the discorduser in the database.
 	Table = "discord_users"
 	// DiscordMessagesTable is the table that holds the discord_messages relation/edge. The primary key declared below.
@@ -25,6 +31,13 @@ const (
 	// DiscordMessagesInverseTable is the table name for the DiscordMessage entity.
 	// It exists in this package in order to avoid circular dependency with the "discordmessage" package.
 	DiscordMessagesInverseTable = "discord_messages"
+	// MediaRequestsTable is the table that holds the media_requests relation/edge.
+	MediaRequestsTable = "media_requests"
+	// MediaRequestsInverseTable is the table name for the MediaRequest entity.
+	// It exists in this package in order to avoid circular dependency with the "mediarequest" package.
+	MediaRequestsInverseTable = "media_requests"
+	// MediaRequestsColumn is the table column denoting the media_requests relation/edge.
+	MediaRequestsColumn = "discord_user_media_requests"
 )
 
 // Columns holds all SQL columns for discorduser fields.
@@ -32,6 +45,8 @@ var Columns = []string{
 	FieldID,
 	FieldDiscordid,
 	FieldUsername,
+	FieldEmail,
+	FieldDiscriminator,
 }
 
 var (
@@ -49,11 +64,6 @@ func ValidColumn(column string) bool {
 	}
 	return false
 }
-
-var (
-	// DefaultDiscordid holds the default value on creation for the "discordid" field.
-	DefaultDiscordid string
-)
 
 // OrderOption defines the ordering options for the DiscordUser queries.
 type OrderOption func(*sql.Selector)
@@ -73,6 +83,16 @@ func ByUsername(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldUsername, opts...).ToFunc()
 }
 
+// ByEmail orders the results by the email field.
+func ByEmail(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldEmail, opts...).ToFunc()
+}
+
+// ByDiscriminator orders the results by the discriminator field.
+func ByDiscriminator(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDiscriminator, opts...).ToFunc()
+}
+
 // ByDiscordMessagesCount orders the results by discord_messages count.
 func ByDiscordMessagesCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
@@ -86,10 +106,31 @@ func ByDiscordMessages(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newDiscordMessagesStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
+
+// ByMediaRequestsCount orders the results by media_requests count.
+func ByMediaRequestsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newMediaRequestsStep(), opts...)
+	}
+}
+
+// ByMediaRequests orders the results by media_requests terms.
+func ByMediaRequests(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newMediaRequestsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
 func newDiscordMessagesStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(DiscordMessagesInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.M2M, false, DiscordMessagesTable, DiscordMessagesPrimaryKey...),
+	)
+}
+func newMediaRequestsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(MediaRequestsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, MediaRequestsTable, MediaRequestsColumn),
 	)
 }
