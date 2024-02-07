@@ -16,6 +16,7 @@ import (
 	"github.com/h3mmy/bloopyboi/ent/bookauthor"
 	"github.com/h3mmy/bloopyboi/ent/discordmessage"
 	"github.com/h3mmy/bloopyboi/ent/discorduser"
+	"github.com/h3mmy/bloopyboi/ent/mediarequest"
 )
 
 // ent aliases to avoid import conflicts in user's code.
@@ -80,6 +81,7 @@ func checkColumn(table, column string) error {
 			bookauthor.Table:     bookauthor.ValidColumn,
 			discordmessage.Table: discordmessage.ValidColumn,
 			discorduser.Table:    discorduser.ValidColumn,
+			mediarequest.Table:   mediarequest.ValidColumn,
 		})
 	})
 	return columnCheck(table, column)

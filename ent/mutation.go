@@ -17,6 +17,7 @@ import (
 	"github.com/h3mmy/bloopyboi/ent/bookauthor"
 	"github.com/h3mmy/bloopyboi/ent/discordmessage"
 	"github.com/h3mmy/bloopyboi/ent/discorduser"
+	"github.com/h3mmy/bloopyboi/ent/mediarequest"
 	"github.com/h3mmy/bloopyboi/ent/predicate"
 )
 
@@ -33,27 +34,33 @@ const (
 	TypeBookAuthor     = "BookAuthor"
 	TypeDiscordMessage = "DiscordMessage"
 	TypeDiscordUser    = "DiscordUser"
+	TypeMediaRequest   = "MediaRequest"
 )
 
 // BookMutation represents an operation that mutates the Book nodes in the graph.
 type BookMutation struct {
 	config
-	op                 Op
-	typ                string
-	id                 *uuid.UUID
-	title              *string
-	description        *string
-	goodreads_id       *string
-	google_volume_id   *string
-	isbn_10            *string
-	isbn_13            *string
-	clearedFields      map[string]struct{}
-	book_author        map[uuid.UUID]struct{}
-	removedbook_author map[uuid.UUID]struct{}
-	clearedbook_author bool
-	done               bool
-	oldValue           func(context.Context) (*Book, error)
-	predicates         []predicate.Book
+	op                   Op
+	typ                  string
+	id                   *uuid.UUID
+	title                *string
+	description          *string
+	goodreads_id         *string
+	google_volume_id     *string
+	isbn_10              *string
+	isbn_13              *string
+	publisher            *string
+	image_url            *string
+	clearedFields        map[string]struct{}
+	book_author          map[uuid.UUID]struct{}
+	removedbook_author   map[uuid.UUID]struct{}
+	clearedbook_author   bool
+	media_request        map[uuid.UUID]struct{}
+	removedmedia_request map[uuid.UUID]struct{}
+	clearedmedia_request bool
+	done                 bool
+	oldValue             func(context.Context) (*Book, error)
+	predicates           []predicate.Book
 }
 
 var _ ent.Mutation = (*BookMutation)(nil)
@@ -227,9 +234,22 @@ func (m *BookMutation) OldDescription(ctx context.Context) (v string, err error)
 	return oldValue.Description, nil
 }
 
+// ClearDescription clears the value of the "description" field.
+func (m *BookMutation) ClearDescription() {
+	m.description = nil
+	m.clearedFields[book.FieldDescription] = struct{}{}
+}
+
+// DescriptionCleared returns if the "description" field was cleared in this mutation.
+func (m *BookMutation) DescriptionCleared() bool {
+	_, ok := m.clearedFields[book.FieldDescription]
+	return ok
+}
+
 // ResetDescription resets all changes to the "description" field.
 func (m *BookMutation) ResetDescription() {
 	m.description = nil
+	delete(m.clearedFields, book.FieldDescription)
 }
 
 // SetGoodreadsID sets the "goodreads_id" field.
@@ -263,9 +283,22 @@ func (m *BookMutation) OldGoodreadsID(ctx context.Context) (v string, err error)
 	return oldValue.GoodreadsID, nil
 }
 
+// ClearGoodreadsID clears the value of the "goodreads_id" field.
+func (m *BookMutation) ClearGoodreadsID() {
+	m.goodreads_id = nil
+	m.clearedFields[book.FieldGoodreadsID] = struct{}{}
+}
+
+// GoodreadsIDCleared returns if the "goodreads_id" field was cleared in this mutation.
+func (m *BookMutation) GoodreadsIDCleared() bool {
+	_, ok := m.clearedFields[book.FieldGoodreadsID]
+	return ok
+}
+
 // ResetGoodreadsID resets all changes to the "goodreads_id" field.
 func (m *BookMutation) ResetGoodreadsID() {
 	m.goodreads_id = nil
+	delete(m.clearedFields, book.FieldGoodreadsID)
 }
 
 // SetGoogleVolumeID sets the "google_volume_id" field.
@@ -335,9 +368,22 @@ func (m *BookMutation) OldIsbn10(ctx context.Context) (v string, err error) {
 	return oldValue.Isbn10, nil
 }
 
+// ClearIsbn10 clears the value of the "isbn_10" field.
+func (m *BookMutation) ClearIsbn10() {
+	m.isbn_10 = nil
+	m.clearedFields[book.FieldIsbn10] = struct{}{}
+}
+
+// Isbn10Cleared returns if the "isbn_10" field was cleared in this mutation.
+func (m *BookMutation) Isbn10Cleared() bool {
+	_, ok := m.clearedFields[book.FieldIsbn10]
+	return ok
+}
+
 // ResetIsbn10 resets all changes to the "isbn_10" field.
 func (m *BookMutation) ResetIsbn10() {
 	m.isbn_10 = nil
+	delete(m.clearedFields, book.FieldIsbn10)
 }
 
 // SetIsbn13 sets the "isbn_13" field.
@@ -371,9 +417,120 @@ func (m *BookMutation) OldIsbn13(ctx context.Context) (v string, err error) {
 	return oldValue.Isbn13, nil
 }
 
+// ClearIsbn13 clears the value of the "isbn_13" field.
+func (m *BookMutation) ClearIsbn13() {
+	m.isbn_13 = nil
+	m.clearedFields[book.FieldIsbn13] = struct{}{}
+}
+
+// Isbn13Cleared returns if the "isbn_13" field was cleared in this mutation.
+func (m *BookMutation) Isbn13Cleared() bool {
+	_, ok := m.clearedFields[book.FieldIsbn13]
+	return ok
+}
+
 // ResetIsbn13 resets all changes to the "isbn_13" field.
 func (m *BookMutation) ResetIsbn13() {
 	m.isbn_13 = nil
+	delete(m.clearedFields, book.FieldIsbn13)
+}
+
+// SetPublisher sets the "publisher" field.
+func (m *BookMutation) SetPublisher(s string) {
+	m.publisher = &s
+}
+
+// Publisher returns the value of the "publisher" field in the mutation.
+func (m *BookMutation) Publisher() (r string, exists bool) {
+	v := m.publisher
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldPublisher returns the old "publisher" field's value of the Book entity.
+// If the Book object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *BookMutation) OldPublisher(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldPublisher is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldPublisher requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldPublisher: %w", err)
+	}
+	return oldValue.Publisher, nil
+}
+
+// ClearPublisher clears the value of the "publisher" field.
+func (m *BookMutation) ClearPublisher() {
+	m.publisher = nil
+	m.clearedFields[book.FieldPublisher] = struct{}{}
+}
+
+// PublisherCleared returns if the "publisher" field was cleared in this mutation.
+func (m *BookMutation) PublisherCleared() bool {
+	_, ok := m.clearedFields[book.FieldPublisher]
+	return ok
+}
+
+// ResetPublisher resets all changes to the "publisher" field.
+func (m *BookMutation) ResetPublisher() {
+	m.publisher = nil
+	delete(m.clearedFields, book.FieldPublisher)
+}
+
+// SetImageURL sets the "image_url" field.
+func (m *BookMutation) SetImageURL(s string) {
+	m.image_url = &s
+}
+
+// ImageURL returns the value of the "image_url" field in the mutation.
+func (m *BookMutation) ImageURL() (r string, exists bool) {
+	v := m.image_url
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldImageURL returns the old "image_url" field's value of the Book entity.
+// If the Book object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *BookMutation) OldImageURL(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldImageURL is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldImageURL requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldImageURL: %w", err)
+	}
+	return oldValue.ImageURL, nil
+}
+
+// ClearImageURL clears the value of the "image_url" field.
+func (m *BookMutation) ClearImageURL() {
+	m.image_url = nil
+	m.clearedFields[book.FieldImageURL] = struct{}{}
+}
+
+// ImageURLCleared returns if the "image_url" field was cleared in this mutation.
+func (m *BookMutation) ImageURLCleared() bool {
+	_, ok := m.clearedFields[book.FieldImageURL]
+	return ok
+}
+
+// ResetImageURL resets all changes to the "image_url" field.
+func (m *BookMutation) ResetImageURL() {
+	m.image_url = nil
+	delete(m.clearedFields, book.FieldImageURL)
 }
 
 // AddBookAuthorIDs adds the "book_author" edge to the BookAuthor entity by ids.
@@ -430,6 +587,60 @@ func (m *BookMutation) ResetBookAuthor() {
 	m.removedbook_author = nil
 }
 
+// AddMediaRequestIDs adds the "media_request" edge to the MediaRequest entity by ids.
+func (m *BookMutation) AddMediaRequestIDs(ids ...uuid.UUID) {
+	if m.media_request == nil {
+		m.media_request = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		m.media_request[ids[i]] = struct{}{}
+	}
+}
+
+// ClearMediaRequest clears the "media_request" edge to the MediaRequest entity.
+func (m *BookMutation) ClearMediaRequest() {
+	m.clearedmedia_request = true
+}
+
+// MediaRequestCleared reports if the "media_request" edge to the MediaRequest entity was cleared.
+func (m *BookMutation) MediaRequestCleared() bool {
+	return m.clearedmedia_request
+}
+
+// RemoveMediaRequestIDs removes the "media_request" edge to the MediaRequest entity by IDs.
+func (m *BookMutation) RemoveMediaRequestIDs(ids ...uuid.UUID) {
+	if m.removedmedia_request == nil {
+		m.removedmedia_request = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		delete(m.media_request, ids[i])
+		m.removedmedia_request[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedMediaRequest returns the removed IDs of the "media_request" edge to the MediaRequest entity.
+func (m *BookMutation) RemovedMediaRequestIDs() (ids []uuid.UUID) {
+	for id := range m.removedmedia_request {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// MediaRequestIDs returns the "media_request" edge IDs in the mutation.
+func (m *BookMutation) MediaRequestIDs() (ids []uuid.UUID) {
+	for id := range m.media_request {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetMediaRequest resets all changes to the "media_request" edge.
+func (m *BookMutation) ResetMediaRequest() {
+	m.media_request = nil
+	m.clearedmedia_request = false
+	m.removedmedia_request = nil
+}
+
 // Where appends a list predicates to the BookMutation builder.
 func (m *BookMutation) Where(ps ...predicate.Book) {
 	m.predicates = append(m.predicates, ps...)
@@ -464,7 +675,7 @@ func (m *BookMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *BookMutation) Fields() []string {
-	fields := make([]string, 0, 6)
+	fields := make([]string, 0, 8)
 	if m.title != nil {
 		fields = append(fields, book.FieldTitle)
 	}
@@ -482,6 +693,12 @@ func (m *BookMutation) Fields() []string {
 	}
 	if m.isbn_13 != nil {
 		fields = append(fields, book.FieldIsbn13)
+	}
+	if m.publisher != nil {
+		fields = append(fields, book.FieldPublisher)
+	}
+	if m.image_url != nil {
+		fields = append(fields, book.FieldImageURL)
 	}
 	return fields
 }
@@ -503,6 +720,10 @@ func (m *BookMutation) Field(name string) (ent.Value, bool) {
 		return m.Isbn10()
 	case book.FieldIsbn13:
 		return m.Isbn13()
+	case book.FieldPublisher:
+		return m.Publisher()
+	case book.FieldImageURL:
+		return m.ImageURL()
 	}
 	return nil, false
 }
@@ -524,6 +745,10 @@ func (m *BookMutation) OldField(ctx context.Context, name string) (ent.Value, er
 		return m.OldIsbn10(ctx)
 	case book.FieldIsbn13:
 		return m.OldIsbn13(ctx)
+	case book.FieldPublisher:
+		return m.OldPublisher(ctx)
+	case book.FieldImageURL:
+		return m.OldImageURL(ctx)
 	}
 	return nil, fmt.Errorf("unknown Book field %s", name)
 }
@@ -575,6 +800,20 @@ func (m *BookMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetIsbn13(v)
 		return nil
+	case book.FieldPublisher:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetPublisher(v)
+		return nil
+	case book.FieldImageURL:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetImageURL(v)
+		return nil
 	}
 	return fmt.Errorf("unknown Book field %s", name)
 }
@@ -604,7 +843,26 @@ func (m *BookMutation) AddField(name string, value ent.Value) error {
 // ClearedFields returns all nullable fields that were cleared during this
 // mutation.
 func (m *BookMutation) ClearedFields() []string {
-	return nil
+	var fields []string
+	if m.FieldCleared(book.FieldDescription) {
+		fields = append(fields, book.FieldDescription)
+	}
+	if m.FieldCleared(book.FieldGoodreadsID) {
+		fields = append(fields, book.FieldGoodreadsID)
+	}
+	if m.FieldCleared(book.FieldIsbn10) {
+		fields = append(fields, book.FieldIsbn10)
+	}
+	if m.FieldCleared(book.FieldIsbn13) {
+		fields = append(fields, book.FieldIsbn13)
+	}
+	if m.FieldCleared(book.FieldPublisher) {
+		fields = append(fields, book.FieldPublisher)
+	}
+	if m.FieldCleared(book.FieldImageURL) {
+		fields = append(fields, book.FieldImageURL)
+	}
+	return fields
 }
 
 // FieldCleared returns a boolean indicating if a field with the given name was
@@ -617,6 +875,26 @@ func (m *BookMutation) FieldCleared(name string) bool {
 // ClearField clears the value of the field with the given name. It returns an
 // error if the field is not defined in the schema.
 func (m *BookMutation) ClearField(name string) error {
+	switch name {
+	case book.FieldDescription:
+		m.ClearDescription()
+		return nil
+	case book.FieldGoodreadsID:
+		m.ClearGoodreadsID()
+		return nil
+	case book.FieldIsbn10:
+		m.ClearIsbn10()
+		return nil
+	case book.FieldIsbn13:
+		m.ClearIsbn13()
+		return nil
+	case book.FieldPublisher:
+		m.ClearPublisher()
+		return nil
+	case book.FieldImageURL:
+		m.ClearImageURL()
+		return nil
+	}
 	return fmt.Errorf("unknown Book nullable field %s", name)
 }
 
@@ -642,15 +920,24 @@ func (m *BookMutation) ResetField(name string) error {
 	case book.FieldIsbn13:
 		m.ResetIsbn13()
 		return nil
+	case book.FieldPublisher:
+		m.ResetPublisher()
+		return nil
+	case book.FieldImageURL:
+		m.ResetImageURL()
+		return nil
 	}
 	return fmt.Errorf("unknown Book field %s", name)
 }
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *BookMutation) AddedEdges() []string {
-	edges := make([]string, 0, 1)
+	edges := make([]string, 0, 2)
 	if m.book_author != nil {
 		edges = append(edges, book.EdgeBookAuthor)
+	}
+	if m.media_request != nil {
+		edges = append(edges, book.EdgeMediaRequest)
 	}
 	return edges
 }
@@ -665,15 +952,24 @@ func (m *BookMutation) AddedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case book.EdgeMediaRequest:
+		ids := make([]ent.Value, 0, len(m.media_request))
+		for id := range m.media_request {
+			ids = append(ids, id)
+		}
+		return ids
 	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *BookMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 1)
+	edges := make([]string, 0, 2)
 	if m.removedbook_author != nil {
 		edges = append(edges, book.EdgeBookAuthor)
+	}
+	if m.removedmedia_request != nil {
+		edges = append(edges, book.EdgeMediaRequest)
 	}
 	return edges
 }
@@ -688,15 +984,24 @@ func (m *BookMutation) RemovedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case book.EdgeMediaRequest:
+		ids := make([]ent.Value, 0, len(m.removedmedia_request))
+		for id := range m.removedmedia_request {
+			ids = append(ids, id)
+		}
+		return ids
 	}
 	return nil
 }
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *BookMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 1)
+	edges := make([]string, 0, 2)
 	if m.clearedbook_author {
 		edges = append(edges, book.EdgeBookAuthor)
+	}
+	if m.clearedmedia_request {
+		edges = append(edges, book.EdgeMediaRequest)
 	}
 	return edges
 }
@@ -707,6 +1012,8 @@ func (m *BookMutation) EdgeCleared(name string) bool {
 	switch name {
 	case book.EdgeBookAuthor:
 		return m.clearedbook_author
+	case book.EdgeMediaRequest:
+		return m.clearedmedia_request
 	}
 	return false
 }
@@ -725,6 +1032,9 @@ func (m *BookMutation) ResetEdge(name string) error {
 	switch name {
 	case book.EdgeBookAuthor:
 		m.ResetBookAuthor()
+		return nil
+	case book.EdgeMediaRequest:
+		m.ResetMediaRequest()
 		return nil
 	}
 	return fmt.Errorf("unknown Book edge %s", name)
@@ -1696,10 +2006,15 @@ type DiscordUserMutation struct {
 	id                      *uuid.UUID
 	discordid               *string
 	username                *string
+	email                   *string
+	discriminator           *string
 	clearedFields           map[string]struct{}
 	discord_messages        map[string]struct{}
 	removeddiscord_messages map[string]struct{}
 	cleareddiscord_messages bool
+	media_requests          map[uuid.UUID]struct{}
+	removedmedia_requests   map[uuid.UUID]struct{}
+	clearedmedia_requests   bool
 	done                    bool
 	oldValue                func(context.Context) (*DiscordUser, error)
 	predicates              []predicate.DiscordUser
@@ -1881,6 +2196,104 @@ func (m *DiscordUserMutation) ResetUsername() {
 	m.username = nil
 }
 
+// SetEmail sets the "email" field.
+func (m *DiscordUserMutation) SetEmail(s string) {
+	m.email = &s
+}
+
+// Email returns the value of the "email" field in the mutation.
+func (m *DiscordUserMutation) Email() (r string, exists bool) {
+	v := m.email
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldEmail returns the old "email" field's value of the DiscordUser entity.
+// If the DiscordUser object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DiscordUserMutation) OldEmail(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldEmail is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldEmail requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldEmail: %w", err)
+	}
+	return oldValue.Email, nil
+}
+
+// ClearEmail clears the value of the "email" field.
+func (m *DiscordUserMutation) ClearEmail() {
+	m.email = nil
+	m.clearedFields[discorduser.FieldEmail] = struct{}{}
+}
+
+// EmailCleared returns if the "email" field was cleared in this mutation.
+func (m *DiscordUserMutation) EmailCleared() bool {
+	_, ok := m.clearedFields[discorduser.FieldEmail]
+	return ok
+}
+
+// ResetEmail resets all changes to the "email" field.
+func (m *DiscordUserMutation) ResetEmail() {
+	m.email = nil
+	delete(m.clearedFields, discorduser.FieldEmail)
+}
+
+// SetDiscriminator sets the "discriminator" field.
+func (m *DiscordUserMutation) SetDiscriminator(s string) {
+	m.discriminator = &s
+}
+
+// Discriminator returns the value of the "discriminator" field in the mutation.
+func (m *DiscordUserMutation) Discriminator() (r string, exists bool) {
+	v := m.discriminator
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDiscriminator returns the old "discriminator" field's value of the DiscordUser entity.
+// If the DiscordUser object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DiscordUserMutation) OldDiscriminator(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDiscriminator is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDiscriminator requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDiscriminator: %w", err)
+	}
+	return oldValue.Discriminator, nil
+}
+
+// ClearDiscriminator clears the value of the "discriminator" field.
+func (m *DiscordUserMutation) ClearDiscriminator() {
+	m.discriminator = nil
+	m.clearedFields[discorduser.FieldDiscriminator] = struct{}{}
+}
+
+// DiscriminatorCleared returns if the "discriminator" field was cleared in this mutation.
+func (m *DiscordUserMutation) DiscriminatorCleared() bool {
+	_, ok := m.clearedFields[discorduser.FieldDiscriminator]
+	return ok
+}
+
+// ResetDiscriminator resets all changes to the "discriminator" field.
+func (m *DiscordUserMutation) ResetDiscriminator() {
+	m.discriminator = nil
+	delete(m.clearedFields, discorduser.FieldDiscriminator)
+}
+
 // AddDiscordMessageIDs adds the "discord_messages" edge to the DiscordMessage entity by ids.
 func (m *DiscordUserMutation) AddDiscordMessageIDs(ids ...string) {
 	if m.discord_messages == nil {
@@ -1935,6 +2348,60 @@ func (m *DiscordUserMutation) ResetDiscordMessages() {
 	m.removeddiscord_messages = nil
 }
 
+// AddMediaRequestIDs adds the "media_requests" edge to the MediaRequest entity by ids.
+func (m *DiscordUserMutation) AddMediaRequestIDs(ids ...uuid.UUID) {
+	if m.media_requests == nil {
+		m.media_requests = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		m.media_requests[ids[i]] = struct{}{}
+	}
+}
+
+// ClearMediaRequests clears the "media_requests" edge to the MediaRequest entity.
+func (m *DiscordUserMutation) ClearMediaRequests() {
+	m.clearedmedia_requests = true
+}
+
+// MediaRequestsCleared reports if the "media_requests" edge to the MediaRequest entity was cleared.
+func (m *DiscordUserMutation) MediaRequestsCleared() bool {
+	return m.clearedmedia_requests
+}
+
+// RemoveMediaRequestIDs removes the "media_requests" edge to the MediaRequest entity by IDs.
+func (m *DiscordUserMutation) RemoveMediaRequestIDs(ids ...uuid.UUID) {
+	if m.removedmedia_requests == nil {
+		m.removedmedia_requests = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		delete(m.media_requests, ids[i])
+		m.removedmedia_requests[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedMediaRequests returns the removed IDs of the "media_requests" edge to the MediaRequest entity.
+func (m *DiscordUserMutation) RemovedMediaRequestsIDs() (ids []uuid.UUID) {
+	for id := range m.removedmedia_requests {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// MediaRequestsIDs returns the "media_requests" edge IDs in the mutation.
+func (m *DiscordUserMutation) MediaRequestsIDs() (ids []uuid.UUID) {
+	for id := range m.media_requests {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetMediaRequests resets all changes to the "media_requests" edge.
+func (m *DiscordUserMutation) ResetMediaRequests() {
+	m.media_requests = nil
+	m.clearedmedia_requests = false
+	m.removedmedia_requests = nil
+}
+
 // Where appends a list predicates to the DiscordUserMutation builder.
 func (m *DiscordUserMutation) Where(ps ...predicate.DiscordUser) {
 	m.predicates = append(m.predicates, ps...)
@@ -1969,12 +2436,18 @@ func (m *DiscordUserMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *DiscordUserMutation) Fields() []string {
-	fields := make([]string, 0, 2)
+	fields := make([]string, 0, 4)
 	if m.discordid != nil {
 		fields = append(fields, discorduser.FieldDiscordid)
 	}
 	if m.username != nil {
 		fields = append(fields, discorduser.FieldUsername)
+	}
+	if m.email != nil {
+		fields = append(fields, discorduser.FieldEmail)
+	}
+	if m.discriminator != nil {
+		fields = append(fields, discorduser.FieldDiscriminator)
 	}
 	return fields
 }
@@ -1988,6 +2461,10 @@ func (m *DiscordUserMutation) Field(name string) (ent.Value, bool) {
 		return m.Discordid()
 	case discorduser.FieldUsername:
 		return m.Username()
+	case discorduser.FieldEmail:
+		return m.Email()
+	case discorduser.FieldDiscriminator:
+		return m.Discriminator()
 	}
 	return nil, false
 }
@@ -2001,6 +2478,10 @@ func (m *DiscordUserMutation) OldField(ctx context.Context, name string) (ent.Va
 		return m.OldDiscordid(ctx)
 	case discorduser.FieldUsername:
 		return m.OldUsername(ctx)
+	case discorduser.FieldEmail:
+		return m.OldEmail(ctx)
+	case discorduser.FieldDiscriminator:
+		return m.OldDiscriminator(ctx)
 	}
 	return nil, fmt.Errorf("unknown DiscordUser field %s", name)
 }
@@ -2023,6 +2504,20 @@ func (m *DiscordUserMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetUsername(v)
+		return nil
+	case discorduser.FieldEmail:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetEmail(v)
+		return nil
+	case discorduser.FieldDiscriminator:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDiscriminator(v)
 		return nil
 	}
 	return fmt.Errorf("unknown DiscordUser field %s", name)
@@ -2053,7 +2548,14 @@ func (m *DiscordUserMutation) AddField(name string, value ent.Value) error {
 // ClearedFields returns all nullable fields that were cleared during this
 // mutation.
 func (m *DiscordUserMutation) ClearedFields() []string {
-	return nil
+	var fields []string
+	if m.FieldCleared(discorduser.FieldEmail) {
+		fields = append(fields, discorduser.FieldEmail)
+	}
+	if m.FieldCleared(discorduser.FieldDiscriminator) {
+		fields = append(fields, discorduser.FieldDiscriminator)
+	}
+	return fields
 }
 
 // FieldCleared returns a boolean indicating if a field with the given name was
@@ -2066,6 +2568,14 @@ func (m *DiscordUserMutation) FieldCleared(name string) bool {
 // ClearField clears the value of the field with the given name. It returns an
 // error if the field is not defined in the schema.
 func (m *DiscordUserMutation) ClearField(name string) error {
+	switch name {
+	case discorduser.FieldEmail:
+		m.ClearEmail()
+		return nil
+	case discorduser.FieldDiscriminator:
+		m.ClearDiscriminator()
+		return nil
+	}
 	return fmt.Errorf("unknown DiscordUser nullable field %s", name)
 }
 
@@ -2079,15 +2589,24 @@ func (m *DiscordUserMutation) ResetField(name string) error {
 	case discorduser.FieldUsername:
 		m.ResetUsername()
 		return nil
+	case discorduser.FieldEmail:
+		m.ResetEmail()
+		return nil
+	case discorduser.FieldDiscriminator:
+		m.ResetDiscriminator()
+		return nil
 	}
 	return fmt.Errorf("unknown DiscordUser field %s", name)
 }
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *DiscordUserMutation) AddedEdges() []string {
-	edges := make([]string, 0, 1)
+	edges := make([]string, 0, 2)
 	if m.discord_messages != nil {
 		edges = append(edges, discorduser.EdgeDiscordMessages)
+	}
+	if m.media_requests != nil {
+		edges = append(edges, discorduser.EdgeMediaRequests)
 	}
 	return edges
 }
@@ -2102,15 +2621,24 @@ func (m *DiscordUserMutation) AddedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case discorduser.EdgeMediaRequests:
+		ids := make([]ent.Value, 0, len(m.media_requests))
+		for id := range m.media_requests {
+			ids = append(ids, id)
+		}
+		return ids
 	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *DiscordUserMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 1)
+	edges := make([]string, 0, 2)
 	if m.removeddiscord_messages != nil {
 		edges = append(edges, discorduser.EdgeDiscordMessages)
+	}
+	if m.removedmedia_requests != nil {
+		edges = append(edges, discorduser.EdgeMediaRequests)
 	}
 	return edges
 }
@@ -2125,15 +2653,24 @@ func (m *DiscordUserMutation) RemovedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case discorduser.EdgeMediaRequests:
+		ids := make([]ent.Value, 0, len(m.removedmedia_requests))
+		for id := range m.removedmedia_requests {
+			ids = append(ids, id)
+		}
+		return ids
 	}
 	return nil
 }
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *DiscordUserMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 1)
+	edges := make([]string, 0, 2)
 	if m.cleareddiscord_messages {
 		edges = append(edges, discorduser.EdgeDiscordMessages)
+	}
+	if m.clearedmedia_requests {
+		edges = append(edges, discorduser.EdgeMediaRequests)
 	}
 	return edges
 }
@@ -2144,6 +2681,8 @@ func (m *DiscordUserMutation) EdgeCleared(name string) bool {
 	switch name {
 	case discorduser.EdgeDiscordMessages:
 		return m.cleareddiscord_messages
+	case discorduser.EdgeMediaRequests:
+		return m.clearedmedia_requests
 	}
 	return false
 }
@@ -2163,6 +2702,691 @@ func (m *DiscordUserMutation) ResetEdge(name string) error {
 	case discorduser.EdgeDiscordMessages:
 		m.ResetDiscordMessages()
 		return nil
+	case discorduser.EdgeMediaRequests:
+		m.ResetMediaRequests()
+		return nil
 	}
 	return fmt.Errorf("unknown DiscordUser edge %s", name)
+}
+
+// MediaRequestMutation represents an operation that mutates the MediaRequest nodes in the graph.
+type MediaRequestMutation struct {
+	config
+	op                  Op
+	typ                 string
+	id                  *uuid.UUID
+	create_time         *time.Time
+	update_time         *time.Time
+	status              *string
+	priority            *int
+	addpriority         *int
+	clearedFields       map[string]struct{}
+	discord_user        *uuid.UUID
+	cleareddiscord_user bool
+	books               map[uuid.UUID]struct{}
+	removedbooks        map[uuid.UUID]struct{}
+	clearedbooks        bool
+	done                bool
+	oldValue            func(context.Context) (*MediaRequest, error)
+	predicates          []predicate.MediaRequest
+}
+
+var _ ent.Mutation = (*MediaRequestMutation)(nil)
+
+// mediarequestOption allows management of the mutation configuration using functional options.
+type mediarequestOption func(*MediaRequestMutation)
+
+// newMediaRequestMutation creates new mutation for the MediaRequest entity.
+func newMediaRequestMutation(c config, op Op, opts ...mediarequestOption) *MediaRequestMutation {
+	m := &MediaRequestMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeMediaRequest,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withMediaRequestID sets the ID field of the mutation.
+func withMediaRequestID(id uuid.UUID) mediarequestOption {
+	return func(m *MediaRequestMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *MediaRequest
+		)
+		m.oldValue = func(ctx context.Context) (*MediaRequest, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().MediaRequest.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withMediaRequest sets the old MediaRequest of the mutation.
+func withMediaRequest(node *MediaRequest) mediarequestOption {
+	return func(m *MediaRequestMutation) {
+		m.oldValue = func(context.Context) (*MediaRequest, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m MediaRequestMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m MediaRequestMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of MediaRequest entities.
+func (m *MediaRequestMutation) SetID(id uuid.UUID) {
+	m.id = &id
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *MediaRequestMutation) ID() (id uuid.UUID, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *MediaRequestMutation) IDs(ctx context.Context) ([]uuid.UUID, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []uuid.UUID{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().MediaRequest.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetCreateTime sets the "create_time" field.
+func (m *MediaRequestMutation) SetCreateTime(t time.Time) {
+	m.create_time = &t
+}
+
+// CreateTime returns the value of the "create_time" field in the mutation.
+func (m *MediaRequestMutation) CreateTime() (r time.Time, exists bool) {
+	v := m.create_time
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreateTime returns the old "create_time" field's value of the MediaRequest entity.
+// If the MediaRequest object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *MediaRequestMutation) OldCreateTime(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCreateTime is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCreateTime requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreateTime: %w", err)
+	}
+	return oldValue.CreateTime, nil
+}
+
+// ResetCreateTime resets all changes to the "create_time" field.
+func (m *MediaRequestMutation) ResetCreateTime() {
+	m.create_time = nil
+}
+
+// SetUpdateTime sets the "update_time" field.
+func (m *MediaRequestMutation) SetUpdateTime(t time.Time) {
+	m.update_time = &t
+}
+
+// UpdateTime returns the value of the "update_time" field in the mutation.
+func (m *MediaRequestMutation) UpdateTime() (r time.Time, exists bool) {
+	v := m.update_time
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUpdateTime returns the old "update_time" field's value of the MediaRequest entity.
+// If the MediaRequest object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *MediaRequestMutation) OldUpdateTime(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUpdateTime is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUpdateTime requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUpdateTime: %w", err)
+	}
+	return oldValue.UpdateTime, nil
+}
+
+// ResetUpdateTime resets all changes to the "update_time" field.
+func (m *MediaRequestMutation) ResetUpdateTime() {
+	m.update_time = nil
+}
+
+// SetStatus sets the "status" field.
+func (m *MediaRequestMutation) SetStatus(s string) {
+	m.status = &s
+}
+
+// Status returns the value of the "status" field in the mutation.
+func (m *MediaRequestMutation) Status() (r string, exists bool) {
+	v := m.status
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldStatus returns the old "status" field's value of the MediaRequest entity.
+// If the MediaRequest object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *MediaRequestMutation) OldStatus(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldStatus is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldStatus requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldStatus: %w", err)
+	}
+	return oldValue.Status, nil
+}
+
+// ResetStatus resets all changes to the "status" field.
+func (m *MediaRequestMutation) ResetStatus() {
+	m.status = nil
+}
+
+// SetPriority sets the "priority" field.
+func (m *MediaRequestMutation) SetPriority(i int) {
+	m.priority = &i
+	m.addpriority = nil
+}
+
+// Priority returns the value of the "priority" field in the mutation.
+func (m *MediaRequestMutation) Priority() (r int, exists bool) {
+	v := m.priority
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldPriority returns the old "priority" field's value of the MediaRequest entity.
+// If the MediaRequest object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *MediaRequestMutation) OldPriority(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldPriority is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldPriority requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldPriority: %w", err)
+	}
+	return oldValue.Priority, nil
+}
+
+// AddPriority adds i to the "priority" field.
+func (m *MediaRequestMutation) AddPriority(i int) {
+	if m.addpriority != nil {
+		*m.addpriority += i
+	} else {
+		m.addpriority = &i
+	}
+}
+
+// AddedPriority returns the value that was added to the "priority" field in this mutation.
+func (m *MediaRequestMutation) AddedPriority() (r int, exists bool) {
+	v := m.addpriority
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetPriority resets all changes to the "priority" field.
+func (m *MediaRequestMutation) ResetPriority() {
+	m.priority = nil
+	m.addpriority = nil
+}
+
+// SetDiscordUserID sets the "discord_user" edge to the DiscordUser entity by id.
+func (m *MediaRequestMutation) SetDiscordUserID(id uuid.UUID) {
+	m.discord_user = &id
+}
+
+// ClearDiscordUser clears the "discord_user" edge to the DiscordUser entity.
+func (m *MediaRequestMutation) ClearDiscordUser() {
+	m.cleareddiscord_user = true
+}
+
+// DiscordUserCleared reports if the "discord_user" edge to the DiscordUser entity was cleared.
+func (m *MediaRequestMutation) DiscordUserCleared() bool {
+	return m.cleareddiscord_user
+}
+
+// DiscordUserID returns the "discord_user" edge ID in the mutation.
+func (m *MediaRequestMutation) DiscordUserID() (id uuid.UUID, exists bool) {
+	if m.discord_user != nil {
+		return *m.discord_user, true
+	}
+	return
+}
+
+// DiscordUserIDs returns the "discord_user" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// DiscordUserID instead. It exists only for internal usage by the builders.
+func (m *MediaRequestMutation) DiscordUserIDs() (ids []uuid.UUID) {
+	if id := m.discord_user; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetDiscordUser resets all changes to the "discord_user" edge.
+func (m *MediaRequestMutation) ResetDiscordUser() {
+	m.discord_user = nil
+	m.cleareddiscord_user = false
+}
+
+// AddBookIDs adds the "books" edge to the Book entity by ids.
+func (m *MediaRequestMutation) AddBookIDs(ids ...uuid.UUID) {
+	if m.books == nil {
+		m.books = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		m.books[ids[i]] = struct{}{}
+	}
+}
+
+// ClearBooks clears the "books" edge to the Book entity.
+func (m *MediaRequestMutation) ClearBooks() {
+	m.clearedbooks = true
+}
+
+// BooksCleared reports if the "books" edge to the Book entity was cleared.
+func (m *MediaRequestMutation) BooksCleared() bool {
+	return m.clearedbooks
+}
+
+// RemoveBookIDs removes the "books" edge to the Book entity by IDs.
+func (m *MediaRequestMutation) RemoveBookIDs(ids ...uuid.UUID) {
+	if m.removedbooks == nil {
+		m.removedbooks = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		delete(m.books, ids[i])
+		m.removedbooks[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedBooks returns the removed IDs of the "books" edge to the Book entity.
+func (m *MediaRequestMutation) RemovedBooksIDs() (ids []uuid.UUID) {
+	for id := range m.removedbooks {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// BooksIDs returns the "books" edge IDs in the mutation.
+func (m *MediaRequestMutation) BooksIDs() (ids []uuid.UUID) {
+	for id := range m.books {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetBooks resets all changes to the "books" edge.
+func (m *MediaRequestMutation) ResetBooks() {
+	m.books = nil
+	m.clearedbooks = false
+	m.removedbooks = nil
+}
+
+// Where appends a list predicates to the MediaRequestMutation builder.
+func (m *MediaRequestMutation) Where(ps ...predicate.MediaRequest) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// WhereP appends storage-level predicates to the MediaRequestMutation builder. Using this method,
+// users can use type-assertion to append predicates that do not depend on any generated package.
+func (m *MediaRequestMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.MediaRequest, len(ps))
+	for i := range ps {
+		p[i] = ps[i]
+	}
+	m.Where(p...)
+}
+
+// Op returns the operation name.
+func (m *MediaRequestMutation) Op() Op {
+	return m.op
+}
+
+// SetOp allows setting the mutation operation.
+func (m *MediaRequestMutation) SetOp(op Op) {
+	m.op = op
+}
+
+// Type returns the node type of this mutation (MediaRequest).
+func (m *MediaRequestMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *MediaRequestMutation) Fields() []string {
+	fields := make([]string, 0, 4)
+	if m.create_time != nil {
+		fields = append(fields, mediarequest.FieldCreateTime)
+	}
+	if m.update_time != nil {
+		fields = append(fields, mediarequest.FieldUpdateTime)
+	}
+	if m.status != nil {
+		fields = append(fields, mediarequest.FieldStatus)
+	}
+	if m.priority != nil {
+		fields = append(fields, mediarequest.FieldPriority)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *MediaRequestMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case mediarequest.FieldCreateTime:
+		return m.CreateTime()
+	case mediarequest.FieldUpdateTime:
+		return m.UpdateTime()
+	case mediarequest.FieldStatus:
+		return m.Status()
+	case mediarequest.FieldPriority:
+		return m.Priority()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *MediaRequestMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case mediarequest.FieldCreateTime:
+		return m.OldCreateTime(ctx)
+	case mediarequest.FieldUpdateTime:
+		return m.OldUpdateTime(ctx)
+	case mediarequest.FieldStatus:
+		return m.OldStatus(ctx)
+	case mediarequest.FieldPriority:
+		return m.OldPriority(ctx)
+	}
+	return nil, fmt.Errorf("unknown MediaRequest field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *MediaRequestMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case mediarequest.FieldCreateTime:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreateTime(v)
+		return nil
+	case mediarequest.FieldUpdateTime:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUpdateTime(v)
+		return nil
+	case mediarequest.FieldStatus:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetStatus(v)
+		return nil
+	case mediarequest.FieldPriority:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetPriority(v)
+		return nil
+	}
+	return fmt.Errorf("unknown MediaRequest field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *MediaRequestMutation) AddedFields() []string {
+	var fields []string
+	if m.addpriority != nil {
+		fields = append(fields, mediarequest.FieldPriority)
+	}
+	return fields
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *MediaRequestMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case mediarequest.FieldPriority:
+		return m.AddedPriority()
+	}
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *MediaRequestMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	case mediarequest.FieldPriority:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddPriority(v)
+		return nil
+	}
+	return fmt.Errorf("unknown MediaRequest numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *MediaRequestMutation) ClearedFields() []string {
+	return nil
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *MediaRequestMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *MediaRequestMutation) ClearField(name string) error {
+	return fmt.Errorf("unknown MediaRequest nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *MediaRequestMutation) ResetField(name string) error {
+	switch name {
+	case mediarequest.FieldCreateTime:
+		m.ResetCreateTime()
+		return nil
+	case mediarequest.FieldUpdateTime:
+		m.ResetUpdateTime()
+		return nil
+	case mediarequest.FieldStatus:
+		m.ResetStatus()
+		return nil
+	case mediarequest.FieldPriority:
+		m.ResetPriority()
+		return nil
+	}
+	return fmt.Errorf("unknown MediaRequest field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *MediaRequestMutation) AddedEdges() []string {
+	edges := make([]string, 0, 2)
+	if m.discord_user != nil {
+		edges = append(edges, mediarequest.EdgeDiscordUser)
+	}
+	if m.books != nil {
+		edges = append(edges, mediarequest.EdgeBooks)
+	}
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *MediaRequestMutation) AddedIDs(name string) []ent.Value {
+	switch name {
+	case mediarequest.EdgeDiscordUser:
+		if id := m.discord_user; id != nil {
+			return []ent.Value{*id}
+		}
+	case mediarequest.EdgeBooks:
+		ids := make([]ent.Value, 0, len(m.books))
+		for id := range m.books {
+			ids = append(ids, id)
+		}
+		return ids
+	}
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *MediaRequestMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 2)
+	if m.removedbooks != nil {
+		edges = append(edges, mediarequest.EdgeBooks)
+	}
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *MediaRequestMutation) RemovedIDs(name string) []ent.Value {
+	switch name {
+	case mediarequest.EdgeBooks:
+		ids := make([]ent.Value, 0, len(m.removedbooks))
+		for id := range m.removedbooks {
+			ids = append(ids, id)
+		}
+		return ids
+	}
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *MediaRequestMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 2)
+	if m.cleareddiscord_user {
+		edges = append(edges, mediarequest.EdgeDiscordUser)
+	}
+	if m.clearedbooks {
+		edges = append(edges, mediarequest.EdgeBooks)
+	}
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *MediaRequestMutation) EdgeCleared(name string) bool {
+	switch name {
+	case mediarequest.EdgeDiscordUser:
+		return m.cleareddiscord_user
+	case mediarequest.EdgeBooks:
+		return m.clearedbooks
+	}
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *MediaRequestMutation) ClearEdge(name string) error {
+	switch name {
+	case mediarequest.EdgeDiscordUser:
+		m.ClearDiscordUser()
+		return nil
+	}
+	return fmt.Errorf("unknown MediaRequest unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *MediaRequestMutation) ResetEdge(name string) error {
+	switch name {
+	case mediarequest.EdgeDiscordUser:
+		m.ResetDiscordUser()
+		return nil
+	case mediarequest.EdgeBooks:
+		m.ResetBooks()
+		return nil
+	}
+	return fmt.Errorf("unknown MediaRequest edge %s", name)
 }

@@ -14,6 +14,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/h3mmy/bloopyboi/ent/book"
 	"github.com/h3mmy/bloopyboi/ent/bookauthor"
+	"github.com/h3mmy/bloopyboi/ent/mediarequest"
 )
 
 // BookCreate is the builder for creating a Book entity.
@@ -36,9 +37,25 @@ func (bc *BookCreate) SetDescription(s string) *BookCreate {
 	return bc
 }
 
+// SetNillableDescription sets the "description" field if the given value is not nil.
+func (bc *BookCreate) SetNillableDescription(s *string) *BookCreate {
+	if s != nil {
+		bc.SetDescription(*s)
+	}
+	return bc
+}
+
 // SetGoodreadsID sets the "goodreads_id" field.
 func (bc *BookCreate) SetGoodreadsID(s string) *BookCreate {
 	bc.mutation.SetGoodreadsID(s)
+	return bc
+}
+
+// SetNillableGoodreadsID sets the "goodreads_id" field if the given value is not nil.
+func (bc *BookCreate) SetNillableGoodreadsID(s *string) *BookCreate {
+	if s != nil {
+		bc.SetGoodreadsID(*s)
+	}
 	return bc
 }
 
@@ -54,9 +71,53 @@ func (bc *BookCreate) SetIsbn10(s string) *BookCreate {
 	return bc
 }
 
+// SetNillableIsbn10 sets the "isbn_10" field if the given value is not nil.
+func (bc *BookCreate) SetNillableIsbn10(s *string) *BookCreate {
+	if s != nil {
+		bc.SetIsbn10(*s)
+	}
+	return bc
+}
+
 // SetIsbn13 sets the "isbn_13" field.
 func (bc *BookCreate) SetIsbn13(s string) *BookCreate {
 	bc.mutation.SetIsbn13(s)
+	return bc
+}
+
+// SetNillableIsbn13 sets the "isbn_13" field if the given value is not nil.
+func (bc *BookCreate) SetNillableIsbn13(s *string) *BookCreate {
+	if s != nil {
+		bc.SetIsbn13(*s)
+	}
+	return bc
+}
+
+// SetPublisher sets the "publisher" field.
+func (bc *BookCreate) SetPublisher(s string) *BookCreate {
+	bc.mutation.SetPublisher(s)
+	return bc
+}
+
+// SetNillablePublisher sets the "publisher" field if the given value is not nil.
+func (bc *BookCreate) SetNillablePublisher(s *string) *BookCreate {
+	if s != nil {
+		bc.SetPublisher(*s)
+	}
+	return bc
+}
+
+// SetImageURL sets the "image_url" field.
+func (bc *BookCreate) SetImageURL(s string) *BookCreate {
+	bc.mutation.SetImageURL(s)
+	return bc
+}
+
+// SetNillableImageURL sets the "image_url" field if the given value is not nil.
+func (bc *BookCreate) SetNillableImageURL(s *string) *BookCreate {
+	if s != nil {
+		bc.SetImageURL(*s)
+	}
 	return bc
 }
 
@@ -79,6 +140,21 @@ func (bc *BookCreate) AddBookAuthor(b ...*BookAuthor) *BookCreate {
 		ids[i] = b[i].ID
 	}
 	return bc.AddBookAuthorIDs(ids...)
+}
+
+// AddMediaRequestIDs adds the "media_request" edge to the MediaRequest entity by IDs.
+func (bc *BookCreate) AddMediaRequestIDs(ids ...uuid.UUID) *BookCreate {
+	bc.mutation.AddMediaRequestIDs(ids...)
+	return bc
+}
+
+// AddMediaRequest adds the "media_request" edges to the MediaRequest entity.
+func (bc *BookCreate) AddMediaRequest(m ...*MediaRequest) *BookCreate {
+	ids := make([]uuid.UUID, len(m))
+	for i := range m {
+		ids[i] = m[i].ID
+	}
+	return bc.AddMediaRequestIDs(ids...)
 }
 
 // Mutation returns the BookMutation object of the builder.
@@ -118,20 +194,8 @@ func (bc *BookCreate) check() error {
 	if _, ok := bc.mutation.Title(); !ok {
 		return &ValidationError{Name: "title", err: errors.New(`ent: missing required field "Book.title"`)}
 	}
-	if _, ok := bc.mutation.Description(); !ok {
-		return &ValidationError{Name: "description", err: errors.New(`ent: missing required field "Book.description"`)}
-	}
-	if _, ok := bc.mutation.GoodreadsID(); !ok {
-		return &ValidationError{Name: "goodreads_id", err: errors.New(`ent: missing required field "Book.goodreads_id"`)}
-	}
 	if _, ok := bc.mutation.GoogleVolumeID(); !ok {
 		return &ValidationError{Name: "google_volume_id", err: errors.New(`ent: missing required field "Book.google_volume_id"`)}
-	}
-	if _, ok := bc.mutation.Isbn10(); !ok {
-		return &ValidationError{Name: "isbn_10", err: errors.New(`ent: missing required field "Book.isbn_10"`)}
-	}
-	if _, ok := bc.mutation.Isbn13(); !ok {
-		return &ValidationError{Name: "isbn_13", err: errors.New(`ent: missing required field "Book.isbn_13"`)}
 	}
 	return nil
 }
@@ -193,6 +257,14 @@ func (bc *BookCreate) createSpec() (*Book, *sqlgraph.CreateSpec) {
 		_spec.SetField(book.FieldIsbn13, field.TypeString, value)
 		_node.Isbn13 = value
 	}
+	if value, ok := bc.mutation.Publisher(); ok {
+		_spec.SetField(book.FieldPublisher, field.TypeString, value)
+		_node.Publisher = value
+	}
+	if value, ok := bc.mutation.ImageURL(); ok {
+		_spec.SetField(book.FieldImageURL, field.TypeString, value)
+		_node.ImageURL = value
+	}
 	if nodes := bc.mutation.BookAuthorIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
@@ -202,6 +274,22 @@ func (bc *BookCreate) createSpec() (*Book, *sqlgraph.CreateSpec) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(bookauthor.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := bc.mutation.MediaRequestIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   book.MediaRequestTable,
+			Columns: book.MediaRequestPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(mediarequest.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -285,6 +373,12 @@ func (u *BookUpsert) UpdateDescription() *BookUpsert {
 	return u
 }
 
+// ClearDescription clears the value of the "description" field.
+func (u *BookUpsert) ClearDescription() *BookUpsert {
+	u.SetNull(book.FieldDescription)
+	return u
+}
+
 // SetGoodreadsID sets the "goodreads_id" field.
 func (u *BookUpsert) SetGoodreadsID(v string) *BookUpsert {
 	u.Set(book.FieldGoodreadsID, v)
@@ -294,6 +388,12 @@ func (u *BookUpsert) SetGoodreadsID(v string) *BookUpsert {
 // UpdateGoodreadsID sets the "goodreads_id" field to the value that was provided on create.
 func (u *BookUpsert) UpdateGoodreadsID() *BookUpsert {
 	u.SetExcluded(book.FieldGoodreadsID)
+	return u
+}
+
+// ClearGoodreadsID clears the value of the "goodreads_id" field.
+func (u *BookUpsert) ClearGoodreadsID() *BookUpsert {
+	u.SetNull(book.FieldGoodreadsID)
 	return u
 }
 
@@ -321,6 +421,12 @@ func (u *BookUpsert) UpdateIsbn10() *BookUpsert {
 	return u
 }
 
+// ClearIsbn10 clears the value of the "isbn_10" field.
+func (u *BookUpsert) ClearIsbn10() *BookUpsert {
+	u.SetNull(book.FieldIsbn10)
+	return u
+}
+
 // SetIsbn13 sets the "isbn_13" field.
 func (u *BookUpsert) SetIsbn13(v string) *BookUpsert {
 	u.Set(book.FieldIsbn13, v)
@@ -330,6 +436,48 @@ func (u *BookUpsert) SetIsbn13(v string) *BookUpsert {
 // UpdateIsbn13 sets the "isbn_13" field to the value that was provided on create.
 func (u *BookUpsert) UpdateIsbn13() *BookUpsert {
 	u.SetExcluded(book.FieldIsbn13)
+	return u
+}
+
+// ClearIsbn13 clears the value of the "isbn_13" field.
+func (u *BookUpsert) ClearIsbn13() *BookUpsert {
+	u.SetNull(book.FieldIsbn13)
+	return u
+}
+
+// SetPublisher sets the "publisher" field.
+func (u *BookUpsert) SetPublisher(v string) *BookUpsert {
+	u.Set(book.FieldPublisher, v)
+	return u
+}
+
+// UpdatePublisher sets the "publisher" field to the value that was provided on create.
+func (u *BookUpsert) UpdatePublisher() *BookUpsert {
+	u.SetExcluded(book.FieldPublisher)
+	return u
+}
+
+// ClearPublisher clears the value of the "publisher" field.
+func (u *BookUpsert) ClearPublisher() *BookUpsert {
+	u.SetNull(book.FieldPublisher)
+	return u
+}
+
+// SetImageURL sets the "image_url" field.
+func (u *BookUpsert) SetImageURL(v string) *BookUpsert {
+	u.Set(book.FieldImageURL, v)
+	return u
+}
+
+// UpdateImageURL sets the "image_url" field to the value that was provided on create.
+func (u *BookUpsert) UpdateImageURL() *BookUpsert {
+	u.SetExcluded(book.FieldImageURL)
+	return u
+}
+
+// ClearImageURL clears the value of the "image_url" field.
+func (u *BookUpsert) ClearImageURL() *BookUpsert {
+	u.SetNull(book.FieldImageURL)
 	return u
 }
 
@@ -409,6 +557,13 @@ func (u *BookUpsertOne) UpdateDescription() *BookUpsertOne {
 	})
 }
 
+// ClearDescription clears the value of the "description" field.
+func (u *BookUpsertOne) ClearDescription() *BookUpsertOne {
+	return u.Update(func(s *BookUpsert) {
+		s.ClearDescription()
+	})
+}
+
 // SetGoodreadsID sets the "goodreads_id" field.
 func (u *BookUpsertOne) SetGoodreadsID(v string) *BookUpsertOne {
 	return u.Update(func(s *BookUpsert) {
@@ -420,6 +575,13 @@ func (u *BookUpsertOne) SetGoodreadsID(v string) *BookUpsertOne {
 func (u *BookUpsertOne) UpdateGoodreadsID() *BookUpsertOne {
 	return u.Update(func(s *BookUpsert) {
 		s.UpdateGoodreadsID()
+	})
+}
+
+// ClearGoodreadsID clears the value of the "goodreads_id" field.
+func (u *BookUpsertOne) ClearGoodreadsID() *BookUpsertOne {
+	return u.Update(func(s *BookUpsert) {
+		s.ClearGoodreadsID()
 	})
 }
 
@@ -451,6 +613,13 @@ func (u *BookUpsertOne) UpdateIsbn10() *BookUpsertOne {
 	})
 }
 
+// ClearIsbn10 clears the value of the "isbn_10" field.
+func (u *BookUpsertOne) ClearIsbn10() *BookUpsertOne {
+	return u.Update(func(s *BookUpsert) {
+		s.ClearIsbn10()
+	})
+}
+
 // SetIsbn13 sets the "isbn_13" field.
 func (u *BookUpsertOne) SetIsbn13(v string) *BookUpsertOne {
 	return u.Update(func(s *BookUpsert) {
@@ -462,6 +631,55 @@ func (u *BookUpsertOne) SetIsbn13(v string) *BookUpsertOne {
 func (u *BookUpsertOne) UpdateIsbn13() *BookUpsertOne {
 	return u.Update(func(s *BookUpsert) {
 		s.UpdateIsbn13()
+	})
+}
+
+// ClearIsbn13 clears the value of the "isbn_13" field.
+func (u *BookUpsertOne) ClearIsbn13() *BookUpsertOne {
+	return u.Update(func(s *BookUpsert) {
+		s.ClearIsbn13()
+	})
+}
+
+// SetPublisher sets the "publisher" field.
+func (u *BookUpsertOne) SetPublisher(v string) *BookUpsertOne {
+	return u.Update(func(s *BookUpsert) {
+		s.SetPublisher(v)
+	})
+}
+
+// UpdatePublisher sets the "publisher" field to the value that was provided on create.
+func (u *BookUpsertOne) UpdatePublisher() *BookUpsertOne {
+	return u.Update(func(s *BookUpsert) {
+		s.UpdatePublisher()
+	})
+}
+
+// ClearPublisher clears the value of the "publisher" field.
+func (u *BookUpsertOne) ClearPublisher() *BookUpsertOne {
+	return u.Update(func(s *BookUpsert) {
+		s.ClearPublisher()
+	})
+}
+
+// SetImageURL sets the "image_url" field.
+func (u *BookUpsertOne) SetImageURL(v string) *BookUpsertOne {
+	return u.Update(func(s *BookUpsert) {
+		s.SetImageURL(v)
+	})
+}
+
+// UpdateImageURL sets the "image_url" field to the value that was provided on create.
+func (u *BookUpsertOne) UpdateImageURL() *BookUpsertOne {
+	return u.Update(func(s *BookUpsert) {
+		s.UpdateImageURL()
+	})
+}
+
+// ClearImageURL clears the value of the "image_url" field.
+func (u *BookUpsertOne) ClearImageURL() *BookUpsertOne {
+	return u.Update(func(s *BookUpsert) {
+		s.ClearImageURL()
 	})
 }
 
@@ -506,12 +724,16 @@ func (u *BookUpsertOne) IDX(ctx context.Context) uuid.UUID {
 // BookCreateBulk is the builder for creating many Book entities in bulk.
 type BookCreateBulk struct {
 	config
+	err      error
 	builders []*BookCreate
 	conflict []sql.ConflictOption
 }
 
 // Save creates the Book entities in the database.
 func (bcb *BookCreateBulk) Save(ctx context.Context) ([]*Book, error) {
+	if bcb.err != nil {
+		return nil, bcb.err
+	}
 	specs := make([]*sqlgraph.CreateSpec, len(bcb.builders))
 	nodes := make([]*Book, len(bcb.builders))
 	mutators := make([]Mutator, len(bcb.builders))
@@ -703,6 +925,13 @@ func (u *BookUpsertBulk) UpdateDescription() *BookUpsertBulk {
 	})
 }
 
+// ClearDescription clears the value of the "description" field.
+func (u *BookUpsertBulk) ClearDescription() *BookUpsertBulk {
+	return u.Update(func(s *BookUpsert) {
+		s.ClearDescription()
+	})
+}
+
 // SetGoodreadsID sets the "goodreads_id" field.
 func (u *BookUpsertBulk) SetGoodreadsID(v string) *BookUpsertBulk {
 	return u.Update(func(s *BookUpsert) {
@@ -714,6 +943,13 @@ func (u *BookUpsertBulk) SetGoodreadsID(v string) *BookUpsertBulk {
 func (u *BookUpsertBulk) UpdateGoodreadsID() *BookUpsertBulk {
 	return u.Update(func(s *BookUpsert) {
 		s.UpdateGoodreadsID()
+	})
+}
+
+// ClearGoodreadsID clears the value of the "goodreads_id" field.
+func (u *BookUpsertBulk) ClearGoodreadsID() *BookUpsertBulk {
+	return u.Update(func(s *BookUpsert) {
+		s.ClearGoodreadsID()
 	})
 }
 
@@ -745,6 +981,13 @@ func (u *BookUpsertBulk) UpdateIsbn10() *BookUpsertBulk {
 	})
 }
 
+// ClearIsbn10 clears the value of the "isbn_10" field.
+func (u *BookUpsertBulk) ClearIsbn10() *BookUpsertBulk {
+	return u.Update(func(s *BookUpsert) {
+		s.ClearIsbn10()
+	})
+}
+
 // SetIsbn13 sets the "isbn_13" field.
 func (u *BookUpsertBulk) SetIsbn13(v string) *BookUpsertBulk {
 	return u.Update(func(s *BookUpsert) {
@@ -759,8 +1002,60 @@ func (u *BookUpsertBulk) UpdateIsbn13() *BookUpsertBulk {
 	})
 }
 
+// ClearIsbn13 clears the value of the "isbn_13" field.
+func (u *BookUpsertBulk) ClearIsbn13() *BookUpsertBulk {
+	return u.Update(func(s *BookUpsert) {
+		s.ClearIsbn13()
+	})
+}
+
+// SetPublisher sets the "publisher" field.
+func (u *BookUpsertBulk) SetPublisher(v string) *BookUpsertBulk {
+	return u.Update(func(s *BookUpsert) {
+		s.SetPublisher(v)
+	})
+}
+
+// UpdatePublisher sets the "publisher" field to the value that was provided on create.
+func (u *BookUpsertBulk) UpdatePublisher() *BookUpsertBulk {
+	return u.Update(func(s *BookUpsert) {
+		s.UpdatePublisher()
+	})
+}
+
+// ClearPublisher clears the value of the "publisher" field.
+func (u *BookUpsertBulk) ClearPublisher() *BookUpsertBulk {
+	return u.Update(func(s *BookUpsert) {
+		s.ClearPublisher()
+	})
+}
+
+// SetImageURL sets the "image_url" field.
+func (u *BookUpsertBulk) SetImageURL(v string) *BookUpsertBulk {
+	return u.Update(func(s *BookUpsert) {
+		s.SetImageURL(v)
+	})
+}
+
+// UpdateImageURL sets the "image_url" field to the value that was provided on create.
+func (u *BookUpsertBulk) UpdateImageURL() *BookUpsertBulk {
+	return u.Update(func(s *BookUpsert) {
+		s.UpdateImageURL()
+	})
+}
+
+// ClearImageURL clears the value of the "image_url" field.
+func (u *BookUpsertBulk) ClearImageURL() *BookUpsertBulk {
+	return u.Update(func(s *BookUpsert) {
+		s.ClearImageURL()
+	})
+}
+
 // Exec executes the query.
 func (u *BookUpsertBulk) Exec(ctx context.Context) error {
+	if u.create.err != nil {
+		return u.create.err
+	}
 	for i, b := range u.create.builders {
 		if len(b.conflict) != 0 {
 			return fmt.Errorf("ent: OnConflict was set for builder %d. Set it on the BookCreateBulk instead", i)

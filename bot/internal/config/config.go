@@ -24,7 +24,7 @@ type AppConfig struct {
 	AppId         int64  `mapstructure:"appId"`
 	Features      []FeatureConfig
 	LogLevel      string         `mapstructure:"logLevel"`
-	DBConfig      BloopyDBConfig `mapstructure:"db"`
+	DBConfig      *PostgresConfig `mapstructure:"db"`
 	FeatureMap    map[string]FeatureConfig
 }
 

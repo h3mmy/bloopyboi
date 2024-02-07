@@ -208,10 +208,21 @@ func (b *BookCommand) GetMessageComponentHandlers() map[string]func(s *discordgo
 	return map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
 		"request_book": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			b.logger.Debug(fmt.Sprintf("received book request with %v", i.Data), zap.String("message_id", i.Message.ID))
+			ctx := context.WithValue(context.TODO(), "message_id", i.Message.ID)
 			fields := i.Message.Embeds[0].Fields
 			for _, field := range fields {
 				if field.Name == "Volume ID" {
 					b.logger.Info(fmt.Sprintf("Received Request for volumeId %s", field.Value))
+					var discordUser *discordgo.User
+					if i.User != nil {
+						discordUser = i.User
+					} else {
+						discordUser = i.Member.User
+					}
+					err := b.bookSvc.SubmitBookRequest(ctx, discordUser, field.Value)
+					if err != nil {
+						b.logger.Error("error submitting book request", zap.Error(err))
+					}
 				}
 			}
 			err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
@@ -222,7 +233,7 @@ func (b *BookCommand) GetMessageComponentHandlers() map[string]func(s *discordgo
 				},
 			})
 			if err != nil {
-				b.logger.Error("error responding to book request")
+				b.logger.Error("error responding to book request", zap.Error(err))
 			}
 		},
 		"ignore_book": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
@@ -325,4 +336,3 @@ func (b *BookCommand) GetMessageComponentHandlers() map[string]func(s *discordgo
 		},
 	}
 }
-
