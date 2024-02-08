@@ -2,7 +2,49 @@
 version: "3"
 
 tasks:
+  generate:
+    cmds:
+      - task: ent
+      - task: proto
 
+  # help:
+  #   desc: Show help
+  #   cmds:
+  #     - task --list-all
+  #   silent: true
+
+  # build:
+  #   desc: Build the project
+  #   cmds:
+  #     - task: refresh-deps
+  #     - go build -o {{.BIN_NAME}} {{.BIN_FILES}}
+  #   sources:
+  #     - "{{.BIN_FILES}}/*.go"
+  #   generates:
+  #     - "{{.BIN_NAME}}"
+  #   vars:
+  #     BIN_NAME: "./bot"
+  #     BIN_FILES: "./bot"
+
+  # run:
+  #   desc: Run the project
+  #   cmds:
+  #     - task: build
+  #     - ./{{.BIN_NAME}}
+  #   vars:
+  #     BIN_NAME: "./bot"
+
+  # test:
+  #   desc: Run the tests
+  #   cmds:
+  #     - task: refresh-deps
+  #     - go test -v ./...
+  #   vars:
+  #     BIN_NAME: "./bot"
+  #     BIN_FILES: "./bot"
+
+  # clean:
+  #   desc: Clean the project
   refresh-deps:
     desc: Get Project Dependencies
     cmds:
@@ -20,3 +62,16 @@ tasks:
       - "{{.ENT_FILES}}/[!schemas]*"
     vars:
       ENT_FILES: "./ent"
+
+  proto:
+    desc: Generate proto files
+    cmds:
+      - task: refresh-deps
+      - protoc --go_out=. --go-grpc_out=. --go_opt=paths=import --go-grpc_opt=paths=import {{.PROTO_FILES}}/*.proto
+    sources:
+      - "{{.PROTO_FILES}}/*proto"
+    generates:
+      - "bot/servers/*pb.go"
+    vars:
+      PROTO_FILES: "./proto"
+      GO_PACKAGE: "./bot/servers"
