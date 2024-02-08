@@ -15,6 +15,14 @@ tasks:
     cmds:
       - task -l
 
+  lint:
+    desc: |-
+      run golangci-lint
+    cmds:
+      - golangci-lint run -c {{.GO_LINT_CONFIG}}
+    vars:
+      GO_LINT_CONFIG: ./.github/lint/golangci.yaml
+
   test:
     desc: |-
       task APP=<app> CHANNEL=<channel> BASE=<true/false> test
