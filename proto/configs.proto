@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package config;
+
+option go_package="bot/servers";
+
+message DiscordConfigurationRequest {
+  string app_name = 1;
+  string app_client_id = 2;
+  string app_client_secret = 3;
+  string app_token = 4;
+  optional string app_public_key = 5;
+  optional string tos_url = 6;
+  optional string privacy_url = 7;
+}
+
+message LoggingConfigurationRequest {
+  string level = 1;
+}
