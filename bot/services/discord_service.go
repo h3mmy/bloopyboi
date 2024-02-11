@@ -1,11 +1,9 @@
 package services
 
 import (
-	"context"
 	"fmt"
 
 	"github.com/bwmarrin/discordgo"
-	"github.com/google/uuid"
 	"github.com/h3mmy/bloopyboi/bot/internal/database"
 	"github.com/h3mmy/bloopyboi/bot/internal/log"
 	"github.com/h3mmy/bloopyboi/bot/internal/models"
@@ -131,43 +129,43 @@ func (d *DiscordService) DeleteAppCommands() {
 	}
 }
 
-func (d *DiscordService) saveDiscordUser(user *discordgo.User) error {
-	if !d.dbEnabled {
-		return nil
-	}
-	_, err := d.db.DiscordUser.
-		Create().
-		SetID(uuid.New()).
-		SetUsername(user.Username).
-		SetDiscordid(user.ID).
-		SetEmail(user.Email).
-		SetDiscriminator(user.Discriminator).
-		Save(context.Background())
-	return err
-}
+// func (d *DiscordService) saveDiscordUser(user *discordgo.User) error {
+// 	if !d.dbEnabled {
+// 		return nil
+// 	}
+// 	_, err := d.db.DiscordUser.
+// 		Create().
+// 		SetID(uuid.New()).
+// 		SetUsername(user.Username).
+// 		SetDiscordid(user.ID).
+// 		SetEmail(user.Email).
+// 		SetDiscriminator(user.Discriminator).
+// 		Save(context.Background())
+// 	return err
+// }
 
-func (d *DiscordService) syncGuildUsers(guildId string) error {
-	if !d.dbEnabled {
-		return nil
-	}
-	guild, err := d.discordSession.Guild(guildId)
-	if err != nil {
-		d.logger.Error("error getting guild", zap.Error(err))
-		return err
-	}
+// func (d *DiscordService) syncGuildUsers(guildId string) error {
+// 	if !d.dbEnabled {
+// 		return nil
+// 	}
+// 	guild, err := d.discordSession.Guild(guildId)
+// 	if err != nil {
+// 		d.logger.Error("error getting guild", zap.Error(err))
+// 		return err
+// 	}
 
-	for _, member := range guild.Members {
-		_, err := d.db.DiscordUser.
-			Create().
-			SetID(uuid.New()).
-			SetUsername(member.User.Username).
-			SetDiscordid(member.User.ID).
-			SetEmail(member.User.Email).
-			SetDiscriminator(member.User.Discriminator).
-			Save(context.Background())
-		if err != nil {
-			return err
-		}
-	}
-	return nil
-}
+// 	for _, member := range guild.Members {
+// 		_, err := d.db.DiscordUser.
+// 			Create().
+// 			SetID(uuid.New()).
+// 			SetUsername(member.User.Username).
+// 			SetDiscordid(member.User.ID).
+// 			SetEmail(member.User.Email).
+// 			SetDiscriminator(member.User.Discriminator).
+// 			Save(context.Background())
+// 		if err != nil {
+// 			return err
+// 		}
+// 	}
+// 	return nil
+// }

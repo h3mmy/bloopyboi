@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package info;
+
+option go_package="bot/servers";
+
+message AppInfoRequest {
+}
+
+message AppInfoResponse {
+  string version = 1;
+}
+
+service InfoService {
+  rpc AppInfo (AppInfoRequest) returns (AppInfoResponse){}
+}
