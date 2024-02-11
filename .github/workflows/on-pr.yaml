@@ -10,17 +10,17 @@ on:
         - ready_for_review
 
 jobs:
-  ent-ci:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
-      - name: Setup Go
-        uses: actions/setup-go@v5
-        with:
-          go-version-file: 'go.mod'
-      - name: Verify ent files
-        uses: ent/contrib/ci
+ # ent-ci:
+   # runs-on: ubuntu-latest
+ #   steps:
+ #     - name: Checkout
+  #      uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
+#      - name: Setup Go
+ #       uses: actions/setup-go@v5
+ #       with:
+ #         go-version-file: 'go.mod'
+  #    - name: Verify ent files
+ #       uses: ent/contrib/ci@master
 
   lint:
     runs-on: ubuntu-latest

@@ -207,8 +207,8 @@ func (b *BookCommand) GetAppCommandHandler() func(s *discordgo.Session, i *disco
 func (b *BookCommand) GetMessageComponentHandlers() map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	return map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
 		"request_book": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			b.logger.Debug(fmt.Sprintf("received book request with %v", i.Data), zap.String("message_id", i.Message.ID))
-			ctx := context.WithValue(context.TODO(), "message_id", i.Message.ID)
+			b.logger.Debug(fmt.Sprintf("received book request with %v", i.Data), zap.String(string(models.CtxKeyMessageID), i.Message.ID))
+			ctx := context.WithValue(context.TODO(), models.CtxKeyMessageID, i.Message.ID)
 			fields := i.Message.Embeds[0].Fields
 			for _, field := range fields {
 				if field.Name == "Volume ID" {

@@ -8,12 +8,21 @@ vars:
 includes:
   charts: .taskfiles/charts.yaml
   precommit: .taskfiles/pre-commit.yaml
+  schemas: .taskfiles/schemas.yaml
 
 tasks:
   default:
     silent: true
     cmds:
       - task -l
+
+  lint:
+    desc: |-
+      run golangci-lint
+    cmds:
+      - golangci-lint run -c {{.GO_LINT_CONFIG}}
+    vars:
+      GO_LINT_CONFIG: ./.github/lint/golangci.yaml
 
   test:
     desc: |-
