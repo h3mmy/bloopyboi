@@ -50,7 +50,7 @@ docker_build:
   image: docker:latest@sha256:28940f5d0a45dcb945f339636073bf4865cbc7df126a11cdc73531350cecee8a
   stage: build
   services:
-    - docker:dind@sha256:915cd1624f521b6337f135075f712c8fb14c0b151595c6144d7ce05d2f257869
+    - docker:dind@sha256:28940f5d0a45dcb945f339636073bf4865cbc7df126a11cdc73531350cecee8a
   before_script:
     - !reference [.docker, before_script]
   script:
@@ -81,7 +81,7 @@ docker_build:
 push_latest:
   image: docker:latest@sha256:28940f5d0a45dcb945f339636073bf4865cbc7df126a11cdc73531350cecee8a
   services:
-    - docker:dind@sha256:915cd1624f521b6337f135075f712c8fb14c0b151595c6144d7ce05d2f257869
+    - docker:dind@sha256:28940f5d0a45dcb945f339636073bf4865cbc7df126a11cdc73531350cecee8a
   variables:
     # Disable fresh pull of source
     GIT_STRATEGY: none
@@ -100,7 +100,7 @@ push_latest:
 push_tag:
   image: docker:latest@sha256:28940f5d0a45dcb945f339636073bf4865cbc7df126a11cdc73531350cecee8a
   services:
-    - docker:dind@sha256:915cd1624f521b6337f135075f712c8fb14c0b151595c6144d7ce05d2f257869
+    - docker:dind@sha256:28940f5d0a45dcb945f339636073bf4865cbc7df126a11cdc73531350cecee8a
   variables:
     GIT_STRATEGY: none
   stage: push
