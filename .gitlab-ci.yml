@@ -1,6 +1,6 @@
 .helm:
   image:
-    name: alpine/helm:latest@sha256:a90798c9c2b671e3546b10db1ae0b845f9abccc9f9ff79b34744a1ba146b67ed
+    name: alpine/helm:latest@sha256:b8b29460fecb0e64c0adbab2f506382056f1a9105e771595bc6871ad859b65a5
     entrypoint: [""]
   variables:
     CHART_NAME: bloopyboi
@@ -47,10 +47,10 @@ stages:
 
 docker_build:
   # Use the official docker image.
-  image: docker:latest@sha256:915cd1624f521b6337f135075f712c8fb14c0b151595c6144d7ce05d2f257869
+  image: docker:latest@sha256:28940f5d0a45dcb945f339636073bf4865cbc7df126a11cdc73531350cecee8a
   stage: build
   services:
-    - docker:dind@sha256:915cd1624f521b6337f135075f712c8fb14c0b151595c6144d7ce05d2f257869
+    - docker:dind@sha256:28940f5d0a45dcb945f339636073bf4865cbc7df126a11cdc73531350cecee8a
   before_script:
     - !reference [.docker, before_script]
   script:
@@ -79,9 +79,9 @@ docker_build:
 
 # Tags only the $CI_DEFAULT_BRANCH as latest
 push_latest:
-  image: docker:latest@sha256:915cd1624f521b6337f135075f712c8fb14c0b151595c6144d7ce05d2f257869
+  image: docker:latest@sha256:28940f5d0a45dcb945f339636073bf4865cbc7df126a11cdc73531350cecee8a
   services:
-    - docker:dind@sha256:915cd1624f521b6337f135075f712c8fb14c0b151595c6144d7ce05d2f257869
+    - docker:dind@sha256:28940f5d0a45dcb945f339636073bf4865cbc7df126a11cdc73531350cecee8a
   variables:
     # Disable fresh pull of source
     GIT_STRATEGY: none
@@ -98,9 +98,9 @@ push_latest:
     - docker push $CI_REGISTRY_IMAGE:latest
 
 push_tag:
-  image: docker:latest@sha256:915cd1624f521b6337f135075f712c8fb14c0b151595c6144d7ce05d2f257869
+  image: docker:latest@sha256:28940f5d0a45dcb945f339636073bf4865cbc7df126a11cdc73531350cecee8a
   services:
-    - docker:dind@sha256:915cd1624f521b6337f135075f712c8fb14c0b151595c6144d7ce05d2f257869
+    - docker:dind@sha256:28940f5d0a45dcb945f339636073bf4865cbc7df126a11cdc73531350cecee8a
   variables:
     GIT_STRATEGY: none
   stage: push
