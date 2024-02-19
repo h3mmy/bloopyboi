@@ -22,7 +22,7 @@ require (
 )
 
 require (
-	ariga.io/atlas v0.14.1-0.20230918065911-83ad451a4935 // indirect
+	ariga.io/atlas v0.19.1-0.20240203083654-5948b60a8e43 // indirect
 	cloud.google.com/go/compute v1.23.3 // indirect
 	cloud.google.com/go/compute/metadata v0.2.3 // indirect
 	github.com/agext/levenshtein v1.2.3 // indirect
@@ -102,7 +102,7 @@ require (
 )
 
 require (
-	entgo.io/ent v0.12.5
+	entgo.io/ent v0.13.0
 	github.com/alexliesenfeld/health v0.8.0
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
 	github.com/go-openapi/runtime v0.27.1
