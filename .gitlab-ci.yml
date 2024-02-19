@@ -47,10 +47,10 @@ stages:
 
 docker_build:
   # Use the official docker image.
-  image: docker:latest@sha256:28940f5d0a45dcb945f339636073bf4865cbc7df126a11cdc73531350cecee8a
+  image: docker:latest@sha256:f837abeefde97276de9505056743c602d6938d2b49b2066bee3ae3b359ec8b78
   stage: build
   services:
-    - docker:dind@sha256:28940f5d0a45dcb945f339636073bf4865cbc7df126a11cdc73531350cecee8a
+    - docker:dind@sha256:f837abeefde97276de9505056743c602d6938d2b49b2066bee3ae3b359ec8b78
   before_script:
     - !reference [.docker, before_script]
   script:
@@ -79,9 +79,9 @@ docker_build:
 
 # Tags only the $CI_DEFAULT_BRANCH as latest
 push_latest:
-  image: docker:latest@sha256:28940f5d0a45dcb945f339636073bf4865cbc7df126a11cdc73531350cecee8a
+  image: docker:latest@sha256:f837abeefde97276de9505056743c602d6938d2b49b2066bee3ae3b359ec8b78
   services:
-    - docker:dind@sha256:28940f5d0a45dcb945f339636073bf4865cbc7df126a11cdc73531350cecee8a
+    - docker:dind@sha256:f837abeefde97276de9505056743c602d6938d2b49b2066bee3ae3b359ec8b78
   variables:
     # Disable fresh pull of source
     GIT_STRATEGY: none
@@ -98,9 +98,9 @@ push_latest:
     - docker push $CI_REGISTRY_IMAGE:latest
 
 push_tag:
-  image: docker:latest@sha256:28940f5d0a45dcb945f339636073bf4865cbc7df126a11cdc73531350cecee8a
+  image: docker:latest@sha256:f837abeefde97276de9505056743c602d6938d2b49b2066bee3ae3b359ec8b78
   services:
-    - docker:dind@sha256:28940f5d0a45dcb945f339636073bf4865cbc7df126a11cdc73531350cecee8a
+    - docker:dind@sha256:f837abeefde97276de9505056743c602d6938d2b49b2066bee3ae3b359ec8b78
   variables:
     GIT_STRATEGY: none
   stage: push
