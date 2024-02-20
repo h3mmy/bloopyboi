@@ -13,7 +13,7 @@ require (
 	github.com/spf13/viper v1.18.2
 	github.com/uptrace/opentelemetry-go-extra/otelsql v0.2.3
 	github.com/uptrace/opentelemetry-go-extra/otelzap v0.2.3
-	go.uber.org/zap v1.26.0
+	go.uber.org/zap v1.27.0
 	golift.io/starr v1.0.0
 	google.golang.org/grpc v1.61.0
 	google.golang.org/protobuf v1.32.0
