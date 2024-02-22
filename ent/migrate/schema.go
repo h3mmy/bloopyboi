@@ -19,12 +19,21 @@ var (
 		{Name: "isbn_13", Type: field.TypeString, Nullable: true},
 		{Name: "publisher", Type: field.TypeString, Nullable: true},
 		{Name: "image_url", Type: field.TypeString, Nullable: true},
+		{Name: "book_media_request", Type: field.TypeUUID, Nullable: true},
 	}
 	// BooksTable holds the schema information for the "books" table.
 	BooksTable = &schema.Table{
 		Name:       "books",
 		Columns:    BooksColumns,
 		PrimaryKey: []*schema.Column{BooksColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "books_media_requests_media_request",
+				Columns:    []*schema.Column{BooksColumns[9]},
+				RefColumns: []*schema.Column{MediaRequestsColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
 	}
 	// BookAuthorsColumns holds the columns for the "book_authors" table.
 	BookAuthorsColumns = []*schema.Column{
@@ -137,31 +146,6 @@ var (
 			},
 		},
 	}
-	// MediaRequestBooksColumns holds the columns for the "media_request_books" table.
-	MediaRequestBooksColumns = []*schema.Column{
-		{Name: "media_request_id", Type: field.TypeUUID},
-		{Name: "book_id", Type: field.TypeUUID},
-	}
-	// MediaRequestBooksTable holds the schema information for the "media_request_books" table.
-	MediaRequestBooksTable = &schema.Table{
-		Name:       "media_request_books",
-		Columns:    MediaRequestBooksColumns,
-		PrimaryKey: []*schema.Column{MediaRequestBooksColumns[0], MediaRequestBooksColumns[1]},
-		ForeignKeys: []*schema.ForeignKey{
-			{
-				Symbol:     "media_request_books_media_request_id",
-				Columns:    []*schema.Column{MediaRequestBooksColumns[0]},
-				RefColumns: []*schema.Column{MediaRequestsColumns[0]},
-				OnDelete:   schema.Cascade,
-			},
-			{
-				Symbol:     "media_request_books_book_id",
-				Columns:    []*schema.Column{MediaRequestBooksColumns[1]},
-				RefColumns: []*schema.Column{BooksColumns[0]},
-				OnDelete:   schema.Cascade,
-			},
-		},
-	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
 		BooksTable,
@@ -171,16 +155,14 @@ var (
 		MediaRequestsTable,
 		BookAuthorBooksTable,
 		DiscordUserDiscordMessagesTable,
-		MediaRequestBooksTable,
 	}
 )
 
 func init() {
+	BooksTable.ForeignKeys[0].RefTable = MediaRequestsTable
 	MediaRequestsTable.ForeignKeys[0].RefTable = DiscordUsersTable
 	BookAuthorBooksTable.ForeignKeys[0].RefTable = BookAuthorsTable
 	BookAuthorBooksTable.ForeignKeys[1].RefTable = BooksTable
 	DiscordUserDiscordMessagesTable.ForeignKeys[0].RefTable = DiscordUsersTable
 	DiscordUserDiscordMessagesTable.ForeignKeys[1].RefTable = DiscordMessagesTable
-	MediaRequestBooksTable.ForeignKeys[0].RefTable = MediaRequestsTable
-	MediaRequestBooksTable.ForeignKeys[1].RefTable = BooksTable
 }

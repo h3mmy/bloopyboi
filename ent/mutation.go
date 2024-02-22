@@ -55,8 +55,7 @@ type BookMutation struct {
 	book_author          map[uuid.UUID]struct{}
 	removedbook_author   map[uuid.UUID]struct{}
 	clearedbook_author   bool
-	media_request        map[uuid.UUID]struct{}
-	removedmedia_request map[uuid.UUID]struct{}
+	media_request        *uuid.UUID
 	clearedmedia_request bool
 	done                 bool
 	oldValue             func(context.Context) (*Book, error)
@@ -587,14 +586,9 @@ func (m *BookMutation) ResetBookAuthor() {
 	m.removedbook_author = nil
 }
 
-// AddMediaRequestIDs adds the "media_request" edge to the MediaRequest entity by ids.
-func (m *BookMutation) AddMediaRequestIDs(ids ...uuid.UUID) {
-	if m.media_request == nil {
-		m.media_request = make(map[uuid.UUID]struct{})
-	}
-	for i := range ids {
-		m.media_request[ids[i]] = struct{}{}
-	}
+// SetMediaRequestID sets the "media_request" edge to the MediaRequest entity by id.
+func (m *BookMutation) SetMediaRequestID(id uuid.UUID) {
+	m.media_request = &id
 }
 
 // ClearMediaRequest clears the "media_request" edge to the MediaRequest entity.
@@ -607,29 +601,20 @@ func (m *BookMutation) MediaRequestCleared() bool {
 	return m.clearedmedia_request
 }
 
-// RemoveMediaRequestIDs removes the "media_request" edge to the MediaRequest entity by IDs.
-func (m *BookMutation) RemoveMediaRequestIDs(ids ...uuid.UUID) {
-	if m.removedmedia_request == nil {
-		m.removedmedia_request = make(map[uuid.UUID]struct{})
-	}
-	for i := range ids {
-		delete(m.media_request, ids[i])
-		m.removedmedia_request[ids[i]] = struct{}{}
-	}
-}
-
-// RemovedMediaRequest returns the removed IDs of the "media_request" edge to the MediaRequest entity.
-func (m *BookMutation) RemovedMediaRequestIDs() (ids []uuid.UUID) {
-	for id := range m.removedmedia_request {
-		ids = append(ids, id)
+// MediaRequestID returns the "media_request" edge ID in the mutation.
+func (m *BookMutation) MediaRequestID() (id uuid.UUID, exists bool) {
+	if m.media_request != nil {
+		return *m.media_request, true
 	}
 	return
 }
 
 // MediaRequestIDs returns the "media_request" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// MediaRequestID instead. It exists only for internal usage by the builders.
 func (m *BookMutation) MediaRequestIDs() (ids []uuid.UUID) {
-	for id := range m.media_request {
-		ids = append(ids, id)
+	if id := m.media_request; id != nil {
+		ids = append(ids, *id)
 	}
 	return
 }
@@ -638,7 +623,6 @@ func (m *BookMutation) MediaRequestIDs() (ids []uuid.UUID) {
 func (m *BookMutation) ResetMediaRequest() {
 	m.media_request = nil
 	m.clearedmedia_request = false
-	m.removedmedia_request = nil
 }
 
 // Where appends a list predicates to the BookMutation builder.
@@ -953,11 +937,9 @@ func (m *BookMutation) AddedIDs(name string) []ent.Value {
 		}
 		return ids
 	case book.EdgeMediaRequest:
-		ids := make([]ent.Value, 0, len(m.media_request))
-		for id := range m.media_request {
-			ids = append(ids, id)
+		if id := m.media_request; id != nil {
+			return []ent.Value{*id}
 		}
-		return ids
 	}
 	return nil
 }
@@ -967,9 +949,6 @@ func (m *BookMutation) RemovedEdges() []string {
 	edges := make([]string, 0, 2)
 	if m.removedbook_author != nil {
 		edges = append(edges, book.EdgeBookAuthor)
-	}
-	if m.removedmedia_request != nil {
-		edges = append(edges, book.EdgeMediaRequest)
 	}
 	return edges
 }
@@ -981,12 +960,6 @@ func (m *BookMutation) RemovedIDs(name string) []ent.Value {
 	case book.EdgeBookAuthor:
 		ids := make([]ent.Value, 0, len(m.removedbook_author))
 		for id := range m.removedbook_author {
-			ids = append(ids, id)
-		}
-		return ids
-	case book.EdgeMediaRequest:
-		ids := make([]ent.Value, 0, len(m.removedmedia_request))
-		for id := range m.removedmedia_request {
 			ids = append(ids, id)
 		}
 		return ids
@@ -1022,6 +995,9 @@ func (m *BookMutation) EdgeCleared(name string) bool {
 // if that edge is not defined in the schema.
 func (m *BookMutation) ClearEdge(name string) error {
 	switch name {
+	case book.EdgeMediaRequest:
+		m.ClearMediaRequest()
+		return nil
 	}
 	return fmt.Errorf("unknown Book unique edge %s", name)
 }
@@ -2723,9 +2699,9 @@ type MediaRequestMutation struct {
 	clearedFields       map[string]struct{}
 	discord_user        *uuid.UUID
 	cleareddiscord_user bool
-	books               map[uuid.UUID]struct{}
-	removedbooks        map[uuid.UUID]struct{}
-	clearedbooks        bool
+	book                map[uuid.UUID]struct{}
+	removedbook         map[uuid.UUID]struct{}
+	clearedbook         bool
 	done                bool
 	oldValue            func(context.Context) (*MediaRequest, error)
 	predicates          []predicate.MediaRequest
@@ -3038,58 +3014,58 @@ func (m *MediaRequestMutation) ResetDiscordUser() {
 	m.cleareddiscord_user = false
 }
 
-// AddBookIDs adds the "books" edge to the Book entity by ids.
+// AddBookIDs adds the "book" edge to the Book entity by ids.
 func (m *MediaRequestMutation) AddBookIDs(ids ...uuid.UUID) {
-	if m.books == nil {
-		m.books = make(map[uuid.UUID]struct{})
+	if m.book == nil {
+		m.book = make(map[uuid.UUID]struct{})
 	}
 	for i := range ids {
-		m.books[ids[i]] = struct{}{}
+		m.book[ids[i]] = struct{}{}
 	}
 }
 
-// ClearBooks clears the "books" edge to the Book entity.
-func (m *MediaRequestMutation) ClearBooks() {
-	m.clearedbooks = true
+// ClearBook clears the "book" edge to the Book entity.
+func (m *MediaRequestMutation) ClearBook() {
+	m.clearedbook = true
 }
 
-// BooksCleared reports if the "books" edge to the Book entity was cleared.
-func (m *MediaRequestMutation) BooksCleared() bool {
-	return m.clearedbooks
+// BookCleared reports if the "book" edge to the Book entity was cleared.
+func (m *MediaRequestMutation) BookCleared() bool {
+	return m.clearedbook
 }
 
-// RemoveBookIDs removes the "books" edge to the Book entity by IDs.
+// RemoveBookIDs removes the "book" edge to the Book entity by IDs.
 func (m *MediaRequestMutation) RemoveBookIDs(ids ...uuid.UUID) {
-	if m.removedbooks == nil {
-		m.removedbooks = make(map[uuid.UUID]struct{})
+	if m.removedbook == nil {
+		m.removedbook = make(map[uuid.UUID]struct{})
 	}
 	for i := range ids {
-		delete(m.books, ids[i])
-		m.removedbooks[ids[i]] = struct{}{}
+		delete(m.book, ids[i])
+		m.removedbook[ids[i]] = struct{}{}
 	}
 }
 
-// RemovedBooks returns the removed IDs of the "books" edge to the Book entity.
-func (m *MediaRequestMutation) RemovedBooksIDs() (ids []uuid.UUID) {
-	for id := range m.removedbooks {
+// RemovedBook returns the removed IDs of the "book" edge to the Book entity.
+func (m *MediaRequestMutation) RemovedBookIDs() (ids []uuid.UUID) {
+	for id := range m.removedbook {
 		ids = append(ids, id)
 	}
 	return
 }
 
-// BooksIDs returns the "books" edge IDs in the mutation.
-func (m *MediaRequestMutation) BooksIDs() (ids []uuid.UUID) {
-	for id := range m.books {
+// BookIDs returns the "book" edge IDs in the mutation.
+func (m *MediaRequestMutation) BookIDs() (ids []uuid.UUID) {
+	for id := range m.book {
 		ids = append(ids, id)
 	}
 	return
 }
 
-// ResetBooks resets all changes to the "books" edge.
-func (m *MediaRequestMutation) ResetBooks() {
-	m.books = nil
-	m.clearedbooks = false
-	m.removedbooks = nil
+// ResetBook resets all changes to the "book" edge.
+func (m *MediaRequestMutation) ResetBook() {
+	m.book = nil
+	m.clearedbook = false
+	m.removedbook = nil
 }
 
 // Where appends a list predicates to the MediaRequestMutation builder.
@@ -3295,8 +3271,8 @@ func (m *MediaRequestMutation) AddedEdges() []string {
 	if m.discord_user != nil {
 		edges = append(edges, mediarequest.EdgeDiscordUser)
 	}
-	if m.books != nil {
-		edges = append(edges, mediarequest.EdgeBooks)
+	if m.book != nil {
+		edges = append(edges, mediarequest.EdgeBook)
 	}
 	return edges
 }
@@ -3309,9 +3285,9 @@ func (m *MediaRequestMutation) AddedIDs(name string) []ent.Value {
 		if id := m.discord_user; id != nil {
 			return []ent.Value{*id}
 		}
-	case mediarequest.EdgeBooks:
-		ids := make([]ent.Value, 0, len(m.books))
-		for id := range m.books {
+	case mediarequest.EdgeBook:
+		ids := make([]ent.Value, 0, len(m.book))
+		for id := range m.book {
 			ids = append(ids, id)
 		}
 		return ids
@@ -3322,8 +3298,8 @@ func (m *MediaRequestMutation) AddedIDs(name string) []ent.Value {
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *MediaRequestMutation) RemovedEdges() []string {
 	edges := make([]string, 0, 2)
-	if m.removedbooks != nil {
-		edges = append(edges, mediarequest.EdgeBooks)
+	if m.removedbook != nil {
+		edges = append(edges, mediarequest.EdgeBook)
 	}
 	return edges
 }
@@ -3332,9 +3308,9 @@ func (m *MediaRequestMutation) RemovedEdges() []string {
 // the given name in this mutation.
 func (m *MediaRequestMutation) RemovedIDs(name string) []ent.Value {
 	switch name {
-	case mediarequest.EdgeBooks:
-		ids := make([]ent.Value, 0, len(m.removedbooks))
-		for id := range m.removedbooks {
+	case mediarequest.EdgeBook:
+		ids := make([]ent.Value, 0, len(m.removedbook))
+		for id := range m.removedbook {
 			ids = append(ids, id)
 		}
 		return ids
@@ -3348,8 +3324,8 @@ func (m *MediaRequestMutation) ClearedEdges() []string {
 	if m.cleareddiscord_user {
 		edges = append(edges, mediarequest.EdgeDiscordUser)
 	}
-	if m.clearedbooks {
-		edges = append(edges, mediarequest.EdgeBooks)
+	if m.clearedbook {
+		edges = append(edges, mediarequest.EdgeBook)
 	}
 	return edges
 }
@@ -3360,8 +3336,8 @@ func (m *MediaRequestMutation) EdgeCleared(name string) bool {
 	switch name {
 	case mediarequest.EdgeDiscordUser:
 		return m.cleareddiscord_user
-	case mediarequest.EdgeBooks:
-		return m.clearedbooks
+	case mediarequest.EdgeBook:
+		return m.clearedbook
 	}
 	return false
 }
@@ -3384,8 +3360,8 @@ func (m *MediaRequestMutation) ResetEdge(name string) error {
 	case mediarequest.EdgeDiscordUser:
 		m.ResetDiscordUser()
 		return nil
-	case mediarequest.EdgeBooks:
-		m.ResetBooks()
+	case mediarequest.EdgeBook:
+		m.ResetBook()
 		return nil
 	}
 	return fmt.Errorf("unknown MediaRequest edge %s", name)

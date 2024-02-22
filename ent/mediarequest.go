@@ -38,12 +38,12 @@ type MediaRequest struct {
 type MediaRequestEdges struct {
 	// DiscordUser holds the value of the discord_user edge.
 	DiscordUser *DiscordUser `json:"discord_user,omitempty"`
-	// Books holds the value of the books edge.
-	Books []*Book `json:"books,omitempty"`
+	// Book holds the value of the book edge.
+	Book []*Book `json:"book,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
 	loadedTypes [2]bool
-	namedBooks  map[string][]*Book
+	namedBook   map[string][]*Book
 }
 
 // DiscordUserOrErr returns the DiscordUser value or an error if the edge
@@ -59,13 +59,13 @@ func (e MediaRequestEdges) DiscordUserOrErr() (*DiscordUser, error) {
 	return nil, &NotLoadedError{edge: "discord_user"}
 }
 
-// BooksOrErr returns the Books value or an error if the edge
+// BookOrErr returns the Book value or an error if the edge
 // was not loaded in eager-loading.
-func (e MediaRequestEdges) BooksOrErr() ([]*Book, error) {
+func (e MediaRequestEdges) BookOrErr() ([]*Book, error) {
 	if e.loadedTypes[1] {
-		return e.Books, nil
+		return e.Book, nil
 	}
-	return nil, &NotLoadedError{edge: "books"}
+	return nil, &NotLoadedError{edge: "book"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -153,9 +153,9 @@ func (mr *MediaRequest) QueryDiscordUser() *DiscordUserQuery {
 	return NewMediaRequestClient(mr.config).QueryDiscordUser(mr)
 }
 
-// QueryBooks queries the "books" edge of the MediaRequest entity.
-func (mr *MediaRequest) QueryBooks() *BookQuery {
-	return NewMediaRequestClient(mr.config).QueryBooks(mr)
+// QueryBook queries the "book" edge of the MediaRequest entity.
+func (mr *MediaRequest) QueryBook() *BookQuery {
+	return NewMediaRequestClient(mr.config).QueryBook(mr)
 }
 
 // Update returns a builder for updating this MediaRequest.
@@ -196,27 +196,27 @@ func (mr *MediaRequest) String() string {
 	return builder.String()
 }
 
-// NamedBooks returns the Books named value or an error if the edge was not
+// NamedBook returns the Book named value or an error if the edge was not
 // loaded in eager-loading with this name.
-func (mr *MediaRequest) NamedBooks(name string) ([]*Book, error) {
-	if mr.Edges.namedBooks == nil {
+func (mr *MediaRequest) NamedBook(name string) ([]*Book, error) {
+	if mr.Edges.namedBook == nil {
 		return nil, &NotLoadedError{edge: name}
 	}
-	nodes, ok := mr.Edges.namedBooks[name]
+	nodes, ok := mr.Edges.namedBook[name]
 	if !ok {
 		return nil, &NotLoadedError{edge: name}
 	}
 	return nodes, nil
 }
 
-func (mr *MediaRequest) appendNamedBooks(name string, edges ...*Book) {
-	if mr.Edges.namedBooks == nil {
-		mr.Edges.namedBooks = make(map[string][]*Book)
+func (mr *MediaRequest) appendNamedBook(name string, edges ...*Book) {
+	if mr.Edges.namedBook == nil {
+		mr.Edges.namedBook = make(map[string][]*Book)
 	}
 	if len(edges) == 0 {
-		mr.Edges.namedBooks[name] = []*Book{}
+		mr.Edges.namedBook[name] = []*Book{}
 	} else {
-		mr.Edges.namedBooks[name] = append(mr.Edges.namedBooks[name], edges...)
+		mr.Edges.namedBook[name] = append(mr.Edges.namedBook[name], edges...)
 	}
 }
 

@@ -193,19 +193,23 @@ func (bu *BookUpdate) AddBookAuthor(b ...*BookAuthor) *BookUpdate {
 	return bu.AddBookAuthorIDs(ids...)
 }
 
-// AddMediaRequestIDs adds the "media_request" edge to the MediaRequest entity by IDs.
-func (bu *BookUpdate) AddMediaRequestIDs(ids ...uuid.UUID) *BookUpdate {
-	bu.mutation.AddMediaRequestIDs(ids...)
+// SetMediaRequestID sets the "media_request" edge to the MediaRequest entity by ID.
+func (bu *BookUpdate) SetMediaRequestID(id uuid.UUID) *BookUpdate {
+	bu.mutation.SetMediaRequestID(id)
 	return bu
 }
 
-// AddMediaRequest adds the "media_request" edges to the MediaRequest entity.
-func (bu *BookUpdate) AddMediaRequest(m ...*MediaRequest) *BookUpdate {
-	ids := make([]uuid.UUID, len(m))
-	for i := range m {
-		ids[i] = m[i].ID
+// SetNillableMediaRequestID sets the "media_request" edge to the MediaRequest entity by ID if the given value is not nil.
+func (bu *BookUpdate) SetNillableMediaRequestID(id *uuid.UUID) *BookUpdate {
+	if id != nil {
+		bu = bu.SetMediaRequestID(*id)
 	}
-	return bu.AddMediaRequestIDs(ids...)
+	return bu
+}
+
+// SetMediaRequest sets the "media_request" edge to the MediaRequest entity.
+func (bu *BookUpdate) SetMediaRequest(m *MediaRequest) *BookUpdate {
+	return bu.SetMediaRequestID(m.ID)
 }
 
 // Mutation returns the BookMutation object of the builder.
@@ -234,25 +238,10 @@ func (bu *BookUpdate) RemoveBookAuthor(b ...*BookAuthor) *BookUpdate {
 	return bu.RemoveBookAuthorIDs(ids...)
 }
 
-// ClearMediaRequest clears all "media_request" edges to the MediaRequest entity.
+// ClearMediaRequest clears the "media_request" edge to the MediaRequest entity.
 func (bu *BookUpdate) ClearMediaRequest() *BookUpdate {
 	bu.mutation.ClearMediaRequest()
 	return bu
-}
-
-// RemoveMediaRequestIDs removes the "media_request" edge to MediaRequest entities by IDs.
-func (bu *BookUpdate) RemoveMediaRequestIDs(ids ...uuid.UUID) *BookUpdate {
-	bu.mutation.RemoveMediaRequestIDs(ids...)
-	return bu
-}
-
-// RemoveMediaRequest removes "media_request" edges to MediaRequest entities.
-func (bu *BookUpdate) RemoveMediaRequest(m ...*MediaRequest) *BookUpdate {
-	ids := make([]uuid.UUID, len(m))
-	for i := range m {
-		ids[i] = m[i].ID
-	}
-	return bu.RemoveMediaRequestIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -380,39 +369,23 @@ func (bu *BookUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if bu.mutation.MediaRequestCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: true,
+			Rel:     sqlgraph.M2O,
+			Inverse: false,
 			Table:   book.MediaRequestTable,
-			Columns: book.MediaRequestPrimaryKey,
+			Columns: []string{book.MediaRequestColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(mediarequest.FieldID, field.TypeUUID),
 			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := bu.mutation.RemovedMediaRequestIDs(); len(nodes) > 0 && !bu.mutation.MediaRequestCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: true,
-			Table:   book.MediaRequestTable,
-			Columns: book.MediaRequestPrimaryKey,
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(mediarequest.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
 	if nodes := bu.mutation.MediaRequestIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: true,
+			Rel:     sqlgraph.M2O,
+			Inverse: false,
 			Table:   book.MediaRequestTable,
-			Columns: book.MediaRequestPrimaryKey,
+			Columns: []string{book.MediaRequestColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(mediarequest.FieldID, field.TypeUUID),
@@ -606,19 +579,23 @@ func (buo *BookUpdateOne) AddBookAuthor(b ...*BookAuthor) *BookUpdateOne {
 	return buo.AddBookAuthorIDs(ids...)
 }
 
-// AddMediaRequestIDs adds the "media_request" edge to the MediaRequest entity by IDs.
-func (buo *BookUpdateOne) AddMediaRequestIDs(ids ...uuid.UUID) *BookUpdateOne {
-	buo.mutation.AddMediaRequestIDs(ids...)
+// SetMediaRequestID sets the "media_request" edge to the MediaRequest entity by ID.
+func (buo *BookUpdateOne) SetMediaRequestID(id uuid.UUID) *BookUpdateOne {
+	buo.mutation.SetMediaRequestID(id)
 	return buo
 }
 
-// AddMediaRequest adds the "media_request" edges to the MediaRequest entity.
-func (buo *BookUpdateOne) AddMediaRequest(m ...*MediaRequest) *BookUpdateOne {
-	ids := make([]uuid.UUID, len(m))
-	for i := range m {
-		ids[i] = m[i].ID
+// SetNillableMediaRequestID sets the "media_request" edge to the MediaRequest entity by ID if the given value is not nil.
+func (buo *BookUpdateOne) SetNillableMediaRequestID(id *uuid.UUID) *BookUpdateOne {
+	if id != nil {
+		buo = buo.SetMediaRequestID(*id)
 	}
-	return buo.AddMediaRequestIDs(ids...)
+	return buo
+}
+
+// SetMediaRequest sets the "media_request" edge to the MediaRequest entity.
+func (buo *BookUpdateOne) SetMediaRequest(m *MediaRequest) *BookUpdateOne {
+	return buo.SetMediaRequestID(m.ID)
 }
 
 // Mutation returns the BookMutation object of the builder.
@@ -647,25 +624,10 @@ func (buo *BookUpdateOne) RemoveBookAuthor(b ...*BookAuthor) *BookUpdateOne {
 	return buo.RemoveBookAuthorIDs(ids...)
 }
 
-// ClearMediaRequest clears all "media_request" edges to the MediaRequest entity.
+// ClearMediaRequest clears the "media_request" edge to the MediaRequest entity.
 func (buo *BookUpdateOne) ClearMediaRequest() *BookUpdateOne {
 	buo.mutation.ClearMediaRequest()
 	return buo
-}
-
-// RemoveMediaRequestIDs removes the "media_request" edge to MediaRequest entities by IDs.
-func (buo *BookUpdateOne) RemoveMediaRequestIDs(ids ...uuid.UUID) *BookUpdateOne {
-	buo.mutation.RemoveMediaRequestIDs(ids...)
-	return buo
-}
-
-// RemoveMediaRequest removes "media_request" edges to MediaRequest entities.
-func (buo *BookUpdateOne) RemoveMediaRequest(m ...*MediaRequest) *BookUpdateOne {
-	ids := make([]uuid.UUID, len(m))
-	for i := range m {
-		ids[i] = m[i].ID
-	}
-	return buo.RemoveMediaRequestIDs(ids...)
 }
 
 // Where appends a list predicates to the BookUpdate builder.
@@ -823,39 +785,23 @@ func (buo *BookUpdateOne) sqlSave(ctx context.Context) (_node *Book, err error) 
 	}
 	if buo.mutation.MediaRequestCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: true,
+			Rel:     sqlgraph.M2O,
+			Inverse: false,
 			Table:   book.MediaRequestTable,
-			Columns: book.MediaRequestPrimaryKey,
+			Columns: []string{book.MediaRequestColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(mediarequest.FieldID, field.TypeUUID),
 			},
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := buo.mutation.RemovedMediaRequestIDs(); len(nodes) > 0 && !buo.mutation.MediaRequestCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: true,
-			Table:   book.MediaRequestTable,
-			Columns: book.MediaRequestPrimaryKey,
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(mediarequest.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
 	if nodes := buo.mutation.MediaRequestIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: true,
+			Rel:     sqlgraph.M2O,
+			Inverse: false,
 			Table:   book.MediaRequestTable,
-			Columns: book.MediaRequestPrimaryKey,
+			Columns: []string{book.MediaRequestColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(mediarequest.FieldID, field.TypeUUID),

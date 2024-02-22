@@ -284,21 +284,21 @@ func HasDiscordUserWith(preds ...predicate.DiscordUser) predicate.MediaRequest {
 	})
 }
 
-// HasBooks applies the HasEdge predicate on the "books" edge.
-func HasBooks() predicate.MediaRequest {
+// HasBook applies the HasEdge predicate on the "book" edge.
+func HasBook() predicate.MediaRequest {
 	return predicate.MediaRequest(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, false, BooksTable, BooksPrimaryKey...),
+			sqlgraph.Edge(sqlgraph.O2M, true, BookTable, BookColumn),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
 }
 
-// HasBooksWith applies the HasEdge predicate on the "books" edge with a given conditions (other predicates).
-func HasBooksWith(preds ...predicate.Book) predicate.MediaRequest {
+// HasBookWith applies the HasEdge predicate on the "book" edge with a given conditions (other predicates).
+func HasBookWith(preds ...predicate.Book) predicate.MediaRequest {
 	return predicate.MediaRequest(func(s *sql.Selector) {
-		step := newBooksStep()
+		step := newBookStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

@@ -10,6 +10,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"github.com/google/uuid"
 	"github.com/h3mmy/bloopyboi/ent/book"
+	"github.com/h3mmy/bloopyboi/ent/mediarequest"
 )
 
 // Book is the model entity for the Book schema.
@@ -35,8 +36,9 @@ type Book struct {
 	ImageURL string `json:"image_url,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the BookQuery when eager-loading is set.
-	Edges        BookEdges `json:"edges"`
-	selectValues sql.SelectValues
+	Edges              BookEdges `json:"edges"`
+	book_media_request *uuid.UUID
+	selectValues       sql.SelectValues
 }
 
 // BookEdges holds the relations/edges for other nodes in the graph.
@@ -44,12 +46,11 @@ type BookEdges struct {
 	// BookAuthor holds the value of the book_author edge.
 	BookAuthor []*BookAuthor `json:"book_author,omitempty"`
 	// MediaRequest holds the value of the media_request edge.
-	MediaRequest []*MediaRequest `json:"media_request,omitempty"`
+	MediaRequest *MediaRequest `json:"media_request,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes       [2]bool
-	namedBookAuthor   map[string][]*BookAuthor
-	namedMediaRequest map[string][]*MediaRequest
+	loadedTypes     [2]bool
+	namedBookAuthor map[string][]*BookAuthor
 }
 
 // BookAuthorOrErr returns the BookAuthor value or an error if the edge
@@ -62,9 +63,13 @@ func (e BookEdges) BookAuthorOrErr() ([]*BookAuthor, error) {
 }
 
 // MediaRequestOrErr returns the MediaRequest value or an error if the edge
-// was not loaded in eager-loading.
-func (e BookEdges) MediaRequestOrErr() ([]*MediaRequest, error) {
+// was not loaded in eager-loading, or loaded but was not found.
+func (e BookEdges) MediaRequestOrErr() (*MediaRequest, error) {
 	if e.loadedTypes[1] {
+		if e.MediaRequest == nil {
+			// Edge was loaded but was not found.
+			return nil, &NotFoundError{label: mediarequest.Label}
+		}
 		return e.MediaRequest, nil
 	}
 	return nil, &NotLoadedError{edge: "media_request"}
@@ -79,6 +84,8 @@ func (*Book) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullString)
 		case book.FieldID:
 			values[i] = new(uuid.UUID)
+		case book.ForeignKeys[0]: // book_media_request
+			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -147,6 +154,13 @@ func (b *Book) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field image_url", values[i])
 			} else if value.Valid {
 				b.ImageURL = value.String
+			}
+		case book.ForeignKeys[0]:
+			if value, ok := values[i].(*sql.NullScanner); !ok {
+				return fmt.Errorf("unexpected type %T for field book_media_request", values[i])
+			} else if value.Valid {
+				b.book_media_request = new(uuid.UUID)
+				*b.book_media_request = *value.S.(*uuid.UUID)
 			}
 		default:
 			b.selectValues.Set(columns[i], values[i])
@@ -242,30 +256,6 @@ func (b *Book) appendNamedBookAuthor(name string, edges ...*BookAuthor) {
 		b.Edges.namedBookAuthor[name] = []*BookAuthor{}
 	} else {
 		b.Edges.namedBookAuthor[name] = append(b.Edges.namedBookAuthor[name], edges...)
-	}
-}
-
-// NamedMediaRequest returns the MediaRequest named value or an error if the edge was not
-// loaded in eager-loading with this name.
-func (b *Book) NamedMediaRequest(name string) ([]*MediaRequest, error) {
-	if b.Edges.namedMediaRequest == nil {
-		return nil, &NotLoadedError{edge: name}
-	}
-	nodes, ok := b.Edges.namedMediaRequest[name]
-	if !ok {
-		return nil, &NotLoadedError{edge: name}
-	}
-	return nodes, nil
-}
-
-func (b *Book) appendNamedMediaRequest(name string, edges ...*MediaRequest) {
-	if b.Edges.namedMediaRequest == nil {
-		b.Edges.namedMediaRequest = make(map[string][]*MediaRequest)
-	}
-	if len(edges) == 0 {
-		b.Edges.namedMediaRequest[name] = []*MediaRequest{}
-	} else {
-		b.Edges.namedMediaRequest[name] = append(b.Edges.namedMediaRequest[name], edges...)
 	}
 }
 

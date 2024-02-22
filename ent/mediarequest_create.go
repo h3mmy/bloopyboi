@@ -99,14 +99,14 @@ func (mrc *MediaRequestCreate) SetDiscordUser(d *DiscordUser) *MediaRequestCreat
 	return mrc.SetDiscordUserID(d.ID)
 }
 
-// AddBookIDs adds the "books" edge to the Book entity by IDs.
+// AddBookIDs adds the "book" edge to the Book entity by IDs.
 func (mrc *MediaRequestCreate) AddBookIDs(ids ...uuid.UUID) *MediaRequestCreate {
 	mrc.mutation.AddBookIDs(ids...)
 	return mrc
 }
 
-// AddBooks adds the "books" edges to the Book entity.
-func (mrc *MediaRequestCreate) AddBooks(b ...*Book) *MediaRequestCreate {
+// AddBook adds the "book" edges to the Book entity.
+func (mrc *MediaRequestCreate) AddBook(b ...*Book) *MediaRequestCreate {
 	ids := make([]uuid.UUID, len(b))
 	for i := range b {
 		ids[i] = b[i].ID
@@ -246,12 +246,12 @@ func (mrc *MediaRequestCreate) createSpec() (*MediaRequest, *sqlgraph.CreateSpec
 		_node.discord_user_media_requests = &nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
-	if nodes := mrc.mutation.BooksIDs(); len(nodes) > 0 {
+	if nodes := mrc.mutation.BookIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: false,
-			Table:   mediarequest.BooksTable,
-			Columns: mediarequest.BooksPrimaryKey,
+			Rel:     sqlgraph.O2M,
+			Inverse: true,
+			Table:   mediarequest.BookTable,
+			Columns: []string{mediarequest.BookColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(book.FieldID, field.TypeUUID),

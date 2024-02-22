@@ -3,7 +3,7 @@ package providers
 import (
 	"time"
 
-	pkgmodels "github.com/h3mmy/bloopyboi/pkg/models"
+	pkgmodels "github.com/h3mmy/bloopyboi/internal/models"
 	"github.com/h3mmy/bloopyboi/bot/services"
 )
 

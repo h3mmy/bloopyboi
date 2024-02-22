@@ -6,6 +6,7 @@ import (
 	"entgo.io/ent/schema/field"
 	"entgo.io/ent/schema/mixin"
 	"github.com/google/uuid"
+	"github.com/h3mmy/bloopyboi/internal/models"
 )
 
 // MediaRequest holds the schema definition for the MediaRequest entity.
@@ -18,7 +19,7 @@ func (MediaRequest) Fields() []ent.Field {
 	return []ent.Field{
 		field.UUID("id", uuid.New()).
 			Unique(),
-		field.String("status"),
+		field.Enum("status").GoType(models.MediaRequestStatus("")),
 		field.Int("priority").
 			Default(50),
 	}
@@ -30,7 +31,7 @@ func (MediaRequest) Edges() []ent.Edge {
 		edge.From("discord_user", DiscordUser.Type).
 			Ref("media_requests").
 			Unique(),
-		edge.To("books", Book.Type),
+		edge.From("book", Book.Type).Ref("media_request"),
 	}
 }
 

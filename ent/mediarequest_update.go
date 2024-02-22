@@ -91,14 +91,14 @@ func (mru *MediaRequestUpdate) SetDiscordUser(d *DiscordUser) *MediaRequestUpdat
 	return mru.SetDiscordUserID(d.ID)
 }
 
-// AddBookIDs adds the "books" edge to the Book entity by IDs.
+// AddBookIDs adds the "book" edge to the Book entity by IDs.
 func (mru *MediaRequestUpdate) AddBookIDs(ids ...uuid.UUID) *MediaRequestUpdate {
 	mru.mutation.AddBookIDs(ids...)
 	return mru
 }
 
-// AddBooks adds the "books" edges to the Book entity.
-func (mru *MediaRequestUpdate) AddBooks(b ...*Book) *MediaRequestUpdate {
+// AddBook adds the "book" edges to the Book entity.
+func (mru *MediaRequestUpdate) AddBook(b ...*Book) *MediaRequestUpdate {
 	ids := make([]uuid.UUID, len(b))
 	for i := range b {
 		ids[i] = b[i].ID
@@ -117,20 +117,20 @@ func (mru *MediaRequestUpdate) ClearDiscordUser() *MediaRequestUpdate {
 	return mru
 }
 
-// ClearBooks clears all "books" edges to the Book entity.
-func (mru *MediaRequestUpdate) ClearBooks() *MediaRequestUpdate {
-	mru.mutation.ClearBooks()
+// ClearBook clears all "book" edges to the Book entity.
+func (mru *MediaRequestUpdate) ClearBook() *MediaRequestUpdate {
+	mru.mutation.ClearBook()
 	return mru
 }
 
-// RemoveBookIDs removes the "books" edge to Book entities by IDs.
+// RemoveBookIDs removes the "book" edge to Book entities by IDs.
 func (mru *MediaRequestUpdate) RemoveBookIDs(ids ...uuid.UUID) *MediaRequestUpdate {
 	mru.mutation.RemoveBookIDs(ids...)
 	return mru
 }
 
-// RemoveBooks removes "books" edges to Book entities.
-func (mru *MediaRequestUpdate) RemoveBooks(b ...*Book) *MediaRequestUpdate {
+// RemoveBook removes "book" edges to Book entities.
+func (mru *MediaRequestUpdate) RemoveBook(b ...*Book) *MediaRequestUpdate {
 	ids := make([]uuid.UUID, len(b))
 	for i := range b {
 		ids[i] = b[i].ID
@@ -224,12 +224,12 @@ func (mru *MediaRequestUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if mru.mutation.BooksCleared() {
+	if mru.mutation.BookCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: false,
-			Table:   mediarequest.BooksTable,
-			Columns: mediarequest.BooksPrimaryKey,
+			Rel:     sqlgraph.O2M,
+			Inverse: true,
+			Table:   mediarequest.BookTable,
+			Columns: []string{mediarequest.BookColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(book.FieldID, field.TypeUUID),
@@ -237,12 +237,12 @@ func (mru *MediaRequestUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := mru.mutation.RemovedBooksIDs(); len(nodes) > 0 && !mru.mutation.BooksCleared() {
+	if nodes := mru.mutation.RemovedBookIDs(); len(nodes) > 0 && !mru.mutation.BookCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: false,
-			Table:   mediarequest.BooksTable,
-			Columns: mediarequest.BooksPrimaryKey,
+			Rel:     sqlgraph.O2M,
+			Inverse: true,
+			Table:   mediarequest.BookTable,
+			Columns: []string{mediarequest.BookColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(book.FieldID, field.TypeUUID),
@@ -253,12 +253,12 @@ func (mru *MediaRequestUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := mru.mutation.BooksIDs(); len(nodes) > 0 {
+	if nodes := mru.mutation.BookIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: false,
-			Table:   mediarequest.BooksTable,
-			Columns: mediarequest.BooksPrimaryKey,
+			Rel:     sqlgraph.O2M,
+			Inverse: true,
+			Table:   mediarequest.BookTable,
+			Columns: []string{mediarequest.BookColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(book.FieldID, field.TypeUUID),
@@ -349,14 +349,14 @@ func (mruo *MediaRequestUpdateOne) SetDiscordUser(d *DiscordUser) *MediaRequestU
 	return mruo.SetDiscordUserID(d.ID)
 }
 
-// AddBookIDs adds the "books" edge to the Book entity by IDs.
+// AddBookIDs adds the "book" edge to the Book entity by IDs.
 func (mruo *MediaRequestUpdateOne) AddBookIDs(ids ...uuid.UUID) *MediaRequestUpdateOne {
 	mruo.mutation.AddBookIDs(ids...)
 	return mruo
 }
 
-// AddBooks adds the "books" edges to the Book entity.
-func (mruo *MediaRequestUpdateOne) AddBooks(b ...*Book) *MediaRequestUpdateOne {
+// AddBook adds the "book" edges to the Book entity.
+func (mruo *MediaRequestUpdateOne) AddBook(b ...*Book) *MediaRequestUpdateOne {
 	ids := make([]uuid.UUID, len(b))
 	for i := range b {
 		ids[i] = b[i].ID
@@ -375,20 +375,20 @@ func (mruo *MediaRequestUpdateOne) ClearDiscordUser() *MediaRequestUpdateOne {
 	return mruo
 }
 
-// ClearBooks clears all "books" edges to the Book entity.
-func (mruo *MediaRequestUpdateOne) ClearBooks() *MediaRequestUpdateOne {
-	mruo.mutation.ClearBooks()
+// ClearBook clears all "book" edges to the Book entity.
+func (mruo *MediaRequestUpdateOne) ClearBook() *MediaRequestUpdateOne {
+	mruo.mutation.ClearBook()
 	return mruo
 }
 
-// RemoveBookIDs removes the "books" edge to Book entities by IDs.
+// RemoveBookIDs removes the "book" edge to Book entities by IDs.
 func (mruo *MediaRequestUpdateOne) RemoveBookIDs(ids ...uuid.UUID) *MediaRequestUpdateOne {
 	mruo.mutation.RemoveBookIDs(ids...)
 	return mruo
 }
 
-// RemoveBooks removes "books" edges to Book entities.
-func (mruo *MediaRequestUpdateOne) RemoveBooks(b ...*Book) *MediaRequestUpdateOne {
+// RemoveBook removes "book" edges to Book entities.
+func (mruo *MediaRequestUpdateOne) RemoveBook(b ...*Book) *MediaRequestUpdateOne {
 	ids := make([]uuid.UUID, len(b))
 	for i := range b {
 		ids[i] = b[i].ID
@@ -512,12 +512,12 @@ func (mruo *MediaRequestUpdateOne) sqlSave(ctx context.Context) (_node *MediaReq
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if mruo.mutation.BooksCleared() {
+	if mruo.mutation.BookCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: false,
-			Table:   mediarequest.BooksTable,
-			Columns: mediarequest.BooksPrimaryKey,
+			Rel:     sqlgraph.O2M,
+			Inverse: true,
+			Table:   mediarequest.BookTable,
+			Columns: []string{mediarequest.BookColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(book.FieldID, field.TypeUUID),
@@ -525,12 +525,12 @@ func (mruo *MediaRequestUpdateOne) sqlSave(ctx context.Context) (_node *MediaReq
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := mruo.mutation.RemovedBooksIDs(); len(nodes) > 0 && !mruo.mutation.BooksCleared() {
+	if nodes := mruo.mutation.RemovedBookIDs(); len(nodes) > 0 && !mruo.mutation.BookCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: false,
-			Table:   mediarequest.BooksTable,
-			Columns: mediarequest.BooksPrimaryKey,
+			Rel:     sqlgraph.O2M,
+			Inverse: true,
+			Table:   mediarequest.BookTable,
+			Columns: []string{mediarequest.BookColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(book.FieldID, field.TypeUUID),
@@ -541,12 +541,12 @@ func (mruo *MediaRequestUpdateOne) sqlSave(ctx context.Context) (_node *MediaReq
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := mruo.mutation.BooksIDs(); len(nodes) > 0 {
+	if nodes := mruo.mutation.BookIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: false,
-			Table:   mediarequest.BooksTable,
-			Columns: mediarequest.BooksPrimaryKey,
+			Rel:     sqlgraph.O2M,
+			Inverse: true,
+			Table:   mediarequest.BookTable,
+			Columns: []string{mediarequest.BookColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(book.FieldID, field.TypeUUID),

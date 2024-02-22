@@ -370,7 +370,7 @@ func (c *BookClient) QueryMediaRequest(b *Book) *MediaRequestQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(book.Table, book.FieldID, id),
 			sqlgraph.To(mediarequest.Table, mediarequest.FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, true, book.MediaRequestTable, book.MediaRequestPrimaryKey...),
+			sqlgraph.Edge(sqlgraph.M2O, false, book.MediaRequestTable, book.MediaRequestColumn),
 		)
 		fromV = sqlgraph.Neighbors(b.driver.Dialect(), step)
 		return fromV, nil
@@ -990,15 +990,15 @@ func (c *MediaRequestClient) QueryDiscordUser(mr *MediaRequest) *DiscordUserQuer
 	return query
 }
 
-// QueryBooks queries the books edge of a MediaRequest.
-func (c *MediaRequestClient) QueryBooks(mr *MediaRequest) *BookQuery {
+// QueryBook queries the book edge of a MediaRequest.
+func (c *MediaRequestClient) QueryBook(mr *MediaRequest) *BookQuery {
 	query := (&BookClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
 		id := mr.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(mediarequest.Table, mediarequest.FieldID, id),
 			sqlgraph.To(book.Table, book.FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, false, mediarequest.BooksTable, mediarequest.BooksPrimaryKey...),
+			sqlgraph.Edge(sqlgraph.O2M, true, mediarequest.BookTable, mediarequest.BookColumn),
 		)
 		fromV = sqlgraph.Neighbors(mr.driver.Dialect(), step)
 		return fromV, nil

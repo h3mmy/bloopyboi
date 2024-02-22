@@ -9,6 +9,7 @@ import (
 	"github.com/cdfmlr/ellipsis"
 	"github.com/h3mmy/bloopyboi/bot/internal/log"
 	"github.com/h3mmy/bloopyboi/bot/internal/models"
+	pmodels "github.com/h3mmy/bloopyboi/internal/models"
 	"github.com/h3mmy/bloopyboi/bot/services"
 	"go.uber.org/zap"
 )
@@ -207,8 +208,8 @@ func (b *BookCommand) GetAppCommandHandler() func(s *discordgo.Session, i *disco
 func (b *BookCommand) GetMessageComponentHandlers() map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	return map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
 		"request_book": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			b.logger.Debug(fmt.Sprintf("received book request with %v", i.Data), zap.String(string(models.CtxKeyMessageID), i.Message.ID))
-			ctx := context.WithValue(context.TODO(), models.CtxKeyMessageID, i.Message.ID)
+			b.logger.Debug(fmt.Sprintf("received book request with %v", i.Data), zap.String(string(pmodels.CtxKeyMessageID), i.Message.ID))
+			ctx := context.WithValue(context.TODO(), pmodels.CtxKeyMessageID, i.Message.ID)
 			fields := i.Message.Embeds[0].Fields
 			for _, field := range fields {
 				if field.Name == "Volume ID" {

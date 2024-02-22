@@ -11,10 +11,12 @@ import (
 	"github.com/h3mmy/bloopyboi/bot/internal/database"
 	"github.com/h3mmy/bloopyboi/bot/internal/log"
 	"github.com/h3mmy/bloopyboi/bot/internal/models"
+	pmodels "github.com/h3mmy/bloopyboi/internal/models"
 	"github.com/h3mmy/bloopyboi/ent"
 	"github.com/h3mmy/bloopyboi/ent/book"
 	"github.com/h3mmy/bloopyboi/ent/bookauthor"
 	"github.com/h3mmy/bloopyboi/ent/discorduser"
+	"github.com/h3mmy/bloopyboi/ent/mediarequest"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	books "google.golang.org/api/books/v1"
@@ -165,7 +167,7 @@ func (b *BookService) SubmitBookRequest(ctx context.Context, discUser *discordgo
 				SetID(uuid.New()).
 				AddBookIDs(bookid).
 				SetDiscordUserID(discordUserId).
-				SetStatus("requested").
+				SetStatus(string(pmodels.MediaRequestStatusRequested)).
 				Exec(ctx)
 		})
 		if err != nil {
@@ -176,15 +178,15 @@ func (b *BookService) SubmitBookRequest(ctx context.Context, discUser *discordgo
 
 		for _, author := range volume.VolumeInfo.Authors {
 			err = database.WithTx(ctx, b.db, func(tx *ent.Tx) error {
-			return b.db.BookAuthor.
-				Create().
-				SetID(uuid.New()).
-				SetFullName(author).
-				AddBookIDs(bookid).
-				OnConflict(sql.ConflictColumns(bookauthor.FieldFullName)).
-				UpdateNewValues().
-				Exec(ctx)
-		})
+				return b.db.BookAuthor.
+					Create().
+					SetID(uuid.New()).
+					SetFullName(author).
+					AddBookIDs(bookid).
+					OnConflict(sql.ConflictColumns(bookauthor.FieldFullName)).
+					UpdateNewValues().
+					Exec(ctx)
+			})
 			if err != nil {
 				return fmt.Errorf("failed to save book author: %w", err)
 			}
@@ -193,7 +195,6 @@ func (b *BookService) SubmitBookRequest(ctx context.Context, discUser *discordgo
 	}
 	return nil
 }
-
 
 func (b *BookService) SaveBook(ctx context.Context, volume *books.Volume) (uuid.UUID, error) {
 	// TODO: Parse and include ISBNs
@@ -226,4 +227,25 @@ func (b *BookService) SaveBook(ctx context.Context, volume *books.Volume) (uuid.
 	}
 	b.logger.Debug(fmt.Sprintf("found book id: %s", bookid))
 	return bookid, nil
+}
+
+// GetAllBookRequestsForUser returns all book requests for a user.
+func (b *BookService) GetAllBookRequestsForUser(ctx context.Context, userId string) ([]*ent.MediaRequest, error) {
+	if b.dbEnabled {
+		requests, err := b.db.MediaRequest.
+			Query().
+			WithBook().
+			Where(
+				mediarequest.HasDiscordUserWith(
+					discorduser.DiscordidEQ(userId),
+				),
+			).
+			All(ctx)
+		if err != nil {
+			return nil, fmt.Errorf("failed to get book requests for user %s: %w", userId, err)
+		}
+		return requests, nil
+	}
+	b.logger.Warn("database not enabled")
+	return nil, nil
 }

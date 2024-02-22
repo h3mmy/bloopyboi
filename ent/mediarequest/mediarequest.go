@@ -24,8 +24,8 @@ const (
 	FieldPriority = "priority"
 	// EdgeDiscordUser holds the string denoting the discord_user edge name in mutations.
 	EdgeDiscordUser = "discord_user"
-	// EdgeBooks holds the string denoting the books edge name in mutations.
-	EdgeBooks = "books"
+	// EdgeBook holds the string denoting the book edge name in mutations.
+	EdgeBook = "book"
 	// Table holds the table name of the mediarequest in the database.
 	Table = "media_requests"
 	// DiscordUserTable is the table that holds the discord_user relation/edge.
@@ -35,11 +35,13 @@ const (
 	DiscordUserInverseTable = "discord_users"
 	// DiscordUserColumn is the table column denoting the discord_user relation/edge.
 	DiscordUserColumn = "discord_user_media_requests"
-	// BooksTable is the table that holds the books relation/edge. The primary key declared below.
-	BooksTable = "media_request_books"
-	// BooksInverseTable is the table name for the Book entity.
+	// BookTable is the table that holds the book relation/edge.
+	BookTable = "books"
+	// BookInverseTable is the table name for the Book entity.
 	// It exists in this package in order to avoid circular dependency with the "book" package.
-	BooksInverseTable = "books"
+	BookInverseTable = "books"
+	// BookColumn is the table column denoting the book relation/edge.
+	BookColumn = "book_media_request"
 )
 
 // Columns holds all SQL columns for mediarequest fields.
@@ -56,12 +58,6 @@ var Columns = []string{
 var ForeignKeys = []string{
 	"discord_user_media_requests",
 }
-
-var (
-	// BooksPrimaryKey and BooksColumn2 are the table columns denoting the
-	// primary key for the books relation (M2M).
-	BooksPrimaryKey = []string{"media_request_id", "book_id"}
-)
 
 // ValidColumn reports if the column name is valid (part of the table columns).
 func ValidColumn(column string) bool {
@@ -124,17 +120,17 @@ func ByDiscordUserField(field string, opts ...sql.OrderTermOption) OrderOption {
 	}
 }
 
-// ByBooksCount orders the results by books count.
-func ByBooksCount(opts ...sql.OrderTermOption) OrderOption {
+// ByBookCount orders the results by book count.
+func ByBookCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborsCount(s, newBooksStep(), opts...)
+		sqlgraph.OrderByNeighborsCount(s, newBookStep(), opts...)
 	}
 }
 
-// ByBooks orders the results by books terms.
-func ByBooks(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+// ByBook orders the results by book terms.
+func ByBook(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newBooksStep(), append([]sql.OrderTerm{term}, terms...)...)
+		sqlgraph.OrderByNeighborTerms(s, newBookStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
 func newDiscordUserStep() *sqlgraph.Step {
@@ -144,10 +140,10 @@ func newDiscordUserStep() *sqlgraph.Step {
 		sqlgraph.Edge(sqlgraph.M2O, true, DiscordUserTable, DiscordUserColumn),
 	)
 }
-func newBooksStep() *sqlgraph.Step {
+func newBookStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(BooksInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2M, false, BooksTable, BooksPrimaryKey...),
+		sqlgraph.To(BookInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, true, BookTable, BookColumn),
 	)
 }

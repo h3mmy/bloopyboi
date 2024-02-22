@@ -27,10 +27,10 @@ type MediaRequestQuery struct {
 	inters          []Interceptor
 	predicates      []predicate.MediaRequest
 	withDiscordUser *DiscordUserQuery
-	withBooks       *BookQuery
+	withBook        *BookQuery
 	withFKs         bool
 	modifiers       []func(*sql.Selector)
-	withNamedBooks  map[string]*BookQuery
+	withNamedBook   map[string]*BookQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -89,8 +89,8 @@ func (mrq *MediaRequestQuery) QueryDiscordUser() *DiscordUserQuery {
 	return query
 }
 
-// QueryBooks chains the current query on the "books" edge.
-func (mrq *MediaRequestQuery) QueryBooks() *BookQuery {
+// QueryBook chains the current query on the "book" edge.
+func (mrq *MediaRequestQuery) QueryBook() *BookQuery {
 	query := (&BookClient{config: mrq.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := mrq.prepareQuery(ctx); err != nil {
@@ -103,7 +103,7 @@ func (mrq *MediaRequestQuery) QueryBooks() *BookQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(mediarequest.Table, mediarequest.FieldID, selector),
 			sqlgraph.To(book.Table, book.FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, false, mediarequest.BooksTable, mediarequest.BooksPrimaryKey...),
+			sqlgraph.Edge(sqlgraph.O2M, true, mediarequest.BookTable, mediarequest.BookColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(mrq.driver.Dialect(), step)
 		return fromU, nil
@@ -304,7 +304,7 @@ func (mrq *MediaRequestQuery) Clone() *MediaRequestQuery {
 		inters:          append([]Interceptor{}, mrq.inters...),
 		predicates:      append([]predicate.MediaRequest{}, mrq.predicates...),
 		withDiscordUser: mrq.withDiscordUser.Clone(),
-		withBooks:       mrq.withBooks.Clone(),
+		withBook:        mrq.withBook.Clone(),
 		// clone intermediate query.
 		sql:  mrq.sql.Clone(),
 		path: mrq.path,
@@ -322,14 +322,14 @@ func (mrq *MediaRequestQuery) WithDiscordUser(opts ...func(*DiscordUserQuery)) *
 	return mrq
 }
 
-// WithBooks tells the query-builder to eager-load the nodes that are connected to
-// the "books" edge. The optional arguments are used to configure the query builder of the edge.
-func (mrq *MediaRequestQuery) WithBooks(opts ...func(*BookQuery)) *MediaRequestQuery {
+// WithBook tells the query-builder to eager-load the nodes that are connected to
+// the "book" edge. The optional arguments are used to configure the query builder of the edge.
+func (mrq *MediaRequestQuery) WithBook(opts ...func(*BookQuery)) *MediaRequestQuery {
 	query := (&BookClient{config: mrq.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
-	mrq.withBooks = query
+	mrq.withBook = query
 	return mrq
 }
 
@@ -414,7 +414,7 @@ func (mrq *MediaRequestQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([
 		_spec       = mrq.querySpec()
 		loadedTypes = [2]bool{
 			mrq.withDiscordUser != nil,
-			mrq.withBooks != nil,
+			mrq.withBook != nil,
 		}
 	)
 	if mrq.withDiscordUser != nil {
@@ -450,17 +450,17 @@ func (mrq *MediaRequestQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([
 			return nil, err
 		}
 	}
-	if query := mrq.withBooks; query != nil {
-		if err := mrq.loadBooks(ctx, query, nodes,
-			func(n *MediaRequest) { n.Edges.Books = []*Book{} },
-			func(n *MediaRequest, e *Book) { n.Edges.Books = append(n.Edges.Books, e) }); err != nil {
+	if query := mrq.withBook; query != nil {
+		if err := mrq.loadBook(ctx, query, nodes,
+			func(n *MediaRequest) { n.Edges.Book = []*Book{} },
+			func(n *MediaRequest, e *Book) { n.Edges.Book = append(n.Edges.Book, e) }); err != nil {
 			return nil, err
 		}
 	}
-	for name, query := range mrq.withNamedBooks {
-		if err := mrq.loadBooks(ctx, query, nodes,
-			func(n *MediaRequest) { n.appendNamedBooks(name) },
-			func(n *MediaRequest, e *Book) { n.appendNamedBooks(name, e) }); err != nil {
+	for name, query := range mrq.withNamedBook {
+		if err := mrq.loadBook(ctx, query, nodes,
+			func(n *MediaRequest) { n.appendNamedBook(name) },
+			func(n *MediaRequest, e *Book) { n.appendNamedBook(name, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -499,64 +499,34 @@ func (mrq *MediaRequestQuery) loadDiscordUser(ctx context.Context, query *Discor
 	}
 	return nil
 }
-func (mrq *MediaRequestQuery) loadBooks(ctx context.Context, query *BookQuery, nodes []*MediaRequest, init func(*MediaRequest), assign func(*MediaRequest, *Book)) error {
-	edgeIDs := make([]driver.Value, len(nodes))
-	byID := make(map[uuid.UUID]*MediaRequest)
-	nids := make(map[uuid.UUID]map[*MediaRequest]struct{})
-	for i, node := range nodes {
-		edgeIDs[i] = node.ID
-		byID[node.ID] = node
+func (mrq *MediaRequestQuery) loadBook(ctx context.Context, query *BookQuery, nodes []*MediaRequest, init func(*MediaRequest), assign func(*MediaRequest, *Book)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*MediaRequest)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
 		if init != nil {
-			init(node)
+			init(nodes[i])
 		}
 	}
-	query.Where(func(s *sql.Selector) {
-		joinT := sql.Table(mediarequest.BooksTable)
-		s.Join(joinT).On(s.C(book.FieldID), joinT.C(mediarequest.BooksPrimaryKey[1]))
-		s.Where(sql.InValues(joinT.C(mediarequest.BooksPrimaryKey[0]), edgeIDs...))
-		columns := s.SelectedColumns()
-		s.Select(joinT.C(mediarequest.BooksPrimaryKey[0]))
-		s.AppendSelect(columns...)
-		s.SetDistinct(false)
-	})
-	if err := query.prepareQuery(ctx); err != nil {
-		return err
-	}
-	qr := QuerierFunc(func(ctx context.Context, q Query) (Value, error) {
-		return query.sqlAll(ctx, func(_ context.Context, spec *sqlgraph.QuerySpec) {
-			assign := spec.Assign
-			values := spec.ScanValues
-			spec.ScanValues = func(columns []string) ([]any, error) {
-				values, err := values(columns[1:])
-				if err != nil {
-					return nil, err
-				}
-				return append([]any{new(uuid.UUID)}, values...), nil
-			}
-			spec.Assign = func(columns []string, values []any) error {
-				outValue := *values[0].(*uuid.UUID)
-				inValue := *values[1].(*uuid.UUID)
-				if nids[inValue] == nil {
-					nids[inValue] = map[*MediaRequest]struct{}{byID[outValue]: {}}
-					return assign(columns[1:], values[1:])
-				}
-				nids[inValue][byID[outValue]] = struct{}{}
-				return nil
-			}
-		})
-	})
-	neighbors, err := withInterceptors[[]*Book](ctx, query, qr, query.inters)
+	query.withFKs = true
+	query.Where(predicate.Book(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(mediarequest.BookColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
 	if err != nil {
 		return err
 	}
 	for _, n := range neighbors {
-		nodes, ok := nids[n.ID]
+		fk := n.book_media_request
+		if fk == nil {
+			return fmt.Errorf(`foreign-key "book_media_request" is nil for node %v`, n.ID)
+		}
+		node, ok := nodeids[*fk]
 		if !ok {
-			return fmt.Errorf(`unexpected "books" node returned %v`, n.ID)
+			return fmt.Errorf(`unexpected referenced foreign-key "book_media_request" returned %v for node %v`, *fk, n.ID)
 		}
-		for kn := range nodes {
-			assign(kn, n)
-		}
+		assign(node, n)
 	}
 	return nil
 }
@@ -674,17 +644,17 @@ func (mrq *MediaRequestQuery) ForShare(opts ...sql.LockOption) *MediaRequestQuer
 	return mrq
 }
 
-// WithNamedBooks tells the query-builder to eager-load the nodes that are connected to the "books"
+// WithNamedBook tells the query-builder to eager-load the nodes that are connected to the "book"
 // edge with the given name. The optional arguments are used to configure the query builder of the edge.
-func (mrq *MediaRequestQuery) WithNamedBooks(name string, opts ...func(*BookQuery)) *MediaRequestQuery {
+func (mrq *MediaRequestQuery) WithNamedBook(name string, opts ...func(*BookQuery)) *MediaRequestQuery {
 	query := (&BookClient{config: mrq.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
-	if mrq.withNamedBooks == nil {
-		mrq.withNamedBooks = make(map[string]*BookQuery)
+	if mrq.withNamedBook == nil {
+		mrq.withNamedBook = make(map[string]*BookQuery)
 	}
-	mrq.withNamedBooks[name] = query
+	mrq.withNamedBook[name] = query
 	return mrq
 }
 
