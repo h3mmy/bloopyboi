@@ -128,6 +128,11 @@ func (mcb *MessageChanBlooper) processIncomingMessage(msg *discordgo.MessageCrea
 		ChannelID: msg.ChannelID,
 		MessageComplex: &discordgo.MessageSend{
 			Content: resp,
+			Reference: &discordgo.MessageReference{
+				MessageID: msg.ID,
+				ChannelID: msg.ChannelID,
+				GuildID:   msg.GuildID,
+			},
 		},
 	}
 }
