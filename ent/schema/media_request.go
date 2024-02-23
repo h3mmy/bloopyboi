@@ -28,10 +28,11 @@ func (MediaRequest) Fields() []ent.Field {
 // Edges of the MediaRequest.
 func (MediaRequest) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.From("discord_user", DiscordUser.Type).
-			Ref("media_requests").
-			Unique(),
-		edge.From("book", Book.Type).Ref("media_request"),
+		edge.From("discord_users", DiscordUser.Type).
+			Ref("media_requests"),
+		edge.From("book", Book.Type).
+		Ref("media_request").
+		Unique(),
 	}
 }
 

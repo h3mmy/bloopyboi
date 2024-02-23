@@ -382,7 +382,7 @@ func HasMediaRequests() predicate.DiscordUser {
 	return predicate.DiscordUser(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, MediaRequestsTable, MediaRequestsColumn),
+			sqlgraph.Edge(sqlgraph.M2M, false, MediaRequestsTable, MediaRequestsPrimaryKey...),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})

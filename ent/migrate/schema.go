@@ -19,21 +19,12 @@ var (
 		{Name: "isbn_13", Type: field.TypeString, Nullable: true},
 		{Name: "publisher", Type: field.TypeString, Nullable: true},
 		{Name: "image_url", Type: field.TypeString, Nullable: true},
-		{Name: "book_media_request", Type: field.TypeUUID, Nullable: true},
 	}
 	// BooksTable holds the schema information for the "books" table.
 	BooksTable = &schema.Table{
 		Name:       "books",
 		Columns:    BooksColumns,
 		PrimaryKey: []*schema.Column{BooksColumns[0]},
-		ForeignKeys: []*schema.ForeignKey{
-			{
-				Symbol:     "books_media_requests_media_request",
-				Columns:    []*schema.Column{BooksColumns[9]},
-				RefColumns: []*schema.Column{MediaRequestsColumns[0]},
-				OnDelete:   schema.SetNull,
-			},
-		},
 	}
 	// BookAuthorsColumns holds the columns for the "book_authors" table.
 	BookAuthorsColumns = []*schema.Column{
@@ -78,9 +69,9 @@ var (
 		{Name: "id", Type: field.TypeUUID, Unique: true},
 		{Name: "create_time", Type: field.TypeTime},
 		{Name: "update_time", Type: field.TypeTime},
-		{Name: "status", Type: field.TypeString},
+		{Name: "status", Type: field.TypeEnum, Enums: []string{"requested", "approved", "success", "rejected", "cancelled", "error"}},
 		{Name: "priority", Type: field.TypeInt, Default: 50},
-		{Name: "discord_user_media_requests", Type: field.TypeUUID, Nullable: true},
+		{Name: "book_media_request", Type: field.TypeUUID, Unique: true, Nullable: true},
 	}
 	// MediaRequestsTable holds the schema information for the "media_requests" table.
 	MediaRequestsTable = &schema.Table{
@@ -89,9 +80,9 @@ var (
 		PrimaryKey: []*schema.Column{MediaRequestsColumns[0]},
 		ForeignKeys: []*schema.ForeignKey{
 			{
-				Symbol:     "media_requests_discord_users_media_requests",
+				Symbol:     "media_requests_books_media_request",
 				Columns:    []*schema.Column{MediaRequestsColumns[5]},
-				RefColumns: []*schema.Column{DiscordUsersColumns[0]},
+				RefColumns: []*schema.Column{BooksColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 		},
@@ -146,6 +137,31 @@ var (
 			},
 		},
 	}
+	// DiscordUserMediaRequestsColumns holds the columns for the "discord_user_media_requests" table.
+	DiscordUserMediaRequestsColumns = []*schema.Column{
+		{Name: "discord_user_id", Type: field.TypeUUID},
+		{Name: "media_request_id", Type: field.TypeUUID},
+	}
+	// DiscordUserMediaRequestsTable holds the schema information for the "discord_user_media_requests" table.
+	DiscordUserMediaRequestsTable = &schema.Table{
+		Name:       "discord_user_media_requests",
+		Columns:    DiscordUserMediaRequestsColumns,
+		PrimaryKey: []*schema.Column{DiscordUserMediaRequestsColumns[0], DiscordUserMediaRequestsColumns[1]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "discord_user_media_requests_discord_user_id",
+				Columns:    []*schema.Column{DiscordUserMediaRequestsColumns[0]},
+				RefColumns: []*schema.Column{DiscordUsersColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+			{
+				Symbol:     "discord_user_media_requests_media_request_id",
+				Columns:    []*schema.Column{DiscordUserMediaRequestsColumns[1]},
+				RefColumns: []*schema.Column{MediaRequestsColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+		},
+	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
 		BooksTable,
@@ -155,14 +171,16 @@ var (
 		MediaRequestsTable,
 		BookAuthorBooksTable,
 		DiscordUserDiscordMessagesTable,
+		DiscordUserMediaRequestsTable,
 	}
 )
 
 func init() {
-	BooksTable.ForeignKeys[0].RefTable = MediaRequestsTable
-	MediaRequestsTable.ForeignKeys[0].RefTable = DiscordUsersTable
+	MediaRequestsTable.ForeignKeys[0].RefTable = BooksTable
 	BookAuthorBooksTable.ForeignKeys[0].RefTable = BookAuthorsTable
 	BookAuthorBooksTable.ForeignKeys[1].RefTable = BooksTable
 	DiscordUserDiscordMessagesTable.ForeignKeys[0].RefTable = DiscordUsersTable
 	DiscordUserDiscordMessagesTable.ForeignKeys[1].RefTable = DiscordMessagesTable
+	DiscordUserMediaRequestsTable.ForeignKeys[0].RefTable = DiscordUsersTable
+	DiscordUserMediaRequestsTable.ForeignKeys[1].RefTable = MediaRequestsTable
 }

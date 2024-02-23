@@ -369,7 +369,7 @@ func (bu *BookUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if bu.mutation.MediaRequestCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
+			Rel:     sqlgraph.O2O,
 			Inverse: false,
 			Table:   book.MediaRequestTable,
 			Columns: []string{book.MediaRequestColumn},
@@ -382,7 +382,7 @@ func (bu *BookUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if nodes := bu.mutation.MediaRequestIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
+			Rel:     sqlgraph.O2O,
 			Inverse: false,
 			Table:   book.MediaRequestTable,
 			Columns: []string{book.MediaRequestColumn},
@@ -785,7 +785,7 @@ func (buo *BookUpdateOne) sqlSave(ctx context.Context) (_node *Book, err error) 
 	}
 	if buo.mutation.MediaRequestCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
+			Rel:     sqlgraph.O2O,
 			Inverse: false,
 			Table:   book.MediaRequestTable,
 			Columns: []string{book.MediaRequestColumn},
@@ -798,7 +798,7 @@ func (buo *BookUpdateOne) sqlSave(ctx context.Context) (_node *Book, err error) 
 	}
 	if nodes := buo.mutation.MediaRequestIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
+			Rel:     sqlgraph.O2O,
 			Inverse: false,
 			Table:   book.MediaRequestTable,
 			Columns: []string{book.MediaRequestColumn},

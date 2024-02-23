@@ -337,3 +337,9 @@ func (b *BookCommand) GetMessageComponentHandlers() map[string]func(s *discordgo
 		},
 	}
 }
+
+// CloseResources will shutdown any dependencies to be called when the command is being removed
+func (b *BookCommand) CloseResources() error {
+	b.bookSvc.Shutdown()
+	return nil
+}

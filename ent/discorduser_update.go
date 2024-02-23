@@ -276,10 +276,10 @@ func (duu *DiscordUserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if duu.mutation.MediaRequestsCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.M2M,
 			Inverse: false,
 			Table:   discorduser.MediaRequestsTable,
-			Columns: []string{discorduser.MediaRequestsColumn},
+			Columns: discorduser.MediaRequestsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(mediarequest.FieldID, field.TypeUUID),
@@ -289,10 +289,10 @@ func (duu *DiscordUserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if nodes := duu.mutation.RemovedMediaRequestsIDs(); len(nodes) > 0 && !duu.mutation.MediaRequestsCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.M2M,
 			Inverse: false,
 			Table:   discorduser.MediaRequestsTable,
-			Columns: []string{discorduser.MediaRequestsColumn},
+			Columns: discorduser.MediaRequestsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(mediarequest.FieldID, field.TypeUUID),
@@ -305,10 +305,10 @@ func (duu *DiscordUserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if nodes := duu.mutation.MediaRequestsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.M2M,
 			Inverse: false,
 			Table:   discorduser.MediaRequestsTable,
-			Columns: []string{discorduser.MediaRequestsColumn},
+			Columns: discorduser.MediaRequestsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(mediarequest.FieldID, field.TypeUUID),
@@ -615,10 +615,10 @@ func (duuo *DiscordUserUpdateOne) sqlSave(ctx context.Context) (_node *DiscordUs
 	}
 	if duuo.mutation.MediaRequestsCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.M2M,
 			Inverse: false,
 			Table:   discorduser.MediaRequestsTable,
-			Columns: []string{discorduser.MediaRequestsColumn},
+			Columns: discorduser.MediaRequestsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(mediarequest.FieldID, field.TypeUUID),
@@ -628,10 +628,10 @@ func (duuo *DiscordUserUpdateOne) sqlSave(ctx context.Context) (_node *DiscordUs
 	}
 	if nodes := duuo.mutation.RemovedMediaRequestsIDs(); len(nodes) > 0 && !duuo.mutation.MediaRequestsCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.M2M,
 			Inverse: false,
 			Table:   discorduser.MediaRequestsTable,
-			Columns: []string{discorduser.MediaRequestsColumn},
+			Columns: discorduser.MediaRequestsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(mediarequest.FieldID, field.TypeUUID),
@@ -644,10 +644,10 @@ func (duuo *DiscordUserUpdateOne) sqlSave(ctx context.Context) (_node *DiscordUs
 	}
 	if nodes := duuo.mutation.MediaRequestsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.M2M,
 			Inverse: false,
 			Table:   discorduser.MediaRequestsTable,
-			Columns: []string{discorduser.MediaRequestsColumn},
+			Columns: discorduser.MediaRequestsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(mediarequest.FieldID, field.TypeUUID),

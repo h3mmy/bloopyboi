@@ -28,7 +28,6 @@ type BookQuery struct {
 	predicates          []predicate.Book
 	withBookAuthor      *BookAuthorQuery
 	withMediaRequest    *MediaRequestQuery
-	withFKs             bool
 	modifiers           []func(*sql.Selector)
 	withNamedBookAuthor map[string]*BookAuthorQuery
 	// intermediate query (i.e. traversal path).
@@ -103,7 +102,7 @@ func (bq *BookQuery) QueryMediaRequest() *MediaRequestQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(book.Table, book.FieldID, selector),
 			sqlgraph.To(mediarequest.Table, mediarequest.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, false, book.MediaRequestTable, book.MediaRequestColumn),
+			sqlgraph.Edge(sqlgraph.O2O, false, book.MediaRequestTable, book.MediaRequestColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(bq.driver.Dialect(), step)
 		return fromU, nil
@@ -410,19 +409,12 @@ func (bq *BookQuery) prepareQuery(ctx context.Context) error {
 func (bq *BookQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Book, error) {
 	var (
 		nodes       = []*Book{}
-		withFKs     = bq.withFKs
 		_spec       = bq.querySpec()
 		loadedTypes = [2]bool{
 			bq.withBookAuthor != nil,
 			bq.withMediaRequest != nil,
 		}
 	)
-	if bq.withMediaRequest != nil {
-		withFKs = true
-	}
-	if withFKs {
-		_spec.Node.Columns = append(_spec.Node.Columns, book.ForeignKeys...)
-	}
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*Book).scanValues(nil, columns)
 	}
@@ -529,34 +521,30 @@ func (bq *BookQuery) loadBookAuthor(ctx context.Context, query *BookAuthorQuery,
 	return nil
 }
 func (bq *BookQuery) loadMediaRequest(ctx context.Context, query *MediaRequestQuery, nodes []*Book, init func(*Book), assign func(*Book, *MediaRequest)) error {
-	ids := make([]uuid.UUID, 0, len(nodes))
-	nodeids := make(map[uuid.UUID][]*Book)
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*Book)
 	for i := range nodes {
-		if nodes[i].book_media_request == nil {
-			continue
-		}
-		fk := *nodes[i].book_media_request
-		if _, ok := nodeids[fk]; !ok {
-			ids = append(ids, fk)
-		}
-		nodeids[fk] = append(nodeids[fk], nodes[i])
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
 	}
-	if len(ids) == 0 {
-		return nil
-	}
-	query.Where(mediarequest.IDIn(ids...))
+	query.withFKs = true
+	query.Where(predicate.MediaRequest(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(book.MediaRequestColumn), fks...))
+	}))
 	neighbors, err := query.All(ctx)
 	if err != nil {
 		return err
 	}
 	for _, n := range neighbors {
-		nodes, ok := nodeids[n.ID]
+		fk := n.book_media_request
+		if fk == nil {
+			return fmt.Errorf(`foreign-key "book_media_request" is nil for node %v`, n.ID)
+		}
+		node, ok := nodeids[*fk]
 		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "book_media_request" returned %v`, n.ID)
+			return fmt.Errorf(`unexpected referenced foreign-key "book_media_request" returned %v for node %v`, *fk, n.ID)
 		}
-		for i := range nodes {
-			assign(nodes[i], n)
-		}
+		assign(node, n)
 	}
 	return nil
 }

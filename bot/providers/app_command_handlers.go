@@ -15,6 +15,11 @@ func GetDiscordAppCommands() []models.DiscordAppCommand {
 		logger.Error("failed to create book svc", zap.Error(err))
 	} else {
 		handls = append(handls, handlers.NewBookCommand(bookSvc))
+		if bookSvc.IsDatabaseEnabled() {
+			handls = append(handls, handlers.NewUserRequestCommand(bookSvc))
+		} else {
+			logger.Info("book database is disabled. Not adding user requests command")
+		}
 	}
   return handls
 }

@@ -35,11 +35,10 @@ func GetDiscordUserFromInteraction(i *discordgo.InteractionCreate) *discordgo.Us
 func GetBookRequestsAsEmbeds(requests []*ent.MediaRequest) []*discordgo.MessageEmbed {
 	var embeds []*discordgo.MessageEmbed
 	for _, request := range requests {
-		books, err := request.Edges.BookOrErr()
-		if err != nil || len(books) == 0 {
+		book, err := request.Edges.BookOrErr()
+		if err != nil {
 			continue
 		}
-		book := books[0]
 		var colorCode models.ColorCode
 		if request.Status == "Pending" {
 			colorCode = models.ColorCodeInfo
@@ -52,7 +51,7 @@ func GetBookRequestsAsEmbeds(requests []*ent.MediaRequest) []*discordgo.MessageE
 			Fields: []*discordgo.MessageEmbedField{
 				{
 					Name:  "Status",
-					Value: request.Status,
+					Value: string(request.Status),
 				},
 				{
 					Name:  "Requested",

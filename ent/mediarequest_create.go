@@ -16,6 +16,7 @@ import (
 	"github.com/h3mmy/bloopyboi/ent/book"
 	"github.com/h3mmy/bloopyboi/ent/discorduser"
 	"github.com/h3mmy/bloopyboi/ent/mediarequest"
+	"github.com/h3mmy/bloopyboi/internal/models"
 )
 
 // MediaRequestCreate is the builder for creating a MediaRequest entity.
@@ -55,8 +56,8 @@ func (mrc *MediaRequestCreate) SetNillableUpdateTime(t *time.Time) *MediaRequest
 }
 
 // SetStatus sets the "status" field.
-func (mrc *MediaRequestCreate) SetStatus(s string) *MediaRequestCreate {
-	mrc.mutation.SetStatus(s)
+func (mrc *MediaRequestCreate) SetStatus(mrs models.MediaRequestStatus) *MediaRequestCreate {
+	mrc.mutation.SetStatus(mrs)
 	return mrc
 }
 
@@ -80,38 +81,38 @@ func (mrc *MediaRequestCreate) SetID(u uuid.UUID) *MediaRequestCreate {
 	return mrc
 }
 
-// SetDiscordUserID sets the "discord_user" edge to the DiscordUser entity by ID.
-func (mrc *MediaRequestCreate) SetDiscordUserID(id uuid.UUID) *MediaRequestCreate {
-	mrc.mutation.SetDiscordUserID(id)
+// AddDiscordUserIDs adds the "discord_users" edge to the DiscordUser entity by IDs.
+func (mrc *MediaRequestCreate) AddDiscordUserIDs(ids ...uuid.UUID) *MediaRequestCreate {
+	mrc.mutation.AddDiscordUserIDs(ids...)
 	return mrc
 }
 
-// SetNillableDiscordUserID sets the "discord_user" edge to the DiscordUser entity by ID if the given value is not nil.
-func (mrc *MediaRequestCreate) SetNillableDiscordUserID(id *uuid.UUID) *MediaRequestCreate {
+// AddDiscordUsers adds the "discord_users" edges to the DiscordUser entity.
+func (mrc *MediaRequestCreate) AddDiscordUsers(d ...*DiscordUser) *MediaRequestCreate {
+	ids := make([]uuid.UUID, len(d))
+	for i := range d {
+		ids[i] = d[i].ID
+	}
+	return mrc.AddDiscordUserIDs(ids...)
+}
+
+// SetBookID sets the "book" edge to the Book entity by ID.
+func (mrc *MediaRequestCreate) SetBookID(id uuid.UUID) *MediaRequestCreate {
+	mrc.mutation.SetBookID(id)
+	return mrc
+}
+
+// SetNillableBookID sets the "book" edge to the Book entity by ID if the given value is not nil.
+func (mrc *MediaRequestCreate) SetNillableBookID(id *uuid.UUID) *MediaRequestCreate {
 	if id != nil {
-		mrc = mrc.SetDiscordUserID(*id)
+		mrc = mrc.SetBookID(*id)
 	}
 	return mrc
 }
 
-// SetDiscordUser sets the "discord_user" edge to the DiscordUser entity.
-func (mrc *MediaRequestCreate) SetDiscordUser(d *DiscordUser) *MediaRequestCreate {
-	return mrc.SetDiscordUserID(d.ID)
-}
-
-// AddBookIDs adds the "book" edge to the Book entity by IDs.
-func (mrc *MediaRequestCreate) AddBookIDs(ids ...uuid.UUID) *MediaRequestCreate {
-	mrc.mutation.AddBookIDs(ids...)
-	return mrc
-}
-
-// AddBook adds the "book" edges to the Book entity.
-func (mrc *MediaRequestCreate) AddBook(b ...*Book) *MediaRequestCreate {
-	ids := make([]uuid.UUID, len(b))
-	for i := range b {
-		ids[i] = b[i].ID
-	}
-	return mrc.AddBookIDs(ids...)
+// SetBook sets the "book" edge to the Book entity.
+func (mrc *MediaRequestCreate) SetBook(b *Book) *MediaRequestCreate {
+	return mrc.SetBookID(b.ID)
 }
 
 // Mutation returns the MediaRequestMutation object of the builder.
@@ -174,6 +175,11 @@ func (mrc *MediaRequestCreate) check() error {
 	if _, ok := mrc.mutation.Status(); !ok {
 		return &ValidationError{Name: "status", err: errors.New(`ent: missing required field "MediaRequest.status"`)}
 	}
+	if v, ok := mrc.mutation.Status(); ok {
+		if err := mediarequest.StatusValidator(v); err != nil {
+			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "MediaRequest.status": %w`, err)}
+		}
+	}
 	if _, ok := mrc.mutation.Priority(); !ok {
 		return &ValidationError{Name: "priority", err: errors.New(`ent: missing required field "MediaRequest.priority"`)}
 	}
@@ -222,19 +228,19 @@ func (mrc *MediaRequestCreate) createSpec() (*MediaRequest, *sqlgraph.CreateSpec
 		_node.UpdateTime = value
 	}
 	if value, ok := mrc.mutation.Status(); ok {
-		_spec.SetField(mediarequest.FieldStatus, field.TypeString, value)
+		_spec.SetField(mediarequest.FieldStatus, field.TypeEnum, value)
 		_node.Status = value
 	}
 	if value, ok := mrc.mutation.Priority(); ok {
 		_spec.SetField(mediarequest.FieldPriority, field.TypeInt, value)
 		_node.Priority = value
 	}
-	if nodes := mrc.mutation.DiscordUserIDs(); len(nodes) > 0 {
+	if nodes := mrc.mutation.DiscordUsersIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
+			Rel:     sqlgraph.M2M,
 			Inverse: true,
-			Table:   mediarequest.DiscordUserTable,
-			Columns: []string{mediarequest.DiscordUserColumn},
+			Table:   mediarequest.DiscordUsersTable,
+			Columns: mediarequest.DiscordUsersPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(discorduser.FieldID, field.TypeUUID),
@@ -243,12 +249,11 @@ func (mrc *MediaRequestCreate) createSpec() (*MediaRequest, *sqlgraph.CreateSpec
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		_node.discord_user_media_requests = &nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	if nodes := mrc.mutation.BookIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.O2O,
 			Inverse: true,
 			Table:   mediarequest.BookTable,
 			Columns: []string{mediarequest.BookColumn},
@@ -260,6 +265,7 @@ func (mrc *MediaRequestCreate) createSpec() (*MediaRequest, *sqlgraph.CreateSpec
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
+		_node.book_media_request = &nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
@@ -327,7 +333,7 @@ func (u *MediaRequestUpsert) UpdateUpdateTime() *MediaRequestUpsert {
 }
 
 // SetStatus sets the "status" field.
-func (u *MediaRequestUpsert) SetStatus(v string) *MediaRequestUpsert {
+func (u *MediaRequestUpsert) SetStatus(v models.MediaRequestStatus) *MediaRequestUpsert {
 	u.Set(mediarequest.FieldStatus, v)
 	return u
 }
@@ -422,7 +428,7 @@ func (u *MediaRequestUpsertOne) UpdateUpdateTime() *MediaRequestUpsertOne {
 }
 
 // SetStatus sets the "status" field.
-func (u *MediaRequestUpsertOne) SetStatus(v string) *MediaRequestUpsertOne {
+func (u *MediaRequestUpsertOne) SetStatus(v models.MediaRequestStatus) *MediaRequestUpsertOne {
 	return u.Update(func(s *MediaRequestUpsert) {
 		s.SetStatus(v)
 	})
@@ -689,7 +695,7 @@ func (u *MediaRequestUpsertBulk) UpdateUpdateTime() *MediaRequestUpsertBulk {
 }
 
 // SetStatus sets the "status" field.
-func (u *MediaRequestUpsertBulk) SetStatus(v string) *MediaRequestUpsertBulk {
+func (u *MediaRequestUpsertBulk) SetStatus(v models.MediaRequestStatus) *MediaRequestUpsertBulk {
 	return u.Update(func(s *MediaRequestUpsert) {
 		s.SetStatus(v)
 	})

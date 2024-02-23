@@ -287,7 +287,7 @@ func (bc *BookCreate) createSpec() (*Book, *sqlgraph.CreateSpec) {
 	}
 	if nodes := bc.mutation.MediaRequestIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
+			Rel:     sqlgraph.O2O,
 			Inverse: false,
 			Table:   book.MediaRequestTable,
 			Columns: []string{book.MediaRequestColumn},
@@ -299,7 +299,6 @@ func (bc *BookCreate) createSpec() (*Book, *sqlgraph.CreateSpec) {
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		_node.book_media_request = &nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec

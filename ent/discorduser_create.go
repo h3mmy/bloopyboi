@@ -211,10 +211,10 @@ func (duc *DiscordUserCreate) createSpec() (*DiscordUser, *sqlgraph.CreateSpec) 
 	}
 	if nodes := duc.mutation.MediaRequestsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.M2M,
 			Inverse: false,
 			Table:   discorduser.MediaRequestsTable,
-			Columns: []string{discorduser.MediaRequestsColumn},
+			Columns: discorduser.MediaRequestsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(mediarequest.FieldID, field.TypeUUID),

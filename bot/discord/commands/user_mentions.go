@@ -1,10 +1,12 @@
 package commands
 
 import (
-	"github.com/bwmarrin/discordgo"
 	"fmt"
-)
+	"math/rand"
+	"strings"
 
+	"github.com/bwmarrin/discordgo"
+)
 
 // Listens for messages specifically addressing bot
 func DirectedMessageReceive(s *discordgo.Session, m *discordgo.MessageCreate) {
@@ -19,11 +21,25 @@ func DirectedMessageReceive(s *discordgo.Session, m *discordgo.MessageCreate) {
 	botMentioned := false
 	// Filter only commands we care about
 	if len(m.Mentions) > 0 {
+		// Just react to some mentions mysteriously
+		if rand.Float32()<0.5 {
+			err := s.MessageReactionAdd(m.ChannelID, m.ID, "👁‍🗨")
+			if err != nil {
+				logger.Warn(fmt.Sprintf("Error adding reaction to message %s from user %s", m.ID, m.Author.Username))
+			}
+		}
 		for _, user := range m.Mentions {
 			if user.ID == s.State.User.ID {
 				botMentioned = true
 				break
 			}
+		}
+	}
+	if strings.Contains(strings.ToLower(m.Content), "bloopyboi") {
+		logger.Sugar().Debug("Detected BloopyBoi in message from ", m.Author.Username)
+		err := s.MessageReactionAdd(m.ChannelID, m.ID, "👀")
+		if err != nil {
+			logger.Sugar().Warn(err)
 		}
 	}
 

@@ -40,7 +40,7 @@ const (
 	// It exists in this package in order to avoid circular dependency with the "bookauthor" package.
 	BookAuthorInverseTable = "book_authors"
 	// MediaRequestTable is the table that holds the media_request relation/edge.
-	MediaRequestTable = "books"
+	MediaRequestTable = "media_requests"
 	// MediaRequestInverseTable is the table name for the MediaRequest entity.
 	// It exists in this package in order to avoid circular dependency with the "mediarequest" package.
 	MediaRequestInverseTable = "media_requests"
@@ -61,12 +61,6 @@ var Columns = []string{
 	FieldImageURL,
 }
 
-// ForeignKeys holds the SQL foreign-keys that are owned by the "books"
-// table and are not defined as standalone fields in the schema.
-var ForeignKeys = []string{
-	"book_media_request",
-}
-
 var (
 	// BookAuthorPrimaryKey and BookAuthorColumn2 are the table columns denoting the
 	// primary key for the book_author relation (M2M).
@@ -77,11 +71,6 @@ var (
 func ValidColumn(column string) bool {
 	for i := range Columns {
 		if column == Columns[i] {
-			return true
-		}
-	}
-	for i := range ForeignKeys {
-		if column == ForeignKeys[i] {
 			return true
 		}
 	}
@@ -167,6 +156,6 @@ func newMediaRequestStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(MediaRequestInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2O, false, MediaRequestTable, MediaRequestColumn),
+		sqlgraph.Edge(sqlgraph.O2O, false, MediaRequestTable, MediaRequestColumn),
 	)
 }

@@ -129,6 +129,23 @@ func (d *DiscordService) DeleteAppCommands() {
 	}
 }
 
+// Gets all app commands registered with the discord session
+// Uses service registry for retrieval IDs and errors are logged
+func (d *DiscordService) GetCurrentAppCommands() []*discordgo.ApplicationCommand {
+	var commands []*discordgo.ApplicationCommand
+	for _, command := range d.commandRegistry {
+		d.logger.Debug(fmt.Sprintf("retrieving command: %v", command))
+		cmd, err:=d.discordSession.ApplicationCommand(d.discordSession.State.User.ID, "", command.ID)
+		if err != nil {
+			d.logger.Error("error retrieving command from discord", zap.String("commandID", command.ID), zap.Error(err))
+		} else {
+			d.logger.Debug(fmt.Sprintf("retrieved command: %v", cmd))
+			commands = append(commands, cmd)
+		}
+	}
+	return commands
+}
+
 // func (d *DiscordService) saveDiscordUser(user *discordgo.User) error {
 // 	if !d.dbEnabled {
 // 		return nil

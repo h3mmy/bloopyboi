@@ -370,7 +370,7 @@ func (c *BookClient) QueryMediaRequest(b *Book) *MediaRequestQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(book.Table, book.FieldID, id),
 			sqlgraph.To(mediarequest.Table, mediarequest.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, false, book.MediaRequestTable, book.MediaRequestColumn),
+			sqlgraph.Edge(sqlgraph.O2O, false, book.MediaRequestTable, book.MediaRequestColumn),
 		)
 		fromV = sqlgraph.Neighbors(b.driver.Dialect(), step)
 		return fromV, nil
@@ -833,7 +833,7 @@ func (c *DiscordUserClient) QueryMediaRequests(du *DiscordUser) *MediaRequestQue
 		step := sqlgraph.NewStep(
 			sqlgraph.From(discorduser.Table, discorduser.FieldID, id),
 			sqlgraph.To(mediarequest.Table, mediarequest.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, discorduser.MediaRequestsTable, discorduser.MediaRequestsColumn),
+			sqlgraph.Edge(sqlgraph.M2M, false, discorduser.MediaRequestsTable, discorduser.MediaRequestsPrimaryKey...),
 		)
 		fromV = sqlgraph.Neighbors(du.driver.Dialect(), step)
 		return fromV, nil
@@ -974,15 +974,15 @@ func (c *MediaRequestClient) GetX(ctx context.Context, id uuid.UUID) *MediaReque
 	return obj
 }
 
-// QueryDiscordUser queries the discord_user edge of a MediaRequest.
-func (c *MediaRequestClient) QueryDiscordUser(mr *MediaRequest) *DiscordUserQuery {
+// QueryDiscordUsers queries the discord_users edge of a MediaRequest.
+func (c *MediaRequestClient) QueryDiscordUsers(mr *MediaRequest) *DiscordUserQuery {
 	query := (&DiscordUserClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
 		id := mr.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(mediarequest.Table, mediarequest.FieldID, id),
 			sqlgraph.To(discorduser.Table, discorduser.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, mediarequest.DiscordUserTable, mediarequest.DiscordUserColumn),
+			sqlgraph.Edge(sqlgraph.M2M, true, mediarequest.DiscordUsersTable, mediarequest.DiscordUsersPrimaryKey...),
 		)
 		fromV = sqlgraph.Neighbors(mr.driver.Dialect(), step)
 		return fromV, nil
@@ -998,7 +998,7 @@ func (c *MediaRequestClient) QueryBook(mr *MediaRequest) *BookQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(mediarequest.Table, mediarequest.FieldID, id),
 			sqlgraph.To(book.Table, book.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, true, mediarequest.BookTable, mediarequest.BookColumn),
+			sqlgraph.Edge(sqlgraph.O2O, true, mediarequest.BookTable, mediarequest.BookColumn),
 		)
 		fromV = sqlgraph.Neighbors(mr.driver.Dialect(), step)
 		return fromV, nil

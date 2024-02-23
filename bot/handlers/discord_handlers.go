@@ -14,7 +14,11 @@ import (
 )
 
 var (
-	textResponseMap = map[string]string{"pong": "Ping!", "Pong!": "-_-"}
+	textResponseMap = map[string]string{
+		"pong": "Ping!",
+		"Pong!": "-_-",
+		"!bliss": "I use slash commands now. Try using /bliss",
+	}
 )
 
 type MessageChanBlooper struct {

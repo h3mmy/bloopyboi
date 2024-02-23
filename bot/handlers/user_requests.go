@@ -99,3 +99,7 @@ func (c *UserRequestCommand) GetAppCommandHandler() func(s *discordgo.Session, i
 		}
 	}
 }
+
+func (c *UserRequestCommand) GetMessageComponentHandlers() map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+	return nil
+}

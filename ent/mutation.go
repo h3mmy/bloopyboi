@@ -19,6 +19,7 @@ import (
 	"github.com/h3mmy/bloopyboi/ent/discorduser"
 	"github.com/h3mmy/bloopyboi/ent/mediarequest"
 	"github.com/h3mmy/bloopyboi/ent/predicate"
+	"github.com/h3mmy/bloopyboi/internal/models"
 )
 
 const (
@@ -2688,23 +2689,23 @@ func (m *DiscordUserMutation) ResetEdge(name string) error {
 // MediaRequestMutation represents an operation that mutates the MediaRequest nodes in the graph.
 type MediaRequestMutation struct {
 	config
-	op                  Op
-	typ                 string
-	id                  *uuid.UUID
-	create_time         *time.Time
-	update_time         *time.Time
-	status              *string
-	priority            *int
-	addpriority         *int
-	clearedFields       map[string]struct{}
-	discord_user        *uuid.UUID
-	cleareddiscord_user bool
-	book                map[uuid.UUID]struct{}
-	removedbook         map[uuid.UUID]struct{}
-	clearedbook         bool
-	done                bool
-	oldValue            func(context.Context) (*MediaRequest, error)
-	predicates          []predicate.MediaRequest
+	op                   Op
+	typ                  string
+	id                   *uuid.UUID
+	create_time          *time.Time
+	update_time          *time.Time
+	status               *models.MediaRequestStatus
+	priority             *int
+	addpriority          *int
+	clearedFields        map[string]struct{}
+	discord_users        map[uuid.UUID]struct{}
+	removeddiscord_users map[uuid.UUID]struct{}
+	cleareddiscord_users bool
+	book                 *uuid.UUID
+	clearedbook          bool
+	done                 bool
+	oldValue             func(context.Context) (*MediaRequest, error)
+	predicates           []predicate.MediaRequest
 }
 
 var _ ent.Mutation = (*MediaRequestMutation)(nil)
@@ -2884,12 +2885,12 @@ func (m *MediaRequestMutation) ResetUpdateTime() {
 }
 
 // SetStatus sets the "status" field.
-func (m *MediaRequestMutation) SetStatus(s string) {
-	m.status = &s
+func (m *MediaRequestMutation) SetStatus(mrs models.MediaRequestStatus) {
+	m.status = &mrs
 }
 
 // Status returns the value of the "status" field in the mutation.
-func (m *MediaRequestMutation) Status() (r string, exists bool) {
+func (m *MediaRequestMutation) Status() (r models.MediaRequestStatus, exists bool) {
 	v := m.status
 	if v == nil {
 		return
@@ -2900,7 +2901,7 @@ func (m *MediaRequestMutation) Status() (r string, exists bool) {
 // OldStatus returns the old "status" field's value of the MediaRequest entity.
 // If the MediaRequest object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *MediaRequestMutation) OldStatus(ctx context.Context) (v string, err error) {
+func (m *MediaRequestMutation) OldStatus(ctx context.Context) (v models.MediaRequestStatus, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldStatus is only allowed on UpdateOne operations")
 	}
@@ -2975,53 +2976,63 @@ func (m *MediaRequestMutation) ResetPriority() {
 	m.addpriority = nil
 }
 
-// SetDiscordUserID sets the "discord_user" edge to the DiscordUser entity by id.
-func (m *MediaRequestMutation) SetDiscordUserID(id uuid.UUID) {
-	m.discord_user = &id
-}
-
-// ClearDiscordUser clears the "discord_user" edge to the DiscordUser entity.
-func (m *MediaRequestMutation) ClearDiscordUser() {
-	m.cleareddiscord_user = true
-}
-
-// DiscordUserCleared reports if the "discord_user" edge to the DiscordUser entity was cleared.
-func (m *MediaRequestMutation) DiscordUserCleared() bool {
-	return m.cleareddiscord_user
-}
-
-// DiscordUserID returns the "discord_user" edge ID in the mutation.
-func (m *MediaRequestMutation) DiscordUserID() (id uuid.UUID, exists bool) {
-	if m.discord_user != nil {
-		return *m.discord_user, true
-	}
-	return
-}
-
-// DiscordUserIDs returns the "discord_user" edge IDs in the mutation.
-// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
-// DiscordUserID instead. It exists only for internal usage by the builders.
-func (m *MediaRequestMutation) DiscordUserIDs() (ids []uuid.UUID) {
-	if id := m.discord_user; id != nil {
-		ids = append(ids, *id)
-	}
-	return
-}
-
-// ResetDiscordUser resets all changes to the "discord_user" edge.
-func (m *MediaRequestMutation) ResetDiscordUser() {
-	m.discord_user = nil
-	m.cleareddiscord_user = false
-}
-
-// AddBookIDs adds the "book" edge to the Book entity by ids.
-func (m *MediaRequestMutation) AddBookIDs(ids ...uuid.UUID) {
-	if m.book == nil {
-		m.book = make(map[uuid.UUID]struct{})
+// AddDiscordUserIDs adds the "discord_users" edge to the DiscordUser entity by ids.
+func (m *MediaRequestMutation) AddDiscordUserIDs(ids ...uuid.UUID) {
+	if m.discord_users == nil {
+		m.discord_users = make(map[uuid.UUID]struct{})
 	}
 	for i := range ids {
-		m.book[ids[i]] = struct{}{}
+		m.discord_users[ids[i]] = struct{}{}
 	}
+}
+
+// ClearDiscordUsers clears the "discord_users" edge to the DiscordUser entity.
+func (m *MediaRequestMutation) ClearDiscordUsers() {
+	m.cleareddiscord_users = true
+}
+
+// DiscordUsersCleared reports if the "discord_users" edge to the DiscordUser entity was cleared.
+func (m *MediaRequestMutation) DiscordUsersCleared() bool {
+	return m.cleareddiscord_users
+}
+
+// RemoveDiscordUserIDs removes the "discord_users" edge to the DiscordUser entity by IDs.
+func (m *MediaRequestMutation) RemoveDiscordUserIDs(ids ...uuid.UUID) {
+	if m.removeddiscord_users == nil {
+		m.removeddiscord_users = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		delete(m.discord_users, ids[i])
+		m.removeddiscord_users[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedDiscordUsers returns the removed IDs of the "discord_users" edge to the DiscordUser entity.
+func (m *MediaRequestMutation) RemovedDiscordUsersIDs() (ids []uuid.UUID) {
+	for id := range m.removeddiscord_users {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// DiscordUsersIDs returns the "discord_users" edge IDs in the mutation.
+func (m *MediaRequestMutation) DiscordUsersIDs() (ids []uuid.UUID) {
+	for id := range m.discord_users {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetDiscordUsers resets all changes to the "discord_users" edge.
+func (m *MediaRequestMutation) ResetDiscordUsers() {
+	m.discord_users = nil
+	m.cleareddiscord_users = false
+	m.removeddiscord_users = nil
+}
+
+// SetBookID sets the "book" edge to the Book entity by id.
+func (m *MediaRequestMutation) SetBookID(id uuid.UUID) {
+	m.book = &id
 }
 
 // ClearBook clears the "book" edge to the Book entity.
@@ -3034,29 +3045,20 @@ func (m *MediaRequestMutation) BookCleared() bool {
 	return m.clearedbook
 }
 
-// RemoveBookIDs removes the "book" edge to the Book entity by IDs.
-func (m *MediaRequestMutation) RemoveBookIDs(ids ...uuid.UUID) {
-	if m.removedbook == nil {
-		m.removedbook = make(map[uuid.UUID]struct{})
-	}
-	for i := range ids {
-		delete(m.book, ids[i])
-		m.removedbook[ids[i]] = struct{}{}
-	}
-}
-
-// RemovedBook returns the removed IDs of the "book" edge to the Book entity.
-func (m *MediaRequestMutation) RemovedBookIDs() (ids []uuid.UUID) {
-	for id := range m.removedbook {
-		ids = append(ids, id)
+// BookID returns the "book" edge ID in the mutation.
+func (m *MediaRequestMutation) BookID() (id uuid.UUID, exists bool) {
+	if m.book != nil {
+		return *m.book, true
 	}
 	return
 }
 
 // BookIDs returns the "book" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// BookID instead. It exists only for internal usage by the builders.
 func (m *MediaRequestMutation) BookIDs() (ids []uuid.UUID) {
-	for id := range m.book {
-		ids = append(ids, id)
+	if id := m.book; id != nil {
+		ids = append(ids, *id)
 	}
 	return
 }
@@ -3065,7 +3067,6 @@ func (m *MediaRequestMutation) BookIDs() (ids []uuid.UUID) {
 func (m *MediaRequestMutation) ResetBook() {
 	m.book = nil
 	m.clearedbook = false
-	m.removedbook = nil
 }
 
 // Where appends a list predicates to the MediaRequestMutation builder.
@@ -3172,7 +3173,7 @@ func (m *MediaRequestMutation) SetField(name string, value ent.Value) error {
 		m.SetUpdateTime(v)
 		return nil
 	case mediarequest.FieldStatus:
-		v, ok := value.(string)
+		v, ok := value.(models.MediaRequestStatus)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -3268,8 +3269,8 @@ func (m *MediaRequestMutation) ResetField(name string) error {
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *MediaRequestMutation) AddedEdges() []string {
 	edges := make([]string, 0, 2)
-	if m.discord_user != nil {
-		edges = append(edges, mediarequest.EdgeDiscordUser)
+	if m.discord_users != nil {
+		edges = append(edges, mediarequest.EdgeDiscordUsers)
 	}
 	if m.book != nil {
 		edges = append(edges, mediarequest.EdgeBook)
@@ -3281,16 +3282,16 @@ func (m *MediaRequestMutation) AddedEdges() []string {
 // name in this mutation.
 func (m *MediaRequestMutation) AddedIDs(name string) []ent.Value {
 	switch name {
-	case mediarequest.EdgeDiscordUser:
-		if id := m.discord_user; id != nil {
-			return []ent.Value{*id}
-		}
-	case mediarequest.EdgeBook:
-		ids := make([]ent.Value, 0, len(m.book))
-		for id := range m.book {
+	case mediarequest.EdgeDiscordUsers:
+		ids := make([]ent.Value, 0, len(m.discord_users))
+		for id := range m.discord_users {
 			ids = append(ids, id)
 		}
 		return ids
+	case mediarequest.EdgeBook:
+		if id := m.book; id != nil {
+			return []ent.Value{*id}
+		}
 	}
 	return nil
 }
@@ -3298,8 +3299,8 @@ func (m *MediaRequestMutation) AddedIDs(name string) []ent.Value {
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *MediaRequestMutation) RemovedEdges() []string {
 	edges := make([]string, 0, 2)
-	if m.removedbook != nil {
-		edges = append(edges, mediarequest.EdgeBook)
+	if m.removeddiscord_users != nil {
+		edges = append(edges, mediarequest.EdgeDiscordUsers)
 	}
 	return edges
 }
@@ -3308,9 +3309,9 @@ func (m *MediaRequestMutation) RemovedEdges() []string {
 // the given name in this mutation.
 func (m *MediaRequestMutation) RemovedIDs(name string) []ent.Value {
 	switch name {
-	case mediarequest.EdgeBook:
-		ids := make([]ent.Value, 0, len(m.removedbook))
-		for id := range m.removedbook {
+	case mediarequest.EdgeDiscordUsers:
+		ids := make([]ent.Value, 0, len(m.removeddiscord_users))
+		for id := range m.removeddiscord_users {
 			ids = append(ids, id)
 		}
 		return ids
@@ -3321,8 +3322,8 @@ func (m *MediaRequestMutation) RemovedIDs(name string) []ent.Value {
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *MediaRequestMutation) ClearedEdges() []string {
 	edges := make([]string, 0, 2)
-	if m.cleareddiscord_user {
-		edges = append(edges, mediarequest.EdgeDiscordUser)
+	if m.cleareddiscord_users {
+		edges = append(edges, mediarequest.EdgeDiscordUsers)
 	}
 	if m.clearedbook {
 		edges = append(edges, mediarequest.EdgeBook)
@@ -3334,8 +3335,8 @@ func (m *MediaRequestMutation) ClearedEdges() []string {
 // was cleared in this mutation.
 func (m *MediaRequestMutation) EdgeCleared(name string) bool {
 	switch name {
-	case mediarequest.EdgeDiscordUser:
-		return m.cleareddiscord_user
+	case mediarequest.EdgeDiscordUsers:
+		return m.cleareddiscord_users
 	case mediarequest.EdgeBook:
 		return m.clearedbook
 	}
@@ -3346,8 +3347,8 @@ func (m *MediaRequestMutation) EdgeCleared(name string) bool {
 // if that edge is not defined in the schema.
 func (m *MediaRequestMutation) ClearEdge(name string) error {
 	switch name {
-	case mediarequest.EdgeDiscordUser:
-		m.ClearDiscordUser()
+	case mediarequest.EdgeBook:
+		m.ClearBook()
 		return nil
 	}
 	return fmt.Errorf("unknown MediaRequest unique edge %s", name)
@@ -3357,8 +3358,8 @@ func (m *MediaRequestMutation) ClearEdge(name string) error {
 // It returns an error if the edge is not defined in the schema.
 func (m *MediaRequestMutation) ResetEdge(name string) error {
 	switch name {
-	case mediarequest.EdgeDiscordUser:
-		m.ResetDiscordUser()
+	case mediarequest.EdgeDiscordUsers:
+		m.ResetDiscordUsers()
 		return nil
 	case mediarequest.EdgeBook:
 		m.ResetBook()

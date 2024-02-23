@@ -103,7 +103,7 @@ func (duq *DiscordUserQuery) QueryMediaRequests() *MediaRequestQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(discorduser.Table, discorduser.FieldID, selector),
 			sqlgraph.To(mediarequest.Table, mediarequest.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, discorduser.MediaRequestsTable, discorduser.MediaRequestsColumn),
+			sqlgraph.Edge(sqlgraph.M2M, false, discorduser.MediaRequestsTable, discorduser.MediaRequestsPrimaryKey...),
 		)
 		fromU = sqlgraph.SetNeighbors(duq.driver.Dialect(), step)
 		return fromU, nil
@@ -530,33 +530,63 @@ func (duq *DiscordUserQuery) loadDiscordMessages(ctx context.Context, query *Dis
 	return nil
 }
 func (duq *DiscordUserQuery) loadMediaRequests(ctx context.Context, query *MediaRequestQuery, nodes []*DiscordUser, init func(*DiscordUser), assign func(*DiscordUser, *MediaRequest)) error {
-	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[uuid.UUID]*DiscordUser)
-	for i := range nodes {
-		fks = append(fks, nodes[i].ID)
-		nodeids[nodes[i].ID] = nodes[i]
+	edgeIDs := make([]driver.Value, len(nodes))
+	byID := make(map[uuid.UUID]*DiscordUser)
+	nids := make(map[uuid.UUID]map[*DiscordUser]struct{})
+	for i, node := range nodes {
+		edgeIDs[i] = node.ID
+		byID[node.ID] = node
 		if init != nil {
-			init(nodes[i])
+			init(node)
 		}
 	}
-	query.withFKs = true
-	query.Where(predicate.MediaRequest(func(s *sql.Selector) {
-		s.Where(sql.InValues(s.C(discorduser.MediaRequestsColumn), fks...))
-	}))
-	neighbors, err := query.All(ctx)
+	query.Where(func(s *sql.Selector) {
+		joinT := sql.Table(discorduser.MediaRequestsTable)
+		s.Join(joinT).On(s.C(mediarequest.FieldID), joinT.C(discorduser.MediaRequestsPrimaryKey[1]))
+		s.Where(sql.InValues(joinT.C(discorduser.MediaRequestsPrimaryKey[0]), edgeIDs...))
+		columns := s.SelectedColumns()
+		s.Select(joinT.C(discorduser.MediaRequestsPrimaryKey[0]))
+		s.AppendSelect(columns...)
+		s.SetDistinct(false)
+	})
+	if err := query.prepareQuery(ctx); err != nil {
+		return err
+	}
+	qr := QuerierFunc(func(ctx context.Context, q Query) (Value, error) {
+		return query.sqlAll(ctx, func(_ context.Context, spec *sqlgraph.QuerySpec) {
+			assign := spec.Assign
+			values := spec.ScanValues
+			spec.ScanValues = func(columns []string) ([]any, error) {
+				values, err := values(columns[1:])
+				if err != nil {
+					return nil, err
+				}
+				return append([]any{new(uuid.UUID)}, values...), nil
+			}
+			spec.Assign = func(columns []string, values []any) error {
+				outValue := *values[0].(*uuid.UUID)
+				inValue := *values[1].(*uuid.UUID)
+				if nids[inValue] == nil {
+					nids[inValue] = map[*DiscordUser]struct{}{byID[outValue]: {}}
+					return assign(columns[1:], values[1:])
+				}
+				nids[inValue][byID[outValue]] = struct{}{}
+				return nil
+			}
+		})
+	})
+	neighbors, err := withInterceptors[[]*MediaRequest](ctx, query, qr, query.inters)
 	if err != nil {
 		return err
 	}
 	for _, n := range neighbors {
-		fk := n.discord_user_media_requests
-		if fk == nil {
-			return fmt.Errorf(`foreign-key "discord_user_media_requests" is nil for node %v`, n.ID)
-		}
-		node, ok := nodeids[*fk]
+		nodes, ok := nids[n.ID]
 		if !ok {
-			return fmt.Errorf(`unexpected referenced foreign-key "discord_user_media_requests" returned %v for node %v`, *fk, n.ID)
+			return fmt.Errorf(`unexpected "media_requests" node returned %v`, n.ID)
 		}
-		assign(node, n)
+		for kn := range nodes {
+			assign(kn, n)
+		}
 	}
 	return nil
 }

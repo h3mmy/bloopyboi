@@ -36,9 +36,8 @@ type Book struct {
 	ImageURL string `json:"image_url,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the BookQuery when eager-loading is set.
-	Edges              BookEdges `json:"edges"`
-	book_media_request *uuid.UUID
-	selectValues       sql.SelectValues
+	Edges        BookEdges `json:"edges"`
+	selectValues sql.SelectValues
 }
 
 // BookEdges holds the relations/edges for other nodes in the graph.
@@ -84,8 +83,6 @@ func (*Book) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullString)
 		case book.FieldID:
 			values[i] = new(uuid.UUID)
-		case book.ForeignKeys[0]: // book_media_request
-			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -154,13 +151,6 @@ func (b *Book) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field image_url", values[i])
 			} else if value.Valid {
 				b.ImageURL = value.String
-			}
-		case book.ForeignKeys[0]:
-			if value, ok := values[i].(*sql.NullScanner); !ok {
-				return fmt.Errorf("unexpected type %T for field book_media_request", values[i])
-			} else if value.Valid {
-				b.book_media_request = new(uuid.UUID)
-				*b.book_media_request = *value.S.(*uuid.UUID)
 			}
 		default:
 			b.selectValues.Set(columns[i], values[i])

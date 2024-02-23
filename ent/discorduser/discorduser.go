@@ -31,13 +31,11 @@ const (
 	// DiscordMessagesInverseTable is the table name for the DiscordMessage entity.
 	// It exists in this package in order to avoid circular dependency with the "discordmessage" package.
 	DiscordMessagesInverseTable = "discord_messages"
-	// MediaRequestsTable is the table that holds the media_requests relation/edge.
-	MediaRequestsTable = "media_requests"
+	// MediaRequestsTable is the table that holds the media_requests relation/edge. The primary key declared below.
+	MediaRequestsTable = "discord_user_media_requests"
 	// MediaRequestsInverseTable is the table name for the MediaRequest entity.
 	// It exists in this package in order to avoid circular dependency with the "mediarequest" package.
 	MediaRequestsInverseTable = "media_requests"
-	// MediaRequestsColumn is the table column denoting the media_requests relation/edge.
-	MediaRequestsColumn = "discord_user_media_requests"
 )
 
 // Columns holds all SQL columns for discorduser fields.
@@ -53,6 +51,9 @@ var (
 	// DiscordMessagesPrimaryKey and DiscordMessagesColumn2 are the table columns denoting the
 	// primary key for the discord_messages relation (M2M).
 	DiscordMessagesPrimaryKey = []string{"discord_user_id", "discord_message_id"}
+	// MediaRequestsPrimaryKey and MediaRequestsColumn2 are the table columns denoting the
+	// primary key for the media_requests relation (M2M).
+	MediaRequestsPrimaryKey = []string{"discord_user_id", "media_request_id"}
 )
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -131,6 +132,6 @@ func newMediaRequestsStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(MediaRequestsInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.O2M, false, MediaRequestsTable, MediaRequestsColumn),
+		sqlgraph.Edge(sqlgraph.M2M, false, MediaRequestsTable, MediaRequestsPrimaryKey...),
 	)
 }
