@@ -145,125 +145,126 @@ func (b *BookService) GetVolume(volumeId string) (*books.Volume, error) {
 	return volume, err
 }
 
-func (b *BookService) SubmitBookRequest(ctx context.Context, discUser *discordgo.User, volumeId string) error {
+func (b *BookService) SubmitBookRequest(ctx context.Context, discUser *discordgo.User, volumeId string) (*ent.MediaRequest, error) {
 	volume, err := b.GetVolume(volumeId)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	if b.dbEnabled {
+	if !b.dbEnabled {
+		return nil, nil
+	}
 
-		err := database.WithTx(ctx, b.db, func(tx *ent.Tx) error {
-			return tx.DiscordUser.
-				Create().
-				SetID(uuid.New()).
-				SetDiscordid(discUser.ID).
-				SetUsername(discUser.Username).
-				SetEmail(discUser.Email).
-				SetDiscriminator(discUser.Discriminator).
-				OnConflict(
-					sql.ConflictColumns(discorduser.FieldDiscordid),
-				).
-				UpdateNewValues().
-				Exec(ctx)
-		})
-		if err != nil {
-			return fmt.Errorf("failed to save discord user with id %s: %w", discUser.ID, err)
-		} else {
-			b.logger.Debug(fmt.Sprintf("saved discord user id: %s", discUser.ID))
-		}
-		discordUserId, err := b.db.DiscordUser.
-			Query().
-			Where(discorduser.DiscordidEQ(discUser.ID)).
-			FirstID(ctx)
+	err = database.WithTx(ctx, b.db, func(tx *ent.Tx) error {
+		return tx.DiscordUser.
+			Create().
+			SetID(uuid.New()).
+			SetDiscordid(discUser.ID).
+			SetUsername(discUser.Username).
+			SetEmail(discUser.Email).
+			SetDiscriminator(discUser.Discriminator).
+			OnConflict(
+				sql.ConflictColumns(discorduser.FieldDiscordid),
+			).
+			UpdateNewValues().
+			Exec(ctx)
+	})
+	if err != nil {
+		return nil, fmt.Errorf("failed to save discord user with id %s: %w", discUser.ID, err)
+	} else {
+		b.logger.Debug(fmt.Sprintf("saved discord user id: %s", discUser.ID))
+	}
+	discordUserId, err := b.db.DiscordUser.
+		Query().
+		Where(discorduser.DiscordidEQ(discUser.ID)).
+		FirstID(ctx)
 
-		if err != nil {
-			return fmt.Errorf("failed to find discord user with id %s: %w", discUser.ID, err)
-		} else {
-			b.logger.Debug(fmt.Sprintf("found discord user id: %s", discordUserId))
-		}
+	if err != nil {
+		return nil, fmt.Errorf("failed to find discord user with id %s: %w", discUser.ID, err)
+	} else {
+		b.logger.Debug(fmt.Sprintf("found discord user id: %s", discordUserId))
+	}
 
-		bookid, err := b.SaveBook(ctx, volume)
+	bookid, err := b.SaveBook(ctx, volume)
 
-		if err != nil {
-			return fmt.Errorf("failed to save book: %w", err)
-		}
+	if err != nil {
+		return nil, fmt.Errorf("failed to save book: %w", err)
+	}
 
-		// check book to see if there is an existing request
+	// check book to see if there is an existing request
 
-		mediareq, err := b.db.MediaRequest.Query().
+	mediareq, err := b.db.MediaRequest.Query().
 		Where(
 			mediarequest.HasBookWith(book.IDEQ(bookid)),
 		).
 		WithDiscordUsers().
+		WithBook().
 		First(ctx)
 
-		if err != nil {
-			if ent.IsNotFound(err) {
-				// Mostly expected scenario
-				b.logger.Debug(fmt.Sprintf("no existing request for book %s and user %s", bookid, discordUserId))
-				err = database.WithTx(ctx, b.db, func(tx *ent.Tx) error {
-					return tx.MediaRequest.
-						Create().
-						SetID(uuid.New()).
-						SetBookID(bookid).
-						AddDiscordUserIDs(discordUserId).
-						SetStatus(pmodels.MediaRequestStatusRequested).
-						Exec(ctx)
-				})
-				if err != nil {
-					return fmt.Errorf("failed to save media request: %w", err)
-				} else {
-					b.logger.Debug(fmt.Sprintf("saved media request id: %s", volumeId))
-				}
-			} else {
-				return fmt.Errorf("error checking for existing request for book %s and user %s: %w", bookid, discordUserId, err)
-			}
-		} else {
-			// media request already exists
-			b.logger.Debug(fmt.Sprintf("existing request for book %s with id %v", bookid, mediareq.ID))
-			// Add user to request if not already in it
-			dUser, err := mediareq.QueryDiscordUsers().
-			Where(discorduser.DiscordidEQ(discUser.ID)).
-			First(ctx)
-			if err != nil {
-				if ent.IsNotFound(err) {
-					b.logger.Debug(fmt.Sprintf("user %s not in existing request %s. Adding...", discordUserId, mediareq.ID))
-					err = database.WithTx(ctx, b.db, func(tx *ent.Tx) error {
-						return tx.MediaRequest.
-							UpdateOneID(mediareq.ID).
-							AddDiscordUserIDs(discordUserId).
-							Exec(ctx)
-					})
-					if err != nil {
-						return fmt.Errorf("failed to add user %s to existing request %s: %w", discordUserId, mediareq.ID, err)
-					}
-				} else {
-					return fmt.Errorf("error checking for user %s in existing request %s: %w", discordUserId, mediareq.ID, err)
-				}
-			} else {
-				b.logger.Debug(fmt.Sprintf("user %s already in existing request %s", dUser.Username, mediareq.ID))
-				// message user about it
-			}
-		}
-
-		for _, author := range volume.VolumeInfo.Authors {
+	if err != nil {
+		if ent.IsNotFound(err) {
+			// Mostly expected scenario
+			b.logger.Debug(fmt.Sprintf("no existing request for book %s and user %s", bookid, discordUserId))
 			err = database.WithTx(ctx, b.db, func(tx *ent.Tx) error {
-				return b.db.BookAuthor.
+				return tx.MediaRequest.
 					Create().
 					SetID(uuid.New()).
-					SetFullName(author).
-					AddBookIDs(bookid).
-					OnConflict(sql.ConflictColumns(bookauthor.FieldFullName)).
-					UpdateNewValues().
+					SetBookID(bookid).
+					AddDiscordUserIDs(discordUserId).
+					SetStatus(pmodels.MediaRequestStatusRequested).
 					Exec(ctx)
 			})
 			if err != nil {
-				return fmt.Errorf("failed to save book author: %w", err)
+				return nil, fmt.Errorf("failed to save media request: %w", err)
+			} else {
+				b.logger.Debug(fmt.Sprintf("saved media request id: %s", volumeId))
 			}
+		} else {
+			return nil, fmt.Errorf("error checking for existing request for book %s and user %s: %w", bookid, discordUserId, err)
 		}
-		return nil
+	} else {
+		// media request already exists
+		b.logger.Debug(fmt.Sprintf("existing request for book %s with id %v", bookid, mediareq.ID))
+		// Add user to request if not already in it
+		dUser, err := mediareq.QueryDiscordUsers().
+			Where(discorduser.DiscordidEQ(discUser.ID)).
+			First(ctx)
+		if err != nil {
+			if ent.IsNotFound(err) {
+				b.logger.Debug(fmt.Sprintf("user %s not in existing request %s. Adding...", discordUserId, mediareq.ID))
+				err = database.WithTx(ctx, b.db, func(tx *ent.Tx) error {
+					return tx.MediaRequest.
+						UpdateOneID(mediareq.ID).
+						AddDiscordUserIDs(discordUserId).
+						Exec(ctx)
+				})
+				if err != nil {
+					return nil, fmt.Errorf("failed to add user %s to existing request %s: %w", discordUserId, mediareq.ID, err)
+				}
+			} else {
+				return nil, fmt.Errorf("error checking for user %s in existing request %s: %w", discordUserId, mediareq.ID, err)
+			}
+		} else {
+			b.logger.Debug(fmt.Sprintf("user %s already in existing request %s", dUser.Username, mediareq.ID))
+			// message user about it
+		}
 	}
-	return nil
+
+	for _, author := range volume.VolumeInfo.Authors {
+		err = database.WithTx(ctx, b.db, func(tx *ent.Tx) error {
+			return b.db.BookAuthor.
+				Create().
+				SetID(uuid.New()).
+				SetFullName(author).
+				AddBookIDs(bookid).
+				OnConflict(sql.ConflictColumns(bookauthor.FieldFullName)).
+				UpdateNewValues().
+				Exec(ctx)
+		})
+		if err != nil {
+			return mediareq, fmt.Errorf("failed to save book author: %w", err)
+		}
+	}
+	return mediareq, nil
 }
 
 func (b *BookService) SaveBook(ctx context.Context, volume *books.Volume) (uuid.UUID, error) {
