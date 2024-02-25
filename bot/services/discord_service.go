@@ -71,7 +71,7 @@ func (d *DiscordService) RegisterAppCommand(command models.DiscordAppCommand) (*
 	d.logger.Debug(fmt.Sprintf("adding handler for %s to registry", command.GetAppCommand().Name))
 	d.handlerRegistry[command.GetAppCommand().Name] = command.GetAppCommandHandler()
 
-	cmd, err := d.discordSession.ApplicationCommandCreate(d.discordSession.State.User.ID, "", command.GetAppCommand())
+	cmd, err := d.discordSession.ApplicationCommandCreate(d.discordSession.State.User.ID, command.GetGuildID(), command.GetAppCommand())
 	if err != nil {
 		d.logger.Error("error registering app command")
 		return nil, err
@@ -122,10 +122,35 @@ func (d *DiscordService) AddInteractionHandlerProxy() {
 func (d *DiscordService) DeleteAppCommands() {
 	d.logger.Debug("deleting app commands")
 	for _, cmd := range d.commandRegistry {
-		err := d.discordSession.ApplicationCommandDelete(d.discordSession.State.User.ID, "", cmd.ID)
+		err := d.discordSession.ApplicationCommandDelete(d.discordSession.State.User.ID, cmd.GuildID, cmd.ID)
 		if err != nil {
 			d.logger.Error(fmt.Sprintf("Cannot delete '%s' command", cmd.Name), zap.Error(err))
 		}
+	}
+}
+
+// Gets all app commands registered with the discord session
+// Uses service registry for retrieval IDs and errors are logged
+func (d *DiscordService) GetCurrentAppCommands() []*discordgo.ApplicationCommand {
+	var commands []*discordgo.ApplicationCommand
+	for _, command := range d.commandRegistry {
+		d.logger.Debug(fmt.Sprintf("retrieving command: %v", command))
+		cmd, err := d.discordSession.ApplicationCommand(d.discordSession.State.User.ID, command.GuildID, command.ID)
+		if err != nil {
+			d.logger.Error("error retrieving command from discord", zap.String("commandID", command.ID), zap.Error(err))
+		} else {
+			d.logger.Debug(fmt.Sprintf("retrieved command: %v", cmd))
+			commands = append(commands, cmd)
+		}
+	}
+	return commands
+}
+
+func (d *DiscordService) SendMessage(messageRequest models.DiscordMessageSendRequest) {
+	d.logger.Debug(fmt.Sprintf("sending message: %v", messageRequest))
+	_, err := d.discordSession.ChannelMessageSendComplex(messageRequest.ChannelID, messageRequest.MessageComplex)
+	if err != nil {
+		d.logger.Error("error sending discord message", zap.Error(err))
 	}
 }
 

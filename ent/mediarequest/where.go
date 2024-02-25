@@ -9,6 +9,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/google/uuid"
 	"github.com/h3mmy/bloopyboi/ent/predicate"
+	"github.com/h3mmy/bloopyboi/internal/models"
 )
 
 // ID filters vertices based on their ID field.
@@ -64,11 +65,6 @@ func CreateTime(v time.Time) predicate.MediaRequest {
 // UpdateTime applies equality check predicate on the "update_time" field. It's identical to UpdateTimeEQ.
 func UpdateTime(v time.Time) predicate.MediaRequest {
 	return predicate.MediaRequest(sql.FieldEQ(FieldUpdateTime, v))
-}
-
-// Status applies equality check predicate on the "status" field. It's identical to StatusEQ.
-func Status(v string) predicate.MediaRequest {
-	return predicate.MediaRequest(sql.FieldEQ(FieldStatus, v))
 }
 
 // Priority applies equality check predicate on the "priority" field. It's identical to PriorityEQ.
@@ -157,68 +153,33 @@ func UpdateTimeLTE(v time.Time) predicate.MediaRequest {
 }
 
 // StatusEQ applies the EQ predicate on the "status" field.
-func StatusEQ(v string) predicate.MediaRequest {
-	return predicate.MediaRequest(sql.FieldEQ(FieldStatus, v))
+func StatusEQ(v models.MediaRequestStatus) predicate.MediaRequest {
+	vc := v
+	return predicate.MediaRequest(sql.FieldEQ(FieldStatus, vc))
 }
 
 // StatusNEQ applies the NEQ predicate on the "status" field.
-func StatusNEQ(v string) predicate.MediaRequest {
-	return predicate.MediaRequest(sql.FieldNEQ(FieldStatus, v))
+func StatusNEQ(v models.MediaRequestStatus) predicate.MediaRequest {
+	vc := v
+	return predicate.MediaRequest(sql.FieldNEQ(FieldStatus, vc))
 }
 
 // StatusIn applies the In predicate on the "status" field.
-func StatusIn(vs ...string) predicate.MediaRequest {
-	return predicate.MediaRequest(sql.FieldIn(FieldStatus, vs...))
+func StatusIn(vs ...models.MediaRequestStatus) predicate.MediaRequest {
+	v := make([]any, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.MediaRequest(sql.FieldIn(FieldStatus, v...))
 }
 
 // StatusNotIn applies the NotIn predicate on the "status" field.
-func StatusNotIn(vs ...string) predicate.MediaRequest {
-	return predicate.MediaRequest(sql.FieldNotIn(FieldStatus, vs...))
-}
-
-// StatusGT applies the GT predicate on the "status" field.
-func StatusGT(v string) predicate.MediaRequest {
-	return predicate.MediaRequest(sql.FieldGT(FieldStatus, v))
-}
-
-// StatusGTE applies the GTE predicate on the "status" field.
-func StatusGTE(v string) predicate.MediaRequest {
-	return predicate.MediaRequest(sql.FieldGTE(FieldStatus, v))
-}
-
-// StatusLT applies the LT predicate on the "status" field.
-func StatusLT(v string) predicate.MediaRequest {
-	return predicate.MediaRequest(sql.FieldLT(FieldStatus, v))
-}
-
-// StatusLTE applies the LTE predicate on the "status" field.
-func StatusLTE(v string) predicate.MediaRequest {
-	return predicate.MediaRequest(sql.FieldLTE(FieldStatus, v))
-}
-
-// StatusContains applies the Contains predicate on the "status" field.
-func StatusContains(v string) predicate.MediaRequest {
-	return predicate.MediaRequest(sql.FieldContains(FieldStatus, v))
-}
-
-// StatusHasPrefix applies the HasPrefix predicate on the "status" field.
-func StatusHasPrefix(v string) predicate.MediaRequest {
-	return predicate.MediaRequest(sql.FieldHasPrefix(FieldStatus, v))
-}
-
-// StatusHasSuffix applies the HasSuffix predicate on the "status" field.
-func StatusHasSuffix(v string) predicate.MediaRequest {
-	return predicate.MediaRequest(sql.FieldHasSuffix(FieldStatus, v))
-}
-
-// StatusEqualFold applies the EqualFold predicate on the "status" field.
-func StatusEqualFold(v string) predicate.MediaRequest {
-	return predicate.MediaRequest(sql.FieldEqualFold(FieldStatus, v))
-}
-
-// StatusContainsFold applies the ContainsFold predicate on the "status" field.
-func StatusContainsFold(v string) predicate.MediaRequest {
-	return predicate.MediaRequest(sql.FieldContainsFold(FieldStatus, v))
+func StatusNotIn(vs ...models.MediaRequestStatus) predicate.MediaRequest {
+	v := make([]any, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.MediaRequest(sql.FieldNotIn(FieldStatus, v...))
 }
 
 // PriorityEQ applies the EQ predicate on the "priority" field.
@@ -261,21 +222,21 @@ func PriorityLTE(v int) predicate.MediaRequest {
 	return predicate.MediaRequest(sql.FieldLTE(FieldPriority, v))
 }
 
-// HasDiscordUser applies the HasEdge predicate on the "discord_user" edge.
-func HasDiscordUser() predicate.MediaRequest {
+// HasDiscordUsers applies the HasEdge predicate on the "discord_users" edge.
+func HasDiscordUsers() predicate.MediaRequest {
 	return predicate.MediaRequest(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, DiscordUserTable, DiscordUserColumn),
+			sqlgraph.Edge(sqlgraph.M2M, true, DiscordUsersTable, DiscordUsersPrimaryKey...),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
 }
 
-// HasDiscordUserWith applies the HasEdge predicate on the "discord_user" edge with a given conditions (other predicates).
-func HasDiscordUserWith(preds ...predicate.DiscordUser) predicate.MediaRequest {
+// HasDiscordUsersWith applies the HasEdge predicate on the "discord_users" edge with a given conditions (other predicates).
+func HasDiscordUsersWith(preds ...predicate.DiscordUser) predicate.MediaRequest {
 	return predicate.MediaRequest(func(s *sql.Selector) {
-		step := newDiscordUserStep()
+		step := newDiscordUsersStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)
@@ -284,21 +245,21 @@ func HasDiscordUserWith(preds ...predicate.DiscordUser) predicate.MediaRequest {
 	})
 }
 
-// HasBooks applies the HasEdge predicate on the "books" edge.
-func HasBooks() predicate.MediaRequest {
+// HasBook applies the HasEdge predicate on the "book" edge.
+func HasBook() predicate.MediaRequest {
 	return predicate.MediaRequest(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, false, BooksTable, BooksPrimaryKey...),
+			sqlgraph.Edge(sqlgraph.O2O, true, BookTable, BookColumn),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
 }
 
-// HasBooksWith applies the HasEdge predicate on the "books" edge with a given conditions (other predicates).
-func HasBooksWith(preds ...predicate.Book) predicate.MediaRequest {
+// HasBookWith applies the HasEdge predicate on the "book" edge with a given conditions (other predicates).
+func HasBookWith(preds ...predicate.Book) predicate.MediaRequest {
 	return predicate.MediaRequest(func(s *sql.Selector) {
-		step := newBooksStep()
+		step := newBookStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

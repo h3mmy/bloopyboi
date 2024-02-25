@@ -12,6 +12,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
+	"github.com/h3mmy/bloopyboi/ent/discordguild"
 	"github.com/h3mmy/bloopyboi/ent/discordmessage"
 	"github.com/h3mmy/bloopyboi/ent/discorduser"
 	"github.com/h3mmy/bloopyboi/ent/mediarequest"
@@ -69,6 +70,21 @@ func (duc *DiscordUserCreate) SetNillableDiscriminator(s *string) *DiscordUserCr
 func (duc *DiscordUserCreate) SetID(u uuid.UUID) *DiscordUserCreate {
 	duc.mutation.SetID(u)
 	return duc
+}
+
+// AddGuildIDs adds the "guilds" edge to the DiscordGuild entity by IDs.
+func (duc *DiscordUserCreate) AddGuildIDs(ids ...uuid.UUID) *DiscordUserCreate {
+	duc.mutation.AddGuildIDs(ids...)
+	return duc
+}
+
+// AddGuilds adds the "guilds" edges to the DiscordGuild entity.
+func (duc *DiscordUserCreate) AddGuilds(d ...*DiscordGuild) *DiscordUserCreate {
+	ids := make([]uuid.UUID, len(d))
+	for i := range d {
+		ids[i] = d[i].ID
+	}
+	return duc.AddGuildIDs(ids...)
 }
 
 // AddDiscordMessageIDs adds the "discord_messages" edge to the DiscordMessage entity by IDs.
@@ -193,6 +209,22 @@ func (duc *DiscordUserCreate) createSpec() (*DiscordUser, *sqlgraph.CreateSpec) 
 		_spec.SetField(discorduser.FieldDiscriminator, field.TypeString, value)
 		_node.Discriminator = value
 	}
+	if nodes := duc.mutation.GuildsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   discorduser.GuildsTable,
+			Columns: discorduser.GuildsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(discordguild.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
 	if nodes := duc.mutation.DiscordMessagesIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
@@ -211,10 +243,10 @@ func (duc *DiscordUserCreate) createSpec() (*DiscordUser, *sqlgraph.CreateSpec) 
 	}
 	if nodes := duc.mutation.MediaRequestsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2M,
+			Rel:     sqlgraph.M2M,
 			Inverse: false,
 			Table:   discorduser.MediaRequestsTable,
-			Columns: []string{discorduser.MediaRequestsColumn},
+			Columns: discorduser.MediaRequestsPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(mediarequest.FieldID, field.TypeUUID),

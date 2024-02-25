@@ -18,6 +18,10 @@ type BlissfestCommand struct {
 	Description string
 	logger      *zap.Logger
 	blissSvc    *services.BlissfestService
+	// GuildID for which this command will be active
+	// For global commands, set to ""
+	guildId     string
+	roles        []int64
 }
 
 func NewBlissfestCommand(svc *services.BlissfestService) *BlissfestCommand {
@@ -27,7 +31,23 @@ func NewBlissfestCommand(svc *services.BlissfestService) *BlissfestCommand {
 		Description: "Gets blissfest related information",
 		logger:      log.NewZapLogger().Named("blissfest_command"),
 		blissSvc:    svc,
+		guildId:     "",
+		roles: []int64{},
 	}
+}
+
+func (p *BlissfestCommand) WithGuild(guildId string) *BlissfestCommand {
+	p.guildId = guildId
+	return p
+}
+
+func (p *BlissfestCommand) WithRoles(roles ...int64) *BlissfestCommand {
+	p.roles = roles
+	return p
+}
+
+func (p *BlissfestCommand) GetAllowedRoles() []int64 {
+	return p.roles
 }
 
 func (p *BlissfestCommand) GetAppCommand() *discordgo.ApplicationCommand {
@@ -94,4 +114,8 @@ func (p *BlissfestCommand) GetAppCommandHandler() func(s *discordgo.Session, i *
 
 func (p *BlissfestCommand) GetMessageComponentHandlers() map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	return nil
+}
+
+func (p *BlissfestCommand) GetGuildID() string {
+	return p.guildId
 }

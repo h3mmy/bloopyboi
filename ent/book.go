@@ -10,6 +10,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"github.com/google/uuid"
 	"github.com/h3mmy/bloopyboi/ent/book"
+	"github.com/h3mmy/bloopyboi/ent/mediarequest"
 )
 
 // Book is the model entity for the Book schema.
@@ -44,12 +45,11 @@ type BookEdges struct {
 	// BookAuthor holds the value of the book_author edge.
 	BookAuthor []*BookAuthor `json:"book_author,omitempty"`
 	// MediaRequest holds the value of the media_request edge.
-	MediaRequest []*MediaRequest `json:"media_request,omitempty"`
+	MediaRequest *MediaRequest `json:"media_request,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes       [2]bool
-	namedBookAuthor   map[string][]*BookAuthor
-	namedMediaRequest map[string][]*MediaRequest
+	loadedTypes     [2]bool
+	namedBookAuthor map[string][]*BookAuthor
 }
 
 // BookAuthorOrErr returns the BookAuthor value or an error if the edge
@@ -62,9 +62,13 @@ func (e BookEdges) BookAuthorOrErr() ([]*BookAuthor, error) {
 }
 
 // MediaRequestOrErr returns the MediaRequest value or an error if the edge
-// was not loaded in eager-loading.
-func (e BookEdges) MediaRequestOrErr() ([]*MediaRequest, error) {
+// was not loaded in eager-loading, or loaded but was not found.
+func (e BookEdges) MediaRequestOrErr() (*MediaRequest, error) {
 	if e.loadedTypes[1] {
+		if e.MediaRequest == nil {
+			// Edge was loaded but was not found.
+			return nil, &NotFoundError{label: mediarequest.Label}
+		}
 		return e.MediaRequest, nil
 	}
 	return nil, &NotLoadedError{edge: "media_request"}
@@ -242,30 +246,6 @@ func (b *Book) appendNamedBookAuthor(name string, edges ...*BookAuthor) {
 		b.Edges.namedBookAuthor[name] = []*BookAuthor{}
 	} else {
 		b.Edges.namedBookAuthor[name] = append(b.Edges.namedBookAuthor[name], edges...)
-	}
-}
-
-// NamedMediaRequest returns the MediaRequest named value or an error if the edge was not
-// loaded in eager-loading with this name.
-func (b *Book) NamedMediaRequest(name string) ([]*MediaRequest, error) {
-	if b.Edges.namedMediaRequest == nil {
-		return nil, &NotLoadedError{edge: name}
-	}
-	nodes, ok := b.Edges.namedMediaRequest[name]
-	if !ok {
-		return nil, &NotLoadedError{edge: name}
-	}
-	return nodes, nil
-}
-
-func (b *Book) appendNamedMediaRequest(name string, edges ...*MediaRequest) {
-	if b.Edges.namedMediaRequest == nil {
-		b.Edges.namedMediaRequest = make(map[string][]*MediaRequest)
-	}
-	if len(edges) == 0 {
-		b.Edges.namedMediaRequest[name] = []*MediaRequest{}
-	} else {
-		b.Edges.namedMediaRequest[name] = append(b.Edges.namedMediaRequest[name], edges...)
 	}
 }
 

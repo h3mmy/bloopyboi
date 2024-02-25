@@ -40,6 +40,6 @@ func (Book) Fields() []ent.Field {
 func (Book) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.From("book_author", BookAuthor.Type).Ref("books"),
-		edge.From("media_request", MediaRequest.Type).Ref("books"),
+		edge.To("media_request", MediaRequest.Type).Unique(),
 	}
 }

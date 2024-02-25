@@ -2,6 +2,7 @@ package config
 
 import "fmt"
 
+// Defines the scheme for postgres database configuration
 type PostgresConfig struct {
 	Name     string `mapstructure:"name"`
 	Type     string `mapstructure:"type"`

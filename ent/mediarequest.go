@@ -10,8 +10,9 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"github.com/google/uuid"
-	"github.com/h3mmy/bloopyboi/ent/discorduser"
+	"github.com/h3mmy/bloopyboi/ent/book"
 	"github.com/h3mmy/bloopyboi/ent/mediarequest"
+	"github.com/h3mmy/bloopyboi/internal/models"
 )
 
 // MediaRequest is the model entity for the MediaRequest schema.
@@ -24,48 +25,48 @@ type MediaRequest struct {
 	// UpdateTime holds the value of the "update_time" field.
 	UpdateTime time.Time `json:"update_time,omitempty"`
 	// Status holds the value of the "status" field.
-	Status string `json:"status,omitempty"`
+	Status models.MediaRequestStatus `json:"status,omitempty"`
 	// Priority holds the value of the "priority" field.
 	Priority int `json:"priority,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the MediaRequestQuery when eager-loading is set.
-	Edges                       MediaRequestEdges `json:"edges"`
-	discord_user_media_requests *uuid.UUID
-	selectValues                sql.SelectValues
+	Edges              MediaRequestEdges `json:"edges"`
+	book_media_request *uuid.UUID
+	selectValues       sql.SelectValues
 }
 
 // MediaRequestEdges holds the relations/edges for other nodes in the graph.
 type MediaRequestEdges struct {
-	// DiscordUser holds the value of the discord_user edge.
-	DiscordUser *DiscordUser `json:"discord_user,omitempty"`
-	// Books holds the value of the books edge.
-	Books []*Book `json:"books,omitempty"`
+	// DiscordUsers holds the value of the discord_users edge.
+	DiscordUsers []*DiscordUser `json:"discord_users,omitempty"`
+	// Book holds the value of the book edge.
+	Book *Book `json:"book,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [2]bool
-	namedBooks  map[string][]*Book
+	loadedTypes       [2]bool
+	namedDiscordUsers map[string][]*DiscordUser
 }
 
-// DiscordUserOrErr returns the DiscordUser value or an error if the edge
-// was not loaded in eager-loading, or loaded but was not found.
-func (e MediaRequestEdges) DiscordUserOrErr() (*DiscordUser, error) {
-	if e.loadedTypes[0] {
-		if e.DiscordUser == nil {
-			// Edge was loaded but was not found.
-			return nil, &NotFoundError{label: discorduser.Label}
-		}
-		return e.DiscordUser, nil
-	}
-	return nil, &NotLoadedError{edge: "discord_user"}
-}
-
-// BooksOrErr returns the Books value or an error if the edge
+// DiscordUsersOrErr returns the DiscordUsers value or an error if the edge
 // was not loaded in eager-loading.
-func (e MediaRequestEdges) BooksOrErr() ([]*Book, error) {
-	if e.loadedTypes[1] {
-		return e.Books, nil
+func (e MediaRequestEdges) DiscordUsersOrErr() ([]*DiscordUser, error) {
+	if e.loadedTypes[0] {
+		return e.DiscordUsers, nil
 	}
-	return nil, &NotLoadedError{edge: "books"}
+	return nil, &NotLoadedError{edge: "discord_users"}
+}
+
+// BookOrErr returns the Book value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e MediaRequestEdges) BookOrErr() (*Book, error) {
+	if e.loadedTypes[1] {
+		if e.Book == nil {
+			// Edge was loaded but was not found.
+			return nil, &NotFoundError{label: book.Label}
+		}
+		return e.Book, nil
+	}
+	return nil, &NotLoadedError{edge: "book"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -81,7 +82,7 @@ func (*MediaRequest) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullTime)
 		case mediarequest.FieldID:
 			values[i] = new(uuid.UUID)
-		case mediarequest.ForeignKeys[0]: // discord_user_media_requests
+		case mediarequest.ForeignKeys[0]: // book_media_request
 			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
 		default:
 			values[i] = new(sql.UnknownType)
@@ -120,7 +121,7 @@ func (mr *MediaRequest) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field status", values[i])
 			} else if value.Valid {
-				mr.Status = value.String
+				mr.Status = models.MediaRequestStatus(value.String)
 			}
 		case mediarequest.FieldPriority:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
@@ -130,10 +131,10 @@ func (mr *MediaRequest) assignValues(columns []string, values []any) error {
 			}
 		case mediarequest.ForeignKeys[0]:
 			if value, ok := values[i].(*sql.NullScanner); !ok {
-				return fmt.Errorf("unexpected type %T for field discord_user_media_requests", values[i])
+				return fmt.Errorf("unexpected type %T for field book_media_request", values[i])
 			} else if value.Valid {
-				mr.discord_user_media_requests = new(uuid.UUID)
-				*mr.discord_user_media_requests = *value.S.(*uuid.UUID)
+				mr.book_media_request = new(uuid.UUID)
+				*mr.book_media_request = *value.S.(*uuid.UUID)
 			}
 		default:
 			mr.selectValues.Set(columns[i], values[i])
@@ -148,14 +149,14 @@ func (mr *MediaRequest) Value(name string) (ent.Value, error) {
 	return mr.selectValues.Get(name)
 }
 
-// QueryDiscordUser queries the "discord_user" edge of the MediaRequest entity.
-func (mr *MediaRequest) QueryDiscordUser() *DiscordUserQuery {
-	return NewMediaRequestClient(mr.config).QueryDiscordUser(mr)
+// QueryDiscordUsers queries the "discord_users" edge of the MediaRequest entity.
+func (mr *MediaRequest) QueryDiscordUsers() *DiscordUserQuery {
+	return NewMediaRequestClient(mr.config).QueryDiscordUsers(mr)
 }
 
-// QueryBooks queries the "books" edge of the MediaRequest entity.
-func (mr *MediaRequest) QueryBooks() *BookQuery {
-	return NewMediaRequestClient(mr.config).QueryBooks(mr)
+// QueryBook queries the "book" edge of the MediaRequest entity.
+func (mr *MediaRequest) QueryBook() *BookQuery {
+	return NewMediaRequestClient(mr.config).QueryBook(mr)
 }
 
 // Update returns a builder for updating this MediaRequest.
@@ -188,7 +189,7 @@ func (mr *MediaRequest) String() string {
 	builder.WriteString(mr.UpdateTime.Format(time.ANSIC))
 	builder.WriteString(", ")
 	builder.WriteString("status=")
-	builder.WriteString(mr.Status)
+	builder.WriteString(fmt.Sprintf("%v", mr.Status))
 	builder.WriteString(", ")
 	builder.WriteString("priority=")
 	builder.WriteString(fmt.Sprintf("%v", mr.Priority))
@@ -196,27 +197,27 @@ func (mr *MediaRequest) String() string {
 	return builder.String()
 }
 
-// NamedBooks returns the Books named value or an error if the edge was not
+// NamedDiscordUsers returns the DiscordUsers named value or an error if the edge was not
 // loaded in eager-loading with this name.
-func (mr *MediaRequest) NamedBooks(name string) ([]*Book, error) {
-	if mr.Edges.namedBooks == nil {
+func (mr *MediaRequest) NamedDiscordUsers(name string) ([]*DiscordUser, error) {
+	if mr.Edges.namedDiscordUsers == nil {
 		return nil, &NotLoadedError{edge: name}
 	}
-	nodes, ok := mr.Edges.namedBooks[name]
+	nodes, ok := mr.Edges.namedDiscordUsers[name]
 	if !ok {
 		return nil, &NotLoadedError{edge: name}
 	}
 	return nodes, nil
 }
 
-func (mr *MediaRequest) appendNamedBooks(name string, edges ...*Book) {
-	if mr.Edges.namedBooks == nil {
-		mr.Edges.namedBooks = make(map[string][]*Book)
+func (mr *MediaRequest) appendNamedDiscordUsers(name string, edges ...*DiscordUser) {
+	if mr.Edges.namedDiscordUsers == nil {
+		mr.Edges.namedDiscordUsers = make(map[string][]*DiscordUser)
 	}
 	if len(edges) == 0 {
-		mr.Edges.namedBooks[name] = []*Book{}
+		mr.Edges.namedDiscordUsers[name] = []*DiscordUser{}
 	} else {
-		mr.Edges.namedBooks[name] = append(mr.Edges.namedBooks[name], edges...)
+		mr.Edges.namedDiscordUsers[name] = append(mr.Edges.namedDiscordUsers[name], edges...)
 	}
 }
 

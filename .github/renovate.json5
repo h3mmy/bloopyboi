@@ -23,6 +23,6 @@
   "commitBodyTable": true,
   "rebaseWhen": "conflicted",
   "postUpdateOptions": [
-     "goModTidy"
+     "goModTidy", "gomodNoMassage" 
   ]
 }
