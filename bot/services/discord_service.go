@@ -135,7 +135,7 @@ func (d *DiscordService) GetCurrentAppCommands() []*discordgo.ApplicationCommand
 	var commands []*discordgo.ApplicationCommand
 	for _, command := range d.commandRegistry {
 		d.logger.Debug(fmt.Sprintf("retrieving command: %v", command))
-		cmd, err:=d.discordSession.ApplicationCommand(d.discordSession.State.User.ID, command.GuildID, command.ID)
+		cmd, err := d.discordSession.ApplicationCommand(d.discordSession.State.User.ID, command.GuildID, command.ID)
 		if err != nil {
 			d.logger.Error("error retrieving command from discord", zap.String("commandID", command.ID), zap.Error(err))
 		} else {
@@ -148,7 +148,10 @@ func (d *DiscordService) GetCurrentAppCommands() []*discordgo.ApplicationCommand
 
 func (d *DiscordService) SendMessage(messageRequest models.DiscordMessageSendRequest) {
 	d.logger.Debug(fmt.Sprintf("sending message: %v", messageRequest))
-	d.discordSession.ChannelMessageSendComplex(messageRequest.ChannelID, messageRequest.MessageComplex)
+	_, err := d.discordSession.ChannelMessageSendComplex(messageRequest.ChannelID, messageRequest.MessageComplex)
+	if err != nil {
+		d.logger.Error("error sending discord message", zap.Error(err))
+	}
 }
 
 // func (d *DiscordService) saveDiscordUser(user *discordgo.User) error {
