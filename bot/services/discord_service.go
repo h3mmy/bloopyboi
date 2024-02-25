@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/bwmarrin/discordgo"
+	"github.com/h3mmy/bloopyboi/bot/internal/config"
 	"github.com/h3mmy/bloopyboi/bot/internal/database"
 	"github.com/h3mmy/bloopyboi/bot/internal/log"
 	"github.com/h3mmy/bloopyboi/bot/internal/models"
@@ -11,6 +12,8 @@ import (
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
+
+const DefaultIntents = discordgo.IntentsGuildMessages | discordgo.IntentsDirectMessages | discordgo.IntentDirectMessageReactions | discordgo.IntentGuildMessageReactions | discordgo.IntentGuildEmojis
 
 type DiscordService struct {
 	meta           models.BloopyMeta
@@ -22,10 +25,11 @@ type DiscordService struct {
 	commandRegistry map[string]*discordgo.ApplicationCommand
 	db              *ent.Client
 	dbEnabled       bool
+	config          *config.DiscordConfig
+	intents         discordgo.Intent
 }
 
-func NewDiscordService(session *discordgo.Session) *DiscordService {
-	dbEnabled := true
+func NewDiscordService() *DiscordService {
 	lgr := log.NewZapLogger().
 		Named("discord_service").
 		With(zapcore.Field{
@@ -33,20 +37,54 @@ func NewDiscordService(session *discordgo.Session) *DiscordService {
 			Type:   zapcore.StringType,
 			String: "discord",
 		})
-	dbClient, err := database.Open()
-	if err != nil {
-		lgr.Error("failed to open database", zap.Error(err))
-		dbEnabled = false
-	}
 	return &DiscordService{
 		meta:            models.NewBloopyMeta(),
 		logger:          lgr,
-		discordSession:  session,
-		dbEnabled:       dbEnabled,
-		db:              dbClient,
+		discordSession:  nil,
+		dbEnabled:       false,
+		db:              nil,
+		intents:         DefaultIntents,
 		handlerRegistry: make(map[string]func(*discordgo.Session, *discordgo.InteractionCreate)),
 		commandRegistry: make(map[string]*discordgo.ApplicationCommand),
 	}
+}
+
+func (d *DiscordService) WithSession(session *discordgo.Session) *DiscordService {
+	d.discordSession = session
+	d.discordSession.Identify.Intents = d.intents
+	return d
+}
+// NewDiscordServiceWithToken creates a new DiscordService with a token
+// Oauth tokens need to be prefixed with "Bearer " instead so this won't work for that
+func (d *DiscordService) WithToken(token string) *DiscordService {
+	session, err := discordgo.New("Bot " + token)
+	if err != nil {
+		d.logger.Error("failed to create discord session", zap.Error(err))
+		return nil
+	}
+	return d.WithSession(session)
+}
+
+func (d *DiscordService) WithConfig(cfg *config.DiscordConfig) *DiscordService {
+	d = d.WithToken(cfg.GetToken())
+	d.config = cfg
+	return d
+}
+
+func (d *DiscordService) RefreshDBConnection() error {
+	if d.dbEnabled {
+		d.db.Close()
+	}
+	dbEnabled := true
+	dbClient, err := database.Open()
+	if err != nil {
+		d.logger.Error("failed to open database", zap.Error(err))
+		dbEnabled = false
+	}
+	d.db = dbClient
+	d.dbEnabled = dbEnabled
+
+	return err
 }
 
 func (d *DiscordService) GetMeta() models.BloopyMeta {
@@ -64,6 +102,15 @@ func (d *DiscordService) AddHandler(handler interface{}) func() {
 
 func (d *DiscordService) GetDataReady() bool {
 	return d.discordSession.DataReady
+}
+
+func (d *DiscordService) SetIntents(intents discordgo.Intent) {
+	d.intents = intents
+	if d.discordSession == nil {
+		d.logger.Error("no discord session set")
+		return
+	}
+	d.discordSession.Identify.Intents = intents
 }
 
 // Registers an app command with discord and adds the respective handler to the svc handler registry.

@@ -36,8 +36,6 @@ type DiscordManager struct {
 
 // Constructs new Discord Manager
 func NewDiscordManager(cfg *config.DiscordConfig,logger *zap.Logger) (*DiscordManager, error) {
-	// Get token
-	token := cfg.GetToken()
 	botID := cfg.GetAppID()
 
 	botMentionRegex, err := regexp.Compile(fmt.Sprintf(discordBotMentionRegexFmt, fmt.Sprintf("%d",botID)))
@@ -46,9 +44,9 @@ func NewDiscordManager(cfg *config.DiscordConfig,logger *zap.Logger) (*DiscordMa
 	}
 
 	// Create a new Discord session using the provided bot token.
-	s, err := providers.NewDiscordServiceWithToken(token)
+	s, err := providers.NewDiscordServiceWithConfig(cfg)
 	if err != nil {
-		return nil, fmt.Errorf("Error Creating Discord Session: %w", err)
+		return nil, fmt.Errorf("Error Creating Discord Service: %w", err)
 	}
 	return &DiscordManager{
 		botId:           botID,
@@ -70,7 +68,7 @@ func (d *DiscordManager) Start(ctx context.Context) error {
 
 	d.log.Debug("Registered some Handlers... and the proxy")
 
-	d.discordSvc.GetSession().Identify.Intents = discordgo.IntentsGuildMessages | discordgo.IntentsDirectMessages | discordgo.IntentDirectMessageReactions | discordgo.IntentGuildMessageReactions | discordgo.IntentGuildEmojis
+	d.discordSvc.SetIntents(discordgo.IntentsGuildMessages | discordgo.IntentsDirectMessages | discordgo.IntentDirectMessageReactions | discordgo.IntentGuildMessageReactions | discordgo.IntentGuildEmojis)
 	// Open a websocket connection to Discord and begin listening.
 	d.log.Info("Opening Websocket Connection")
 	err := d.discordSvc.GetSession().Open()
