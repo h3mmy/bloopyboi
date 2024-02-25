@@ -8,15 +8,10 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
-// Retrieves Bot Token
-func GetBotToken() string {
-	AppConfig := config.GetConfig()
-	return AppConfig.BotToken
-}
 
-func GetBotName() string {
+func GetDiscordConfig() *config.DiscordConfig {
 	AppConfig := config.GetConfig()
-	return AppConfig.BotToken
+	return AppConfig.DiscordConfig
 }
 
 // Retrieves logLevel if set

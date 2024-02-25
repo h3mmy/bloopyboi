@@ -354,6 +354,29 @@ func DiscriminatorContainsFold(v string) predicate.DiscordUser {
 	return predicate.DiscordUser(sql.FieldContainsFold(FieldDiscriminator, v))
 }
 
+// HasGuilds applies the HasEdge predicate on the "guilds" edge.
+func HasGuilds() predicate.DiscordUser {
+	return predicate.DiscordUser(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, true, GuildsTable, GuildsPrimaryKey...),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasGuildsWith applies the HasEdge predicate on the "guilds" edge with a given conditions (other predicates).
+func HasGuildsWith(preds ...predicate.DiscordGuild) predicate.DiscordUser {
+	return predicate.DiscordUser(func(s *sql.Selector) {
+		step := newGuildsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
 // HasDiscordMessages applies the HasEdge predicate on the "discord_messages" edge.
 func HasDiscordMessages() predicate.DiscordUser {
 	return predicate.DiscordUser(func(s *sql.Selector) {

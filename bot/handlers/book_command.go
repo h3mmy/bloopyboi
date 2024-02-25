@@ -20,6 +20,9 @@ type BookCommand struct {
 	Description string
 	logger      *zap.Logger
 	bookSvc     *services.BookService
+	guildId string
+	// Roles required for command
+	roles []int64
 }
 
 func NewBookCommand(bookSvc *services.BookService) *BookCommand {
@@ -30,6 +33,25 @@ func NewBookCommand(bookSvc *services.BookService) *BookCommand {
 		bookSvc:     bookSvc,
 		logger:      log.NewZapLogger().Named("book_command"),
 	}
+}
+
+func (b *BookCommand) WithGuild(guildId string) *BookCommand {
+	b.guildId = guildId
+	return b
+}
+
+func (b *BookCommand) WithRoles(roles ...int64) *BookCommand {
+	b.roles = roles
+	return b
+}
+
+func (b *BookCommand) GetAllowedRoles() []int64 {
+	return b.roles
+}
+
+
+func (b *BookCommand) GetGuildID() string {
+	return b.guildId
 }
 
 func (b *BookCommand) GetAppCommand() *discordgo.ApplicationCommand {

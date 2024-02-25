@@ -18,6 +18,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/h3mmy/bloopyboi/ent/book"
 	"github.com/h3mmy/bloopyboi/ent/bookauthor"
+	"github.com/h3mmy/bloopyboi/ent/discordguild"
 	"github.com/h3mmy/bloopyboi/ent/discordmessage"
 	"github.com/h3mmy/bloopyboi/ent/discorduser"
 	"github.com/h3mmy/bloopyboi/ent/mediarequest"
@@ -32,6 +33,8 @@ type Client struct {
 	Book *BookClient
 	// BookAuthor is the client for interacting with the BookAuthor builders.
 	BookAuthor *BookAuthorClient
+	// DiscordGuild is the client for interacting with the DiscordGuild builders.
+	DiscordGuild *DiscordGuildClient
 	// DiscordMessage is the client for interacting with the DiscordMessage builders.
 	DiscordMessage *DiscordMessageClient
 	// DiscordUser is the client for interacting with the DiscordUser builders.
@@ -51,6 +54,7 @@ func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
 	c.Book = NewBookClient(c.config)
 	c.BookAuthor = NewBookAuthorClient(c.config)
+	c.DiscordGuild = NewDiscordGuildClient(c.config)
 	c.DiscordMessage = NewDiscordMessageClient(c.config)
 	c.DiscordUser = NewDiscordUserClient(c.config)
 	c.MediaRequest = NewMediaRequestClient(c.config)
@@ -148,6 +152,7 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		config:         cfg,
 		Book:           NewBookClient(cfg),
 		BookAuthor:     NewBookAuthorClient(cfg),
+		DiscordGuild:   NewDiscordGuildClient(cfg),
 		DiscordMessage: NewDiscordMessageClient(cfg),
 		DiscordUser:    NewDiscordUserClient(cfg),
 		MediaRequest:   NewMediaRequestClient(cfg),
@@ -172,6 +177,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		config:         cfg,
 		Book:           NewBookClient(cfg),
 		BookAuthor:     NewBookAuthorClient(cfg),
+		DiscordGuild:   NewDiscordGuildClient(cfg),
 		DiscordMessage: NewDiscordMessageClient(cfg),
 		DiscordUser:    NewDiscordUserClient(cfg),
 		MediaRequest:   NewMediaRequestClient(cfg),
@@ -203,21 +209,23 @@ func (c *Client) Close() error {
 // Use adds the mutation hooks to all the entity clients.
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
-	c.Book.Use(hooks...)
-	c.BookAuthor.Use(hooks...)
-	c.DiscordMessage.Use(hooks...)
-	c.DiscordUser.Use(hooks...)
-	c.MediaRequest.Use(hooks...)
+	for _, n := range []interface{ Use(...Hook) }{
+		c.Book, c.BookAuthor, c.DiscordGuild, c.DiscordMessage, c.DiscordUser,
+		c.MediaRequest,
+	} {
+		n.Use(hooks...)
+	}
 }
 
 // Intercept adds the query interceptors to all the entity clients.
 // In order to add interceptors to a specific client, call: `client.Node.Intercept(...)`.
 func (c *Client) Intercept(interceptors ...Interceptor) {
-	c.Book.Intercept(interceptors...)
-	c.BookAuthor.Intercept(interceptors...)
-	c.DiscordMessage.Intercept(interceptors...)
-	c.DiscordUser.Intercept(interceptors...)
-	c.MediaRequest.Intercept(interceptors...)
+	for _, n := range []interface{ Intercept(...Interceptor) }{
+		c.Book, c.BookAuthor, c.DiscordGuild, c.DiscordMessage, c.DiscordUser,
+		c.MediaRequest,
+	} {
+		n.Intercept(interceptors...)
+	}
 }
 
 // Mutate implements the ent.Mutator interface.
@@ -227,6 +235,8 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.Book.mutate(ctx, m)
 	case *BookAuthorMutation:
 		return c.BookAuthor.mutate(ctx, m)
+	case *DiscordGuildMutation:
+		return c.DiscordGuild.mutate(ctx, m)
 	case *DiscordMessageMutation:
 		return c.DiscordMessage.mutate(ctx, m)
 	case *DiscordUserMutation:
@@ -552,6 +562,155 @@ func (c *BookAuthorClient) mutate(ctx context.Context, m *BookAuthorMutation) (V
 	}
 }
 
+// DiscordGuildClient is a client for the DiscordGuild schema.
+type DiscordGuildClient struct {
+	config
+}
+
+// NewDiscordGuildClient returns a client for the DiscordGuild from the given config.
+func NewDiscordGuildClient(c config) *DiscordGuildClient {
+	return &DiscordGuildClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `discordguild.Hooks(f(g(h())))`.
+func (c *DiscordGuildClient) Use(hooks ...Hook) {
+	c.hooks.DiscordGuild = append(c.hooks.DiscordGuild, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `discordguild.Intercept(f(g(h())))`.
+func (c *DiscordGuildClient) Intercept(interceptors ...Interceptor) {
+	c.inters.DiscordGuild = append(c.inters.DiscordGuild, interceptors...)
+}
+
+// Create returns a builder for creating a DiscordGuild entity.
+func (c *DiscordGuildClient) Create() *DiscordGuildCreate {
+	mutation := newDiscordGuildMutation(c.config, OpCreate)
+	return &DiscordGuildCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of DiscordGuild entities.
+func (c *DiscordGuildClient) CreateBulk(builders ...*DiscordGuildCreate) *DiscordGuildCreateBulk {
+	return &DiscordGuildCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *DiscordGuildClient) MapCreateBulk(slice any, setFunc func(*DiscordGuildCreate, int)) *DiscordGuildCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &DiscordGuildCreateBulk{err: fmt.Errorf("calling to DiscordGuildClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*DiscordGuildCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &DiscordGuildCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for DiscordGuild.
+func (c *DiscordGuildClient) Update() *DiscordGuildUpdate {
+	mutation := newDiscordGuildMutation(c.config, OpUpdate)
+	return &DiscordGuildUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *DiscordGuildClient) UpdateOne(dg *DiscordGuild) *DiscordGuildUpdateOne {
+	mutation := newDiscordGuildMutation(c.config, OpUpdateOne, withDiscordGuild(dg))
+	return &DiscordGuildUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *DiscordGuildClient) UpdateOneID(id uuid.UUID) *DiscordGuildUpdateOne {
+	mutation := newDiscordGuildMutation(c.config, OpUpdateOne, withDiscordGuildID(id))
+	return &DiscordGuildUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for DiscordGuild.
+func (c *DiscordGuildClient) Delete() *DiscordGuildDelete {
+	mutation := newDiscordGuildMutation(c.config, OpDelete)
+	return &DiscordGuildDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *DiscordGuildClient) DeleteOne(dg *DiscordGuild) *DiscordGuildDeleteOne {
+	return c.DeleteOneID(dg.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *DiscordGuildClient) DeleteOneID(id uuid.UUID) *DiscordGuildDeleteOne {
+	builder := c.Delete().Where(discordguild.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &DiscordGuildDeleteOne{builder}
+}
+
+// Query returns a query builder for DiscordGuild.
+func (c *DiscordGuildClient) Query() *DiscordGuildQuery {
+	return &DiscordGuildQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeDiscordGuild},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a DiscordGuild entity by its id.
+func (c *DiscordGuildClient) Get(ctx context.Context, id uuid.UUID) (*DiscordGuild, error) {
+	return c.Query().Where(discordguild.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *DiscordGuildClient) GetX(ctx context.Context, id uuid.UUID) *DiscordGuild {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryMembers queries the members edge of a DiscordGuild.
+func (c *DiscordGuildClient) QueryMembers(dg *DiscordGuild) *DiscordUserQuery {
+	query := (&DiscordUserClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := dg.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(discordguild.Table, discordguild.FieldID, id),
+			sqlgraph.To(discorduser.Table, discorduser.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, false, discordguild.MembersTable, discordguild.MembersPrimaryKey...),
+		)
+		fromV = sqlgraph.Neighbors(dg.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *DiscordGuildClient) Hooks() []Hook {
+	return c.hooks.DiscordGuild
+}
+
+// Interceptors returns the client interceptors.
+func (c *DiscordGuildClient) Interceptors() []Interceptor {
+	return c.inters.DiscordGuild
+}
+
+func (c *DiscordGuildClient) mutate(ctx context.Context, m *DiscordGuildMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&DiscordGuildCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&DiscordGuildUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&DiscordGuildUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&DiscordGuildDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown DiscordGuild mutation op: %q", m.Op())
+	}
+}
+
 // DiscordMessageClient is a client for the DiscordMessage schema.
 type DiscordMessageClient struct {
 	config
@@ -809,6 +968,22 @@ func (c *DiscordUserClient) GetX(ctx context.Context, id uuid.UUID) *DiscordUser
 	return obj
 }
 
+// QueryGuilds queries the guilds edge of a DiscordUser.
+func (c *DiscordUserClient) QueryGuilds(du *DiscordUser) *DiscordGuildQuery {
+	query := (&DiscordGuildClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := du.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(discorduser.Table, discorduser.FieldID, id),
+			sqlgraph.To(discordguild.Table, discordguild.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, true, discorduser.GuildsTable, discorduser.GuildsPrimaryKey...),
+		)
+		fromV = sqlgraph.Neighbors(du.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // QueryDiscordMessages queries the discord_messages edge of a DiscordUser.
 func (c *DiscordUserClient) QueryDiscordMessages(du *DiscordUser) *DiscordMessageQuery {
 	query := (&DiscordMessageClient{config: c.config}).Query()
@@ -1034,9 +1209,11 @@ func (c *MediaRequestClient) mutate(ctx context.Context, m *MediaRequestMutation
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		Book, BookAuthor, DiscordMessage, DiscordUser, MediaRequest []ent.Hook
+		Book, BookAuthor, DiscordGuild, DiscordMessage, DiscordUser,
+		MediaRequest []ent.Hook
 	}
 	inters struct {
-		Book, BookAuthor, DiscordMessage, DiscordUser, MediaRequest []ent.Interceptor
+		Book, BookAuthor, DiscordGuild, DiscordMessage, DiscordUser,
+		MediaRequest []ent.Interceptor
 	}
 )

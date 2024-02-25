@@ -37,6 +37,22 @@ var (
 		Columns:    BookAuthorsColumns,
 		PrimaryKey: []*schema.Column{BookAuthorsColumns[0]},
 	}
+	// DiscordGuildsColumns holds the columns for the "discord_guilds" table.
+	DiscordGuildsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID, Unique: true},
+		{Name: "discordid", Type: field.TypeString, Unique: true},
+		{Name: "name", Type: field.TypeString},
+		{Name: "description", Type: field.TypeString, Nullable: true},
+		{Name: "rules_channel_id", Type: field.TypeString, Nullable: true},
+		{Name: "public_updates_channel_id", Type: field.TypeString, Nullable: true},
+		{Name: "nsfw_level", Type: field.TypeInt, Nullable: true},
+	}
+	// DiscordGuildsTable holds the schema information for the "discord_guilds" table.
+	DiscordGuildsTable = &schema.Table{
+		Name:       "discord_guilds",
+		Columns:    DiscordGuildsColumns,
+		PrimaryKey: []*schema.Column{DiscordGuildsColumns[0]},
+	}
 	// DiscordMessagesColumns holds the columns for the "discord_messages" table.
 	DiscordMessagesColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeString},
@@ -112,6 +128,31 @@ var (
 			},
 		},
 	}
+	// DiscordGuildMembersColumns holds the columns for the "discord_guild_members" table.
+	DiscordGuildMembersColumns = []*schema.Column{
+		{Name: "discord_guild_id", Type: field.TypeUUID},
+		{Name: "discord_user_id", Type: field.TypeUUID},
+	}
+	// DiscordGuildMembersTable holds the schema information for the "discord_guild_members" table.
+	DiscordGuildMembersTable = &schema.Table{
+		Name:       "discord_guild_members",
+		Columns:    DiscordGuildMembersColumns,
+		PrimaryKey: []*schema.Column{DiscordGuildMembersColumns[0], DiscordGuildMembersColumns[1]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "discord_guild_members_discord_guild_id",
+				Columns:    []*schema.Column{DiscordGuildMembersColumns[0]},
+				RefColumns: []*schema.Column{DiscordGuildsColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+			{
+				Symbol:     "discord_guild_members_discord_user_id",
+				Columns:    []*schema.Column{DiscordGuildMembersColumns[1]},
+				RefColumns: []*schema.Column{DiscordUsersColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+		},
+	}
 	// DiscordUserDiscordMessagesColumns holds the columns for the "discord_user_discord_messages" table.
 	DiscordUserDiscordMessagesColumns = []*schema.Column{
 		{Name: "discord_user_id", Type: field.TypeUUID},
@@ -166,10 +207,12 @@ var (
 	Tables = []*schema.Table{
 		BooksTable,
 		BookAuthorsTable,
+		DiscordGuildsTable,
 		DiscordMessagesTable,
 		DiscordUsersTable,
 		MediaRequestsTable,
 		BookAuthorBooksTable,
+		DiscordGuildMembersTable,
 		DiscordUserDiscordMessagesTable,
 		DiscordUserMediaRequestsTable,
 	}
@@ -179,6 +222,8 @@ func init() {
 	MediaRequestsTable.ForeignKeys[0].RefTable = BooksTable
 	BookAuthorBooksTable.ForeignKeys[0].RefTable = BookAuthorsTable
 	BookAuthorBooksTable.ForeignKeys[1].RefTable = BooksTable
+	DiscordGuildMembersTable.ForeignKeys[0].RefTable = DiscordGuildsTable
+	DiscordGuildMembersTable.ForeignKeys[1].RefTable = DiscordUsersTable
 	DiscordUserDiscordMessagesTable.ForeignKeys[0].RefTable = DiscordUsersTable
 	DiscordUserDiscordMessagesTable.ForeignKeys[1].RefTable = DiscordMessagesTable
 	DiscordUserMediaRequestsTable.ForeignKeys[0].RefTable = DiscordUsersTable

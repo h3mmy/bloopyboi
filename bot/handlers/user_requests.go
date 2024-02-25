@@ -17,6 +17,8 @@ type UserRequestCommand struct {
 	Description string
 	logger      *zap.Logger
 	bookSvc     *services.BookService
+	guildId string
+	roles []int64
 }
 
 func NewUserRequestCommand(bookSvc *services.BookService) *UserRequestCommand {
@@ -26,7 +28,27 @@ func NewUserRequestCommand(bookSvc *services.BookService) *UserRequestCommand {
 		Description: "(Xperimental) Get your requests",
 		bookSvc:     bookSvc,
 		logger:      log.NewZapLogger().Named("requests_command"),
+		guildId: "",
+		roles: []int64{},
 	}
+}
+
+func (c *UserRequestCommand) WithGuild(guildId string) *UserRequestCommand {
+	c.guildId = guildId
+	return c
+}
+
+func (c *UserRequestCommand) WithRoles(roles ...int64) *UserRequestCommand {
+	c.roles = roles
+	return c
+}
+
+func (c *UserRequestCommand) GetGuildID() string {
+	return c.guildId
+}
+
+func (c *UserRequestCommand) GetAllowedRoles() []int64 {
+	return c.roles
 }
 
 func (c *UserRequestCommand) GetAppCommand() *discordgo.ApplicationCommand {

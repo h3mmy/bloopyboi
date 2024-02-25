@@ -33,21 +33,33 @@ type DiscordUser struct {
 
 // DiscordUserEdges holds the relations/edges for other nodes in the graph.
 type DiscordUserEdges struct {
+	// Guilds holds the value of the guilds edge.
+	Guilds []*DiscordGuild `json:"guilds,omitempty"`
 	// DiscordMessages holds the value of the discord_messages edge.
 	DiscordMessages []*DiscordMessage `json:"discord_messages,omitempty"`
 	// MediaRequests holds the value of the media_requests edge.
 	MediaRequests []*MediaRequest `json:"media_requests,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes          [2]bool
+	loadedTypes          [3]bool
+	namedGuilds          map[string][]*DiscordGuild
 	namedDiscordMessages map[string][]*DiscordMessage
 	namedMediaRequests   map[string][]*MediaRequest
+}
+
+// GuildsOrErr returns the Guilds value or an error if the edge
+// was not loaded in eager-loading.
+func (e DiscordUserEdges) GuildsOrErr() ([]*DiscordGuild, error) {
+	if e.loadedTypes[0] {
+		return e.Guilds, nil
+	}
+	return nil, &NotLoadedError{edge: "guilds"}
 }
 
 // DiscordMessagesOrErr returns the DiscordMessages value or an error if the edge
 // was not loaded in eager-loading.
 func (e DiscordUserEdges) DiscordMessagesOrErr() ([]*DiscordMessage, error) {
-	if e.loadedTypes[0] {
+	if e.loadedTypes[1] {
 		return e.DiscordMessages, nil
 	}
 	return nil, &NotLoadedError{edge: "discord_messages"}
@@ -56,7 +68,7 @@ func (e DiscordUserEdges) DiscordMessagesOrErr() ([]*DiscordMessage, error) {
 // MediaRequestsOrErr returns the MediaRequests value or an error if the edge
 // was not loaded in eager-loading.
 func (e DiscordUserEdges) MediaRequestsOrErr() ([]*MediaRequest, error) {
-	if e.loadedTypes[1] {
+	if e.loadedTypes[2] {
 		return e.MediaRequests, nil
 	}
 	return nil, &NotLoadedError{edge: "media_requests"}
@@ -129,6 +141,11 @@ func (du *DiscordUser) Value(name string) (ent.Value, error) {
 	return du.selectValues.Get(name)
 }
 
+// QueryGuilds queries the "guilds" edge of the DiscordUser entity.
+func (du *DiscordUser) QueryGuilds() *DiscordGuildQuery {
+	return NewDiscordUserClient(du.config).QueryGuilds(du)
+}
+
 // QueryDiscordMessages queries the "discord_messages" edge of the DiscordUser entity.
 func (du *DiscordUser) QueryDiscordMessages() *DiscordMessageQuery {
 	return NewDiscordUserClient(du.config).QueryDiscordMessages(du)
@@ -175,6 +192,30 @@ func (du *DiscordUser) String() string {
 	builder.WriteString(du.Discriminator)
 	builder.WriteByte(')')
 	return builder.String()
+}
+
+// NamedGuilds returns the Guilds named value or an error if the edge was not
+// loaded in eager-loading with this name.
+func (du *DiscordUser) NamedGuilds(name string) ([]*DiscordGuild, error) {
+	if du.Edges.namedGuilds == nil {
+		return nil, &NotLoadedError{edge: name}
+	}
+	nodes, ok := du.Edges.namedGuilds[name]
+	if !ok {
+		return nil, &NotLoadedError{edge: name}
+	}
+	return nodes, nil
+}
+
+func (du *DiscordUser) appendNamedGuilds(name string, edges ...*DiscordGuild) {
+	if du.Edges.namedGuilds == nil {
+		du.Edges.namedGuilds = make(map[string][]*DiscordGuild)
+	}
+	if len(edges) == 0 {
+		du.Edges.namedGuilds[name] = []*DiscordGuild{}
+	} else {
+		du.Edges.namedGuilds[name] = append(du.Edges.namedGuilds[name], edges...)
+	}
 }
 
 // NamedDiscordMessages returns the DiscordMessages named value or an error if the edge was not

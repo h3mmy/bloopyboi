@@ -104,7 +104,7 @@ require (
 require (
 	entgo.io/ent v0.13.0
 	github.com/alexliesenfeld/health v0.8.0
-	github.com/fsnotify/fsnotify v1.7.0 // indirect
+	github.com/fsnotify/fsnotify v1.7.0
 	github.com/go-openapi/runtime v0.27.1
 	github.com/google/uuid v1.6.0
 	github.com/gorilla/websocket v1.5.0 // indirect
