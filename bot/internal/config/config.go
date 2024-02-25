@@ -36,6 +36,10 @@ func (c *DiscordConfig) GetToken() string {
 	return c.Token
 }
 
+func (c *DiscordConfig) GetAppID() int64 {
+	return c.AppID
+}
+
 // Guild Specific Config
 type DiscordGuildConfig struct {
 	GuildId     string `mapstructure:"id"`

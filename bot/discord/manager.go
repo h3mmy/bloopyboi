@@ -38,7 +38,7 @@ type DiscordManager struct {
 func NewDiscordManager(cfg *config.DiscordConfig,logger *zap.Logger) (*DiscordManager, error) {
 	// Get token
 	token := cfg.GetToken()
-	botID := cfg.AppID
+	botID := cfg.GetAppID()
 
 	botMentionRegex, err := regexp.Compile(fmt.Sprintf(discordBotMentionRegexFmt, fmt.Sprintf("%d",botID)))
 	if err != nil {
