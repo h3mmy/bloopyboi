@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/cdfmlr/ellipsis"
@@ -20,7 +21,7 @@ type BookCommand struct {
 	Description string
 	logger      *zap.Logger
 	bookSvc     *services.BookService
-	guildId string
+	guildId     string
 	// Roles required for command
 	roles []int64
 }
@@ -48,7 +49,6 @@ func (b *BookCommand) WithRoles(roles ...int64) *BookCommand {
 func (b *BookCommand) GetAllowedRoles() []int64 {
 	return b.roles
 }
-
 
 func (b *BookCommand) GetGuildID() string {
 	return b.guildId
@@ -121,7 +121,10 @@ func (b *BookCommand) GetAppCommandHandler() func(s *discordgo.Session, i *disco
 			}
 		}
 		booksvc := b.bookSvc
-		volumes, err := booksvc.SearchBook(context.TODO(), &models.BookSearchRequest{
+		ctx := context.WithValue(context.Background(), pmodels.CtxKeyInteraction, i.ID)
+		ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
+		defer cancel()
+		volumes, err := booksvc.SearchBook(ctx, &models.BookSearchRequest{
 			ISBN:        isbn,
 			Title:       title,
 			Author:      author,
