@@ -16,6 +16,7 @@ import (
 	"github.com/h3mmy/bloopyboi/ent/discorduser"
 	"github.com/h3mmy/bloopyboi/ent/mediarequest"
 	"github.com/h3mmy/bloopyboi/ent/predicate"
+	"github.com/h3mmy/bloopyboi/internal/models"
 )
 
 // MediaRequestUpdate is the builder for updating MediaRequest entities.
@@ -38,15 +39,15 @@ func (mru *MediaRequestUpdate) SetUpdateTime(t time.Time) *MediaRequestUpdate {
 }
 
 // SetStatus sets the "status" field.
-func (mru *MediaRequestUpdate) SetStatus(s string) *MediaRequestUpdate {
-	mru.mutation.SetStatus(s)
+func (mru *MediaRequestUpdate) SetStatus(mrs models.MediaRequestStatus) *MediaRequestUpdate {
+	mru.mutation.SetStatus(mrs)
 	return mru
 }
 
 // SetNillableStatus sets the "status" field if the given value is not nil.
-func (mru *MediaRequestUpdate) SetNillableStatus(s *string) *MediaRequestUpdate {
-	if s != nil {
-		mru.SetStatus(*s)
+func (mru *MediaRequestUpdate) SetNillableStatus(mrs *models.MediaRequestStatus) *MediaRequestUpdate {
+	if mrs != nil {
+		mru.SetStatus(*mrs)
 	}
 	return mru
 }
@@ -72,38 +73,38 @@ func (mru *MediaRequestUpdate) AddPriority(i int) *MediaRequestUpdate {
 	return mru
 }
 
-// SetDiscordUserID sets the "discord_user" edge to the DiscordUser entity by ID.
-func (mru *MediaRequestUpdate) SetDiscordUserID(id uuid.UUID) *MediaRequestUpdate {
-	mru.mutation.SetDiscordUserID(id)
+// AddDiscordUserIDs adds the "discord_users" edge to the DiscordUser entity by IDs.
+func (mru *MediaRequestUpdate) AddDiscordUserIDs(ids ...uuid.UUID) *MediaRequestUpdate {
+	mru.mutation.AddDiscordUserIDs(ids...)
 	return mru
 }
 
-// SetNillableDiscordUserID sets the "discord_user" edge to the DiscordUser entity by ID if the given value is not nil.
-func (mru *MediaRequestUpdate) SetNillableDiscordUserID(id *uuid.UUID) *MediaRequestUpdate {
+// AddDiscordUsers adds the "discord_users" edges to the DiscordUser entity.
+func (mru *MediaRequestUpdate) AddDiscordUsers(d ...*DiscordUser) *MediaRequestUpdate {
+	ids := make([]uuid.UUID, len(d))
+	for i := range d {
+		ids[i] = d[i].ID
+	}
+	return mru.AddDiscordUserIDs(ids...)
+}
+
+// SetBookID sets the "book" edge to the Book entity by ID.
+func (mru *MediaRequestUpdate) SetBookID(id uuid.UUID) *MediaRequestUpdate {
+	mru.mutation.SetBookID(id)
+	return mru
+}
+
+// SetNillableBookID sets the "book" edge to the Book entity by ID if the given value is not nil.
+func (mru *MediaRequestUpdate) SetNillableBookID(id *uuid.UUID) *MediaRequestUpdate {
 	if id != nil {
-		mru = mru.SetDiscordUserID(*id)
+		mru = mru.SetBookID(*id)
 	}
 	return mru
 }
 
-// SetDiscordUser sets the "discord_user" edge to the DiscordUser entity.
-func (mru *MediaRequestUpdate) SetDiscordUser(d *DiscordUser) *MediaRequestUpdate {
-	return mru.SetDiscordUserID(d.ID)
-}
-
-// AddBookIDs adds the "books" edge to the Book entity by IDs.
-func (mru *MediaRequestUpdate) AddBookIDs(ids ...uuid.UUID) *MediaRequestUpdate {
-	mru.mutation.AddBookIDs(ids...)
-	return mru
-}
-
-// AddBooks adds the "books" edges to the Book entity.
-func (mru *MediaRequestUpdate) AddBooks(b ...*Book) *MediaRequestUpdate {
-	ids := make([]uuid.UUID, len(b))
-	for i := range b {
-		ids[i] = b[i].ID
-	}
-	return mru.AddBookIDs(ids...)
+// SetBook sets the "book" edge to the Book entity.
+func (mru *MediaRequestUpdate) SetBook(b *Book) *MediaRequestUpdate {
+	return mru.SetBookID(b.ID)
 }
 
 // Mutation returns the MediaRequestMutation object of the builder.
@@ -111,31 +112,31 @@ func (mru *MediaRequestUpdate) Mutation() *MediaRequestMutation {
 	return mru.mutation
 }
 
-// ClearDiscordUser clears the "discord_user" edge to the DiscordUser entity.
-func (mru *MediaRequestUpdate) ClearDiscordUser() *MediaRequestUpdate {
-	mru.mutation.ClearDiscordUser()
+// ClearDiscordUsers clears all "discord_users" edges to the DiscordUser entity.
+func (mru *MediaRequestUpdate) ClearDiscordUsers() *MediaRequestUpdate {
+	mru.mutation.ClearDiscordUsers()
 	return mru
 }
 
-// ClearBooks clears all "books" edges to the Book entity.
-func (mru *MediaRequestUpdate) ClearBooks() *MediaRequestUpdate {
-	mru.mutation.ClearBooks()
+// RemoveDiscordUserIDs removes the "discord_users" edge to DiscordUser entities by IDs.
+func (mru *MediaRequestUpdate) RemoveDiscordUserIDs(ids ...uuid.UUID) *MediaRequestUpdate {
+	mru.mutation.RemoveDiscordUserIDs(ids...)
 	return mru
 }
 
-// RemoveBookIDs removes the "books" edge to Book entities by IDs.
-func (mru *MediaRequestUpdate) RemoveBookIDs(ids ...uuid.UUID) *MediaRequestUpdate {
-	mru.mutation.RemoveBookIDs(ids...)
-	return mru
-}
-
-// RemoveBooks removes "books" edges to Book entities.
-func (mru *MediaRequestUpdate) RemoveBooks(b ...*Book) *MediaRequestUpdate {
-	ids := make([]uuid.UUID, len(b))
-	for i := range b {
-		ids[i] = b[i].ID
+// RemoveDiscordUsers removes "discord_users" edges to DiscordUser entities.
+func (mru *MediaRequestUpdate) RemoveDiscordUsers(d ...*DiscordUser) *MediaRequestUpdate {
+	ids := make([]uuid.UUID, len(d))
+	for i := range d {
+		ids[i] = d[i].ID
 	}
-	return mru.RemoveBookIDs(ids...)
+	return mru.RemoveDiscordUserIDs(ids...)
+}
+
+// ClearBook clears the "book" edge to the Book entity.
+func (mru *MediaRequestUpdate) ClearBook() *MediaRequestUpdate {
+	mru.mutation.ClearBook()
+	return mru
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -174,7 +175,20 @@ func (mru *MediaRequestUpdate) defaults() {
 	}
 }
 
+// check runs all checks and user-defined validators on the builder.
+func (mru *MediaRequestUpdate) check() error {
+	if v, ok := mru.mutation.Status(); ok {
+		if err := mediarequest.StatusValidator(v); err != nil {
+			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "MediaRequest.status": %w`, err)}
+		}
+	}
+	return nil
+}
+
 func (mru *MediaRequestUpdate) sqlSave(ctx context.Context) (n int, err error) {
+	if err := mru.check(); err != nil {
+		return n, err
+	}
 	_spec := sqlgraph.NewUpdateSpec(mediarequest.Table, mediarequest.Columns, sqlgraph.NewFieldSpec(mediarequest.FieldID, field.TypeUUID))
 	if ps := mru.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
@@ -187,7 +201,7 @@ func (mru *MediaRequestUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		_spec.SetField(mediarequest.FieldUpdateTime, field.TypeTime, value)
 	}
 	if value, ok := mru.mutation.Status(); ok {
-		_spec.SetField(mediarequest.FieldStatus, field.TypeString, value)
+		_spec.SetField(mediarequest.FieldStatus, field.TypeEnum, value)
 	}
 	if value, ok := mru.mutation.Priority(); ok {
 		_spec.SetField(mediarequest.FieldPriority, field.TypeInt, value)
@@ -195,12 +209,12 @@ func (mru *MediaRequestUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := mru.mutation.AddedPriority(); ok {
 		_spec.AddField(mediarequest.FieldPriority, field.TypeInt, value)
 	}
-	if mru.mutation.DiscordUserCleared() {
+	if mru.mutation.DiscordUsersCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
+			Rel:     sqlgraph.M2M,
 			Inverse: true,
-			Table:   mediarequest.DiscordUserTable,
-			Columns: []string{mediarequest.DiscordUserColumn},
+			Table:   mediarequest.DiscordUsersTable,
+			Columns: mediarequest.DiscordUsersPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(discorduser.FieldID, field.TypeUUID),
@@ -208,12 +222,28 @@ func (mru *MediaRequestUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := mru.mutation.DiscordUserIDs(); len(nodes) > 0 {
+	if nodes := mru.mutation.RemovedDiscordUsersIDs(); len(nodes) > 0 && !mru.mutation.DiscordUsersCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
+			Rel:     sqlgraph.M2M,
 			Inverse: true,
-			Table:   mediarequest.DiscordUserTable,
-			Columns: []string{mediarequest.DiscordUserColumn},
+			Table:   mediarequest.DiscordUsersTable,
+			Columns: mediarequest.DiscordUsersPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(discorduser.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := mru.mutation.DiscordUsersIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   mediarequest.DiscordUsersTable,
+			Columns: mediarequest.DiscordUsersPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(discorduser.FieldID, field.TypeUUID),
@@ -224,12 +254,12 @@ func (mru *MediaRequestUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if mru.mutation.BooksCleared() {
+	if mru.mutation.BookCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: false,
-			Table:   mediarequest.BooksTable,
-			Columns: mediarequest.BooksPrimaryKey,
+			Rel:     sqlgraph.O2O,
+			Inverse: true,
+			Table:   mediarequest.BookTable,
+			Columns: []string{mediarequest.BookColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(book.FieldID, field.TypeUUID),
@@ -237,28 +267,12 @@ func (mru *MediaRequestUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := mru.mutation.RemovedBooksIDs(); len(nodes) > 0 && !mru.mutation.BooksCleared() {
+	if nodes := mru.mutation.BookIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: false,
-			Table:   mediarequest.BooksTable,
-			Columns: mediarequest.BooksPrimaryKey,
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(book.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := mru.mutation.BooksIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: false,
-			Table:   mediarequest.BooksTable,
-			Columns: mediarequest.BooksPrimaryKey,
+			Rel:     sqlgraph.O2O,
+			Inverse: true,
+			Table:   mediarequest.BookTable,
+			Columns: []string{mediarequest.BookColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(book.FieldID, field.TypeUUID),
@@ -296,15 +310,15 @@ func (mruo *MediaRequestUpdateOne) SetUpdateTime(t time.Time) *MediaRequestUpdat
 }
 
 // SetStatus sets the "status" field.
-func (mruo *MediaRequestUpdateOne) SetStatus(s string) *MediaRequestUpdateOne {
-	mruo.mutation.SetStatus(s)
+func (mruo *MediaRequestUpdateOne) SetStatus(mrs models.MediaRequestStatus) *MediaRequestUpdateOne {
+	mruo.mutation.SetStatus(mrs)
 	return mruo
 }
 
 // SetNillableStatus sets the "status" field if the given value is not nil.
-func (mruo *MediaRequestUpdateOne) SetNillableStatus(s *string) *MediaRequestUpdateOne {
-	if s != nil {
-		mruo.SetStatus(*s)
+func (mruo *MediaRequestUpdateOne) SetNillableStatus(mrs *models.MediaRequestStatus) *MediaRequestUpdateOne {
+	if mrs != nil {
+		mruo.SetStatus(*mrs)
 	}
 	return mruo
 }
@@ -330,38 +344,38 @@ func (mruo *MediaRequestUpdateOne) AddPriority(i int) *MediaRequestUpdateOne {
 	return mruo
 }
 
-// SetDiscordUserID sets the "discord_user" edge to the DiscordUser entity by ID.
-func (mruo *MediaRequestUpdateOne) SetDiscordUserID(id uuid.UUID) *MediaRequestUpdateOne {
-	mruo.mutation.SetDiscordUserID(id)
+// AddDiscordUserIDs adds the "discord_users" edge to the DiscordUser entity by IDs.
+func (mruo *MediaRequestUpdateOne) AddDiscordUserIDs(ids ...uuid.UUID) *MediaRequestUpdateOne {
+	mruo.mutation.AddDiscordUserIDs(ids...)
 	return mruo
 }
 
-// SetNillableDiscordUserID sets the "discord_user" edge to the DiscordUser entity by ID if the given value is not nil.
-func (mruo *MediaRequestUpdateOne) SetNillableDiscordUserID(id *uuid.UUID) *MediaRequestUpdateOne {
+// AddDiscordUsers adds the "discord_users" edges to the DiscordUser entity.
+func (mruo *MediaRequestUpdateOne) AddDiscordUsers(d ...*DiscordUser) *MediaRequestUpdateOne {
+	ids := make([]uuid.UUID, len(d))
+	for i := range d {
+		ids[i] = d[i].ID
+	}
+	return mruo.AddDiscordUserIDs(ids...)
+}
+
+// SetBookID sets the "book" edge to the Book entity by ID.
+func (mruo *MediaRequestUpdateOne) SetBookID(id uuid.UUID) *MediaRequestUpdateOne {
+	mruo.mutation.SetBookID(id)
+	return mruo
+}
+
+// SetNillableBookID sets the "book" edge to the Book entity by ID if the given value is not nil.
+func (mruo *MediaRequestUpdateOne) SetNillableBookID(id *uuid.UUID) *MediaRequestUpdateOne {
 	if id != nil {
-		mruo = mruo.SetDiscordUserID(*id)
+		mruo = mruo.SetBookID(*id)
 	}
 	return mruo
 }
 
-// SetDiscordUser sets the "discord_user" edge to the DiscordUser entity.
-func (mruo *MediaRequestUpdateOne) SetDiscordUser(d *DiscordUser) *MediaRequestUpdateOne {
-	return mruo.SetDiscordUserID(d.ID)
-}
-
-// AddBookIDs adds the "books" edge to the Book entity by IDs.
-func (mruo *MediaRequestUpdateOne) AddBookIDs(ids ...uuid.UUID) *MediaRequestUpdateOne {
-	mruo.mutation.AddBookIDs(ids...)
-	return mruo
-}
-
-// AddBooks adds the "books" edges to the Book entity.
-func (mruo *MediaRequestUpdateOne) AddBooks(b ...*Book) *MediaRequestUpdateOne {
-	ids := make([]uuid.UUID, len(b))
-	for i := range b {
-		ids[i] = b[i].ID
-	}
-	return mruo.AddBookIDs(ids...)
+// SetBook sets the "book" edge to the Book entity.
+func (mruo *MediaRequestUpdateOne) SetBook(b *Book) *MediaRequestUpdateOne {
+	return mruo.SetBookID(b.ID)
 }
 
 // Mutation returns the MediaRequestMutation object of the builder.
@@ -369,31 +383,31 @@ func (mruo *MediaRequestUpdateOne) Mutation() *MediaRequestMutation {
 	return mruo.mutation
 }
 
-// ClearDiscordUser clears the "discord_user" edge to the DiscordUser entity.
-func (mruo *MediaRequestUpdateOne) ClearDiscordUser() *MediaRequestUpdateOne {
-	mruo.mutation.ClearDiscordUser()
+// ClearDiscordUsers clears all "discord_users" edges to the DiscordUser entity.
+func (mruo *MediaRequestUpdateOne) ClearDiscordUsers() *MediaRequestUpdateOne {
+	mruo.mutation.ClearDiscordUsers()
 	return mruo
 }
 
-// ClearBooks clears all "books" edges to the Book entity.
-func (mruo *MediaRequestUpdateOne) ClearBooks() *MediaRequestUpdateOne {
-	mruo.mutation.ClearBooks()
+// RemoveDiscordUserIDs removes the "discord_users" edge to DiscordUser entities by IDs.
+func (mruo *MediaRequestUpdateOne) RemoveDiscordUserIDs(ids ...uuid.UUID) *MediaRequestUpdateOne {
+	mruo.mutation.RemoveDiscordUserIDs(ids...)
 	return mruo
 }
 
-// RemoveBookIDs removes the "books" edge to Book entities by IDs.
-func (mruo *MediaRequestUpdateOne) RemoveBookIDs(ids ...uuid.UUID) *MediaRequestUpdateOne {
-	mruo.mutation.RemoveBookIDs(ids...)
-	return mruo
-}
-
-// RemoveBooks removes "books" edges to Book entities.
-func (mruo *MediaRequestUpdateOne) RemoveBooks(b ...*Book) *MediaRequestUpdateOne {
-	ids := make([]uuid.UUID, len(b))
-	for i := range b {
-		ids[i] = b[i].ID
+// RemoveDiscordUsers removes "discord_users" edges to DiscordUser entities.
+func (mruo *MediaRequestUpdateOne) RemoveDiscordUsers(d ...*DiscordUser) *MediaRequestUpdateOne {
+	ids := make([]uuid.UUID, len(d))
+	for i := range d {
+		ids[i] = d[i].ID
 	}
-	return mruo.RemoveBookIDs(ids...)
+	return mruo.RemoveDiscordUserIDs(ids...)
+}
+
+// ClearBook clears the "book" edge to the Book entity.
+func (mruo *MediaRequestUpdateOne) ClearBook() *MediaRequestUpdateOne {
+	mruo.mutation.ClearBook()
+	return mruo
 }
 
 // Where appends a list predicates to the MediaRequestUpdate builder.
@@ -445,7 +459,20 @@ func (mruo *MediaRequestUpdateOne) defaults() {
 	}
 }
 
+// check runs all checks and user-defined validators on the builder.
+func (mruo *MediaRequestUpdateOne) check() error {
+	if v, ok := mruo.mutation.Status(); ok {
+		if err := mediarequest.StatusValidator(v); err != nil {
+			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "MediaRequest.status": %w`, err)}
+		}
+	}
+	return nil
+}
+
 func (mruo *MediaRequestUpdateOne) sqlSave(ctx context.Context) (_node *MediaRequest, err error) {
+	if err := mruo.check(); err != nil {
+		return _node, err
+	}
 	_spec := sqlgraph.NewUpdateSpec(mediarequest.Table, mediarequest.Columns, sqlgraph.NewFieldSpec(mediarequest.FieldID, field.TypeUUID))
 	id, ok := mruo.mutation.ID()
 	if !ok {
@@ -475,7 +502,7 @@ func (mruo *MediaRequestUpdateOne) sqlSave(ctx context.Context) (_node *MediaReq
 		_spec.SetField(mediarequest.FieldUpdateTime, field.TypeTime, value)
 	}
 	if value, ok := mruo.mutation.Status(); ok {
-		_spec.SetField(mediarequest.FieldStatus, field.TypeString, value)
+		_spec.SetField(mediarequest.FieldStatus, field.TypeEnum, value)
 	}
 	if value, ok := mruo.mutation.Priority(); ok {
 		_spec.SetField(mediarequest.FieldPriority, field.TypeInt, value)
@@ -483,12 +510,12 @@ func (mruo *MediaRequestUpdateOne) sqlSave(ctx context.Context) (_node *MediaReq
 	if value, ok := mruo.mutation.AddedPriority(); ok {
 		_spec.AddField(mediarequest.FieldPriority, field.TypeInt, value)
 	}
-	if mruo.mutation.DiscordUserCleared() {
+	if mruo.mutation.DiscordUsersCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
+			Rel:     sqlgraph.M2M,
 			Inverse: true,
-			Table:   mediarequest.DiscordUserTable,
-			Columns: []string{mediarequest.DiscordUserColumn},
+			Table:   mediarequest.DiscordUsersTable,
+			Columns: mediarequest.DiscordUsersPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(discorduser.FieldID, field.TypeUUID),
@@ -496,12 +523,28 @@ func (mruo *MediaRequestUpdateOne) sqlSave(ctx context.Context) (_node *MediaReq
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := mruo.mutation.DiscordUserIDs(); len(nodes) > 0 {
+	if nodes := mruo.mutation.RemovedDiscordUsersIDs(); len(nodes) > 0 && !mruo.mutation.DiscordUsersCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
+			Rel:     sqlgraph.M2M,
 			Inverse: true,
-			Table:   mediarequest.DiscordUserTable,
-			Columns: []string{mediarequest.DiscordUserColumn},
+			Table:   mediarequest.DiscordUsersTable,
+			Columns: mediarequest.DiscordUsersPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(discorduser.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := mruo.mutation.DiscordUsersIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   mediarequest.DiscordUsersTable,
+			Columns: mediarequest.DiscordUsersPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(discorduser.FieldID, field.TypeUUID),
@@ -512,12 +555,12 @@ func (mruo *MediaRequestUpdateOne) sqlSave(ctx context.Context) (_node *MediaReq
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if mruo.mutation.BooksCleared() {
+	if mruo.mutation.BookCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: false,
-			Table:   mediarequest.BooksTable,
-			Columns: mediarequest.BooksPrimaryKey,
+			Rel:     sqlgraph.O2O,
+			Inverse: true,
+			Table:   mediarequest.BookTable,
+			Columns: []string{mediarequest.BookColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(book.FieldID, field.TypeUUID),
@@ -525,28 +568,12 @@ func (mruo *MediaRequestUpdateOne) sqlSave(ctx context.Context) (_node *MediaReq
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := mruo.mutation.RemovedBooksIDs(); len(nodes) > 0 && !mruo.mutation.BooksCleared() {
+	if nodes := mruo.mutation.BookIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: false,
-			Table:   mediarequest.BooksTable,
-			Columns: mediarequest.BooksPrimaryKey,
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(book.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := mruo.mutation.BooksIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: false,
-			Table:   mediarequest.BooksTable,
-			Columns: mediarequest.BooksPrimaryKey,
+			Rel:     sqlgraph.O2O,
+			Inverse: true,
+			Table:   mediarequest.BookTable,
+			Columns: []string{mediarequest.BookColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(book.FieldID, field.TypeUUID),

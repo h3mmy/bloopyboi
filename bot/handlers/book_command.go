@@ -4,12 +4,14 @@ import (
 	"context"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/cdfmlr/ellipsis"
 	"github.com/h3mmy/bloopyboi/bot/internal/log"
 	"github.com/h3mmy/bloopyboi/bot/internal/models"
 	"github.com/h3mmy/bloopyboi/bot/services"
+	pmodels "github.com/h3mmy/bloopyboi/internal/models"
 	"go.uber.org/zap"
 )
 
@@ -19,6 +21,9 @@ type BookCommand struct {
 	Description string
 	logger      *zap.Logger
 	bookSvc     *services.BookService
+	guildId     string
+	// Roles required for command
+	roles []int64
 }
 
 func NewBookCommand(bookSvc *services.BookService) *BookCommand {
@@ -29,6 +34,24 @@ func NewBookCommand(bookSvc *services.BookService) *BookCommand {
 		bookSvc:     bookSvc,
 		logger:      log.NewZapLogger().Named("book_command"),
 	}
+}
+
+func (b *BookCommand) WithGuild(guildId string) *BookCommand {
+	b.guildId = guildId
+	return b
+}
+
+func (b *BookCommand) WithRoles(roles ...int64) *BookCommand {
+	b.roles = roles
+	return b
+}
+
+func (b *BookCommand) GetAllowedRoles() []int64 {
+	return b.roles
+}
+
+func (b *BookCommand) GetGuildID() string {
+	return b.guildId
 }
 
 func (b *BookCommand) GetAppCommand() *discordgo.ApplicationCommand {
@@ -98,7 +121,10 @@ func (b *BookCommand) GetAppCommandHandler() func(s *discordgo.Session, i *disco
 			}
 		}
 		booksvc := b.bookSvc
-		volumes, err := booksvc.SearchBook(context.TODO(), &models.BookSearchRequest{
+		ctx := context.WithValue(context.Background(), pmodels.CtxKeyInteraction, i.ID)
+		ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
+		defer cancel()
+		volumes, err := booksvc.SearchBook(ctx, &models.BookSearchRequest{
 			ISBN:        isbn,
 			Title:       title,
 			Author:      author,
@@ -207,9 +233,10 @@ func (b *BookCommand) GetAppCommandHandler() func(s *discordgo.Session, i *disco
 func (b *BookCommand) GetMessageComponentHandlers() map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	return map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
 		"request_book": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			b.logger.Debug(fmt.Sprintf("received book request with %v", i.Data), zap.String(string(models.CtxKeyMessageID), i.Message.ID))
-			ctx := context.WithValue(context.TODO(), models.CtxKeyMessageID, i.Message.ID)
+			b.logger.Debug(fmt.Sprintf("received book request with %v", i.Data), zap.String(string(pmodels.CtxKeyMessageID), i.Message.ID))
+			ctx := context.WithValue(context.TODO(), pmodels.CtxKeyMessageID, i.Message.ID)
 			fields := i.Message.Embeds[0].Fields
+			responded := false
 			for _, field := range fields {
 				if field.Name == "Volume ID" {
 					b.logger.Info(fmt.Sprintf("Received Request for volumeId %s", field.Value))
@@ -219,21 +246,54 @@ func (b *BookCommand) GetMessageComponentHandlers() map[string]func(s *discordgo
 					} else {
 						discordUser = i.Member.User
 					}
-					err := b.bookSvc.SubmitBookRequest(ctx, discordUser, field.Value)
+					mediareq, err := b.bookSvc.SubmitBookRequest(ctx, discordUser, field.Value)
 					if err != nil {
 						b.logger.Error("error submitting book request", zap.Error(err))
+						err = s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+							Type: discordgo.InteractionResponseUpdateMessage,
+							Data: &discordgo.InteractionResponseData{
+								Content: "Well *that* failed...",
+							},
+						})
+						if err != nil {
+							b.logger.Error("error responding with book request failure", zap.Error(err))
+						}
+						responded = true
+						break
+					} else {
+						var content string
+						if mediareq == nil {
+							content = "Request Received (maybe?)"
+						} else {
+							content = fmt.Sprintf("Request Received for %s with ID: %s", mediareq.Edges.Book.Title, mediareq.ID)
+						}
+						err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+							Type: discordgo.InteractionResponseUpdateMessage,
+							Data: &discordgo.InteractionResponseData{
+								Content: content,
+								Embeds:  i.Message.Embeds,
+							},
+						})
+						if err != nil {
+							b.logger.Error("error responding to book request", zap.Error(err))
+						}
 					}
+					responded = true
+					break
 				}
 			}
-			err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-				Type: discordgo.InteractionResponseUpdateMessage,
-				Data: &discordgo.InteractionResponseData{
-					Content: "Request Received. My request box doesn't have a bottom yet so they do tend to disappear. Still working on that",
-					Embeds:  i.Message.Embeds,
-				},
-			})
-			if err != nil {
-				b.logger.Error("error responding to book request", zap.Error(err))
+			if !responded {
+				b.logger.Warn("no parseable book request? Using fallback response")
+				err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+					Type: discordgo.InteractionResponseUpdateMessage,
+					Data: &discordgo.InteractionResponseData{
+						Content: "I think you just tried to request something but I zoned out and forgot... Sorry about that.",
+						Embeds:  i.Message.Embeds,
+					},
+				})
+				if err != nil {
+					b.logger.Error("error responding to book request", zap.Error(err))
+				}
 			}
 		},
 		"ignore_book": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
@@ -335,4 +395,10 @@ func (b *BookCommand) GetMessageComponentHandlers() map[string]func(s *discordgo
 			}
 		},
 	}
+}
+
+// CloseResources will shutdown any dependencies to be called when the command is being removed
+func (b *BookCommand) CloseResources() error {
+	b.bookSvc.Shutdown()
+	return nil
 }

@@ -142,19 +142,23 @@ func (bc *BookCreate) AddBookAuthor(b ...*BookAuthor) *BookCreate {
 	return bc.AddBookAuthorIDs(ids...)
 }
 
-// AddMediaRequestIDs adds the "media_request" edge to the MediaRequest entity by IDs.
-func (bc *BookCreate) AddMediaRequestIDs(ids ...uuid.UUID) *BookCreate {
-	bc.mutation.AddMediaRequestIDs(ids...)
+// SetMediaRequestID sets the "media_request" edge to the MediaRequest entity by ID.
+func (bc *BookCreate) SetMediaRequestID(id uuid.UUID) *BookCreate {
+	bc.mutation.SetMediaRequestID(id)
 	return bc
 }
 
-// AddMediaRequest adds the "media_request" edges to the MediaRequest entity.
-func (bc *BookCreate) AddMediaRequest(m ...*MediaRequest) *BookCreate {
-	ids := make([]uuid.UUID, len(m))
-	for i := range m {
-		ids[i] = m[i].ID
+// SetNillableMediaRequestID sets the "media_request" edge to the MediaRequest entity by ID if the given value is not nil.
+func (bc *BookCreate) SetNillableMediaRequestID(id *uuid.UUID) *BookCreate {
+	if id != nil {
+		bc = bc.SetMediaRequestID(*id)
 	}
-	return bc.AddMediaRequestIDs(ids...)
+	return bc
+}
+
+// SetMediaRequest sets the "media_request" edge to the MediaRequest entity.
+func (bc *BookCreate) SetMediaRequest(m *MediaRequest) *BookCreate {
+	return bc.SetMediaRequestID(m.ID)
 }
 
 // Mutation returns the BookMutation object of the builder.
@@ -283,10 +287,10 @@ func (bc *BookCreate) createSpec() (*Book, *sqlgraph.CreateSpec) {
 	}
 	if nodes := bc.mutation.MediaRequestIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: true,
+			Rel:     sqlgraph.O2O,
+			Inverse: false,
 			Table:   book.MediaRequestTable,
-			Columns: book.MediaRequestPrimaryKey,
+			Columns: []string{book.MediaRequestColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(mediarequest.FieldID, field.TypeUUID),

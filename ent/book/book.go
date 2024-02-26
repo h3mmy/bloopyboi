@@ -39,11 +39,13 @@ const (
 	// BookAuthorInverseTable is the table name for the BookAuthor entity.
 	// It exists in this package in order to avoid circular dependency with the "bookauthor" package.
 	BookAuthorInverseTable = "book_authors"
-	// MediaRequestTable is the table that holds the media_request relation/edge. The primary key declared below.
-	MediaRequestTable = "media_request_books"
+	// MediaRequestTable is the table that holds the media_request relation/edge.
+	MediaRequestTable = "media_requests"
 	// MediaRequestInverseTable is the table name for the MediaRequest entity.
 	// It exists in this package in order to avoid circular dependency with the "mediarequest" package.
 	MediaRequestInverseTable = "media_requests"
+	// MediaRequestColumn is the table column denoting the media_request relation/edge.
+	MediaRequestColumn = "book_media_request"
 )
 
 // Columns holds all SQL columns for book fields.
@@ -63,9 +65,6 @@ var (
 	// BookAuthorPrimaryKey and BookAuthorColumn2 are the table columns denoting the
 	// primary key for the book_author relation (M2M).
 	BookAuthorPrimaryKey = []string{"book_author_id", "book_id"}
-	// MediaRequestPrimaryKey and MediaRequestColumn2 are the table columns denoting the
-	// primary key for the media_request relation (M2M).
-	MediaRequestPrimaryKey = []string{"media_request_id", "book_id"}
 )
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -140,17 +139,10 @@ func ByBookAuthor(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 	}
 }
 
-// ByMediaRequestCount orders the results by media_request count.
-func ByMediaRequestCount(opts ...sql.OrderTermOption) OrderOption {
+// ByMediaRequestField orders the results by media_request field.
+func ByMediaRequestField(field string, opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborsCount(s, newMediaRequestStep(), opts...)
-	}
-}
-
-// ByMediaRequest orders the results by media_request terms.
-func ByMediaRequest(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newMediaRequestStep(), append([]sql.OrderTerm{term}, terms...)...)
+		sqlgraph.OrderByNeighborTerms(s, newMediaRequestStep(), sql.OrderByField(field, opts...))
 	}
 }
 func newBookAuthorStep() *sqlgraph.Step {
@@ -164,6 +156,6 @@ func newMediaRequestStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(MediaRequestInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2M, true, MediaRequestTable, MediaRequestPrimaryKey...),
+		sqlgraph.Edge(sqlgraph.O2O, false, MediaRequestTable, MediaRequestColumn),
 	)
 }

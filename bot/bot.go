@@ -78,7 +78,9 @@ func (bot *BloopyBoi) Run(ctx context.Context) error {
 
 func (bot *BloopyBoi) initializeDiscord(ctx context.Context) error {
 
-	discordClient, err := discord.NewDiscordManager(bot.log.With(zapcore.Field{
+	discordConfig := config.GetConfig().DiscordConfig
+
+	discordClient, err := discord.NewDiscordManager(discordConfig, bot.log.With(zapcore.Field{
 		Key:    botLogFieldKey,
 		Type:   zapcore.StringType,
 		String: "Discord",

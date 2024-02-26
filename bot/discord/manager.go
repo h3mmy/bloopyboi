@@ -8,6 +8,7 @@ import (
 	"github.com/bwmarrin/discordgo"
 	bloopyCommands "github.com/h3mmy/bloopyboi/bot/discord/commands"
 	"github.com/h3mmy/bloopyboi/bot/handlers"
+	"github.com/h3mmy/bloopyboi/bot/internal/config"
 	"github.com/h3mmy/bloopyboi/bot/internal/models"
 	"github.com/h3mmy/bloopyboi/bot/providers"
 	"github.com/h3mmy/bloopyboi/bot/services"
@@ -28,31 +29,31 @@ const (
 type DiscordManager struct {
 	botMentionRegex    *regexp.Regexp
 	log                *zap.Logger
-	botId              string
+	botId              int64
 	discordSvc         *services.DiscordService
+	discordCfg *config.DiscordConfig
 }
 
 // Constructs new Discord Manager
-func NewDiscordManager(logger *zap.Logger) (*DiscordManager, error) {
-	// Get token
-	token := providers.GetBotToken()
-	botID := providers.GetBotName()
+func NewDiscordManager(cfg *config.DiscordConfig,logger *zap.Logger) (*DiscordManager, error) {
+	botID := cfg.GetAppID()
 
-	botMentionRegex, err := regexp.Compile(fmt.Sprintf(discordBotMentionRegexFmt, botID))
+	botMentionRegex, err := regexp.Compile(fmt.Sprintf(discordBotMentionRegexFmt, fmt.Sprintf("%d",botID)))
 	if err != nil {
 		return nil, fmt.Errorf("while compiling bot mention regex: %w", err)
 	}
 
 	// Create a new Discord session using the provided bot token.
-	s, err := providers.NewDiscordServiceWithToken(token)
+	s, err := providers.NewDiscordServiceWithConfig(cfg)
 	if err != nil {
-		return nil, fmt.Errorf("Error Creating Discord Session: %w", err)
+		return nil, fmt.Errorf("Error Creating Discord Service: %w", err)
 	}
 	return &DiscordManager{
 		botId:           botID,
 		discordSvc:      s,
 		log:             logger,
 		botMentionRegex: botMentionRegex,
+		discordCfg:      cfg,
 	}, nil
 }
 
@@ -63,9 +64,11 @@ func (d *DiscordManager) Start(ctx context.Context) error {
 	d.discordSvc.AddHandler(bloopyCommands.DirectMessageCreate)
 	d.discordSvc.AddHandler(bloopyCommands.DirectedMessageReceive)
 
+	d.log.Debug("Using config", zap.Any("config", d.discordCfg))
+
 	d.log.Debug("Registered some Handlers... and the proxy")
 
-	d.discordSvc.GetSession().Identify.Intents = discordgo.IntentsGuildMessages | discordgo.IntentsDirectMessages | discordgo.IntentDirectMessageReactions | discordgo.IntentGuildMessageReactions | discordgo.IntentGuildEmojis
+	d.discordSvc.SetIntents(discordgo.IntentsGuildMessages | discordgo.IntentsDirectMessages | discordgo.IntentDirectMessageReactions | discordgo.IntentGuildMessageReactions | discordgo.IntentGuildEmojis)
 	// Open a websocket connection to Discord and begin listening.
 	d.log.Info("Opening Websocket Connection")
 	err := d.discordSvc.GetSession().Open()
@@ -74,7 +77,8 @@ func (d *DiscordManager) Start(ctx context.Context) error {
 	}
 
 	d.log.Info("Registering App Commands")
-	for _, v := range providers.GetDiscordAppCommands() {
+	for _, v := range providers.GetDiscordAppCommands(d.discordCfg.GuildConfigs) {
+		d.log.Debug("Registering command", zap.Any("command", v.GetAppCommand()))
 		_, err := d.discordSvc.RegisterAppCommand(v)
 		if err != nil {
 			d.log.Sugar().Panicf("Cannot create '%v' command: %v", v.GetAppCommand().Name, err)
@@ -82,7 +86,7 @@ func (d *DiscordManager) Start(ctx context.Context) error {
 		if v.GetMessageComponentHandlers() != nil {
 			err = d.discordSvc.RegisterMessageComponentHandlers(v.GetMessageComponentHandlers())
 			if err != nil {
-				d.log.Error("wasnt expecting this to be possible", zap.Error(err))
+				d.log.Error("wasn't expecting this to be possible", zap.Error(err))
 			}
 		}
 	}

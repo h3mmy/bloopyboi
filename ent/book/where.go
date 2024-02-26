@@ -702,7 +702,7 @@ func HasMediaRequest() predicate.Book {
 	return predicate.Book(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, true, MediaRequestTable, MediaRequestPrimaryKey...),
+			sqlgraph.Edge(sqlgraph.O2O, false, MediaRequestTable, MediaRequestColumn),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})

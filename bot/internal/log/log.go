@@ -35,7 +35,7 @@ func NewTracingLogger() *otelzap.Logger {
 	zapConfig := BaseZapConfig(zapcore.DebugLevel)
 
 	zlogger, _ := zapConfig.Build()
-	return otelzap.New(zlogger.With(zapcore.Field{Key: "group", Type: zapcore.StringType, String: "tracing"}))
+	return otelzap.New(zlogger.With(zapcore.Field{Key: "tracing", Type: zapcore.BoolType, Interface: true}))
 }
 
 // LoggingInterceptor for HealthCheckers
