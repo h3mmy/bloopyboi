@@ -32,14 +32,9 @@ const (
 )
 
 const (
+	CtxKeyInteraction CtxKey = "interaction_id"
 	CtxKeyRequestID CtxKey = "media_request_id"
-)
-
-const (
 	CtxKeyMediaRequestStatus CtxKey = "media_request_status"
-)
-
-const (
 	CtxKeyMessageID CtxKey = "message_id"
 )
 

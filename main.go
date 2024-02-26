@@ -20,26 +20,20 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"github.com/h3mmy/bloopyboi/bot"
 	"github.com/h3mmy/bloopyboi/bot/providers"
+	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"golang.org/x/sync/errgroup"
 	"sigs.k8s.io/controller-runtime/pkg/manager/signals"
 
 	"github.com/alexliesenfeld/health"
-	"github.com/bwmarrin/discordgo"
 )
 
 const (
 	botLogFieldKey = "bot"
-)
-
-// Variables
-var (
-	Token              string
-	RegisteredCommands []*discordgo.ApplicationCommand
-	RemoveCommands     = true
 )
 
 // Where the magic happens
@@ -49,7 +43,7 @@ func main() {
 	ctx, cancelCtxFn := context.WithCancel(ctx)
 
 	go func() {
-		sCh := make(chan os.Signal, 1)
+		sCh := make(chan os.Signal, 3)
 		signal.Notify(sCh, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
 		<-sCh
 		cancelCtxFn()
@@ -75,6 +69,15 @@ func main() {
 		return boi.Run(ctx)
 	})
 
+	gateway := bot.NewDefaultGateway()
+
+	// Start server
+	errGroup.Go(func() error {
+		if err := gateway.Start(); err != nil && err != http.ErrServerClosed {
+			return err
+		}
+		return nil
+	})
 
 	// Liveness check should mostly contain checks that identify if the service is locked up or in a state that it
 	// cannot recover from (deadlocks, etc.). In most cases it should just respond with 200 OK to avoid unexpected
@@ -102,7 +105,8 @@ func main() {
 	// Wait here until CTRL-C or other term signal is received.
 	fmt.Println("Bot is now running. Press CTRL-C to exit.")
 
-	err := errGroup.Wait(); if err != nil {
+	err := errGroup.Wait()
+	if err != nil {
 		logger.Error("error", zapcore.Field{
 			Key:    "error",
 			Type:   zapcore.ErrorType,
@@ -110,6 +114,13 @@ func main() {
 		})
 	} else {
 		logger.Info("main exited")
+	}
+
+	// Wait for interrupt signal to gracefully shutdown the server with a timeout of 10 seconds.
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	if err := gateway.Shutdown(ctx); err != nil {
+		commonLogger.Error("error shutting down gateway", zap.Error(err))
 	}
 
 }
