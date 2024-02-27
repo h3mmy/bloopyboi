@@ -7,7 +7,7 @@ go 1.21
 require (
 	github.com/bwmarrin/discordgo v0.27.1
 	github.com/cdfmlr/ellipsis v0.0.1
-	github.com/devopsarr/overseerr-go v0.1.1
+	github.com/devopsarr/overseerr-go v1.0.0
 	github.com/dustin/go-humanize v1.0.1
 	github.com/labstack/echo/v4 v4.11.4
 	github.com/spf13/viper v1.18.2
