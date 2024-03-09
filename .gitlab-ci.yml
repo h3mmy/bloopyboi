@@ -47,7 +47,7 @@ stages:
 
 docker_build:
   # Use the official docker image.
-  image: docker:latest@sha256:0d70c541ee98e66b8f7ece8c0e9f7910732466e337a9087c2ac2868ef0775092
+  image: docker:latest@sha256:0b0e8cab617d83dd041d950827dc67e18db5a0c3786d660bab002120b09a6d91
   stage: build
   services:
     - docker:dind@sha256:305e9247aea279651f13ef0119510b74d75122a629206363e370749feae94e28
@@ -79,7 +79,7 @@ docker_build:
 
 # Tags only the $CI_DEFAULT_BRANCH as latest
 push_latest:
-  image: docker:latest@sha256:0d70c541ee98e66b8f7ece8c0e9f7910732466e337a9087c2ac2868ef0775092
+  image: docker:latest@sha256:0b0e8cab617d83dd041d950827dc67e18db5a0c3786d660bab002120b09a6d91
   services:
     - docker:dind@sha256:305e9247aea279651f13ef0119510b74d75122a629206363e370749feae94e28
   variables:
@@ -98,7 +98,7 @@ push_latest:
     - docker push $CI_REGISTRY_IMAGE:latest
 
 push_tag:
-  image: docker:latest@sha256:0d70c541ee98e66b8f7ece8c0e9f7910732466e337a9087c2ac2868ef0775092
+  image: docker:latest@sha256:0b0e8cab617d83dd041d950827dc67e18db5a0c3786d660bab002120b09a6d91
   services:
     - docker:dind@sha256:305e9247aea279651f13ef0119510b74d75122a629206363e370749feae94e28
   variables:
