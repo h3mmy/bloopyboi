@@ -13,7 +13,7 @@ type InspiroService struct {
 }
 
 // Creates New InspiroService with specified Service
-func NewInspiroHttpClient(inspiro *InspiroClient) *InspiroService {
+func NewInspiroService(inspiro *InspiroClient) *InspiroService {
 	lgr := log.NewZapLogger().With(zapcore.Field{
 		Key:    ServiceLoggerFieldKey,
 		Type:   zapcore.StringType,
