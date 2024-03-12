@@ -6,8 +6,7 @@ target-branch: main
 
 helm-extra-args: --timeout 600s
 
-chart-dirs:
-  - charts/bloopyboi
+chart-dirs: []
 
 chart-repos:
   - h3mmy=https://h3mmy.github.io/helm-charts
