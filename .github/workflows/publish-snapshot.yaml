@@ -5,6 +5,14 @@
     push:
       branches:
         - dev
+      paths:
+        - 'go.mod'
+        - 'go.sum'
+        - '**.go'
+        - 'ent/**'
+        - '**.proto'
+        - 'Dockerfile'
+        - '.github/workflows/publish-snapshot.yaml'
 
 
   jobs:
