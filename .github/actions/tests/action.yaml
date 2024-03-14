@@ -10,7 +10,7 @@ runs:
       with:
         go-version: ">=1.21"
 
-    - name: Tidy
+    - name: Verify Tidiness
       shell: bash
       run: |
         go version

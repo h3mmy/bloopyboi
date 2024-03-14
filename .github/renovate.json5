@@ -1,7 +1,7 @@
-{  
+{
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-    "config:base",
+    "config:recommended",
     ":dependencyDashboard",
     ":disableRateLimiting",
     "docker:enableMajor",
@@ -9,11 +9,10 @@
     ":automergeDigest",
     ":enablePreCommit",
     ":gomod",
-    //"github>h3mmy/renovate-config:commit-message",
     "github>h3mmy/renovate-config:pr-labels",
     "github>h3mmy/renovate-config:semantic-commits",
     "github>h3mmy/renovate-config:generic-regex-manager",
-    "github>h3mmy/renovate-config:automerge-github-actions"
+    "github>h3mmy/renovate-config:automerge-github-actions",
   ],
   "onboarding": false,
   "requireConfig": "optional",
@@ -22,7 +21,5 @@
   "suppressNotifications": ["prIgnoreNotification"],
   "commitBodyTable": true,
   "rebaseWhen": "conflicted",
-  "postUpdateOptions": [
-     "goModTidy", "gomodNoMassage" 
-  ]
+  "postUpdateOptions": ["gomodTidy"],
 }
