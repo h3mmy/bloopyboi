@@ -1,6 +1,6 @@
 ---
-name: Tests
-description: Runs Go tests
+name: Lint
+description: Runs golangci-lint on the project
 
 runs:
   using: composite

@@ -70,12 +70,12 @@ func (s *MediaService) GetMediaRequestsForUser(ctx context.Context, discordUserI
 			WithBook().
 			Where(
 				mediarequest.HasDiscordUsersWith(
-					discorduser.DiscordidEQ(string(discordUserId)),
+					discorduser.DiscordidEQ(fmt.Sprint(discordUserId)),
 				),
 			).
 			All(ctx)
 		if err != nil {
-			return nil, fmt.Errorf("failed to get book requests for discord user %s: %w", discordUserId, err)
+			return nil, fmt.Errorf("failed to get book requests for discord user %d: %w", discordUserId, err)
 		}
 		return requests, nil
 	}

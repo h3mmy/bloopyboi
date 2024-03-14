@@ -2,6 +2,15 @@
   "files.associations": {
     "*.json5": "jsonc"
   },
+  "json.schemas": [
+    {
+      "fileMatch": [
+        "./github/renovate.json",
+        "./gitlab/renovate.json5"
+      ],
+      "url": "https://docs.renovatebot.com/renovate-schema.json"
+    }
+  ],
 
   "yaml.schemas": {
     "https://gitlab.com/gitlab-org/gitlab/-/raw/master/app/assets/javascripts/editor/schema/ci.json": [
