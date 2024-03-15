@@ -11,6 +11,10 @@ on:  # yamllint disable-line rule:truthy
 
 jobs:
   add-to-project:
+    permissions:
+      repository-projects: write
+      issues: write
+      pull-requests: write
     name: Add issue to project board
     runs-on: ubuntu-latest
     steps:
