@@ -15,7 +15,7 @@ require (
 	github.com/uptrace/opentelemetry-go-extra/otelzap v0.2.3
 	go.uber.org/zap v1.27.0
 	golift.io/starr v1.0.0
-	google.golang.org/grpc v1.62.0
+	google.golang.org/grpc v1.62.1
 	google.golang.org/protobuf v1.33.0
 	k8s.io/api v0.29.3
 	k8s.io/apimachinery v0.29.3
