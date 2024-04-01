@@ -5,7 +5,7 @@ go 1.21
 // replace github.com/googleapis/gnostic => github.com/googleapis/gnostic v0.5.5
 
 require (
-	github.com/bwmarrin/discordgo v0.27.1
+	github.com/bwmarrin/discordgo v0.28.1
 	github.com/cdfmlr/ellipsis v0.0.1
 	github.com/devopsarr/overseerr-go v1.0.0
 	github.com/dustin/go-humanize v1.0.1
