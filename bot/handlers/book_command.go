@@ -166,7 +166,7 @@ func (b *BookCommand) GetAppCommandHandler() func(s *discordgo.Session, i *disco
 							discordgo.Button{
 								Label: blabel,
 								Style: discordgo.PrimaryButton,
-								Emoji: discordgo.ComponentEmoji{
+								Emoji: &discordgo.ComponentEmoji{
 									Name: "📖",
 								},
 								Disabled: false,
@@ -177,7 +177,7 @@ func (b *BookCommand) GetAppCommandHandler() func(s *discordgo.Session, i *disco
 				selectOpts = append(selectOpts,
 					discordgo.SelectMenuOption{
 						Value: volume.Id,
-						Emoji: discordgo.ComponentEmoji{
+						Emoji: &discordgo.ComponentEmoji{
 							Name: "📖",
 						},
 						Label:       blabel,
@@ -370,7 +370,7 @@ func (b *BookCommand) GetMessageComponentHandlers() map[string]func(s *discordgo
 									Label:    "Request",
 									Style:    discordgo.SuccessButton,
 									CustomID: "request_book",
-									Emoji: discordgo.ComponentEmoji{
+									Emoji: &discordgo.ComponentEmoji{
 										Name: "✅",
 									},
 								},
@@ -378,7 +378,7 @@ func (b *BookCommand) GetMessageComponentHandlers() map[string]func(s *discordgo
 									Label:    "Ignore",
 									Style:    discordgo.SecondaryButton,
 									CustomID: "ignore_book",
-									Emoji: discordgo.ComponentEmoji{
+									Emoji: &discordgo.ComponentEmoji{
 										Name: "⭕",
 									},
 								},
