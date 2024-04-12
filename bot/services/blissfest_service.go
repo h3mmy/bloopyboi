@@ -10,8 +10,9 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
-var lineupImageURI = "https://www.blissfestfestival.org/wp-content/uploads/2023/04/Bliss23_LineUpIG-2-2048x2048.jpg"
-// var lineupSrcUrl = "https://www.blissfestfestival.org/wp-content/uploads/2023/04/Bliss23_poster_full-8F-3-scaled-e1683260548650.jpg"
+// 2023: "https://www.blissfestfestival.org/wp-content/uploads/2023/04/Bliss23_LineUpIG-2-2048x2048.jpg"
+// 2024: "https://www.blissfestfestival.org/wp-content/uploads/2024/04/Bliss24_IGAnnouncement3-2048x2048.jpg"
+var lineupImageURI = "https://www.blissfestfestival.org/wp-content/uploads/2024/04/Bliss24_IGAnnouncement3-2048x2048.jpg"
 
 // var apiPrefix = "/wp-json/wp/v2"
 

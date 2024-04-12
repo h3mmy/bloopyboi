@@ -92,13 +92,13 @@ func (p *BlissfestCommand) GetAppCommandHandler() func(s *discordgo.Session, i *
 				Title: "Blissfest",
 				// pending https://github.com/dustin/go-humanize/pull/92
 				// Content: fmt.Sprintf("%s left", humanize.Time(bsvc.GetTimeUntilStart(nil))),
-				Content: fmt.Sprintf("%s left", humanize.Time(*bsvc.GetStartTime())),
+				Content: fmt.Sprintf("blissfest starts in %s", humanize.Time(*bsvc.GetStartTime())),
 			}
 
 		} else {
 			resData = discordgo.InteractionResponseData{
 				Title:   "Blissfest",
-				Content: fmt.Sprintf("%s left", humanize.Time(*bsvc.GetStartTime())),
+				Content: fmt.Sprintf("blissfest starts in %s", humanize.Time(*bsvc.GetStartTime())),
 			}
 		}
 
