@@ -54,6 +54,7 @@ func (d *DiscordService) WithSession(session *discordgo.Session) *DiscordService
 	d.discordSession.Identify.Intents = d.intents
 	return d
 }
+
 // NewDiscordServiceWithToken creates a new DiscordService with a token
 // Oauth tokens need to be prefixed with "Bearer " instead so this won't work for that
 func (d *DiscordService) WithToken(token string) *DiscordService {
@@ -167,6 +168,30 @@ func (d *DiscordService) AddInteractionHandlerProxy() {
 // De-registers all app commands registered with this service.
 // Intended for use by the shutdown handler.
 func (d *DiscordService) DeleteAppCommands() {
+	allGlobalCmds, err := d.discordSession.ApplicationCommands(d.discordSession.State.User.ID, "")
+	if err != nil {
+		d.logger.Error("error getting global commands", zap.Error(err))
+	} else {
+		d.logger.Debug(fmt.Sprintf("found %d global commands", len(allGlobalCmds)))
+		for _, cmd := range allGlobalCmds {
+			flogger := d.logger.With(zap.String("command", cmd.Name), zap.String("commandID", cmd.ID))
+			flogger.Debug(fmt.Sprintf("deleting global command: %v", cmd))
+			err := d.discordSession.ApplicationCommandDelete(d.discordSession.State.User.ID, cmd.GuildID, cmd.ID)
+			if err != nil {
+				flogger.Error("error deleting global command", zap.Error(err))
+			} else {
+				if d.commandRegistry[cmd.Name] != nil {
+					if d.commandRegistry[cmd.Name].ID == cmd.ID {
+						delete(d.commandRegistry, cmd.Name)
+					} else {
+						logger.Warn("commands with same name and different IDs!", zap.String("command", cmd.Name), zap.String("commandID 1", cmd.ID), zap.String("commandID 2", d.commandRegistry[cmd.Name].ID))
+					}
+				} else {
+					d.logger.Warn("deleted command was not found in registry. Likely leftover from a previous instance", zap.String("command", cmd.Name))
+				}
+			}
+		}
+	}
 	d.logger.Debug("deleting app commands")
 	for _, cmd := range d.commandRegistry {
 		err := d.discordSession.ApplicationCommandDelete(d.discordSession.State.User.ID, cmd.GuildID, cmd.ID)
@@ -176,7 +201,7 @@ func (d *DiscordService) DeleteAppCommands() {
 	}
 }
 
-// Gets all app commands registered with the discord session
+// Gets all app commands registered with the discord session AND the discord Registry
 // Uses service registry for retrieval IDs and errors are logged
 func (d *DiscordService) GetCurrentAppCommands() []*discordgo.ApplicationCommand {
 	var commands []*discordgo.ApplicationCommand
