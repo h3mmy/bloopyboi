@@ -13,6 +13,7 @@
 
 *.env.*
 *.config.(^sample)
+.config.dev
 config.yaml
 bloopyboi_dev
 bloopyboii_dev

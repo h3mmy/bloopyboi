@@ -75,6 +75,7 @@ func (d *DiscordManager) Start(ctx context.Context) error {
 	if err != nil {
 		return fmt.Errorf("While opening a connection: %w", err)
 	}
+	// d.discordSvc.GetSession().LogLevel = discordgo.LogDebug
 
 	d.log.Info("Registering App Commands")
 	for _, v := range providers.GetDiscordAppCommands(d.discordCfg.GuildConfigs) {

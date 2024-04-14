@@ -142,3 +142,12 @@ func (myConfig *AppConfig) GetConfiguredFeatureNames() []string {
 	}
 	return names
 }
+
+// Checks FeatureConfigs for key
+func (myConfig *AppConfig) IsFeaturedEnabled(key string) bool {
+	fCfg, ok := myConfig.FeatureMap[key]
+	if !ok {
+		return false
+	}
+	return fCfg.Enabled
+}

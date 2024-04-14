@@ -5,7 +5,7 @@ go 1.21
 // replace github.com/googleapis/gnostic => github.com/googleapis/gnostic v0.5.5
 
 require (
-	github.com/bwmarrin/discordgo v0.27.1
+	github.com/bwmarrin/discordgo v0.28.1
 	github.com/cdfmlr/ellipsis v0.0.1
 	github.com/devopsarr/overseerr-go v1.0.0
 	github.com/dustin/go-humanize v1.0.1
@@ -117,9 +117,9 @@ require (
 	github.com/spf13/cast v1.6.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/subosito/gotenv v1.6.0 // indirect
-	goauthentik.io/api/v3 v3.2024022.7
+	goauthentik.io/api/v3 v3.2024022.8
 	golang.org/x/crypto v0.21.0 // indirect
-	golang.org/x/sync v0.6.0
+	golang.org/x/sync v0.7.0
 	golang.org/x/sys v0.18.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
 	google.golang.org/api v0.172.0

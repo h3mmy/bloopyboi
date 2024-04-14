@@ -8,7 +8,6 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
-
 func GetDiscordConfig() *config.DiscordConfig {
 	AppConfig := config.GetConfig()
 	return AppConfig.DiscordConfig
@@ -28,7 +27,7 @@ func GetFeatures() map[string]config.FeatureConfig {
 }
 
 // Checks FeatureConfigs for key
-func IsFeaturedConfigured(key string) bool {
+func IsFeatureEnabled(key string) bool {
 	AppConfig := config.GetConfig()
 	fCfg, ok := AppConfig.FeatureMap[key]
 	if !ok {
