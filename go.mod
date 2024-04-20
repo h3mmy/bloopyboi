@@ -17,8 +17,8 @@ require (
 	golift.io/starr v1.0.0
 	google.golang.org/grpc v1.63.2
 	google.golang.org/protobuf v1.33.0
-	k8s.io/api v0.29.3
-	k8s.io/apimachinery v0.29.3
+	k8s.io/api v0.29.4
+	k8s.io/apimachinery v0.29.4
 )
 
 require (
@@ -126,7 +126,7 @@ require (
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
-	k8s.io/client-go v0.29.3
-	k8s.io/metrics v0.29.3
+	k8s.io/client-go v0.29.4
+	k8s.io/metrics v0.29.4
 	sigs.k8s.io/controller-runtime v0.17.3
 )
