@@ -27,6 +27,9 @@ var blissfestShowclixEventID = 9297272
 
 // var apiPrefix = "/wp-json/wp/v2"
 
+// var blissfestFestivalLogoFilename = "blissfest-musical-festival-logo.png"
+
+var blissfestLogoURI = "https://www.blissfestfestival.org/wp-content/uploads/2022/06/blissfest-musical-festival-logo.png"
 
 type BlissfestService struct {
 	bloopymeta models.BloopyMeta
@@ -94,9 +97,8 @@ func (bs *BlissfestService) GetLineupImageURI() string {
 	return lineupImageURI
 }
 
-
 func (bs *BlissfestService) GetShowclixTicketData() (*[]pkgmodels.PriceLevel, error) {
-	resp, err := http.Get(fmt.Sprintf("%s%s/%d/all_levels",pkgmodels.ShowclixAPIURL, pkgmodels.ShowclixAPIEventPrefix, blissfestShowclixEventID))
+	resp, err := http.Get(fmt.Sprintf("%s%s/%d/all_levels", pkgmodels.ShowclixAPIURL, pkgmodels.ShowclixAPIEventPrefix, blissfestShowclixEventID))
 	if err != nil {
 		bs.logger.Error("error getting showclix ticket data", zap.Error(err))
 		return nil, err
@@ -135,4 +137,8 @@ func (bs *BlissfestService) GetAdultWeekendPriceLevel() (*pkgmodels.PriceLevel, 
 	}
 	bs.logger.Warn("no price level found", zap.String("priceLevelName", priceLevelName))
 	return nil, nil
+}
+
+func (bs *BlissfestService) GetBlissfestLogoURI() string {
+	return blissfestLogoURI
 }
