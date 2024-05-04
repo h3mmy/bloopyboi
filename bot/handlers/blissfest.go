@@ -3,6 +3,7 @@ package handlers
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/dustin/go-humanize"
@@ -117,6 +118,22 @@ func (p *BlissfestCommand) GetAppCommandHandler() func(s *discordgo.Session, i *
 				},
 			})
 		}
+
+		// get weeks to blissfest (if applicable)
+		if (bsvc.GetStartTime().After(time.Now())){
+    blissfestStartDuration := bsvc.GetTimeUntilStart(nil)
+		blissfestStartDurationEmbed := &discordgo.MessageEmbed{
+			Title: "Blissfest Start Duration",
+			Fields: []*discordgo.MessageEmbedField{
+				{
+					Name:  "Weeks (Approx.)",
+					Value: fmt.Sprintf("%.2f", blissfestStartDuration.Hours()/(24*7)),
+				},
+			},
+		}
+		resEmbeds = append(resEmbeds, blissfestStartDurationEmbed)
+		}
+
 		if len(resEmbeds) > 0 {
 			resData = discordgo.InteractionResponseData{
 				Embeds: resEmbeds,
