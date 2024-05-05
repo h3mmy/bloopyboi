@@ -58,10 +58,19 @@ func (p *BlissfestCommand) GetAppCommand() *discordgo.ApplicationCommand {
 		Description: p.Description,
 		Options: []*discordgo.ApplicationCommandOption{
 			{
-				Type:        discordgo.ApplicationCommandOptionBoolean,
+				Name:        "when",
+				Description: "Time to/from Blissfest",
+				Type:        discordgo.ApplicationCommandOptionSubCommand,
+			},
+			{
 				Name:        "lineup",
-				Description: "Try to fetch lineup image",
-				Required:    true,
+				Description: "Blissfest Lineup (if available)",
+				Type:        discordgo.ApplicationCommandOptionSubCommand,
+			},
+			{
+				Name:        "tickets",
+				Description: "Ticket info for Blissfest (if available)",
+				Type:        discordgo.ApplicationCommandOptionSubCommand,
 			},
 		},
 	}
@@ -71,68 +80,42 @@ func (p *BlissfestCommand) GetAppCommandHandler() func(s *discordgo.Session, i *
 	return func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		p.logger.Debug("received interaction", zap.String("interactionID", i.ID), zap.String("username", GetDiscordUserFromInteraction(i).Username))
 		getLineUp := false
+		resEmbeds := []*discordgo.MessageEmbed{}
 		// Access options in the order provided by the user.
 		options := i.ApplicationCommandData().Options
-		for _, opt := range options {
-			if opt.Name == "lineup" {
-				getLineUp = opt.BoolValue()
+		switch options[0].Name {
+		case "tickets":
+			adultWeekendPriceLevelEmbed := p.GetTicketInfoAsEmbed()
+			if adultWeekendPriceLevelEmbed != nil {
+				resEmbeds = append(resEmbeds, adultWeekendPriceLevelEmbed)
+			}
+		case "lineup":
+			resEmbeds = append(resEmbeds, &discordgo.MessageEmbed{
+				Title:  fmt.Sprintf("%d Blissfest Lineup", p.blissSvc.GetStartTime().Year()),
+				Author: &discordgo.MessageEmbedAuthor{},
+				Image: &discordgo.MessageEmbedImage{
+					URL: p.blissSvc.GetLineupImageURI(),
+				},
+			})
+		case "when":
+			// get weeks to blissfest (if applicable)
+			if p.blissSvc.GetStartTime().After(time.Now()) {
+				blissfestStartDuration := p.blissSvc.GetTimeUntilStart(nil)
+				blissfestStartDurationEmbed := &discordgo.MessageEmbed{
+					Title: "Blissfest Start Time",
+					Fields: []*discordgo.MessageEmbedField{
+						{
+							Name:  "Weeks from now (Approx.)",
+							Value: fmt.Sprintf("%.2f", blissfestStartDuration.Hours()/(24*7)),
+						},
+					},
+				}
+				resEmbeds = append(resEmbeds, blissfestStartDurationEmbed)
 			}
 		}
 
 		bsvc := p.blissSvc
 		var resData discordgo.InteractionResponseData
-
-		resEmbeds := []*discordgo.MessageEmbed{}
-
-		adultWeekendPriceLevel, err := bsvc.GetAdultWeekendPriceLevel()
-		var adultWeekendPriceLevelEmbed *discordgo.MessageEmbed
-		if err != nil {
-			p.logger.Warn("error getting adult weekend price level. Not including in response", zap.Error(err))
-		} else {
-			adultWeekendPriceLevelEmbed = &discordgo.MessageEmbed{
-				Title: "Adult Weekend (18+) Ticket Info",
-				Fields: []*discordgo.MessageEmbedField{
-					{
-						Name:  "Active",
-						Value: fmt.Sprintf("%t", adultWeekendPriceLevel.Active == "1"),
-					},
-					{
-						Name:  "Price",
-						Value: adultWeekendPriceLevel.Price, //fmt.Sprintf("%.2f",adultWeekendPriceLevel.Price),
-					},
-					{
-						Name:  "Transaction Limit",
-						Value: adultWeekendPriceLevel.TransactionLimit, //fmt.Sprintf("%d", adultWeekendPriceLevel.TransactionLimit),
-					},
-				},
-			}
-			resEmbeds = append(resEmbeds, adultWeekendPriceLevelEmbed)
-		}
-
-		if getLineUp {
-			resEmbeds = append(resEmbeds, &discordgo.MessageEmbed{
-				Title:  fmt.Sprintf("%d Blissfest Lineup", bsvc.GetStartTime().Year()),
-				Author: &discordgo.MessageEmbedAuthor{},
-				Image: &discordgo.MessageEmbedImage{
-					URL: bsvc.GetLineupImageURI(),
-				},
-			})
-		}
-
-		// get weeks to blissfest (if applicable)
-		if (bsvc.GetStartTime().After(time.Now())){
-    blissfestStartDuration := bsvc.GetTimeUntilStart(nil)
-		blissfestStartDurationEmbed := &discordgo.MessageEmbed{
-			Title: "Blissfest Start Duration",
-			Fields: []*discordgo.MessageEmbedField{
-				{
-					Name:  "Weeks (Approx.)",
-					Value: fmt.Sprintf("%.2f", blissfestStartDuration.Hours()/(24*7)),
-				},
-			},
-		}
-		resEmbeds = append(resEmbeds, blissfestStartDurationEmbed)
-		}
 
 		if len(resEmbeds) > 0 {
 			resData = discordgo.InteractionResponseData{
@@ -144,7 +127,7 @@ func (p *BlissfestCommand) GetAppCommandHandler() func(s *discordgo.Session, i *
 			}
 		} else {
 			resData = discordgo.InteractionResponseData{
-				Title:   "Blissfest",
+				Title: "Blissfest",
 				// pending https://github.com/dustin/go-humanize/pull/92
 				// Content: fmt.Sprintf("%s left", humanize.Time(bsvc.GetTimeUntilStart(nil))),
 				Content: fmt.Sprintf("blissfest start %s", humanize.Time(*bsvc.GetStartTime())),
@@ -152,7 +135,7 @@ func (p *BlissfestCommand) GetAppCommandHandler() func(s *discordgo.Session, i *
 		}
 		p.logger.Debug("finished constructing response", zap.Bool("getLineup", getLineUp))
 
-		err = s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+		err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 			Type: discordgo.InteractionResponseChannelMessageWithSource,
 			Data: &resData,
 		})
@@ -168,4 +151,31 @@ func (p *BlissfestCommand) GetMessageComponentHandlers() map[string]func(s *disc
 
 func (p *BlissfestCommand) GetGuildID() string {
 	return p.guildId
+}
+
+func (p *BlissfestCommand) GetTicketInfoAsEmbed() *discordgo.MessageEmbed {
+
+	adultWeekendPriceLevel, err := p.blissSvc.GetAdultWeekendPriceLevel()
+	if err != nil {
+		p.logger.Warn("error getting adult weekend price level. Not including in response", zap.Error(err))
+	} else {
+		return &discordgo.MessageEmbed{
+			Title: "Adult Weekend (18+) Ticket Info",
+			Fields: []*discordgo.MessageEmbedField{
+				{
+					Name:  "Active",
+					Value: fmt.Sprintf("%t", adultWeekendPriceLevel.Active == "1"),
+				},
+				{
+					Name:  "Price",
+					Value: adultWeekendPriceLevel.Price, //fmt.Sprintf("%.2f",adultWeekendPriceLevel.Price),
+				},
+				{
+					Name:  "Transaction Limit",
+					Value: adultWeekendPriceLevel.TransactionLimit, //fmt.Sprintf("%d", adultWeekendPriceLevel.TransactionLimit),
+				},
+			},
+		}
+	}
+	return nil
 }
