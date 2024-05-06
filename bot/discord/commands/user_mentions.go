@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/bwmarrin/discordgo"
+	"go.uber.org/zap"
 )
 
 // Listens for messages specifically addressing bot
@@ -13,17 +14,31 @@ func DirectedMessageReceive(s *discordgo.Session, m *discordgo.MessageCreate) {
 	directMessage := (m.GuildID == "")
 
 	// Ignore all messages created by the bot itself
-	// This isn't required in this specific example but it's a good practice.
+	// This isn't required in this specific example but it's 1=a good practice.
 	if m.Author.ID == s.State.User.ID {
 		return
 	}
 	logger.Debug(fmt.Sprintf("Processing Message from %s with Content %s", m.Author.Username, m.Content))
+	var nsfwContext bool
+	channel, err := s.Channel(m.ChannelID)
+
+	if err != nil {
+		logger.Warn("could not get information for channel", zap.String("channelID", m.ChannelID))
+	} else {
+		nsfwContext = channel.NSFW
+	}
+
 	botMentioned := false
 	// Filter only commands we care about
 	if len(m.Mentions) > 0 {
 		// Just react to some mentions mysteriously
 		if rand.Float32()<0.5 {
-			err := s.MessageReactionAdd(m.ChannelID, m.ID, "👁‍🗨")
+			var err error
+			if nsfwContext {
+				err = s.MessageReactionAdd(m.ChannelID, m.ID, "imwetrn:1236826185783316552")
+			} else {
+				err = s.MessageReactionAdd(m.ChannelID, m.ID, "👁‍🗨")
+			}
 			if err != nil {
 				logger.Warn(fmt.Sprintf("Error adding reaction to message %s from user %s", m.ID, m.Author.Username))
 			}
