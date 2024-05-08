@@ -2,6 +2,7 @@ package commands
 
 import (
 	"fmt"
+	"math/rand"
 	"time"
 
 	"github.com/bwmarrin/discordgo"
@@ -36,4 +37,8 @@ func typeInChannel(channel chan bool, s *discordgo.Session, channelID string) {
 			time.Sleep(time.Second * 5)
 		}
 	}
+}
+
+func selectGuildEmojiForReaction(emojiPool []*discordgo.Emoji) *discordgo.Emoji {
+	return emojiPool[rand.Intn(len(emojiPool))]
 }

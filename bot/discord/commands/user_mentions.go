@@ -28,16 +28,30 @@ func DirectedMessageReceive(s *discordgo.Session, m *discordgo.MessageCreate) {
 		nsfwContext = channel.NSFW
 	}
 
+	guildEmojis, err := s.GuildEmojis(m.GuildID)
+	if err != nil {
+		logger.Warn("could not get emoji for guild", zap.String("guildID", m.GuildID))
+	}
+
 	botMentioned := false
 	// Filter only commands we care about
 	if len(m.Mentions) > 0 {
 		// Just react to some mentions mysteriously
-		if rand.Float32()<0.5 {
+		if rand.Float32() < 0.5 {
 			var err error
 			if nsfwContext {
 				err = s.MessageReactionAdd(m.ChannelID, m.ID, "imwetrn:1236826185783316552")
 			} else {
+				if guildEmojis != nil {
+					emj := selectGuildEmojiForReaction(guildEmojis)
+					if emj.Available {
+						err = s.MessageReactionAdd(m.ChannelID, m.ID, emj.APIName())
+					} else {
+						err = s.MessageReactionAdd(m.ChannelID, m.ID, "👁‍🗨")
+					}
+				} else{
 				err = s.MessageReactionAdd(m.ChannelID, m.ID, "👁‍🗨")
+			}
 			}
 			if err != nil {
 				logger.Warn(fmt.Sprintf("Error adding reaction to message %s from user %s", m.ID, m.Author.Username))
@@ -60,7 +74,7 @@ func DirectedMessageReceive(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 	if !directMessage && botMentioned {
 		logger.Sugar().Debug(fmt.Sprintf("Detected Channel Mention in message from %s with UserID %s and Content: ", m.Author.Username, m.Author.ID), m.Content)
-		err := s.MessageReactionAdd(m.ChannelID, m.ID,emojiZoop)
+		err := s.MessageReactionAdd(m.ChannelID, m.ID, emojiZoop)
 		if err != nil {
 			logger.Sugar().Error(err)
 			return
