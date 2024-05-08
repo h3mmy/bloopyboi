@@ -23,3 +23,7 @@ type DiscordAppCommand interface {
 	GetGuildID() string
 	GetAllowedRoles() []int64
 }
+
+type EmojiProvider interface {
+	GetEmoji() string
+}
