@@ -34,8 +34,9 @@ func DirectedMessageReceive(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 
 	botMentioned := false
-	// Filter only commands we care about
-	if len(m.Mentions) > 0 {
+	// Filter only commands we care about (or not)
+	// TODO: Replace with logic to detect engagement
+	if len(m.Mentions) > 0 || rand.Float32() < 0.5 {
 		// Just react to some mentions mysteriously
 		if rand.Float32() < 0.5 {
 			var err error
