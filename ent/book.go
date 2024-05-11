@@ -64,12 +64,10 @@ func (e BookEdges) BookAuthorOrErr() ([]*BookAuthor, error) {
 // MediaRequestOrErr returns the MediaRequest value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
 func (e BookEdges) MediaRequestOrErr() (*MediaRequest, error) {
-	if e.loadedTypes[1] {
-		if e.MediaRequest == nil {
-			// Edge was loaded but was not found.
-			return nil, &NotFoundError{label: mediarequest.Label}
-		}
+	if e.MediaRequest != nil {
 		return e.MediaRequest, nil
+	} else if e.loadedTypes[1] {
+		return nil, &NotFoundError{label: mediarequest.Label}
 	}
 	return nil, &NotLoadedError{edge: "media_request"}
 }

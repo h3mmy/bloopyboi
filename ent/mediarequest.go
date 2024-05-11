@@ -59,12 +59,10 @@ func (e MediaRequestEdges) DiscordUsersOrErr() ([]*DiscordUser, error) {
 // BookOrErr returns the Book value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
 func (e MediaRequestEdges) BookOrErr() (*Book, error) {
-	if e.loadedTypes[1] {
-		if e.Book == nil {
-			// Edge was loaded but was not found.
-			return nil, &NotFoundError{label: book.Label}
-		}
+	if e.Book != nil {
 		return e.Book, nil
+	} else if e.loadedTypes[1] {
+		return nil, &NotFoundError{label: book.Label}
 	}
 	return nil, &NotLoadedError{edge: "book"}
 }
