@@ -21,7 +21,7 @@ jobs:
     steps:
       - name: Get Git SHA
         id: gitsha
-        run: echo "::set-output name=gitsha::$(git rev-parse HEAD)"
+        run: echo "latestsha=gitsha::$(git rev-parse HEAD)" >> $GITHUB_STATE
       - name: assume-testing
         id: should-run
         run: echo "run=${{ !inputs.dryRun }}" >> $GITHUB_OUTPUT
