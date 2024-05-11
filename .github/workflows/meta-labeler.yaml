@@ -24,3 +24,18 @@ jobs:
         with:
             repo-token: "${{ steps.generate-token.outputs.token }}"
             configuration-path: .github/labeler.yaml
+
+      - name: Label Size
+        uses: pascalgn/size-label-action@v0.5.2
+        env:
+          GITHUB_TOKEN: "${{ steps.generate-token.outputs.token }}"
+        with:
+          sizes: >
+            {
+              "0": "XS",
+              "20": "S",
+              "50": "M",
+              "200": "L",
+              "800": "XL",
+              "2000": "XXL"
+            }

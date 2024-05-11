@@ -64,6 +64,16 @@ func Username(v string) predicate.DiscordUser {
 	return predicate.DiscordUser(sql.FieldEQ(FieldUsername, v))
 }
 
+// Email applies equality check predicate on the "email" field. It's identical to EmailEQ.
+func Email(v string) predicate.DiscordUser {
+	return predicate.DiscordUser(sql.FieldEQ(FieldEmail, v))
+}
+
+// Discriminator applies equality check predicate on the "discriminator" field. It's identical to DiscriminatorEQ.
+func Discriminator(v string) predicate.DiscordUser {
+	return predicate.DiscordUser(sql.FieldEQ(FieldDiscriminator, v))
+}
+
 // DiscordidEQ applies the EQ predicate on the "discordid" field.
 func DiscordidEQ(v string) predicate.DiscordUser {
 	return predicate.DiscordUser(sql.FieldEQ(FieldDiscordid, v))
@@ -194,6 +204,179 @@ func UsernameContainsFold(v string) predicate.DiscordUser {
 	return predicate.DiscordUser(sql.FieldContainsFold(FieldUsername, v))
 }
 
+// EmailEQ applies the EQ predicate on the "email" field.
+func EmailEQ(v string) predicate.DiscordUser {
+	return predicate.DiscordUser(sql.FieldEQ(FieldEmail, v))
+}
+
+// EmailNEQ applies the NEQ predicate on the "email" field.
+func EmailNEQ(v string) predicate.DiscordUser {
+	return predicate.DiscordUser(sql.FieldNEQ(FieldEmail, v))
+}
+
+// EmailIn applies the In predicate on the "email" field.
+func EmailIn(vs ...string) predicate.DiscordUser {
+	return predicate.DiscordUser(sql.FieldIn(FieldEmail, vs...))
+}
+
+// EmailNotIn applies the NotIn predicate on the "email" field.
+func EmailNotIn(vs ...string) predicate.DiscordUser {
+	return predicate.DiscordUser(sql.FieldNotIn(FieldEmail, vs...))
+}
+
+// EmailGT applies the GT predicate on the "email" field.
+func EmailGT(v string) predicate.DiscordUser {
+	return predicate.DiscordUser(sql.FieldGT(FieldEmail, v))
+}
+
+// EmailGTE applies the GTE predicate on the "email" field.
+func EmailGTE(v string) predicate.DiscordUser {
+	return predicate.DiscordUser(sql.FieldGTE(FieldEmail, v))
+}
+
+// EmailLT applies the LT predicate on the "email" field.
+func EmailLT(v string) predicate.DiscordUser {
+	return predicate.DiscordUser(sql.FieldLT(FieldEmail, v))
+}
+
+// EmailLTE applies the LTE predicate on the "email" field.
+func EmailLTE(v string) predicate.DiscordUser {
+	return predicate.DiscordUser(sql.FieldLTE(FieldEmail, v))
+}
+
+// EmailContains applies the Contains predicate on the "email" field.
+func EmailContains(v string) predicate.DiscordUser {
+	return predicate.DiscordUser(sql.FieldContains(FieldEmail, v))
+}
+
+// EmailHasPrefix applies the HasPrefix predicate on the "email" field.
+func EmailHasPrefix(v string) predicate.DiscordUser {
+	return predicate.DiscordUser(sql.FieldHasPrefix(FieldEmail, v))
+}
+
+// EmailHasSuffix applies the HasSuffix predicate on the "email" field.
+func EmailHasSuffix(v string) predicate.DiscordUser {
+	return predicate.DiscordUser(sql.FieldHasSuffix(FieldEmail, v))
+}
+
+// EmailIsNil applies the IsNil predicate on the "email" field.
+func EmailIsNil() predicate.DiscordUser {
+	return predicate.DiscordUser(sql.FieldIsNull(FieldEmail))
+}
+
+// EmailNotNil applies the NotNil predicate on the "email" field.
+func EmailNotNil() predicate.DiscordUser {
+	return predicate.DiscordUser(sql.FieldNotNull(FieldEmail))
+}
+
+// EmailEqualFold applies the EqualFold predicate on the "email" field.
+func EmailEqualFold(v string) predicate.DiscordUser {
+	return predicate.DiscordUser(sql.FieldEqualFold(FieldEmail, v))
+}
+
+// EmailContainsFold applies the ContainsFold predicate on the "email" field.
+func EmailContainsFold(v string) predicate.DiscordUser {
+	return predicate.DiscordUser(sql.FieldContainsFold(FieldEmail, v))
+}
+
+// DiscriminatorEQ applies the EQ predicate on the "discriminator" field.
+func DiscriminatorEQ(v string) predicate.DiscordUser {
+	return predicate.DiscordUser(sql.FieldEQ(FieldDiscriminator, v))
+}
+
+// DiscriminatorNEQ applies the NEQ predicate on the "discriminator" field.
+func DiscriminatorNEQ(v string) predicate.DiscordUser {
+	return predicate.DiscordUser(sql.FieldNEQ(FieldDiscriminator, v))
+}
+
+// DiscriminatorIn applies the In predicate on the "discriminator" field.
+func DiscriminatorIn(vs ...string) predicate.DiscordUser {
+	return predicate.DiscordUser(sql.FieldIn(FieldDiscriminator, vs...))
+}
+
+// DiscriminatorNotIn applies the NotIn predicate on the "discriminator" field.
+func DiscriminatorNotIn(vs ...string) predicate.DiscordUser {
+	return predicate.DiscordUser(sql.FieldNotIn(FieldDiscriminator, vs...))
+}
+
+// DiscriminatorGT applies the GT predicate on the "discriminator" field.
+func DiscriminatorGT(v string) predicate.DiscordUser {
+	return predicate.DiscordUser(sql.FieldGT(FieldDiscriminator, v))
+}
+
+// DiscriminatorGTE applies the GTE predicate on the "discriminator" field.
+func DiscriminatorGTE(v string) predicate.DiscordUser {
+	return predicate.DiscordUser(sql.FieldGTE(FieldDiscriminator, v))
+}
+
+// DiscriminatorLT applies the LT predicate on the "discriminator" field.
+func DiscriminatorLT(v string) predicate.DiscordUser {
+	return predicate.DiscordUser(sql.FieldLT(FieldDiscriminator, v))
+}
+
+// DiscriminatorLTE applies the LTE predicate on the "discriminator" field.
+func DiscriminatorLTE(v string) predicate.DiscordUser {
+	return predicate.DiscordUser(sql.FieldLTE(FieldDiscriminator, v))
+}
+
+// DiscriminatorContains applies the Contains predicate on the "discriminator" field.
+func DiscriminatorContains(v string) predicate.DiscordUser {
+	return predicate.DiscordUser(sql.FieldContains(FieldDiscriminator, v))
+}
+
+// DiscriminatorHasPrefix applies the HasPrefix predicate on the "discriminator" field.
+func DiscriminatorHasPrefix(v string) predicate.DiscordUser {
+	return predicate.DiscordUser(sql.FieldHasPrefix(FieldDiscriminator, v))
+}
+
+// DiscriminatorHasSuffix applies the HasSuffix predicate on the "discriminator" field.
+func DiscriminatorHasSuffix(v string) predicate.DiscordUser {
+	return predicate.DiscordUser(sql.FieldHasSuffix(FieldDiscriminator, v))
+}
+
+// DiscriminatorIsNil applies the IsNil predicate on the "discriminator" field.
+func DiscriminatorIsNil() predicate.DiscordUser {
+	return predicate.DiscordUser(sql.FieldIsNull(FieldDiscriminator))
+}
+
+// DiscriminatorNotNil applies the NotNil predicate on the "discriminator" field.
+func DiscriminatorNotNil() predicate.DiscordUser {
+	return predicate.DiscordUser(sql.FieldNotNull(FieldDiscriminator))
+}
+
+// DiscriminatorEqualFold applies the EqualFold predicate on the "discriminator" field.
+func DiscriminatorEqualFold(v string) predicate.DiscordUser {
+	return predicate.DiscordUser(sql.FieldEqualFold(FieldDiscriminator, v))
+}
+
+// DiscriminatorContainsFold applies the ContainsFold predicate on the "discriminator" field.
+func DiscriminatorContainsFold(v string) predicate.DiscordUser {
+	return predicate.DiscordUser(sql.FieldContainsFold(FieldDiscriminator, v))
+}
+
+// HasGuilds applies the HasEdge predicate on the "guilds" edge.
+func HasGuilds() predicate.DiscordUser {
+	return predicate.DiscordUser(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, true, GuildsTable, GuildsPrimaryKey...),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasGuildsWith applies the HasEdge predicate on the "guilds" edge with a given conditions (other predicates).
+func HasGuildsWith(preds ...predicate.DiscordGuild) predicate.DiscordUser {
+	return predicate.DiscordUser(func(s *sql.Selector) {
+		step := newGuildsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
 // HasDiscordMessages applies the HasEdge predicate on the "discord_messages" edge.
 func HasDiscordMessages() predicate.DiscordUser {
 	return predicate.DiscordUser(func(s *sql.Selector) {
@@ -217,34 +400,40 @@ func HasDiscordMessagesWith(preds ...predicate.DiscordMessage) predicate.Discord
 	})
 }
 
+// HasMediaRequests applies the HasEdge predicate on the "media_requests" edge.
+func HasMediaRequests() predicate.DiscordUser {
+	return predicate.DiscordUser(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, false, MediaRequestsTable, MediaRequestsPrimaryKey...),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasMediaRequestsWith applies the HasEdge predicate on the "media_requests" edge with a given conditions (other predicates).
+func HasMediaRequestsWith(preds ...predicate.MediaRequest) predicate.DiscordUser {
+	return predicate.DiscordUser(func(s *sql.Selector) {
+		step := newMediaRequestsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
 // And groups predicates with the AND operator between them.
 func And(predicates ...predicate.DiscordUser) predicate.DiscordUser {
-	return predicate.DiscordUser(func(s *sql.Selector) {
-		s1 := s.Clone().SetP(nil)
-		for _, p := range predicates {
-			p(s1)
-		}
-		s.Where(s1.P())
-	})
+	return predicate.DiscordUser(sql.AndPredicates(predicates...))
 }
 
 // Or groups predicates with the OR operator between them.
 func Or(predicates ...predicate.DiscordUser) predicate.DiscordUser {
-	return predicate.DiscordUser(func(s *sql.Selector) {
-		s1 := s.Clone().SetP(nil)
-		for i, p := range predicates {
-			if i > 0 {
-				s1.Or()
-			}
-			p(s1)
-		}
-		s.Where(s1.P())
-	})
+	return predicate.DiscordUser(sql.OrPredicates(predicates...))
 }
 
 // Not applies the not operator on the given predicate.
 func Not(p predicate.DiscordUser) predicate.DiscordUser {
-	return predicate.DiscordUser(func(s *sql.Selector) {
-		p(s.Not())
-	})
+	return predicate.DiscordUser(sql.NotPredicates(p))
 }

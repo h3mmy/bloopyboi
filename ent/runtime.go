@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/h3mmy/bloopyboi/ent/discordmessage"
-	"github.com/h3mmy/bloopyboi/ent/discorduser"
+	"github.com/h3mmy/bloopyboi/ent/mediarequest"
 	"github.com/h3mmy/bloopyboi/ent/schema"
 )
 
@@ -29,10 +29,23 @@ func init() {
 	discordmessage.DefaultUpdateTime = discordmessageDescUpdateTime.Default.(func() time.Time)
 	// discordmessage.UpdateDefaultUpdateTime holds the default value on update for the update_time field.
 	discordmessage.UpdateDefaultUpdateTime = discordmessageDescUpdateTime.UpdateDefault.(func() time.Time)
-	discorduserFields := schema.DiscordUser{}.Fields()
-	_ = discorduserFields
-	// discorduserDescDiscordid is the schema descriptor for discordid field.
-	discorduserDescDiscordid := discorduserFields[1].Descriptor()
-	// discorduser.DefaultDiscordid holds the default value on creation for the discordid field.
-	discorduser.DefaultDiscordid = discorduserDescDiscordid.Default.(string)
+	mediarequestMixin := schema.MediaRequest{}.Mixin()
+	mediarequestMixinFields0 := mediarequestMixin[0].Fields()
+	_ = mediarequestMixinFields0
+	mediarequestFields := schema.MediaRequest{}.Fields()
+	_ = mediarequestFields
+	// mediarequestDescCreateTime is the schema descriptor for create_time field.
+	mediarequestDescCreateTime := mediarequestMixinFields0[0].Descriptor()
+	// mediarequest.DefaultCreateTime holds the default value on creation for the create_time field.
+	mediarequest.DefaultCreateTime = mediarequestDescCreateTime.Default.(func() time.Time)
+	// mediarequestDescUpdateTime is the schema descriptor for update_time field.
+	mediarequestDescUpdateTime := mediarequestMixinFields0[1].Descriptor()
+	// mediarequest.DefaultUpdateTime holds the default value on creation for the update_time field.
+	mediarequest.DefaultUpdateTime = mediarequestDescUpdateTime.Default.(func() time.Time)
+	// mediarequest.UpdateDefaultUpdateTime holds the default value on update for the update_time field.
+	mediarequest.UpdateDefaultUpdateTime = mediarequestDescUpdateTime.UpdateDefault.(func() time.Time)
+	// mediarequestDescPriority is the schema descriptor for priority field.
+	mediarequestDescPriority := mediarequestFields[2].Descriptor()
+	// mediarequest.DefaultPriority holds the default value on creation for the priority field.
+	mediarequest.DefaultPriority = mediarequestDescPriority.Default.(int)
 }

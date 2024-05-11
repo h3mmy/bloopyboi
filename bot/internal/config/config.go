@@ -18,20 +18,78 @@ var (
 
 // App Config
 type AppConfig struct {
-	DiscordConfig *DiscordConfig
-	BotToken      string `mapstructure:"botToken"`
-	BotName       string `mapstructure:"botName"`
-	AppId         int64  `mapstructure:"appId"`
+	DiscordConfig *DiscordConfig `mapstructure:"discord"`
 	Features      []FeatureConfig
 	LogLevel      string         `mapstructure:"logLevel"`
-	DBConfig      BloopyDBConfig `mapstructure:"db"`
+	DBConfig      *PostgresConfig `mapstructure:"db"`
 	FeatureMap    map[string]FeatureConfig
 }
 
 type DiscordConfig struct {
-	BotToken string `mapstructure:"token"`
-	BotName  string `mapstructure:"name"`
-	AppId    int64  `mapstructure:"appId"`
+	Token string `mapstructure:"token"`
+	AppName  string `mapstructure:"name"`
+	AppID    int64  `mapstructure:"appId"`
+	GuildConfigs []DiscordGuildConfig `mapstructure:"guilds"`
+}
+
+func (c *DiscordConfig) GetToken() string {
+	return c.Token
+}
+
+func (c *DiscordConfig) GetAppID() int64 {
+	return c.AppID
+}
+
+// Guild Specific Config
+type DiscordGuildConfig struct {
+	GuildId     string `mapstructure:"id"`
+	// Channel to be used for bot-specific announcements. If empty, no announcement will be sent.
+	Announcement *AnnouncementConfig `mapstructure:"announcement"`
+	GuildCommandConfig []GuildCommandConfig `mapstructure:"commands"`
+}
+
+// Config for dedicated announcement channel. If empty, no announcement will be sent.
+// the bot MUST have MANAGE_CHANNEL permissions
+// This will be a GUILD_ANNOUNCEMENT type channel https://discord.com/developers/docs/resources/channel
+type AnnouncementConfig struct {
+	// Channel to be used for bot-specific announcements.
+	Channel struct {
+		Name string `mapstructure:"name"`
+		ID string `mapstructure:"id"`
+	}
+	NSFW bool `mapstructure:"nsfw"`
+}
+
+type GuildCommandConfig struct {
+	Name    string `mapstructure:"name"`
+	Enabled bool   `mapstructure:"enabled"`
+	// Allowed channels for command to be used in. If empty, command can be used in any channel.
+	// If not empty, command can only be used in channels listed here.
+	// Channels are case sensitive.
+	// Example:
+	// 		"channels": [
+	//			"#general",
+	//			"#random"
+	//		]
+	// This command can only be used in #general and #random channels.
+	// If empty, command can be used in any channel.
+	// If not empty, command can only be used in channels listed here.
+	// Channels are case sensitive.
+	// Example:
+	// 		"channels": [
+	//			"#general",
+	//			"#random"
+	//		]
+	// This command can only be used in #general and #random channels.
+	// If empty, command can be used in any channel.
+	// If not empty, command can only be used in channels listed here.
+	// Channels are case sensitive.
+	// Example:
+	// 		"channels": [
+	//			"#general",
+	Channels []int64 `mapstructure:"channels"`
+	// Roles allowed to use command. If empty, command can be used by anyone.
+	Roles []int64 `mapstructure:"roles"`
 }
 
 // Feature Specific Config
@@ -83,4 +141,13 @@ func (myConfig *AppConfig) GetConfiguredFeatureNames() []string {
 		names = append(names, feat.Name)
 	}
 	return names
+}
+
+// Checks FeatureConfigs for key
+func (myConfig *AppConfig) IsFeaturedEnabled(key string) bool {
+	fCfg, ok := myConfig.FeatureMap[key]
+	if !ok {
+		return false
+	}
+	return fCfg.Enabled
 }

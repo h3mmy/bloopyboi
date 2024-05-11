@@ -5,6 +5,7 @@ import (
 	"time"
 )
 
+// AppConfigLoader acts as a config store for the bloopyboi instance
 type AppConfigLoader struct {
 	m            sync.RWMutex
 	bloopyConfig *AppConfig

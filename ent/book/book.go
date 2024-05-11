@@ -24,8 +24,14 @@ const (
 	FieldIsbn10 = "isbn_10"
 	// FieldIsbn13 holds the string denoting the isbn_13 field in the database.
 	FieldIsbn13 = "isbn_13"
+	// FieldPublisher holds the string denoting the publisher field in the database.
+	FieldPublisher = "publisher"
+	// FieldImageURL holds the string denoting the image_url field in the database.
+	FieldImageURL = "image_url"
 	// EdgeBookAuthor holds the string denoting the book_author edge name in mutations.
 	EdgeBookAuthor = "book_author"
+	// EdgeMediaRequest holds the string denoting the media_request edge name in mutations.
+	EdgeMediaRequest = "media_request"
 	// Table holds the table name of the book in the database.
 	Table = "books"
 	// BookAuthorTable is the table that holds the book_author relation/edge. The primary key declared below.
@@ -33,6 +39,13 @@ const (
 	// BookAuthorInverseTable is the table name for the BookAuthor entity.
 	// It exists in this package in order to avoid circular dependency with the "bookauthor" package.
 	BookAuthorInverseTable = "book_authors"
+	// MediaRequestTable is the table that holds the media_request relation/edge.
+	MediaRequestTable = "media_requests"
+	// MediaRequestInverseTable is the table name for the MediaRequest entity.
+	// It exists in this package in order to avoid circular dependency with the "mediarequest" package.
+	MediaRequestInverseTable = "media_requests"
+	// MediaRequestColumn is the table column denoting the media_request relation/edge.
+	MediaRequestColumn = "book_media_request"
 )
 
 // Columns holds all SQL columns for book fields.
@@ -44,6 +57,8 @@ var Columns = []string{
 	FieldGoogleVolumeID,
 	FieldIsbn10,
 	FieldIsbn13,
+	FieldPublisher,
+	FieldImageURL,
 }
 
 var (
@@ -100,6 +115,16 @@ func ByIsbn13(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldIsbn13, opts...).ToFunc()
 }
 
+// ByPublisher orders the results by the publisher field.
+func ByPublisher(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldPublisher, opts...).ToFunc()
+}
+
+// ByImageURL orders the results by the image_url field.
+func ByImageURL(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldImageURL, opts...).ToFunc()
+}
+
 // ByBookAuthorCount orders the results by book_author count.
 func ByBookAuthorCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
@@ -113,10 +138,24 @@ func ByBookAuthor(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newBookAuthorStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
+
+// ByMediaRequestField orders the results by media_request field.
+func ByMediaRequestField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newMediaRequestStep(), sql.OrderByField(field, opts...))
+	}
+}
 func newBookAuthorStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(BookAuthorInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.M2M, true, BookAuthorTable, BookAuthorPrimaryKey...),
+	)
+}
+func newMediaRequestStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(MediaRequestInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2O, false, MediaRequestTable, MediaRequestColumn),
 	)
 }

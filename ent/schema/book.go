@@ -15,13 +15,24 @@ type Book struct {
 // Fields of the Book.
 func (Book) Fields() []ent.Field {
 	return []ent.Field{
-		field.UUID("id", uuid.New()),
+		field.UUID("id", uuid.New()).
+			Unique(),
 		field.String("title"),
-		field.String("description"),
-		field.String("goodreads_id"),
-		field.String("google_volume_id"),
-		field.String("isbn_10"),
-		field.String("isbn_13"),
+		field.String("description").
+			Optional(),
+		field.String("goodreads_id").
+			Optional().
+			Unique(),
+		field.String("google_volume_id").
+			Unique(),
+		field.String("isbn_10").
+			Optional(),
+		field.String("isbn_13").
+			Optional(),
+		field.String("publisher").
+			Optional(),
+		field.String("image_url").
+			Optional(),
 	}
 }
 
@@ -29,5 +40,6 @@ func (Book) Fields() []ent.Field {
 func (Book) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.From("book_author", BookAuthor.Type).Ref("books"),
+		edge.To("media_request", MediaRequest.Type).Unique(),
 	}
 }

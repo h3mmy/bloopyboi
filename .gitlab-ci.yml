@@ -1,6 +1,6 @@
 .helm:
   image:
-    name: alpine/helm:latest
+    name: alpine/helm:latest@sha256:31ce11c4ee98c5e1e13628ead9212e665f32c3277cae63bd55ced32989089f3e
     entrypoint: [""]
   variables:
     CHART_NAME: bloopyboi
@@ -47,10 +47,10 @@ stages:
 
 docker_build:
   # Use the official docker image.
-  image: docker:latest
+  image: docker:latest@sha256:66183ea9201de4ca3be95ea9f21235a6e427b50f632563e2761b13c0ad1bad48
   stage: build
   services:
-    - docker:dind
+    - docker:dind@sha256:66183ea9201de4ca3be95ea9f21235a6e427b50f632563e2761b13c0ad1bad48
   before_script:
     - !reference [.docker, before_script]
   script:
@@ -79,9 +79,9 @@ docker_build:
 
 # Tags only the $CI_DEFAULT_BRANCH as latest
 push_latest:
-  image: docker:latest
+  image: docker:latest@sha256:66183ea9201de4ca3be95ea9f21235a6e427b50f632563e2761b13c0ad1bad48
   services:
-    - docker:dind
+    - docker:dind@sha256:66183ea9201de4ca3be95ea9f21235a6e427b50f632563e2761b13c0ad1bad48
   variables:
     # Disable fresh pull of source
     GIT_STRATEGY: none
@@ -98,9 +98,9 @@ push_latest:
     - docker push $CI_REGISTRY_IMAGE:latest
 
 push_tag:
-  image: docker:latest
+  image: docker:latest@sha256:66183ea9201de4ca3be95ea9f21235a6e427b50f632563e2761b13c0ad1bad48
   services:
-    - docker:dind
+    - docker:dind@sha256:66183ea9201de4ca3be95ea9f21235a6e427b50f632563e2761b13c0ad1bad48
   variables:
     GIT_STRATEGY: none
   stage: push
@@ -132,7 +132,7 @@ prepare_release:
 
 release_job:
   stage: release
-  image: registry.gitlab.com/gitlab-org/release-cli:latest
+  image: registry.gitlab.com/gitlab-org/release-cli:latest@sha256:696013aea0f2a20482800ce3a77341f840d7c7ec17bd78bd555e0bd6c00e4f11
   needs:
     - job: prepare_release
       artifacts: true

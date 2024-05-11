@@ -16,15 +16,33 @@ const (
 	FieldDiscordid = "discordid"
 	// FieldUsername holds the string denoting the username field in the database.
 	FieldUsername = "username"
+	// FieldEmail holds the string denoting the email field in the database.
+	FieldEmail = "email"
+	// FieldDiscriminator holds the string denoting the discriminator field in the database.
+	FieldDiscriminator = "discriminator"
+	// EdgeGuilds holds the string denoting the guilds edge name in mutations.
+	EdgeGuilds = "guilds"
 	// EdgeDiscordMessages holds the string denoting the discord_messages edge name in mutations.
 	EdgeDiscordMessages = "discord_messages"
+	// EdgeMediaRequests holds the string denoting the media_requests edge name in mutations.
+	EdgeMediaRequests = "media_requests"
 	// Table holds the table name of the discorduser in the database.
 	Table = "discord_users"
+	// GuildsTable is the table that holds the guilds relation/edge. The primary key declared below.
+	GuildsTable = "discord_guild_members"
+	// GuildsInverseTable is the table name for the DiscordGuild entity.
+	// It exists in this package in order to avoid circular dependency with the "discordguild" package.
+	GuildsInverseTable = "discord_guilds"
 	// DiscordMessagesTable is the table that holds the discord_messages relation/edge. The primary key declared below.
 	DiscordMessagesTable = "discord_user_discord_messages"
 	// DiscordMessagesInverseTable is the table name for the DiscordMessage entity.
 	// It exists in this package in order to avoid circular dependency with the "discordmessage" package.
 	DiscordMessagesInverseTable = "discord_messages"
+	// MediaRequestsTable is the table that holds the media_requests relation/edge. The primary key declared below.
+	MediaRequestsTable = "discord_user_media_requests"
+	// MediaRequestsInverseTable is the table name for the MediaRequest entity.
+	// It exists in this package in order to avoid circular dependency with the "mediarequest" package.
+	MediaRequestsInverseTable = "media_requests"
 )
 
 // Columns holds all SQL columns for discorduser fields.
@@ -32,12 +50,20 @@ var Columns = []string{
 	FieldID,
 	FieldDiscordid,
 	FieldUsername,
+	FieldEmail,
+	FieldDiscriminator,
 }
 
 var (
+	// GuildsPrimaryKey and GuildsColumn2 are the table columns denoting the
+	// primary key for the guilds relation (M2M).
+	GuildsPrimaryKey = []string{"discord_guild_id", "discord_user_id"}
 	// DiscordMessagesPrimaryKey and DiscordMessagesColumn2 are the table columns denoting the
 	// primary key for the discord_messages relation (M2M).
 	DiscordMessagesPrimaryKey = []string{"discord_user_id", "discord_message_id"}
+	// MediaRequestsPrimaryKey and MediaRequestsColumn2 are the table columns denoting the
+	// primary key for the media_requests relation (M2M).
+	MediaRequestsPrimaryKey = []string{"discord_user_id", "media_request_id"}
 )
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -49,11 +75,6 @@ func ValidColumn(column string) bool {
 	}
 	return false
 }
-
-var (
-	// DefaultDiscordid holds the default value on creation for the "discordid" field.
-	DefaultDiscordid string
-)
 
 // OrderOption defines the ordering options for the DiscordUser queries.
 type OrderOption func(*sql.Selector)
@@ -73,6 +94,30 @@ func ByUsername(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldUsername, opts...).ToFunc()
 }
 
+// ByEmail orders the results by the email field.
+func ByEmail(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldEmail, opts...).ToFunc()
+}
+
+// ByDiscriminator orders the results by the discriminator field.
+func ByDiscriminator(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDiscriminator, opts...).ToFunc()
+}
+
+// ByGuildsCount orders the results by guilds count.
+func ByGuildsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newGuildsStep(), opts...)
+	}
+}
+
+// ByGuilds orders the results by guilds terms.
+func ByGuilds(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newGuildsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
 // ByDiscordMessagesCount orders the results by discord_messages count.
 func ByDiscordMessagesCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
@@ -86,10 +131,38 @@ func ByDiscordMessages(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newDiscordMessagesStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
+
+// ByMediaRequestsCount orders the results by media_requests count.
+func ByMediaRequestsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newMediaRequestsStep(), opts...)
+	}
+}
+
+// ByMediaRequests orders the results by media_requests terms.
+func ByMediaRequests(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newMediaRequestsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+func newGuildsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(GuildsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2M, true, GuildsTable, GuildsPrimaryKey...),
+	)
+}
 func newDiscordMessagesStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(DiscordMessagesInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.M2M, false, DiscordMessagesTable, DiscordMessagesPrimaryKey...),
+	)
+}
+func newMediaRequestsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(MediaRequestsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2M, false, MediaRequestsTable, MediaRequestsPrimaryKey...),
 	)
 }

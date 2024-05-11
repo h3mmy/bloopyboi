@@ -14,8 +14,10 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/h3mmy/bloopyboi/ent/book"
 	"github.com/h3mmy/bloopyboi/ent/bookauthor"
+	"github.com/h3mmy/bloopyboi/ent/discordguild"
 	"github.com/h3mmy/bloopyboi/ent/discordmessage"
 	"github.com/h3mmy/bloopyboi/ent/discorduser"
+	"github.com/h3mmy/bloopyboi/ent/mediarequest"
 )
 
 // ent aliases to avoid import conflicts in user's code.
@@ -78,8 +80,10 @@ func checkColumn(table, column string) error {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
 			book.Table:           book.ValidColumn,
 			bookauthor.Table:     bookauthor.ValidColumn,
+			discordguild.Table:   discordguild.ValidColumn,
 			discordmessage.Table: discordmessage.ValidColumn,
 			discorduser.Table:    discorduser.ValidColumn,
+			mediarequest.Table:   mediarequest.ValidColumn,
 		})
 	})
 	return columnCheck(table, column)

@@ -1,5 +1,7 @@
 package models
 
+// import "github.com/h3mmy/bloopyboi/ent"
+
 type BookSearchRequest struct {
 	// Isbn is a 10 or 13 digit ISBN
 	ISBN string `json:"isbn,omitempty"`
@@ -13,4 +15,6 @@ type BookSearchRequest struct {
 	Year int `json:"year,omitempty"`
 	// TextSnippet is a free-form text search
 	TextSnippet string `json:"text,omitempty"`
+	// DiscordUser is the Discord user who made the request
+	// DiscordUser *ent.DiscordUser `json:"discorduser,omitempty"`
 }
