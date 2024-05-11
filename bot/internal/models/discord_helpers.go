@@ -20,4 +20,10 @@ type DiscordAppCommand interface {
 	GetAppCommand() *discordgo.ApplicationCommand
 	GetAppCommandHandler() func(s *discordgo.Session, i *discordgo.InteractionCreate)
 	GetMessageComponentHandlers() map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate)
+	GetGuildID() string
+	GetAllowedRoles() []int64
+}
+
+type EmojiProvider interface {
+	GetEmoji() string
 }

@@ -8,15 +8,9 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
-// Retrieves Bot Token
-func GetBotToken() string {
+func GetDiscordConfig() *config.DiscordConfig {
 	AppConfig := config.GetConfig()
-	return AppConfig.BotToken
-}
-
-func GetBotName() string {
-	AppConfig := config.GetConfig()
-	return AppConfig.BotToken
+	return AppConfig.DiscordConfig
 }
 
 // Retrieves logLevel if set
@@ -33,7 +27,7 @@ func GetFeatures() map[string]config.FeatureConfig {
 }
 
 // Checks FeatureConfigs for key
-func IsFeaturedConfigured(key string) bool {
+func IsFeatureEnabled(key string) bool {
 	AppConfig := config.GetConfig()
 	fCfg, ok := AppConfig.FeatureMap[key]
 	if !ok {

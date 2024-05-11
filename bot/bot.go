@@ -50,7 +50,7 @@ func (bot *BloopyBoi) Run(ctx context.Context) error {
 	}
 
 	bot.log.Debug(fmt.Sprintf("FeatureMap contains %d entries", len(providers.GetFeatures())))
-	bot.log.Debug(fmt.Sprintf("Experimental is enabled: %v", providers.IsFeaturedConfigured("experimental")))
+	bot.log.Debug(fmt.Sprintf("Experimental is enabled: %v", providers.IsFeatureEnabled("experimental")))
 
 	errGroup, ctx := errgroup.WithContext(ctx)
 	errGroup.Go(func() error {
@@ -78,7 +78,9 @@ func (bot *BloopyBoi) Run(ctx context.Context) error {
 
 func (bot *BloopyBoi) initializeDiscord(ctx context.Context) error {
 
-	discordClient, err := discord.NewDiscordManager(bot.log.With(zapcore.Field{
+	discordConfig := config.GetConfig().DiscordConfig
+
+	discordClient, err := discord.NewDiscordManager(discordConfig, bot.log.With(zapcore.Field{
 		Key:    botLogFieldKey,
 		Type:   zapcore.StringType,
 		String: "Discord",

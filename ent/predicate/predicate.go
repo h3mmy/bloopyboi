@@ -12,8 +12,14 @@ type Book func(*sql.Selector)
 // BookAuthor is the predicate function for bookauthor builders.
 type BookAuthor func(*sql.Selector)
 
+// DiscordGuild is the predicate function for discordguild builders.
+type DiscordGuild func(*sql.Selector)
+
 // DiscordMessage is the predicate function for discordmessage builders.
 type DiscordMessage func(*sql.Selector)
 
 // DiscordUser is the predicate function for discorduser builders.
 type DiscordUser func(*sql.Selector)
+
+// MediaRequest is the predicate function for mediarequest builders.
+type MediaRequest func(*sql.Selector)

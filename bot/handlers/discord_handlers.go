@@ -14,7 +14,11 @@ import (
 )
 
 var (
-	textResponseMap = map[string]string{"pong": "Ping!", "Pong!": "-_-"}
+	textResponseMap = map[string]string{
+		"pong": "Ping!",
+		"Pong!": "-_-",
+		"!bliss": "I use slash commands now. Try using /bliss",
+	}
 )
 
 type MessageChanBlooper struct {
@@ -124,6 +128,11 @@ func (mcb *MessageChanBlooper) processIncomingMessage(msg *discordgo.MessageCrea
 		ChannelID: msg.ChannelID,
 		MessageComplex: &discordgo.MessageSend{
 			Content: resp,
+			Reference: &discordgo.MessageReference{
+				MessageID: msg.ID,
+				ChannelID: msg.ChannelID,
+				GuildID:   msg.GuildID,
+			},
 		},
 	}
 }

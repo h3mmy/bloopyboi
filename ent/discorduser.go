@@ -21,6 +21,10 @@ type DiscordUser struct {
 	Discordid string `json:"discordid,omitempty"`
 	// Username holds the value of the "username" field.
 	Username string `json:"username,omitempty"`
+	// Email holds the value of the "email" field.
+	Email string `json:"email,omitempty"`
+	// Discriminator holds the value of the "discriminator" field.
+	Discriminator string `json:"discriminator,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the DiscordUserQuery when eager-loading is set.
 	Edges        DiscordUserEdges `json:"edges"`
@@ -29,21 +33,45 @@ type DiscordUser struct {
 
 // DiscordUserEdges holds the relations/edges for other nodes in the graph.
 type DiscordUserEdges struct {
+	// Guilds holds the value of the guilds edge.
+	Guilds []*DiscordGuild `json:"guilds,omitempty"`
 	// DiscordMessages holds the value of the discord_messages edge.
 	DiscordMessages []*DiscordMessage `json:"discord_messages,omitempty"`
+	// MediaRequests holds the value of the media_requests edge.
+	MediaRequests []*MediaRequest `json:"media_requests,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes          [1]bool
+	loadedTypes          [3]bool
+	namedGuilds          map[string][]*DiscordGuild
 	namedDiscordMessages map[string][]*DiscordMessage
+	namedMediaRequests   map[string][]*MediaRequest
+}
+
+// GuildsOrErr returns the Guilds value or an error if the edge
+// was not loaded in eager-loading.
+func (e DiscordUserEdges) GuildsOrErr() ([]*DiscordGuild, error) {
+	if e.loadedTypes[0] {
+		return e.Guilds, nil
+	}
+	return nil, &NotLoadedError{edge: "guilds"}
 }
 
 // DiscordMessagesOrErr returns the DiscordMessages value or an error if the edge
 // was not loaded in eager-loading.
 func (e DiscordUserEdges) DiscordMessagesOrErr() ([]*DiscordMessage, error) {
-	if e.loadedTypes[0] {
+	if e.loadedTypes[1] {
 		return e.DiscordMessages, nil
 	}
 	return nil, &NotLoadedError{edge: "discord_messages"}
+}
+
+// MediaRequestsOrErr returns the MediaRequests value or an error if the edge
+// was not loaded in eager-loading.
+func (e DiscordUserEdges) MediaRequestsOrErr() ([]*MediaRequest, error) {
+	if e.loadedTypes[2] {
+		return e.MediaRequests, nil
+	}
+	return nil, &NotLoadedError{edge: "media_requests"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -51,7 +79,7 @@ func (*DiscordUser) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case discorduser.FieldDiscordid, discorduser.FieldUsername:
+		case discorduser.FieldDiscordid, discorduser.FieldUsername, discorduser.FieldEmail, discorduser.FieldDiscriminator:
 			values[i] = new(sql.NullString)
 		case discorduser.FieldID:
 			values[i] = new(uuid.UUID)
@@ -88,6 +116,18 @@ func (du *DiscordUser) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				du.Username = value.String
 			}
+		case discorduser.FieldEmail:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field email", values[i])
+			} else if value.Valid {
+				du.Email = value.String
+			}
+		case discorduser.FieldDiscriminator:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field discriminator", values[i])
+			} else if value.Valid {
+				du.Discriminator = value.String
+			}
 		default:
 			du.selectValues.Set(columns[i], values[i])
 		}
@@ -101,9 +141,19 @@ func (du *DiscordUser) Value(name string) (ent.Value, error) {
 	return du.selectValues.Get(name)
 }
 
+// QueryGuilds queries the "guilds" edge of the DiscordUser entity.
+func (du *DiscordUser) QueryGuilds() *DiscordGuildQuery {
+	return NewDiscordUserClient(du.config).QueryGuilds(du)
+}
+
 // QueryDiscordMessages queries the "discord_messages" edge of the DiscordUser entity.
 func (du *DiscordUser) QueryDiscordMessages() *DiscordMessageQuery {
 	return NewDiscordUserClient(du.config).QueryDiscordMessages(du)
+}
+
+// QueryMediaRequests queries the "media_requests" edge of the DiscordUser entity.
+func (du *DiscordUser) QueryMediaRequests() *MediaRequestQuery {
+	return NewDiscordUserClient(du.config).QueryMediaRequests(du)
 }
 
 // Update returns a builder for updating this DiscordUser.
@@ -134,8 +184,38 @@ func (du *DiscordUser) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("username=")
 	builder.WriteString(du.Username)
+	builder.WriteString(", ")
+	builder.WriteString("email=")
+	builder.WriteString(du.Email)
+	builder.WriteString(", ")
+	builder.WriteString("discriminator=")
+	builder.WriteString(du.Discriminator)
 	builder.WriteByte(')')
 	return builder.String()
+}
+
+// NamedGuilds returns the Guilds named value or an error if the edge was not
+// loaded in eager-loading with this name.
+func (du *DiscordUser) NamedGuilds(name string) ([]*DiscordGuild, error) {
+	if du.Edges.namedGuilds == nil {
+		return nil, &NotLoadedError{edge: name}
+	}
+	nodes, ok := du.Edges.namedGuilds[name]
+	if !ok {
+		return nil, &NotLoadedError{edge: name}
+	}
+	return nodes, nil
+}
+
+func (du *DiscordUser) appendNamedGuilds(name string, edges ...*DiscordGuild) {
+	if du.Edges.namedGuilds == nil {
+		du.Edges.namedGuilds = make(map[string][]*DiscordGuild)
+	}
+	if len(edges) == 0 {
+		du.Edges.namedGuilds[name] = []*DiscordGuild{}
+	} else {
+		du.Edges.namedGuilds[name] = append(du.Edges.namedGuilds[name], edges...)
+	}
 }
 
 // NamedDiscordMessages returns the DiscordMessages named value or an error if the edge was not
@@ -159,6 +239,30 @@ func (du *DiscordUser) appendNamedDiscordMessages(name string, edges ...*Discord
 		du.Edges.namedDiscordMessages[name] = []*DiscordMessage{}
 	} else {
 		du.Edges.namedDiscordMessages[name] = append(du.Edges.namedDiscordMessages[name], edges...)
+	}
+}
+
+// NamedMediaRequests returns the MediaRequests named value or an error if the edge was not
+// loaded in eager-loading with this name.
+func (du *DiscordUser) NamedMediaRequests(name string) ([]*MediaRequest, error) {
+	if du.Edges.namedMediaRequests == nil {
+		return nil, &NotLoadedError{edge: name}
+	}
+	nodes, ok := du.Edges.namedMediaRequests[name]
+	if !ok {
+		return nil, &NotLoadedError{edge: name}
+	}
+	return nodes, nil
+}
+
+func (du *DiscordUser) appendNamedMediaRequests(name string, edges ...*MediaRequest) {
+	if du.Edges.namedMediaRequests == nil {
+		du.Edges.namedMediaRequests = make(map[string][]*MediaRequest)
+	}
+	if len(edges) == 0 {
+		du.Edges.namedMediaRequests[name] = []*MediaRequest{}
+	} else {
+		du.Edges.namedMediaRequests[name] = append(du.Edges.namedMediaRequests[name], edges...)
 	}
 }
 

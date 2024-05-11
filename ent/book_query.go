@@ -15,6 +15,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/h3mmy/bloopyboi/ent/book"
 	"github.com/h3mmy/bloopyboi/ent/bookauthor"
+	"github.com/h3mmy/bloopyboi/ent/mediarequest"
 	"github.com/h3mmy/bloopyboi/ent/predicate"
 )
 
@@ -26,6 +27,7 @@ type BookQuery struct {
 	inters              []Interceptor
 	predicates          []predicate.Book
 	withBookAuthor      *BookAuthorQuery
+	withMediaRequest    *MediaRequestQuery
 	modifiers           []func(*sql.Selector)
 	withNamedBookAuthor map[string]*BookAuthorQuery
 	// intermediate query (i.e. traversal path).
@@ -79,6 +81,28 @@ func (bq *BookQuery) QueryBookAuthor() *BookAuthorQuery {
 			sqlgraph.From(book.Table, book.FieldID, selector),
 			sqlgraph.To(bookauthor.Table, bookauthor.FieldID),
 			sqlgraph.Edge(sqlgraph.M2M, true, book.BookAuthorTable, book.BookAuthorPrimaryKey...),
+		)
+		fromU = sqlgraph.SetNeighbors(bq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryMediaRequest chains the current query on the "media_request" edge.
+func (bq *BookQuery) QueryMediaRequest() *MediaRequestQuery {
+	query := (&MediaRequestClient{config: bq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := bq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := bq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(book.Table, book.FieldID, selector),
+			sqlgraph.To(mediarequest.Table, mediarequest.FieldID),
+			sqlgraph.Edge(sqlgraph.O2O, false, book.MediaRequestTable, book.MediaRequestColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(bq.driver.Dialect(), step)
 		return fromU, nil
@@ -273,12 +297,13 @@ func (bq *BookQuery) Clone() *BookQuery {
 		return nil
 	}
 	return &BookQuery{
-		config:         bq.config,
-		ctx:            bq.ctx.Clone(),
-		order:          append([]book.OrderOption{}, bq.order...),
-		inters:         append([]Interceptor{}, bq.inters...),
-		predicates:     append([]predicate.Book{}, bq.predicates...),
-		withBookAuthor: bq.withBookAuthor.Clone(),
+		config:           bq.config,
+		ctx:              bq.ctx.Clone(),
+		order:            append([]book.OrderOption{}, bq.order...),
+		inters:           append([]Interceptor{}, bq.inters...),
+		predicates:       append([]predicate.Book{}, bq.predicates...),
+		withBookAuthor:   bq.withBookAuthor.Clone(),
+		withMediaRequest: bq.withMediaRequest.Clone(),
 		// clone intermediate query.
 		sql:  bq.sql.Clone(),
 		path: bq.path,
@@ -293,6 +318,17 @@ func (bq *BookQuery) WithBookAuthor(opts ...func(*BookAuthorQuery)) *BookQuery {
 		opt(query)
 	}
 	bq.withBookAuthor = query
+	return bq
+}
+
+// WithMediaRequest tells the query-builder to eager-load the nodes that are connected to
+// the "media_request" edge. The optional arguments are used to configure the query builder of the edge.
+func (bq *BookQuery) WithMediaRequest(opts ...func(*MediaRequestQuery)) *BookQuery {
+	query := (&MediaRequestClient{config: bq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	bq.withMediaRequest = query
 	return bq
 }
 
@@ -374,8 +410,9 @@ func (bq *BookQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Book, e
 	var (
 		nodes       = []*Book{}
 		_spec       = bq.querySpec()
-		loadedTypes = [1]bool{
+		loadedTypes = [2]bool{
 			bq.withBookAuthor != nil,
+			bq.withMediaRequest != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -403,6 +440,12 @@ func (bq *BookQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Book, e
 		if err := bq.loadBookAuthor(ctx, query, nodes,
 			func(n *Book) { n.Edges.BookAuthor = []*BookAuthor{} },
 			func(n *Book, e *BookAuthor) { n.Edges.BookAuthor = append(n.Edges.BookAuthor, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := bq.withMediaRequest; query != nil {
+		if err := bq.loadMediaRequest(ctx, query, nodes, nil,
+			func(n *Book, e *MediaRequest) { n.Edges.MediaRequest = e }); err != nil {
 			return nil, err
 		}
 	}
@@ -474,6 +517,34 @@ func (bq *BookQuery) loadBookAuthor(ctx context.Context, query *BookAuthorQuery,
 		for kn := range nodes {
 			assign(kn, n)
 		}
+	}
+	return nil
+}
+func (bq *BookQuery) loadMediaRequest(ctx context.Context, query *MediaRequestQuery, nodes []*Book, init func(*Book), assign func(*Book, *MediaRequest)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*Book)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+	}
+	query.withFKs = true
+	query.Where(predicate.MediaRequest(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(book.MediaRequestColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.book_media_request
+		if fk == nil {
+			return fmt.Errorf(`foreign-key "book_media_request" is nil for node %v`, n.ID)
+		}
+		node, ok := nodeids[*fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "book_media_request" returned %v for node %v`, *fk, n.ID)
+		}
+		assign(node, n)
 	}
 	return nil
 }

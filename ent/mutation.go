@@ -15,9 +15,12 @@ import (
 	"github.com/google/uuid"
 	"github.com/h3mmy/bloopyboi/ent/book"
 	"github.com/h3mmy/bloopyboi/ent/bookauthor"
+	"github.com/h3mmy/bloopyboi/ent/discordguild"
 	"github.com/h3mmy/bloopyboi/ent/discordmessage"
 	"github.com/h3mmy/bloopyboi/ent/discorduser"
+	"github.com/h3mmy/bloopyboi/ent/mediarequest"
 	"github.com/h3mmy/bloopyboi/ent/predicate"
+	"github.com/h3mmy/bloopyboi/internal/models"
 )
 
 const (
@@ -31,29 +34,35 @@ const (
 	// Node types.
 	TypeBook           = "Book"
 	TypeBookAuthor     = "BookAuthor"
+	TypeDiscordGuild   = "DiscordGuild"
 	TypeDiscordMessage = "DiscordMessage"
 	TypeDiscordUser    = "DiscordUser"
+	TypeMediaRequest   = "MediaRequest"
 )
 
 // BookMutation represents an operation that mutates the Book nodes in the graph.
 type BookMutation struct {
 	config
-	op                 Op
-	typ                string
-	id                 *uuid.UUID
-	title              *string
-	description        *string
-	goodreads_id       *string
-	google_volume_id   *string
-	isbn_10            *string
-	isbn_13            *string
-	clearedFields      map[string]struct{}
-	book_author        map[uuid.UUID]struct{}
-	removedbook_author map[uuid.UUID]struct{}
-	clearedbook_author bool
-	done               bool
-	oldValue           func(context.Context) (*Book, error)
-	predicates         []predicate.Book
+	op                   Op
+	typ                  string
+	id                   *uuid.UUID
+	title                *string
+	description          *string
+	goodreads_id         *string
+	google_volume_id     *string
+	isbn_10              *string
+	isbn_13              *string
+	publisher            *string
+	image_url            *string
+	clearedFields        map[string]struct{}
+	book_author          map[uuid.UUID]struct{}
+	removedbook_author   map[uuid.UUID]struct{}
+	clearedbook_author   bool
+	media_request        *uuid.UUID
+	clearedmedia_request bool
+	done                 bool
+	oldValue             func(context.Context) (*Book, error)
+	predicates           []predicate.Book
 }
 
 var _ ent.Mutation = (*BookMutation)(nil)
@@ -227,9 +236,22 @@ func (m *BookMutation) OldDescription(ctx context.Context) (v string, err error)
 	return oldValue.Description, nil
 }
 
+// ClearDescription clears the value of the "description" field.
+func (m *BookMutation) ClearDescription() {
+	m.description = nil
+	m.clearedFields[book.FieldDescription] = struct{}{}
+}
+
+// DescriptionCleared returns if the "description" field was cleared in this mutation.
+func (m *BookMutation) DescriptionCleared() bool {
+	_, ok := m.clearedFields[book.FieldDescription]
+	return ok
+}
+
 // ResetDescription resets all changes to the "description" field.
 func (m *BookMutation) ResetDescription() {
 	m.description = nil
+	delete(m.clearedFields, book.FieldDescription)
 }
 
 // SetGoodreadsID sets the "goodreads_id" field.
@@ -263,9 +285,22 @@ func (m *BookMutation) OldGoodreadsID(ctx context.Context) (v string, err error)
 	return oldValue.GoodreadsID, nil
 }
 
+// ClearGoodreadsID clears the value of the "goodreads_id" field.
+func (m *BookMutation) ClearGoodreadsID() {
+	m.goodreads_id = nil
+	m.clearedFields[book.FieldGoodreadsID] = struct{}{}
+}
+
+// GoodreadsIDCleared returns if the "goodreads_id" field was cleared in this mutation.
+func (m *BookMutation) GoodreadsIDCleared() bool {
+	_, ok := m.clearedFields[book.FieldGoodreadsID]
+	return ok
+}
+
 // ResetGoodreadsID resets all changes to the "goodreads_id" field.
 func (m *BookMutation) ResetGoodreadsID() {
 	m.goodreads_id = nil
+	delete(m.clearedFields, book.FieldGoodreadsID)
 }
 
 // SetGoogleVolumeID sets the "google_volume_id" field.
@@ -335,9 +370,22 @@ func (m *BookMutation) OldIsbn10(ctx context.Context) (v string, err error) {
 	return oldValue.Isbn10, nil
 }
 
+// ClearIsbn10 clears the value of the "isbn_10" field.
+func (m *BookMutation) ClearIsbn10() {
+	m.isbn_10 = nil
+	m.clearedFields[book.FieldIsbn10] = struct{}{}
+}
+
+// Isbn10Cleared returns if the "isbn_10" field was cleared in this mutation.
+func (m *BookMutation) Isbn10Cleared() bool {
+	_, ok := m.clearedFields[book.FieldIsbn10]
+	return ok
+}
+
 // ResetIsbn10 resets all changes to the "isbn_10" field.
 func (m *BookMutation) ResetIsbn10() {
 	m.isbn_10 = nil
+	delete(m.clearedFields, book.FieldIsbn10)
 }
 
 // SetIsbn13 sets the "isbn_13" field.
@@ -371,9 +419,120 @@ func (m *BookMutation) OldIsbn13(ctx context.Context) (v string, err error) {
 	return oldValue.Isbn13, nil
 }
 
+// ClearIsbn13 clears the value of the "isbn_13" field.
+func (m *BookMutation) ClearIsbn13() {
+	m.isbn_13 = nil
+	m.clearedFields[book.FieldIsbn13] = struct{}{}
+}
+
+// Isbn13Cleared returns if the "isbn_13" field was cleared in this mutation.
+func (m *BookMutation) Isbn13Cleared() bool {
+	_, ok := m.clearedFields[book.FieldIsbn13]
+	return ok
+}
+
 // ResetIsbn13 resets all changes to the "isbn_13" field.
 func (m *BookMutation) ResetIsbn13() {
 	m.isbn_13 = nil
+	delete(m.clearedFields, book.FieldIsbn13)
+}
+
+// SetPublisher sets the "publisher" field.
+func (m *BookMutation) SetPublisher(s string) {
+	m.publisher = &s
+}
+
+// Publisher returns the value of the "publisher" field in the mutation.
+func (m *BookMutation) Publisher() (r string, exists bool) {
+	v := m.publisher
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldPublisher returns the old "publisher" field's value of the Book entity.
+// If the Book object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *BookMutation) OldPublisher(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldPublisher is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldPublisher requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldPublisher: %w", err)
+	}
+	return oldValue.Publisher, nil
+}
+
+// ClearPublisher clears the value of the "publisher" field.
+func (m *BookMutation) ClearPublisher() {
+	m.publisher = nil
+	m.clearedFields[book.FieldPublisher] = struct{}{}
+}
+
+// PublisherCleared returns if the "publisher" field was cleared in this mutation.
+func (m *BookMutation) PublisherCleared() bool {
+	_, ok := m.clearedFields[book.FieldPublisher]
+	return ok
+}
+
+// ResetPublisher resets all changes to the "publisher" field.
+func (m *BookMutation) ResetPublisher() {
+	m.publisher = nil
+	delete(m.clearedFields, book.FieldPublisher)
+}
+
+// SetImageURL sets the "image_url" field.
+func (m *BookMutation) SetImageURL(s string) {
+	m.image_url = &s
+}
+
+// ImageURL returns the value of the "image_url" field in the mutation.
+func (m *BookMutation) ImageURL() (r string, exists bool) {
+	v := m.image_url
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldImageURL returns the old "image_url" field's value of the Book entity.
+// If the Book object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *BookMutation) OldImageURL(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldImageURL is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldImageURL requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldImageURL: %w", err)
+	}
+	return oldValue.ImageURL, nil
+}
+
+// ClearImageURL clears the value of the "image_url" field.
+func (m *BookMutation) ClearImageURL() {
+	m.image_url = nil
+	m.clearedFields[book.FieldImageURL] = struct{}{}
+}
+
+// ImageURLCleared returns if the "image_url" field was cleared in this mutation.
+func (m *BookMutation) ImageURLCleared() bool {
+	_, ok := m.clearedFields[book.FieldImageURL]
+	return ok
+}
+
+// ResetImageURL resets all changes to the "image_url" field.
+func (m *BookMutation) ResetImageURL() {
+	m.image_url = nil
+	delete(m.clearedFields, book.FieldImageURL)
 }
 
 // AddBookAuthorIDs adds the "book_author" edge to the BookAuthor entity by ids.
@@ -430,6 +589,45 @@ func (m *BookMutation) ResetBookAuthor() {
 	m.removedbook_author = nil
 }
 
+// SetMediaRequestID sets the "media_request" edge to the MediaRequest entity by id.
+func (m *BookMutation) SetMediaRequestID(id uuid.UUID) {
+	m.media_request = &id
+}
+
+// ClearMediaRequest clears the "media_request" edge to the MediaRequest entity.
+func (m *BookMutation) ClearMediaRequest() {
+	m.clearedmedia_request = true
+}
+
+// MediaRequestCleared reports if the "media_request" edge to the MediaRequest entity was cleared.
+func (m *BookMutation) MediaRequestCleared() bool {
+	return m.clearedmedia_request
+}
+
+// MediaRequestID returns the "media_request" edge ID in the mutation.
+func (m *BookMutation) MediaRequestID() (id uuid.UUID, exists bool) {
+	if m.media_request != nil {
+		return *m.media_request, true
+	}
+	return
+}
+
+// MediaRequestIDs returns the "media_request" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// MediaRequestID instead. It exists only for internal usage by the builders.
+func (m *BookMutation) MediaRequestIDs() (ids []uuid.UUID) {
+	if id := m.media_request; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetMediaRequest resets all changes to the "media_request" edge.
+func (m *BookMutation) ResetMediaRequest() {
+	m.media_request = nil
+	m.clearedmedia_request = false
+}
+
 // Where appends a list predicates to the BookMutation builder.
 func (m *BookMutation) Where(ps ...predicate.Book) {
 	m.predicates = append(m.predicates, ps...)
@@ -464,7 +662,7 @@ func (m *BookMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *BookMutation) Fields() []string {
-	fields := make([]string, 0, 6)
+	fields := make([]string, 0, 8)
 	if m.title != nil {
 		fields = append(fields, book.FieldTitle)
 	}
@@ -482,6 +680,12 @@ func (m *BookMutation) Fields() []string {
 	}
 	if m.isbn_13 != nil {
 		fields = append(fields, book.FieldIsbn13)
+	}
+	if m.publisher != nil {
+		fields = append(fields, book.FieldPublisher)
+	}
+	if m.image_url != nil {
+		fields = append(fields, book.FieldImageURL)
 	}
 	return fields
 }
@@ -503,6 +707,10 @@ func (m *BookMutation) Field(name string) (ent.Value, bool) {
 		return m.Isbn10()
 	case book.FieldIsbn13:
 		return m.Isbn13()
+	case book.FieldPublisher:
+		return m.Publisher()
+	case book.FieldImageURL:
+		return m.ImageURL()
 	}
 	return nil, false
 }
@@ -524,6 +732,10 @@ func (m *BookMutation) OldField(ctx context.Context, name string) (ent.Value, er
 		return m.OldIsbn10(ctx)
 	case book.FieldIsbn13:
 		return m.OldIsbn13(ctx)
+	case book.FieldPublisher:
+		return m.OldPublisher(ctx)
+	case book.FieldImageURL:
+		return m.OldImageURL(ctx)
 	}
 	return nil, fmt.Errorf("unknown Book field %s", name)
 }
@@ -575,6 +787,20 @@ func (m *BookMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetIsbn13(v)
 		return nil
+	case book.FieldPublisher:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetPublisher(v)
+		return nil
+	case book.FieldImageURL:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetImageURL(v)
+		return nil
 	}
 	return fmt.Errorf("unknown Book field %s", name)
 }
@@ -604,7 +830,26 @@ func (m *BookMutation) AddField(name string, value ent.Value) error {
 // ClearedFields returns all nullable fields that were cleared during this
 // mutation.
 func (m *BookMutation) ClearedFields() []string {
-	return nil
+	var fields []string
+	if m.FieldCleared(book.FieldDescription) {
+		fields = append(fields, book.FieldDescription)
+	}
+	if m.FieldCleared(book.FieldGoodreadsID) {
+		fields = append(fields, book.FieldGoodreadsID)
+	}
+	if m.FieldCleared(book.FieldIsbn10) {
+		fields = append(fields, book.FieldIsbn10)
+	}
+	if m.FieldCleared(book.FieldIsbn13) {
+		fields = append(fields, book.FieldIsbn13)
+	}
+	if m.FieldCleared(book.FieldPublisher) {
+		fields = append(fields, book.FieldPublisher)
+	}
+	if m.FieldCleared(book.FieldImageURL) {
+		fields = append(fields, book.FieldImageURL)
+	}
+	return fields
 }
 
 // FieldCleared returns a boolean indicating if a field with the given name was
@@ -617,6 +862,26 @@ func (m *BookMutation) FieldCleared(name string) bool {
 // ClearField clears the value of the field with the given name. It returns an
 // error if the field is not defined in the schema.
 func (m *BookMutation) ClearField(name string) error {
+	switch name {
+	case book.FieldDescription:
+		m.ClearDescription()
+		return nil
+	case book.FieldGoodreadsID:
+		m.ClearGoodreadsID()
+		return nil
+	case book.FieldIsbn10:
+		m.ClearIsbn10()
+		return nil
+	case book.FieldIsbn13:
+		m.ClearIsbn13()
+		return nil
+	case book.FieldPublisher:
+		m.ClearPublisher()
+		return nil
+	case book.FieldImageURL:
+		m.ClearImageURL()
+		return nil
+	}
 	return fmt.Errorf("unknown Book nullable field %s", name)
 }
 
@@ -642,15 +907,24 @@ func (m *BookMutation) ResetField(name string) error {
 	case book.FieldIsbn13:
 		m.ResetIsbn13()
 		return nil
+	case book.FieldPublisher:
+		m.ResetPublisher()
+		return nil
+	case book.FieldImageURL:
+		m.ResetImageURL()
+		return nil
 	}
 	return fmt.Errorf("unknown Book field %s", name)
 }
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *BookMutation) AddedEdges() []string {
-	edges := make([]string, 0, 1)
+	edges := make([]string, 0, 2)
 	if m.book_author != nil {
 		edges = append(edges, book.EdgeBookAuthor)
+	}
+	if m.media_request != nil {
+		edges = append(edges, book.EdgeMediaRequest)
 	}
 	return edges
 }
@@ -665,13 +939,17 @@ func (m *BookMutation) AddedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case book.EdgeMediaRequest:
+		if id := m.media_request; id != nil {
+			return []ent.Value{*id}
+		}
 	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *BookMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 1)
+	edges := make([]string, 0, 2)
 	if m.removedbook_author != nil {
 		edges = append(edges, book.EdgeBookAuthor)
 	}
@@ -694,9 +972,12 @@ func (m *BookMutation) RemovedIDs(name string) []ent.Value {
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *BookMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 1)
+	edges := make([]string, 0, 2)
 	if m.clearedbook_author {
 		edges = append(edges, book.EdgeBookAuthor)
+	}
+	if m.clearedmedia_request {
+		edges = append(edges, book.EdgeMediaRequest)
 	}
 	return edges
 }
@@ -707,6 +988,8 @@ func (m *BookMutation) EdgeCleared(name string) bool {
 	switch name {
 	case book.EdgeBookAuthor:
 		return m.clearedbook_author
+	case book.EdgeMediaRequest:
+		return m.clearedmedia_request
 	}
 	return false
 }
@@ -715,6 +998,9 @@ func (m *BookMutation) EdgeCleared(name string) bool {
 // if that edge is not defined in the schema.
 func (m *BookMutation) ClearEdge(name string) error {
 	switch name {
+	case book.EdgeMediaRequest:
+		m.ClearMediaRequest()
+		return nil
 	}
 	return fmt.Errorf("unknown Book unique edge %s", name)
 }
@@ -725,6 +1011,9 @@ func (m *BookMutation) ResetEdge(name string) error {
 	switch name {
 	case book.EdgeBookAuthor:
 		m.ResetBookAuthor()
+		return nil
+	case book.EdgeMediaRequest:
+		m.ResetMediaRequest()
 		return nil
 	}
 	return fmt.Errorf("unknown Book edge %s", name)
@@ -1153,6 +1442,817 @@ func (m *BookAuthorMutation) ResetEdge(name string) error {
 		return nil
 	}
 	return fmt.Errorf("unknown BookAuthor edge %s", name)
+}
+
+// DiscordGuildMutation represents an operation that mutates the DiscordGuild nodes in the graph.
+type DiscordGuildMutation struct {
+	config
+	op                        Op
+	typ                       string
+	id                        *uuid.UUID
+	discordid                 *string
+	name                      *string
+	description               *string
+	rules_channel_id          *string
+	public_updates_channel_id *string
+	nsfw_level                *int
+	addnsfw_level             *int
+	clearedFields             map[string]struct{}
+	members                   map[uuid.UUID]struct{}
+	removedmembers            map[uuid.UUID]struct{}
+	clearedmembers            bool
+	done                      bool
+	oldValue                  func(context.Context) (*DiscordGuild, error)
+	predicates                []predicate.DiscordGuild
+}
+
+var _ ent.Mutation = (*DiscordGuildMutation)(nil)
+
+// discordguildOption allows management of the mutation configuration using functional options.
+type discordguildOption func(*DiscordGuildMutation)
+
+// newDiscordGuildMutation creates new mutation for the DiscordGuild entity.
+func newDiscordGuildMutation(c config, op Op, opts ...discordguildOption) *DiscordGuildMutation {
+	m := &DiscordGuildMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeDiscordGuild,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withDiscordGuildID sets the ID field of the mutation.
+func withDiscordGuildID(id uuid.UUID) discordguildOption {
+	return func(m *DiscordGuildMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *DiscordGuild
+		)
+		m.oldValue = func(ctx context.Context) (*DiscordGuild, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().DiscordGuild.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withDiscordGuild sets the old DiscordGuild of the mutation.
+func withDiscordGuild(node *DiscordGuild) discordguildOption {
+	return func(m *DiscordGuildMutation) {
+		m.oldValue = func(context.Context) (*DiscordGuild, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m DiscordGuildMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m DiscordGuildMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of DiscordGuild entities.
+func (m *DiscordGuildMutation) SetID(id uuid.UUID) {
+	m.id = &id
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *DiscordGuildMutation) ID() (id uuid.UUID, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *DiscordGuildMutation) IDs(ctx context.Context) ([]uuid.UUID, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []uuid.UUID{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().DiscordGuild.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetDiscordid sets the "discordid" field.
+func (m *DiscordGuildMutation) SetDiscordid(s string) {
+	m.discordid = &s
+}
+
+// Discordid returns the value of the "discordid" field in the mutation.
+func (m *DiscordGuildMutation) Discordid() (r string, exists bool) {
+	v := m.discordid
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDiscordid returns the old "discordid" field's value of the DiscordGuild entity.
+// If the DiscordGuild object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DiscordGuildMutation) OldDiscordid(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDiscordid is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDiscordid requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDiscordid: %w", err)
+	}
+	return oldValue.Discordid, nil
+}
+
+// ResetDiscordid resets all changes to the "discordid" field.
+func (m *DiscordGuildMutation) ResetDiscordid() {
+	m.discordid = nil
+}
+
+// SetName sets the "name" field.
+func (m *DiscordGuildMutation) SetName(s string) {
+	m.name = &s
+}
+
+// Name returns the value of the "name" field in the mutation.
+func (m *DiscordGuildMutation) Name() (r string, exists bool) {
+	v := m.name
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldName returns the old "name" field's value of the DiscordGuild entity.
+// If the DiscordGuild object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DiscordGuildMutation) OldName(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldName is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldName requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldName: %w", err)
+	}
+	return oldValue.Name, nil
+}
+
+// ResetName resets all changes to the "name" field.
+func (m *DiscordGuildMutation) ResetName() {
+	m.name = nil
+}
+
+// SetDescription sets the "description" field.
+func (m *DiscordGuildMutation) SetDescription(s string) {
+	m.description = &s
+}
+
+// Description returns the value of the "description" field in the mutation.
+func (m *DiscordGuildMutation) Description() (r string, exists bool) {
+	v := m.description
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDescription returns the old "description" field's value of the DiscordGuild entity.
+// If the DiscordGuild object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DiscordGuildMutation) OldDescription(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDescription is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDescription requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDescription: %w", err)
+	}
+	return oldValue.Description, nil
+}
+
+// ClearDescription clears the value of the "description" field.
+func (m *DiscordGuildMutation) ClearDescription() {
+	m.description = nil
+	m.clearedFields[discordguild.FieldDescription] = struct{}{}
+}
+
+// DescriptionCleared returns if the "description" field was cleared in this mutation.
+func (m *DiscordGuildMutation) DescriptionCleared() bool {
+	_, ok := m.clearedFields[discordguild.FieldDescription]
+	return ok
+}
+
+// ResetDescription resets all changes to the "description" field.
+func (m *DiscordGuildMutation) ResetDescription() {
+	m.description = nil
+	delete(m.clearedFields, discordguild.FieldDescription)
+}
+
+// SetRulesChannelID sets the "rules_channel_id" field.
+func (m *DiscordGuildMutation) SetRulesChannelID(s string) {
+	m.rules_channel_id = &s
+}
+
+// RulesChannelID returns the value of the "rules_channel_id" field in the mutation.
+func (m *DiscordGuildMutation) RulesChannelID() (r string, exists bool) {
+	v := m.rules_channel_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldRulesChannelID returns the old "rules_channel_id" field's value of the DiscordGuild entity.
+// If the DiscordGuild object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DiscordGuildMutation) OldRulesChannelID(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldRulesChannelID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldRulesChannelID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldRulesChannelID: %w", err)
+	}
+	return oldValue.RulesChannelID, nil
+}
+
+// ClearRulesChannelID clears the value of the "rules_channel_id" field.
+func (m *DiscordGuildMutation) ClearRulesChannelID() {
+	m.rules_channel_id = nil
+	m.clearedFields[discordguild.FieldRulesChannelID] = struct{}{}
+}
+
+// RulesChannelIDCleared returns if the "rules_channel_id" field was cleared in this mutation.
+func (m *DiscordGuildMutation) RulesChannelIDCleared() bool {
+	_, ok := m.clearedFields[discordguild.FieldRulesChannelID]
+	return ok
+}
+
+// ResetRulesChannelID resets all changes to the "rules_channel_id" field.
+func (m *DiscordGuildMutation) ResetRulesChannelID() {
+	m.rules_channel_id = nil
+	delete(m.clearedFields, discordguild.FieldRulesChannelID)
+}
+
+// SetPublicUpdatesChannelID sets the "public_updates_channel_id" field.
+func (m *DiscordGuildMutation) SetPublicUpdatesChannelID(s string) {
+	m.public_updates_channel_id = &s
+}
+
+// PublicUpdatesChannelID returns the value of the "public_updates_channel_id" field in the mutation.
+func (m *DiscordGuildMutation) PublicUpdatesChannelID() (r string, exists bool) {
+	v := m.public_updates_channel_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldPublicUpdatesChannelID returns the old "public_updates_channel_id" field's value of the DiscordGuild entity.
+// If the DiscordGuild object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DiscordGuildMutation) OldPublicUpdatesChannelID(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldPublicUpdatesChannelID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldPublicUpdatesChannelID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldPublicUpdatesChannelID: %w", err)
+	}
+	return oldValue.PublicUpdatesChannelID, nil
+}
+
+// ClearPublicUpdatesChannelID clears the value of the "public_updates_channel_id" field.
+func (m *DiscordGuildMutation) ClearPublicUpdatesChannelID() {
+	m.public_updates_channel_id = nil
+	m.clearedFields[discordguild.FieldPublicUpdatesChannelID] = struct{}{}
+}
+
+// PublicUpdatesChannelIDCleared returns if the "public_updates_channel_id" field was cleared in this mutation.
+func (m *DiscordGuildMutation) PublicUpdatesChannelIDCleared() bool {
+	_, ok := m.clearedFields[discordguild.FieldPublicUpdatesChannelID]
+	return ok
+}
+
+// ResetPublicUpdatesChannelID resets all changes to the "public_updates_channel_id" field.
+func (m *DiscordGuildMutation) ResetPublicUpdatesChannelID() {
+	m.public_updates_channel_id = nil
+	delete(m.clearedFields, discordguild.FieldPublicUpdatesChannelID)
+}
+
+// SetNsfwLevel sets the "nsfw_level" field.
+func (m *DiscordGuildMutation) SetNsfwLevel(i int) {
+	m.nsfw_level = &i
+	m.addnsfw_level = nil
+}
+
+// NsfwLevel returns the value of the "nsfw_level" field in the mutation.
+func (m *DiscordGuildMutation) NsfwLevel() (r int, exists bool) {
+	v := m.nsfw_level
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldNsfwLevel returns the old "nsfw_level" field's value of the DiscordGuild entity.
+// If the DiscordGuild object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DiscordGuildMutation) OldNsfwLevel(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldNsfwLevel is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldNsfwLevel requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldNsfwLevel: %w", err)
+	}
+	return oldValue.NsfwLevel, nil
+}
+
+// AddNsfwLevel adds i to the "nsfw_level" field.
+func (m *DiscordGuildMutation) AddNsfwLevel(i int) {
+	if m.addnsfw_level != nil {
+		*m.addnsfw_level += i
+	} else {
+		m.addnsfw_level = &i
+	}
+}
+
+// AddedNsfwLevel returns the value that was added to the "nsfw_level" field in this mutation.
+func (m *DiscordGuildMutation) AddedNsfwLevel() (r int, exists bool) {
+	v := m.addnsfw_level
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearNsfwLevel clears the value of the "nsfw_level" field.
+func (m *DiscordGuildMutation) ClearNsfwLevel() {
+	m.nsfw_level = nil
+	m.addnsfw_level = nil
+	m.clearedFields[discordguild.FieldNsfwLevel] = struct{}{}
+}
+
+// NsfwLevelCleared returns if the "nsfw_level" field was cleared in this mutation.
+func (m *DiscordGuildMutation) NsfwLevelCleared() bool {
+	_, ok := m.clearedFields[discordguild.FieldNsfwLevel]
+	return ok
+}
+
+// ResetNsfwLevel resets all changes to the "nsfw_level" field.
+func (m *DiscordGuildMutation) ResetNsfwLevel() {
+	m.nsfw_level = nil
+	m.addnsfw_level = nil
+	delete(m.clearedFields, discordguild.FieldNsfwLevel)
+}
+
+// AddMemberIDs adds the "members" edge to the DiscordUser entity by ids.
+func (m *DiscordGuildMutation) AddMemberIDs(ids ...uuid.UUID) {
+	if m.members == nil {
+		m.members = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		m.members[ids[i]] = struct{}{}
+	}
+}
+
+// ClearMembers clears the "members" edge to the DiscordUser entity.
+func (m *DiscordGuildMutation) ClearMembers() {
+	m.clearedmembers = true
+}
+
+// MembersCleared reports if the "members" edge to the DiscordUser entity was cleared.
+func (m *DiscordGuildMutation) MembersCleared() bool {
+	return m.clearedmembers
+}
+
+// RemoveMemberIDs removes the "members" edge to the DiscordUser entity by IDs.
+func (m *DiscordGuildMutation) RemoveMemberIDs(ids ...uuid.UUID) {
+	if m.removedmembers == nil {
+		m.removedmembers = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		delete(m.members, ids[i])
+		m.removedmembers[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedMembers returns the removed IDs of the "members" edge to the DiscordUser entity.
+func (m *DiscordGuildMutation) RemovedMembersIDs() (ids []uuid.UUID) {
+	for id := range m.removedmembers {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// MembersIDs returns the "members" edge IDs in the mutation.
+func (m *DiscordGuildMutation) MembersIDs() (ids []uuid.UUID) {
+	for id := range m.members {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetMembers resets all changes to the "members" edge.
+func (m *DiscordGuildMutation) ResetMembers() {
+	m.members = nil
+	m.clearedmembers = false
+	m.removedmembers = nil
+}
+
+// Where appends a list predicates to the DiscordGuildMutation builder.
+func (m *DiscordGuildMutation) Where(ps ...predicate.DiscordGuild) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// WhereP appends storage-level predicates to the DiscordGuildMutation builder. Using this method,
+// users can use type-assertion to append predicates that do not depend on any generated package.
+func (m *DiscordGuildMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.DiscordGuild, len(ps))
+	for i := range ps {
+		p[i] = ps[i]
+	}
+	m.Where(p...)
+}
+
+// Op returns the operation name.
+func (m *DiscordGuildMutation) Op() Op {
+	return m.op
+}
+
+// SetOp allows setting the mutation operation.
+func (m *DiscordGuildMutation) SetOp(op Op) {
+	m.op = op
+}
+
+// Type returns the node type of this mutation (DiscordGuild).
+func (m *DiscordGuildMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *DiscordGuildMutation) Fields() []string {
+	fields := make([]string, 0, 6)
+	if m.discordid != nil {
+		fields = append(fields, discordguild.FieldDiscordid)
+	}
+	if m.name != nil {
+		fields = append(fields, discordguild.FieldName)
+	}
+	if m.description != nil {
+		fields = append(fields, discordguild.FieldDescription)
+	}
+	if m.rules_channel_id != nil {
+		fields = append(fields, discordguild.FieldRulesChannelID)
+	}
+	if m.public_updates_channel_id != nil {
+		fields = append(fields, discordguild.FieldPublicUpdatesChannelID)
+	}
+	if m.nsfw_level != nil {
+		fields = append(fields, discordguild.FieldNsfwLevel)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *DiscordGuildMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case discordguild.FieldDiscordid:
+		return m.Discordid()
+	case discordguild.FieldName:
+		return m.Name()
+	case discordguild.FieldDescription:
+		return m.Description()
+	case discordguild.FieldRulesChannelID:
+		return m.RulesChannelID()
+	case discordguild.FieldPublicUpdatesChannelID:
+		return m.PublicUpdatesChannelID()
+	case discordguild.FieldNsfwLevel:
+		return m.NsfwLevel()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *DiscordGuildMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case discordguild.FieldDiscordid:
+		return m.OldDiscordid(ctx)
+	case discordguild.FieldName:
+		return m.OldName(ctx)
+	case discordguild.FieldDescription:
+		return m.OldDescription(ctx)
+	case discordguild.FieldRulesChannelID:
+		return m.OldRulesChannelID(ctx)
+	case discordguild.FieldPublicUpdatesChannelID:
+		return m.OldPublicUpdatesChannelID(ctx)
+	case discordguild.FieldNsfwLevel:
+		return m.OldNsfwLevel(ctx)
+	}
+	return nil, fmt.Errorf("unknown DiscordGuild field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *DiscordGuildMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case discordguild.FieldDiscordid:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDiscordid(v)
+		return nil
+	case discordguild.FieldName:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetName(v)
+		return nil
+	case discordguild.FieldDescription:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDescription(v)
+		return nil
+	case discordguild.FieldRulesChannelID:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetRulesChannelID(v)
+		return nil
+	case discordguild.FieldPublicUpdatesChannelID:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetPublicUpdatesChannelID(v)
+		return nil
+	case discordguild.FieldNsfwLevel:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetNsfwLevel(v)
+		return nil
+	}
+	return fmt.Errorf("unknown DiscordGuild field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *DiscordGuildMutation) AddedFields() []string {
+	var fields []string
+	if m.addnsfw_level != nil {
+		fields = append(fields, discordguild.FieldNsfwLevel)
+	}
+	return fields
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *DiscordGuildMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case discordguild.FieldNsfwLevel:
+		return m.AddedNsfwLevel()
+	}
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *DiscordGuildMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	case discordguild.FieldNsfwLevel:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddNsfwLevel(v)
+		return nil
+	}
+	return fmt.Errorf("unknown DiscordGuild numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *DiscordGuildMutation) ClearedFields() []string {
+	var fields []string
+	if m.FieldCleared(discordguild.FieldDescription) {
+		fields = append(fields, discordguild.FieldDescription)
+	}
+	if m.FieldCleared(discordguild.FieldRulesChannelID) {
+		fields = append(fields, discordguild.FieldRulesChannelID)
+	}
+	if m.FieldCleared(discordguild.FieldPublicUpdatesChannelID) {
+		fields = append(fields, discordguild.FieldPublicUpdatesChannelID)
+	}
+	if m.FieldCleared(discordguild.FieldNsfwLevel) {
+		fields = append(fields, discordguild.FieldNsfwLevel)
+	}
+	return fields
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *DiscordGuildMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *DiscordGuildMutation) ClearField(name string) error {
+	switch name {
+	case discordguild.FieldDescription:
+		m.ClearDescription()
+		return nil
+	case discordguild.FieldRulesChannelID:
+		m.ClearRulesChannelID()
+		return nil
+	case discordguild.FieldPublicUpdatesChannelID:
+		m.ClearPublicUpdatesChannelID()
+		return nil
+	case discordguild.FieldNsfwLevel:
+		m.ClearNsfwLevel()
+		return nil
+	}
+	return fmt.Errorf("unknown DiscordGuild nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *DiscordGuildMutation) ResetField(name string) error {
+	switch name {
+	case discordguild.FieldDiscordid:
+		m.ResetDiscordid()
+		return nil
+	case discordguild.FieldName:
+		m.ResetName()
+		return nil
+	case discordguild.FieldDescription:
+		m.ResetDescription()
+		return nil
+	case discordguild.FieldRulesChannelID:
+		m.ResetRulesChannelID()
+		return nil
+	case discordguild.FieldPublicUpdatesChannelID:
+		m.ResetPublicUpdatesChannelID()
+		return nil
+	case discordguild.FieldNsfwLevel:
+		m.ResetNsfwLevel()
+		return nil
+	}
+	return fmt.Errorf("unknown DiscordGuild field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *DiscordGuildMutation) AddedEdges() []string {
+	edges := make([]string, 0, 1)
+	if m.members != nil {
+		edges = append(edges, discordguild.EdgeMembers)
+	}
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *DiscordGuildMutation) AddedIDs(name string) []ent.Value {
+	switch name {
+	case discordguild.EdgeMembers:
+		ids := make([]ent.Value, 0, len(m.members))
+		for id := range m.members {
+			ids = append(ids, id)
+		}
+		return ids
+	}
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *DiscordGuildMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 1)
+	if m.removedmembers != nil {
+		edges = append(edges, discordguild.EdgeMembers)
+	}
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *DiscordGuildMutation) RemovedIDs(name string) []ent.Value {
+	switch name {
+	case discordguild.EdgeMembers:
+		ids := make([]ent.Value, 0, len(m.removedmembers))
+		for id := range m.removedmembers {
+			ids = append(ids, id)
+		}
+		return ids
+	}
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *DiscordGuildMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 1)
+	if m.clearedmembers {
+		edges = append(edges, discordguild.EdgeMembers)
+	}
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *DiscordGuildMutation) EdgeCleared(name string) bool {
+	switch name {
+	case discordguild.EdgeMembers:
+		return m.clearedmembers
+	}
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *DiscordGuildMutation) ClearEdge(name string) error {
+	switch name {
+	}
+	return fmt.Errorf("unknown DiscordGuild unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *DiscordGuildMutation) ResetEdge(name string) error {
+	switch name {
+	case discordguild.EdgeMembers:
+		m.ResetMembers()
+		return nil
+	}
+	return fmt.Errorf("unknown DiscordGuild edge %s", name)
 }
 
 // DiscordMessageMutation represents an operation that mutates the DiscordMessage nodes in the graph.
@@ -1696,10 +2796,18 @@ type DiscordUserMutation struct {
 	id                      *uuid.UUID
 	discordid               *string
 	username                *string
+	email                   *string
+	discriminator           *string
 	clearedFields           map[string]struct{}
+	guilds                  map[uuid.UUID]struct{}
+	removedguilds           map[uuid.UUID]struct{}
+	clearedguilds           bool
 	discord_messages        map[string]struct{}
 	removeddiscord_messages map[string]struct{}
 	cleareddiscord_messages bool
+	media_requests          map[uuid.UUID]struct{}
+	removedmedia_requests   map[uuid.UUID]struct{}
+	clearedmedia_requests   bool
 	done                    bool
 	oldValue                func(context.Context) (*DiscordUser, error)
 	predicates              []predicate.DiscordUser
@@ -1881,6 +2989,158 @@ func (m *DiscordUserMutation) ResetUsername() {
 	m.username = nil
 }
 
+// SetEmail sets the "email" field.
+func (m *DiscordUserMutation) SetEmail(s string) {
+	m.email = &s
+}
+
+// Email returns the value of the "email" field in the mutation.
+func (m *DiscordUserMutation) Email() (r string, exists bool) {
+	v := m.email
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldEmail returns the old "email" field's value of the DiscordUser entity.
+// If the DiscordUser object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DiscordUserMutation) OldEmail(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldEmail is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldEmail requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldEmail: %w", err)
+	}
+	return oldValue.Email, nil
+}
+
+// ClearEmail clears the value of the "email" field.
+func (m *DiscordUserMutation) ClearEmail() {
+	m.email = nil
+	m.clearedFields[discorduser.FieldEmail] = struct{}{}
+}
+
+// EmailCleared returns if the "email" field was cleared in this mutation.
+func (m *DiscordUserMutation) EmailCleared() bool {
+	_, ok := m.clearedFields[discorduser.FieldEmail]
+	return ok
+}
+
+// ResetEmail resets all changes to the "email" field.
+func (m *DiscordUserMutation) ResetEmail() {
+	m.email = nil
+	delete(m.clearedFields, discorduser.FieldEmail)
+}
+
+// SetDiscriminator sets the "discriminator" field.
+func (m *DiscordUserMutation) SetDiscriminator(s string) {
+	m.discriminator = &s
+}
+
+// Discriminator returns the value of the "discriminator" field in the mutation.
+func (m *DiscordUserMutation) Discriminator() (r string, exists bool) {
+	v := m.discriminator
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDiscriminator returns the old "discriminator" field's value of the DiscordUser entity.
+// If the DiscordUser object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DiscordUserMutation) OldDiscriminator(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDiscriminator is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDiscriminator requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDiscriminator: %w", err)
+	}
+	return oldValue.Discriminator, nil
+}
+
+// ClearDiscriminator clears the value of the "discriminator" field.
+func (m *DiscordUserMutation) ClearDiscriminator() {
+	m.discriminator = nil
+	m.clearedFields[discorduser.FieldDiscriminator] = struct{}{}
+}
+
+// DiscriminatorCleared returns if the "discriminator" field was cleared in this mutation.
+func (m *DiscordUserMutation) DiscriminatorCleared() bool {
+	_, ok := m.clearedFields[discorduser.FieldDiscriminator]
+	return ok
+}
+
+// ResetDiscriminator resets all changes to the "discriminator" field.
+func (m *DiscordUserMutation) ResetDiscriminator() {
+	m.discriminator = nil
+	delete(m.clearedFields, discorduser.FieldDiscriminator)
+}
+
+// AddGuildIDs adds the "guilds" edge to the DiscordGuild entity by ids.
+func (m *DiscordUserMutation) AddGuildIDs(ids ...uuid.UUID) {
+	if m.guilds == nil {
+		m.guilds = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		m.guilds[ids[i]] = struct{}{}
+	}
+}
+
+// ClearGuilds clears the "guilds" edge to the DiscordGuild entity.
+func (m *DiscordUserMutation) ClearGuilds() {
+	m.clearedguilds = true
+}
+
+// GuildsCleared reports if the "guilds" edge to the DiscordGuild entity was cleared.
+func (m *DiscordUserMutation) GuildsCleared() bool {
+	return m.clearedguilds
+}
+
+// RemoveGuildIDs removes the "guilds" edge to the DiscordGuild entity by IDs.
+func (m *DiscordUserMutation) RemoveGuildIDs(ids ...uuid.UUID) {
+	if m.removedguilds == nil {
+		m.removedguilds = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		delete(m.guilds, ids[i])
+		m.removedguilds[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedGuilds returns the removed IDs of the "guilds" edge to the DiscordGuild entity.
+func (m *DiscordUserMutation) RemovedGuildsIDs() (ids []uuid.UUID) {
+	for id := range m.removedguilds {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// GuildsIDs returns the "guilds" edge IDs in the mutation.
+func (m *DiscordUserMutation) GuildsIDs() (ids []uuid.UUID) {
+	for id := range m.guilds {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetGuilds resets all changes to the "guilds" edge.
+func (m *DiscordUserMutation) ResetGuilds() {
+	m.guilds = nil
+	m.clearedguilds = false
+	m.removedguilds = nil
+}
+
 // AddDiscordMessageIDs adds the "discord_messages" edge to the DiscordMessage entity by ids.
 func (m *DiscordUserMutation) AddDiscordMessageIDs(ids ...string) {
 	if m.discord_messages == nil {
@@ -1935,6 +3195,60 @@ func (m *DiscordUserMutation) ResetDiscordMessages() {
 	m.removeddiscord_messages = nil
 }
 
+// AddMediaRequestIDs adds the "media_requests" edge to the MediaRequest entity by ids.
+func (m *DiscordUserMutation) AddMediaRequestIDs(ids ...uuid.UUID) {
+	if m.media_requests == nil {
+		m.media_requests = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		m.media_requests[ids[i]] = struct{}{}
+	}
+}
+
+// ClearMediaRequests clears the "media_requests" edge to the MediaRequest entity.
+func (m *DiscordUserMutation) ClearMediaRequests() {
+	m.clearedmedia_requests = true
+}
+
+// MediaRequestsCleared reports if the "media_requests" edge to the MediaRequest entity was cleared.
+func (m *DiscordUserMutation) MediaRequestsCleared() bool {
+	return m.clearedmedia_requests
+}
+
+// RemoveMediaRequestIDs removes the "media_requests" edge to the MediaRequest entity by IDs.
+func (m *DiscordUserMutation) RemoveMediaRequestIDs(ids ...uuid.UUID) {
+	if m.removedmedia_requests == nil {
+		m.removedmedia_requests = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		delete(m.media_requests, ids[i])
+		m.removedmedia_requests[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedMediaRequests returns the removed IDs of the "media_requests" edge to the MediaRequest entity.
+func (m *DiscordUserMutation) RemovedMediaRequestsIDs() (ids []uuid.UUID) {
+	for id := range m.removedmedia_requests {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// MediaRequestsIDs returns the "media_requests" edge IDs in the mutation.
+func (m *DiscordUserMutation) MediaRequestsIDs() (ids []uuid.UUID) {
+	for id := range m.media_requests {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetMediaRequests resets all changes to the "media_requests" edge.
+func (m *DiscordUserMutation) ResetMediaRequests() {
+	m.media_requests = nil
+	m.clearedmedia_requests = false
+	m.removedmedia_requests = nil
+}
+
 // Where appends a list predicates to the DiscordUserMutation builder.
 func (m *DiscordUserMutation) Where(ps ...predicate.DiscordUser) {
 	m.predicates = append(m.predicates, ps...)
@@ -1969,12 +3283,18 @@ func (m *DiscordUserMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *DiscordUserMutation) Fields() []string {
-	fields := make([]string, 0, 2)
+	fields := make([]string, 0, 4)
 	if m.discordid != nil {
 		fields = append(fields, discorduser.FieldDiscordid)
 	}
 	if m.username != nil {
 		fields = append(fields, discorduser.FieldUsername)
+	}
+	if m.email != nil {
+		fields = append(fields, discorduser.FieldEmail)
+	}
+	if m.discriminator != nil {
+		fields = append(fields, discorduser.FieldDiscriminator)
 	}
 	return fields
 }
@@ -1988,6 +3308,10 @@ func (m *DiscordUserMutation) Field(name string) (ent.Value, bool) {
 		return m.Discordid()
 	case discorduser.FieldUsername:
 		return m.Username()
+	case discorduser.FieldEmail:
+		return m.Email()
+	case discorduser.FieldDiscriminator:
+		return m.Discriminator()
 	}
 	return nil, false
 }
@@ -2001,6 +3325,10 @@ func (m *DiscordUserMutation) OldField(ctx context.Context, name string) (ent.Va
 		return m.OldDiscordid(ctx)
 	case discorduser.FieldUsername:
 		return m.OldUsername(ctx)
+	case discorduser.FieldEmail:
+		return m.OldEmail(ctx)
+	case discorduser.FieldDiscriminator:
+		return m.OldDiscriminator(ctx)
 	}
 	return nil, fmt.Errorf("unknown DiscordUser field %s", name)
 }
@@ -2023,6 +3351,20 @@ func (m *DiscordUserMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetUsername(v)
+		return nil
+	case discorduser.FieldEmail:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetEmail(v)
+		return nil
+	case discorduser.FieldDiscriminator:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDiscriminator(v)
 		return nil
 	}
 	return fmt.Errorf("unknown DiscordUser field %s", name)
@@ -2053,7 +3395,14 @@ func (m *DiscordUserMutation) AddField(name string, value ent.Value) error {
 // ClearedFields returns all nullable fields that were cleared during this
 // mutation.
 func (m *DiscordUserMutation) ClearedFields() []string {
-	return nil
+	var fields []string
+	if m.FieldCleared(discorduser.FieldEmail) {
+		fields = append(fields, discorduser.FieldEmail)
+	}
+	if m.FieldCleared(discorduser.FieldDiscriminator) {
+		fields = append(fields, discorduser.FieldDiscriminator)
+	}
+	return fields
 }
 
 // FieldCleared returns a boolean indicating if a field with the given name was
@@ -2066,6 +3415,14 @@ func (m *DiscordUserMutation) FieldCleared(name string) bool {
 // ClearField clears the value of the field with the given name. It returns an
 // error if the field is not defined in the schema.
 func (m *DiscordUserMutation) ClearField(name string) error {
+	switch name {
+	case discorduser.FieldEmail:
+		m.ClearEmail()
+		return nil
+	case discorduser.FieldDiscriminator:
+		m.ClearDiscriminator()
+		return nil
+	}
 	return fmt.Errorf("unknown DiscordUser nullable field %s", name)
 }
 
@@ -2079,15 +3436,27 @@ func (m *DiscordUserMutation) ResetField(name string) error {
 	case discorduser.FieldUsername:
 		m.ResetUsername()
 		return nil
+	case discorduser.FieldEmail:
+		m.ResetEmail()
+		return nil
+	case discorduser.FieldDiscriminator:
+		m.ResetDiscriminator()
+		return nil
 	}
 	return fmt.Errorf("unknown DiscordUser field %s", name)
 }
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *DiscordUserMutation) AddedEdges() []string {
-	edges := make([]string, 0, 1)
+	edges := make([]string, 0, 3)
+	if m.guilds != nil {
+		edges = append(edges, discorduser.EdgeGuilds)
+	}
 	if m.discord_messages != nil {
 		edges = append(edges, discorduser.EdgeDiscordMessages)
+	}
+	if m.media_requests != nil {
+		edges = append(edges, discorduser.EdgeMediaRequests)
 	}
 	return edges
 }
@@ -2096,9 +3465,21 @@ func (m *DiscordUserMutation) AddedEdges() []string {
 // name in this mutation.
 func (m *DiscordUserMutation) AddedIDs(name string) []ent.Value {
 	switch name {
+	case discorduser.EdgeGuilds:
+		ids := make([]ent.Value, 0, len(m.guilds))
+		for id := range m.guilds {
+			ids = append(ids, id)
+		}
+		return ids
 	case discorduser.EdgeDiscordMessages:
 		ids := make([]ent.Value, 0, len(m.discord_messages))
 		for id := range m.discord_messages {
+			ids = append(ids, id)
+		}
+		return ids
+	case discorduser.EdgeMediaRequests:
+		ids := make([]ent.Value, 0, len(m.media_requests))
+		for id := range m.media_requests {
 			ids = append(ids, id)
 		}
 		return ids
@@ -2108,9 +3489,15 @@ func (m *DiscordUserMutation) AddedIDs(name string) []ent.Value {
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *DiscordUserMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 1)
+	edges := make([]string, 0, 3)
+	if m.removedguilds != nil {
+		edges = append(edges, discorduser.EdgeGuilds)
+	}
 	if m.removeddiscord_messages != nil {
 		edges = append(edges, discorduser.EdgeDiscordMessages)
+	}
+	if m.removedmedia_requests != nil {
+		edges = append(edges, discorduser.EdgeMediaRequests)
 	}
 	return edges
 }
@@ -2119,9 +3506,21 @@ func (m *DiscordUserMutation) RemovedEdges() []string {
 // the given name in this mutation.
 func (m *DiscordUserMutation) RemovedIDs(name string) []ent.Value {
 	switch name {
+	case discorduser.EdgeGuilds:
+		ids := make([]ent.Value, 0, len(m.removedguilds))
+		for id := range m.removedguilds {
+			ids = append(ids, id)
+		}
+		return ids
 	case discorduser.EdgeDiscordMessages:
 		ids := make([]ent.Value, 0, len(m.removeddiscord_messages))
 		for id := range m.removeddiscord_messages {
+			ids = append(ids, id)
+		}
+		return ids
+	case discorduser.EdgeMediaRequests:
+		ids := make([]ent.Value, 0, len(m.removedmedia_requests))
+		for id := range m.removedmedia_requests {
 			ids = append(ids, id)
 		}
 		return ids
@@ -2131,9 +3530,15 @@ func (m *DiscordUserMutation) RemovedIDs(name string) []ent.Value {
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *DiscordUserMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 1)
+	edges := make([]string, 0, 3)
+	if m.clearedguilds {
+		edges = append(edges, discorduser.EdgeGuilds)
+	}
 	if m.cleareddiscord_messages {
 		edges = append(edges, discorduser.EdgeDiscordMessages)
+	}
+	if m.clearedmedia_requests {
+		edges = append(edges, discorduser.EdgeMediaRequests)
 	}
 	return edges
 }
@@ -2142,8 +3547,12 @@ func (m *DiscordUserMutation) ClearedEdges() []string {
 // was cleared in this mutation.
 func (m *DiscordUserMutation) EdgeCleared(name string) bool {
 	switch name {
+	case discorduser.EdgeGuilds:
+		return m.clearedguilds
 	case discorduser.EdgeDiscordMessages:
 		return m.cleareddiscord_messages
+	case discorduser.EdgeMediaRequests:
+		return m.clearedmedia_requests
 	}
 	return false
 }
@@ -2160,9 +3569,697 @@ func (m *DiscordUserMutation) ClearEdge(name string) error {
 // It returns an error if the edge is not defined in the schema.
 func (m *DiscordUserMutation) ResetEdge(name string) error {
 	switch name {
+	case discorduser.EdgeGuilds:
+		m.ResetGuilds()
+		return nil
 	case discorduser.EdgeDiscordMessages:
 		m.ResetDiscordMessages()
 		return nil
+	case discorduser.EdgeMediaRequests:
+		m.ResetMediaRequests()
+		return nil
 	}
 	return fmt.Errorf("unknown DiscordUser edge %s", name)
+}
+
+// MediaRequestMutation represents an operation that mutates the MediaRequest nodes in the graph.
+type MediaRequestMutation struct {
+	config
+	op                   Op
+	typ                  string
+	id                   *uuid.UUID
+	create_time          *time.Time
+	update_time          *time.Time
+	status               *models.MediaRequestStatus
+	priority             *int
+	addpriority          *int
+	clearedFields        map[string]struct{}
+	discord_users        map[uuid.UUID]struct{}
+	removeddiscord_users map[uuid.UUID]struct{}
+	cleareddiscord_users bool
+	book                 *uuid.UUID
+	clearedbook          bool
+	done                 bool
+	oldValue             func(context.Context) (*MediaRequest, error)
+	predicates           []predicate.MediaRequest
+}
+
+var _ ent.Mutation = (*MediaRequestMutation)(nil)
+
+// mediarequestOption allows management of the mutation configuration using functional options.
+type mediarequestOption func(*MediaRequestMutation)
+
+// newMediaRequestMutation creates new mutation for the MediaRequest entity.
+func newMediaRequestMutation(c config, op Op, opts ...mediarequestOption) *MediaRequestMutation {
+	m := &MediaRequestMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeMediaRequest,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withMediaRequestID sets the ID field of the mutation.
+func withMediaRequestID(id uuid.UUID) mediarequestOption {
+	return func(m *MediaRequestMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *MediaRequest
+		)
+		m.oldValue = func(ctx context.Context) (*MediaRequest, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().MediaRequest.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withMediaRequest sets the old MediaRequest of the mutation.
+func withMediaRequest(node *MediaRequest) mediarequestOption {
+	return func(m *MediaRequestMutation) {
+		m.oldValue = func(context.Context) (*MediaRequest, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m MediaRequestMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m MediaRequestMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of MediaRequest entities.
+func (m *MediaRequestMutation) SetID(id uuid.UUID) {
+	m.id = &id
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *MediaRequestMutation) ID() (id uuid.UUID, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *MediaRequestMutation) IDs(ctx context.Context) ([]uuid.UUID, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []uuid.UUID{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().MediaRequest.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetCreateTime sets the "create_time" field.
+func (m *MediaRequestMutation) SetCreateTime(t time.Time) {
+	m.create_time = &t
+}
+
+// CreateTime returns the value of the "create_time" field in the mutation.
+func (m *MediaRequestMutation) CreateTime() (r time.Time, exists bool) {
+	v := m.create_time
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreateTime returns the old "create_time" field's value of the MediaRequest entity.
+// If the MediaRequest object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *MediaRequestMutation) OldCreateTime(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCreateTime is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCreateTime requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreateTime: %w", err)
+	}
+	return oldValue.CreateTime, nil
+}
+
+// ResetCreateTime resets all changes to the "create_time" field.
+func (m *MediaRequestMutation) ResetCreateTime() {
+	m.create_time = nil
+}
+
+// SetUpdateTime sets the "update_time" field.
+func (m *MediaRequestMutation) SetUpdateTime(t time.Time) {
+	m.update_time = &t
+}
+
+// UpdateTime returns the value of the "update_time" field in the mutation.
+func (m *MediaRequestMutation) UpdateTime() (r time.Time, exists bool) {
+	v := m.update_time
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUpdateTime returns the old "update_time" field's value of the MediaRequest entity.
+// If the MediaRequest object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *MediaRequestMutation) OldUpdateTime(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUpdateTime is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUpdateTime requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUpdateTime: %w", err)
+	}
+	return oldValue.UpdateTime, nil
+}
+
+// ResetUpdateTime resets all changes to the "update_time" field.
+func (m *MediaRequestMutation) ResetUpdateTime() {
+	m.update_time = nil
+}
+
+// SetStatus sets the "status" field.
+func (m *MediaRequestMutation) SetStatus(mrs models.MediaRequestStatus) {
+	m.status = &mrs
+}
+
+// Status returns the value of the "status" field in the mutation.
+func (m *MediaRequestMutation) Status() (r models.MediaRequestStatus, exists bool) {
+	v := m.status
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldStatus returns the old "status" field's value of the MediaRequest entity.
+// If the MediaRequest object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *MediaRequestMutation) OldStatus(ctx context.Context) (v models.MediaRequestStatus, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldStatus is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldStatus requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldStatus: %w", err)
+	}
+	return oldValue.Status, nil
+}
+
+// ResetStatus resets all changes to the "status" field.
+func (m *MediaRequestMutation) ResetStatus() {
+	m.status = nil
+}
+
+// SetPriority sets the "priority" field.
+func (m *MediaRequestMutation) SetPriority(i int) {
+	m.priority = &i
+	m.addpriority = nil
+}
+
+// Priority returns the value of the "priority" field in the mutation.
+func (m *MediaRequestMutation) Priority() (r int, exists bool) {
+	v := m.priority
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldPriority returns the old "priority" field's value of the MediaRequest entity.
+// If the MediaRequest object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *MediaRequestMutation) OldPriority(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldPriority is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldPriority requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldPriority: %w", err)
+	}
+	return oldValue.Priority, nil
+}
+
+// AddPriority adds i to the "priority" field.
+func (m *MediaRequestMutation) AddPriority(i int) {
+	if m.addpriority != nil {
+		*m.addpriority += i
+	} else {
+		m.addpriority = &i
+	}
+}
+
+// AddedPriority returns the value that was added to the "priority" field in this mutation.
+func (m *MediaRequestMutation) AddedPriority() (r int, exists bool) {
+	v := m.addpriority
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetPriority resets all changes to the "priority" field.
+func (m *MediaRequestMutation) ResetPriority() {
+	m.priority = nil
+	m.addpriority = nil
+}
+
+// AddDiscordUserIDs adds the "discord_users" edge to the DiscordUser entity by ids.
+func (m *MediaRequestMutation) AddDiscordUserIDs(ids ...uuid.UUID) {
+	if m.discord_users == nil {
+		m.discord_users = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		m.discord_users[ids[i]] = struct{}{}
+	}
+}
+
+// ClearDiscordUsers clears the "discord_users" edge to the DiscordUser entity.
+func (m *MediaRequestMutation) ClearDiscordUsers() {
+	m.cleareddiscord_users = true
+}
+
+// DiscordUsersCleared reports if the "discord_users" edge to the DiscordUser entity was cleared.
+func (m *MediaRequestMutation) DiscordUsersCleared() bool {
+	return m.cleareddiscord_users
+}
+
+// RemoveDiscordUserIDs removes the "discord_users" edge to the DiscordUser entity by IDs.
+func (m *MediaRequestMutation) RemoveDiscordUserIDs(ids ...uuid.UUID) {
+	if m.removeddiscord_users == nil {
+		m.removeddiscord_users = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		delete(m.discord_users, ids[i])
+		m.removeddiscord_users[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedDiscordUsers returns the removed IDs of the "discord_users" edge to the DiscordUser entity.
+func (m *MediaRequestMutation) RemovedDiscordUsersIDs() (ids []uuid.UUID) {
+	for id := range m.removeddiscord_users {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// DiscordUsersIDs returns the "discord_users" edge IDs in the mutation.
+func (m *MediaRequestMutation) DiscordUsersIDs() (ids []uuid.UUID) {
+	for id := range m.discord_users {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetDiscordUsers resets all changes to the "discord_users" edge.
+func (m *MediaRequestMutation) ResetDiscordUsers() {
+	m.discord_users = nil
+	m.cleareddiscord_users = false
+	m.removeddiscord_users = nil
+}
+
+// SetBookID sets the "book" edge to the Book entity by id.
+func (m *MediaRequestMutation) SetBookID(id uuid.UUID) {
+	m.book = &id
+}
+
+// ClearBook clears the "book" edge to the Book entity.
+func (m *MediaRequestMutation) ClearBook() {
+	m.clearedbook = true
+}
+
+// BookCleared reports if the "book" edge to the Book entity was cleared.
+func (m *MediaRequestMutation) BookCleared() bool {
+	return m.clearedbook
+}
+
+// BookID returns the "book" edge ID in the mutation.
+func (m *MediaRequestMutation) BookID() (id uuid.UUID, exists bool) {
+	if m.book != nil {
+		return *m.book, true
+	}
+	return
+}
+
+// BookIDs returns the "book" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// BookID instead. It exists only for internal usage by the builders.
+func (m *MediaRequestMutation) BookIDs() (ids []uuid.UUID) {
+	if id := m.book; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetBook resets all changes to the "book" edge.
+func (m *MediaRequestMutation) ResetBook() {
+	m.book = nil
+	m.clearedbook = false
+}
+
+// Where appends a list predicates to the MediaRequestMutation builder.
+func (m *MediaRequestMutation) Where(ps ...predicate.MediaRequest) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// WhereP appends storage-level predicates to the MediaRequestMutation builder. Using this method,
+// users can use type-assertion to append predicates that do not depend on any generated package.
+func (m *MediaRequestMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.MediaRequest, len(ps))
+	for i := range ps {
+		p[i] = ps[i]
+	}
+	m.Where(p...)
+}
+
+// Op returns the operation name.
+func (m *MediaRequestMutation) Op() Op {
+	return m.op
+}
+
+// SetOp allows setting the mutation operation.
+func (m *MediaRequestMutation) SetOp(op Op) {
+	m.op = op
+}
+
+// Type returns the node type of this mutation (MediaRequest).
+func (m *MediaRequestMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *MediaRequestMutation) Fields() []string {
+	fields := make([]string, 0, 4)
+	if m.create_time != nil {
+		fields = append(fields, mediarequest.FieldCreateTime)
+	}
+	if m.update_time != nil {
+		fields = append(fields, mediarequest.FieldUpdateTime)
+	}
+	if m.status != nil {
+		fields = append(fields, mediarequest.FieldStatus)
+	}
+	if m.priority != nil {
+		fields = append(fields, mediarequest.FieldPriority)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *MediaRequestMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case mediarequest.FieldCreateTime:
+		return m.CreateTime()
+	case mediarequest.FieldUpdateTime:
+		return m.UpdateTime()
+	case mediarequest.FieldStatus:
+		return m.Status()
+	case mediarequest.FieldPriority:
+		return m.Priority()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *MediaRequestMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case mediarequest.FieldCreateTime:
+		return m.OldCreateTime(ctx)
+	case mediarequest.FieldUpdateTime:
+		return m.OldUpdateTime(ctx)
+	case mediarequest.FieldStatus:
+		return m.OldStatus(ctx)
+	case mediarequest.FieldPriority:
+		return m.OldPriority(ctx)
+	}
+	return nil, fmt.Errorf("unknown MediaRequest field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *MediaRequestMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case mediarequest.FieldCreateTime:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreateTime(v)
+		return nil
+	case mediarequest.FieldUpdateTime:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUpdateTime(v)
+		return nil
+	case mediarequest.FieldStatus:
+		v, ok := value.(models.MediaRequestStatus)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetStatus(v)
+		return nil
+	case mediarequest.FieldPriority:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetPriority(v)
+		return nil
+	}
+	return fmt.Errorf("unknown MediaRequest field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *MediaRequestMutation) AddedFields() []string {
+	var fields []string
+	if m.addpriority != nil {
+		fields = append(fields, mediarequest.FieldPriority)
+	}
+	return fields
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *MediaRequestMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case mediarequest.FieldPriority:
+		return m.AddedPriority()
+	}
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *MediaRequestMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	case mediarequest.FieldPriority:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddPriority(v)
+		return nil
+	}
+	return fmt.Errorf("unknown MediaRequest numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *MediaRequestMutation) ClearedFields() []string {
+	return nil
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *MediaRequestMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *MediaRequestMutation) ClearField(name string) error {
+	return fmt.Errorf("unknown MediaRequest nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *MediaRequestMutation) ResetField(name string) error {
+	switch name {
+	case mediarequest.FieldCreateTime:
+		m.ResetCreateTime()
+		return nil
+	case mediarequest.FieldUpdateTime:
+		m.ResetUpdateTime()
+		return nil
+	case mediarequest.FieldStatus:
+		m.ResetStatus()
+		return nil
+	case mediarequest.FieldPriority:
+		m.ResetPriority()
+		return nil
+	}
+	return fmt.Errorf("unknown MediaRequest field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *MediaRequestMutation) AddedEdges() []string {
+	edges := make([]string, 0, 2)
+	if m.discord_users != nil {
+		edges = append(edges, mediarequest.EdgeDiscordUsers)
+	}
+	if m.book != nil {
+		edges = append(edges, mediarequest.EdgeBook)
+	}
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *MediaRequestMutation) AddedIDs(name string) []ent.Value {
+	switch name {
+	case mediarequest.EdgeDiscordUsers:
+		ids := make([]ent.Value, 0, len(m.discord_users))
+		for id := range m.discord_users {
+			ids = append(ids, id)
+		}
+		return ids
+	case mediarequest.EdgeBook:
+		if id := m.book; id != nil {
+			return []ent.Value{*id}
+		}
+	}
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *MediaRequestMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 2)
+	if m.removeddiscord_users != nil {
+		edges = append(edges, mediarequest.EdgeDiscordUsers)
+	}
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *MediaRequestMutation) RemovedIDs(name string) []ent.Value {
+	switch name {
+	case mediarequest.EdgeDiscordUsers:
+		ids := make([]ent.Value, 0, len(m.removeddiscord_users))
+		for id := range m.removeddiscord_users {
+			ids = append(ids, id)
+		}
+		return ids
+	}
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *MediaRequestMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 2)
+	if m.cleareddiscord_users {
+		edges = append(edges, mediarequest.EdgeDiscordUsers)
+	}
+	if m.clearedbook {
+		edges = append(edges, mediarequest.EdgeBook)
+	}
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *MediaRequestMutation) EdgeCleared(name string) bool {
+	switch name {
+	case mediarequest.EdgeDiscordUsers:
+		return m.cleareddiscord_users
+	case mediarequest.EdgeBook:
+		return m.clearedbook
+	}
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *MediaRequestMutation) ClearEdge(name string) error {
+	switch name {
+	case mediarequest.EdgeBook:
+		m.ClearBook()
+		return nil
+	}
+	return fmt.Errorf("unknown MediaRequest unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *MediaRequestMutation) ResetEdge(name string) error {
+	switch name {
+	case mediarequest.EdgeDiscordUsers:
+		m.ResetDiscordUsers()
+		return nil
+	case mediarequest.EdgeBook:
+		m.ResetBook()
+		return nil
+	}
+	return fmt.Errorf("unknown MediaRequest edge %s", name)
 }

@@ -1,24 +1,50 @@
 package commands
 
 import (
-	"github.com/bwmarrin/discordgo"
 	"fmt"
-)
+	"math/rand"
+	"strings"
+	"time"
 
+	"github.com/bwmarrin/discordgo"
+	"go.uber.org/zap"
+)
 
 // Listens for messages specifically addressing bot
 func DirectedMessageReceive(s *discordgo.Session, m *discordgo.MessageCreate) {
 	directMessage := (m.GuildID == "")
 
 	// Ignore all messages created by the bot itself
-	// This isn't required in this specific example but it's a good practice.
+	// This isn't required in this specific example but it's 1=a good practice.
 	if m.Author.ID == s.State.User.ID {
 		return
 	}
 	logger.Debug(fmt.Sprintf("Processing Message from %s with Content %s", m.Author.Username, m.Content))
+	var nsfwContext bool
+	channel, err := s.Channel(m.ChannelID)
+
+	if err != nil {
+		logger.Warn("could not get information for channel", zap.String("channelID", m.ChannelID))
+	} else {
+		nsfwContext = channel.NSFW
+	}
+
 	botMentioned := false
-	// Filter only commands we care about
-	if len(m.Mentions) > 0 {
+	// Filter only commands we care about (or not)
+	// TODO: Replace with logic to detect engagement
+	if shouldAddReaction(s, m) {
+		// Just react to some mentions mysteriously
+		if rand.Float32() < 0.5 {
+			var err error
+			if nsfwContext {
+				err = s.MessageReactionAdd(m.ChannelID, m.ID, "imwetrn:1236826185783316552")
+			} else {
+				err = reactToMessage(s, m.Message)
+			}
+			if err != nil {
+				logger.Warn(fmt.Sprintf("Error adding reaction to message %s from user %s", m.ID, m.Author.Username))
+			}
+		}
 		for _, user := range m.Mentions {
 			if user.ID == s.State.User.ID {
 				botMentioned = true
@@ -26,10 +52,17 @@ func DirectedMessageReceive(s *discordgo.Session, m *discordgo.MessageCreate) {
 			}
 		}
 	}
+	if strings.Contains(strings.ToLower(m.Content), "bloopyboi") {
+		logger.Sugar().Debug("Detected BloopyBoi in message from ", m.Author.Username)
+		err := s.MessageReactionAdd(m.ChannelID, m.ID, "👀")
+		if err != nil {
+			logger.Sugar().Warn(err)
+		}
+	}
 
 	if !directMessage && botMentioned {
 		logger.Sugar().Debug(fmt.Sprintf("Detected Channel Mention in message from %s with UserID %s and Content: ", m.Author.Username, m.Author.ID), m.Content)
-		err := s.MessageReactionAdd(m.ChannelID, m.ID,emojiZoop)
+		err := s.MessageReactionAdd(m.ChannelID, m.ID, emojiZoop)
 		if err != nil {
 			logger.Sugar().Error(err)
 			return
@@ -47,5 +80,67 @@ func DirectedMessageReceive(s *discordgo.Session, m *discordgo.MessageCreate) {
 			return
 		}
 	}
+}
 
+func shouldAddReaction(s *discordgo.Session, m *discordgo.MessageCreate) bool {
+	if len(m.Mentions) > 0 {
+		return true
+	}
+	if m.Type == discordgo.MessageTypeReply {
+		logger.Debug(
+			"message is a reply type",
+			zap.String("channelID", m.ChannelID),
+			zap.String("messageID", m.ID),
+		)
+		// react to the referenced message
+		err := reactToMessage(s, m.ReferencedMessage)
+		if err != nil {
+			logger.Warn("failed reacting to referenced message", zap.Error(err))
+		}
+		return true
+	}
+	lastChannelMessages, err := s.ChannelMessages(m.ChannelID, 1, m.ID, "", "")
+
+	if err != nil {
+		logger.Warn(
+			"could not get last channel message",
+			zap.String("channelID", m.ChannelID),
+			zap.String("messageID", m.ID),
+			zap.Error(err),
+		)
+		return false
+	} else {
+		lastMessage := lastChannelMessages[0]
+		if lastMessage != nil {
+			logger.Debug("last message is nil for some reason",
+				zap.String("channelID", m.ChannelID),
+				zap.String("messageID", m.ID),
+			)
+			return true
+		}
+		timeDiff := lastMessage.Timestamp.Sub(m.Timestamp)
+		logger.Debug("time difference between messages", zap.Duration("timeDiff", timeDiff))
+		if timeDiff < 7*time.Minute {
+			return true
+		}
+	}
+	return rand.Float64() < 0.6
+}
+
+func reactToMessage(s *discordgo.Session, m *discordgo.Message) error {
+	guildEmojis, err := s.GuildEmojis(m.GuildID)
+	if err != nil {
+		logger.Warn("could not get emoji for guild", zap.String("guildID", m.GuildID))
+	}
+	if guildEmojis != nil {
+		emj := selectGuildEmojiForReaction(guildEmojis)
+		if emj.Available {
+			err = s.MessageReactionAdd(m.ChannelID, m.ID, emj.APIName())
+		} else {
+			err = s.MessageReactionAdd(m.ChannelID, m.ID, "👁‍🗨")
+		}
+	} else {
+		err = s.MessageReactionAdd(m.ChannelID, m.ID, "👁‍🗨")
+	}
+	return err
 }

@@ -14,7 +14,7 @@ func GetInspiroService() *services.InspiroService {
 }
 
 func GetInspiroServiceWithConfig(config *services.InspiroConfig) *services.InspiroService {
-	return services.NewInspiroHttpClient(InspiroClientWithConfig(config))
+	return services.NewInspiroService(InspiroClientWithConfig(config))
 }
 
 func InspiroClientWithConfig(config *services.InspiroConfig) *services.InspiroClient {
