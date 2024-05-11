@@ -38,7 +38,3 @@ func typeInChannel(channel chan bool, s *discordgo.Session, channelID string) {
 		}
 	}
 }
-
-func selectGuildEmojiForReaction(emojiPool []*discordgo.Emoji) *discordgo.Emoji {
-	return emojiPool[rand.Intn(len(emojiPool))]
-}
