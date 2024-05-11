@@ -50,7 +50,7 @@ jobs:
         id: current-registry-sha
         run: |
           docker pull ghcr.io/${{ github.repository }}:${{ env.DEFAULT_BRANCH }}
-          docker inspect -f '{{ index .Config.Labels "org.opencontainers.image.revision" }}' ghcr.io/${{ github.repository }}:${{ env.DEFAULT_BRANCH }} | echo "registrysha=$1" >> $GITHUB_OUTPUT
+          echo registrysha=$(docker inspect -f '{{ index .Config.Labels "org.opencontainers.image.revision" }}' ghcr.io/${{ github.repository }}:${{ env.DEFAULT_BRANCH }}) >> $GITHUB_OUTPUT
 
       - name: Summarize Job
         run: |
