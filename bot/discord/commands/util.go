@@ -2,7 +2,6 @@ package commands
 
 import (
 	"fmt"
-	"math/rand"
 	"time"
 
 	"github.com/bwmarrin/discordgo"
