@@ -20,8 +20,7 @@ jobs:
   changes-since-last:
     runs-on: ubuntu-latest
     outputs:
-      should-run: ${{ steps.should-run.outputs.run }}
-      latest-sha: ${{ steps.gitsha.outputs.latestsha }}
+      has-changes: ${{ steps.gitsha.outputs.latestsha }} == ${{ steps.current-registry-sha.outputs.registrysha }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -30,9 +29,7 @@ jobs:
 
       - name: Get Git SHA
         id: gitsha
-        run: |
-          echo "latestsha=gitsha::$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
-          echo "Collected latest gitsha::$(git rev-parse HEAD)" >> $GITHUB_STEP_SUMMARY
+        run: echo "latestsha=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
 
       - name: Generate Token
         uses: actions/create-github-app-token@v1
@@ -49,17 +46,14 @@ jobs:
           password: ${{ steps.generate-token.outputs.token }}
 
       - name: Pull info from registry
+        id: current-registry-sha
         run: |
           docker pull ghcr.io/${{ github.repository }}:${{ env.DEFAULT_BRANCH }}
-          docker inspect -f '{{ index .Config.Labels "org.opencontainers.image.revision" }}' ghcr.io/${{ github.repository }}:${{ env.DEFAULT_BRANCH }}
-
-      - name: assume-testing
-        id: should-run
-        run: echo "run=${{ !inputs.dryRun }}" >> $GITHUB_OUTPUT
+          docker inspect -f '{{ index .Config.Labels "org.opencontainers.image.revision" }}' ghcr.io/${{ github.repository }}:${{ env.DEFAULT_BRANCH }} | echo "registrysha=$1" >> $GITHUB_OUTPUT
 
   run-publish-snapshot:
     needs:
       - changes-since-last
-    if: needs.changes-since-last.outputs.should-run == true
+    if: (needs.changes-since-last.outputs.has-changes == true) && !inputs.dryRun
     uses: ./.github/workflows/publish-snapshot.yaml
     secrets: inherit
