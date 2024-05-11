@@ -13,15 +13,26 @@ on:
         required: false
         type: boolean
 
+env:
+  DEFAULT_BRANCH: dev
+
 jobs:
   changes-since-last:
     runs-on: ubuntu-latest
     outputs:
       should-run: ${{ steps.should-run.outputs.run }}
+      latest-sha: ${{ steps.gitsha.outputs.latestsha }}
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.DEFAULT_BRANCH }}
       - name: Get Git SHA
         id: gitsha
-        run: echo "latestsha=gitsha::$(git rev-parse HEAD)" >> $GITHUB_STATE
+        run: echo "latestsha=gitsha::$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
+      - name: Pull info from registry
+        run: |
+          docker inspect ghcr.io/${{ github.repository }}@${{ env.DEFAULT_BRANCH }}
       - name: assume-testing
         id: should-run
         run: echo "run=${{ !inputs.dryRun }}" >> $GITHUB_OUTPUT
