@@ -9,6 +9,8 @@ import (
 func NewDiscordServiceWithConfig(cfg *config.DiscordConfig) (*services.DiscordService, error) {
 	dsvc := services.NewDiscordService().WithConfig(cfg)
 	err := dsvc.RefreshDBConnection()
-	logger.Warn("encountered error refreshing db connection. persistence may not be available", zap.Error(err))
+	if err != nil {
+	  logger.Warn("encountered error refreshing db connection. persistence may not be available", zap.Error(err))
+	}
 	return dsvc, nil
 }
