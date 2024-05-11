@@ -21,7 +21,7 @@ jobs:
     name: Detect changes since last snapshot
     runs-on: ubuntu-latest
     outputs:
-      has-changes: ${{ steps.gitsha.outputs.latestsha }} == ${{ steps.current-registry-sha.outputs.registrysha }}
+      has-changes: ${{ steps.gitsha.outputs.latestsha }} != ${{ steps.current-registry-sha.outputs.registrysha }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
