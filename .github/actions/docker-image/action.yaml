@@ -8,14 +8,12 @@ inputs:
     required: true
   push:
     description: Push Images to GHCR
-    type: boolean
     required: false
-    default: true
+    default: 'true'
   latest:
     description: Update latest tag
-    type: boolean
     required: false
-    default: true
+    default: 'true'
 
 runs:
   using: composite

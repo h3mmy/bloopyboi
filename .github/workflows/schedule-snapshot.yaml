@@ -1,0 +1,28 @@
+---
+name: Schedule Snapshot
+
+on:
+  schedule:
+    # Runs against the default branch every day overnight
+    - cron: "18 3 * * *"
+  workflow_dispatch:
+
+jobs:
+  changes-since-last:
+    runs-on: ubuntu-latest
+    outputs:
+      should-run: ${{ steps.should-run.outputs.run }}
+    steps:
+      - name: Get Git SHA
+        id: gitsha
+        run: echo "::set-output name=gitsha::$(git rev-parse HEAD)"
+      - name: assume-testing
+        id: should-run
+        run: echo "run=false" >> $GITHUB_OUTPUT
+
+  run-publish-snapshot:
+    needs:
+      - changes-since-last
+    if: needs.changes-since-last.outputs.should-run == true
+    uses: ${{ github.repository}}/.github/workflow/publish-snapshot.yaml@dev
+    secrets: inherit
