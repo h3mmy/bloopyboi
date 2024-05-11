@@ -1,4 +1,4 @@
-FROM golang:1.22-alpine@sha256:cdc86d9f363e8786845bea2040312b4efa321b828acdeb26f393faa864d887b0 as build
+FROM golang:1.22-alpine@sha256:7d0e5819987bed417c239ab17232cadceec9ff236e03b8c6702d66fc09177c65 as build
 
 ARG TARGETPLATFORM
 ENV TARGETPLATFORM=${TARGETPLATFORM:-linux/amd64}
@@ -22,7 +22,7 @@ RUN go mod download
 RUN go build -ldflags="-w -s" .
 RUN echo $(ls .)
 
-FROM gcr.io/distroless/static@sha256:046b92c933032a8ca99a66f4c79a68ac029d9a4ababd1a806a82140b3b899fd3
+FROM gcr.io/distroless/static@sha256:41972110a1c1a5c0b6adb283e8aa092c43c31f7c5d79b8656fbffff2c3e61f05
 
 COPY --from=build /build/bloopyboi /
 
