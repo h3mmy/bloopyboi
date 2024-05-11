@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math/rand"
 	"strings"
+	"time"
 
 	"github.com/bwmarrin/discordgo"
 	"go.uber.org/zap"
@@ -28,31 +29,17 @@ func DirectedMessageReceive(s *discordgo.Session, m *discordgo.MessageCreate) {
 		nsfwContext = channel.NSFW
 	}
 
-	guildEmojis, err := s.GuildEmojis(m.GuildID)
-	if err != nil {
-		logger.Warn("could not get emoji for guild", zap.String("guildID", m.GuildID))
-	}
-
 	botMentioned := false
 	// Filter only commands we care about (or not)
 	// TODO: Replace with logic to detect engagement
-	if len(m.Mentions) > 0 || rand.Float32() < 0.5 {
+	if shouldAddReaction(s, m) {
 		// Just react to some mentions mysteriously
 		if rand.Float32() < 0.5 {
 			var err error
 			if nsfwContext {
 				err = s.MessageReactionAdd(m.ChannelID, m.ID, "imwetrn:1236826185783316552")
 			} else {
-				if guildEmojis != nil {
-					emj := selectGuildEmojiForReaction(guildEmojis)
-					if emj.Available {
-						err = s.MessageReactionAdd(m.ChannelID, m.ID, emj.APIName())
-					} else {
-						err = s.MessageReactionAdd(m.ChannelID, m.ID, "👁‍🗨")
-					}
-				} else{
-				err = s.MessageReactionAdd(m.ChannelID, m.ID, "👁‍🗨")
-			}
+				err = reactToMessage(s, m.Message)
 			}
 			if err != nil {
 				logger.Warn(fmt.Sprintf("Error adding reaction to message %s from user %s", m.ID, m.Author.Username))
@@ -93,5 +80,67 @@ func DirectedMessageReceive(s *discordgo.Session, m *discordgo.MessageCreate) {
 			return
 		}
 	}
+}
 
+func shouldAddReaction(s *discordgo.Session, m *discordgo.MessageCreate) bool {
+	if len(m.Mentions) > 0 {
+		return true
+	}
+	if m.Type == discordgo.MessageTypeReply {
+		logger.Debug(
+			"message is a reply type",
+			zap.String("channelID", m.ChannelID),
+			zap.String("messageID", m.ID),
+		)
+		// react to the referenced message
+		err := reactToMessage(s, m.ReferencedMessage)
+		if err != nil {
+			logger.Warn("failed reacting to referenced message", zap.Error(err))
+		}
+		return true
+	}
+	lastChannelMessages, err := s.ChannelMessages(m.ChannelID, 1, m.ID, "", "")
+
+	if err != nil {
+		logger.Warn(
+			"could not get last channel message",
+			zap.String("channelID", m.ChannelID),
+			zap.String("messageID", m.ID),
+			zap.Error(err),
+		)
+		return false
+	} else {
+		lastMessage := lastChannelMessages[0]
+		if lastMessage != nil {
+			logger.Debug("last message is nil for some reason",
+				zap.String("channelID", m.ChannelID),
+				zap.String("messageID", m.ID),
+			)
+			return true
+		}
+		timeDiff := lastMessage.Timestamp.Sub(m.Timestamp)
+		logger.Debug("time difference between messages", zap.Duration("timeDiff", timeDiff))
+		if timeDiff < 7*time.Minute {
+			return true
+		}
+	}
+	return rand.Float64() < 0.6
+}
+
+func reactToMessage(s *discordgo.Session, m *discordgo.Message) error {
+	guildEmojis, err := s.GuildEmojis(m.GuildID)
+	if err != nil {
+		logger.Warn("could not get emoji for guild", zap.String("guildID", m.GuildID))
+	}
+	if guildEmojis != nil {
+		emj := selectGuildEmojiForReaction(guildEmojis)
+		if emj.Available {
+			err = s.MessageReactionAdd(m.ChannelID, m.ID, emj.APIName())
+		} else {
+			err = s.MessageReactionAdd(m.ChannelID, m.ID, "👁‍🗨")
+		}
+	} else {
+		err = s.MessageReactionAdd(m.ChannelID, m.ID, "👁‍🗨")
+	}
+	return err
 }
