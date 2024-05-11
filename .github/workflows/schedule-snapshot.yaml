@@ -32,7 +32,7 @@ jobs:
         run: echo "latestsha=gitsha::$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
       - name: Pull info from registry
         run: |
-          docker inspect ghcr.io/${{ github.repository }}@${{ env.DEFAULT_BRANCH }}
+          docker inspect ghcr.io/${{ github.repository }}:${{ env.DEFAULT_BRANCH }}
       - name: assume-testing
         id: should-run
         run: echo "run=${{ !inputs.dryRun }}" >> $GITHUB_OUTPUT
