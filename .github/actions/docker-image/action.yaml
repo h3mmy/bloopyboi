@@ -8,14 +8,12 @@ inputs:
     required: true
   push:
     description: Push Images to GHCR
-    type: boolean
     required: false
-    default: true
+    default: 'true'
   latest:
     description: Update latest tag
-    type: boolean
     required: false
-    default: true
+    default: 'true'
 
 runs:
   using: composite
@@ -25,6 +23,8 @@ runs:
       uses: docker/metadata-action@v5
       with:
         images: ghcr.io/${{ github.repository }}
+        labels: |
+          org.opencontainers.image.description=Bloopyboi Snapshot
         flavor: |
           latest=${{inputs.latest}}
         tags: |
@@ -59,6 +59,7 @@ runs:
         push: true
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
+        annotations: ${{ steps.meta.outputs.annotations }}
         build-args: |
           VERSION=${{ steps.meta.outputs.version }}
           BUILDTIME=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.created'] }}
