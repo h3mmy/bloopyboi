@@ -2,12 +2,19 @@
   name: Publish Snapshot
 
   on:
-    push:
-      branches:
-        - dev
-
+    schedule:
+      # Runs against the default branch every day overnight
+      - cron: "18 3 * * *"
+    workflow_dispatch:
 
   jobs:
+    # changes-since-last:
+    #   runs-on: ubuntu-latest
+    #   steps:
+    #     - name: Get Git SHA
+    #       id: gitsha
+    #       run: echo "::set-output name=gitsha::$(git rev-parse HEAD)"
+
     tests:
       runs-on: ubuntu-latest
       steps:
