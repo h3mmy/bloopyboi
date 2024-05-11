@@ -51,7 +51,7 @@ jobs:
       - name: Pull info from registry
         run: |
           docker pull ghcr.io/${{ github.repository }}:${{ env.DEFAULT_BRANCH }}
-          docker inspect ghcr.io/${{ github.repository }}:${{ env.DEFAULT_BRANCH }}
+          docker inspect -f '{{ index .Config.Labels "org.opencontainers.image.revision" }}' ghcr.io/${{ github.repository }}:${{ env.DEFAULT_BRANCH }}
 
       - name: assume-testing
         id: should-run
