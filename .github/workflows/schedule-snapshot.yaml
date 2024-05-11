@@ -63,6 +63,6 @@ jobs:
   run-publish-snapshot:
     needs:
       - changes-since-last-snapshot
-    if: (needs.changes-since-last-snapshot.outputs.has-changes == true) && !inputs.dryRun
+    if: needs.changes-since-last-snapshot.outputs.has-changes && !inputs.dryRun
     uses: ./.github/workflows/publish-snapshot.yaml
     secrets: inherit
