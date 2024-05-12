@@ -36,6 +36,10 @@ func (mr *MessageReactor) Handle(s *discordgo.Session, m *discordgo.MessageCreat
 	logger.Debug(fmt.Sprintf("Processing Message from %s with Content %s", m.Author.Username, m.Content))
 	if mr.ShouldAddReaction(s, m.Message) {
 		logger.Debug("Will add reaction")
+		err := mr.ReactToMessage(s, m.Message)
+		if err != nil {
+			logger.Error("failed reacting to message", zap.Error(err))
+		}
 	} else {
 		logger.Debug("Will NOT add reaction")
 	}
@@ -108,13 +112,17 @@ func (mr *MessageReactor) ReactToMessage(s *discordgo.Session, m *discordgo.Mess
 		logger.Warn("could not get emoji for guild", zap.String("guildID", m.GuildID))
 	}
 	if guildEmojis != nil {
+		logger.Debug("Found Guild Emojis", zap.Int("count", len(guildEmojis)))
 		emj := mr.SelectGuildEmojiForReaction(guildEmojis)
 		if emj.Available {
+			logger.Debug("selected emoji is available", zap.String("emoji", emj.APIName()))
 			err = s.MessageReactionAdd(m.ChannelID, m.ID, emj.APIName())
 		} else {
+			logger.Debug("selected emoji is not available", zap.String("emoji", emj.APIName()))
 			err = s.MessageReactionAdd(m.ChannelID, m.ID, "👁‍🗨")
 		}
 	} else {
+		logger.Debug("No guild emojis found. Using default")
 		err = s.MessageReactionAdd(m.ChannelID, m.ID, "👁‍🗨")
 	}
 	return err
