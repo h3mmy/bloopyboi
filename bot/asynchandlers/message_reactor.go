@@ -8,6 +8,7 @@ import (
 	"github.com/bwmarrin/discordgo"
 	"github.com/h3mmy/bloopyboi/bot/internal/log"
 	"github.com/h3mmy/bloopyboi/bot/internal/models"
+	"github.com/h3mmy/bloopyboi/internal/discord"
 	"go.uber.org/zap"
 )
 
@@ -81,9 +82,19 @@ func (mr *MessageReactor) ShouldAddReaction(s *discordgo.Session, m *discordgo.M
 			)
 			return true
 		}
-		timeDiff := lastMessage.Timestamp.Sub(m.Timestamp)
+		lastMsgTimestamp, err := discord.SnowflakeTimestamp(lastMessage.ID)
+		if err != nil {
+			logger.Warn(
+				"error calculating snowflake timestamp",
+			 zap.String("messageID", lastMessage.ID),
+			 zap.Error(err),
+			)
+			lastMsgTimestamp = lastMessage.Timestamp
+		}
+		timeDiff := lastMsgTimestamp.Sub(m.Timestamp)
 		logger.Debug("time difference between messages", zap.Duration("timeDiff", timeDiff))
 		if timeDiff < 7*time.Minute {
+			mr.ReactToMessage(s, lastMessage)
 			return true
 		}
 	}
