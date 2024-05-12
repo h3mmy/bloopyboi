@@ -21,7 +21,7 @@ jobs:
     name: Detect changes since last snapshot
     runs-on: ubuntu-latest
     outputs:
-      has-changes: ${{ steps.gitsha.outputs.latestsha }} == ${{ steps.current-registry-sha.outputs.registrysha }}
+      has-changes: ${{ steps.gitsha.outputs.latestsha }} != ${{ steps.current-registry-sha.outputs.registrysha }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -50,19 +50,19 @@ jobs:
         id: current-registry-sha
         run: |
           docker pull ghcr.io/${{ github.repository }}:${{ env.DEFAULT_BRANCH }}
-          docker inspect -f '{{ index .Config.Labels "org.opencontainers.image.revision" }}' ghcr.io/${{ github.repository }}:${{ env.DEFAULT_BRANCH }} | echo "registrysha=$1" >> $GITHUB_OUTPUT
+          echo registrysha=$(docker inspect -f '{{ index .Config.Labels "org.opencontainers.image.revision" }}' ghcr.io/${{ github.repository }}:${{ env.DEFAULT_BRANCH }}) >> $GITHUB_OUTPUT
 
       - name: Summarize Job
         run: |
           echo "## Detect Commits" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "Is Dry Run? ${{ inputs.dryRun }}" >> $GITHUB_OUTPUT
+          echo "Is Dry Run? ${{ inputs.dryRun }}" >> $GITHUB_STEP_SUMMARY
           echo "${{steps.gitsha.outputs.latestsha}} - Latest Repository SHA on branch ${{ env.DEFAULT_BRANCH }}" >> $GITHUB_STEP_SUMMARY
           echo "${{ steps.current-registry-sha.outputs.registrysha }} - Latest SHA on Registry Image ghcr.io/${{ github.repository }}:${{ env.DEFAULT_BRANCH }}" >> $GITHUB_STEP_SUMMARY
 
   run-publish-snapshot:
     needs:
       - changes-since-last-snapshot
-    if: (needs.changes-since-last-snapshot.outputs.has-changes == true) && !inputs.dryRun
+    if: needs.changes-since-last-snapshot.outputs.has-changes && !inputs.dryRun
     uses: ./.github/workflows/publish-snapshot.yaml
     secrets: inherit

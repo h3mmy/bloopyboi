@@ -6,6 +6,7 @@ import (
 	"regexp"
 
 	"github.com/bwmarrin/discordgo"
+	"github.com/h3mmy/bloopyboi/bot/asynchandlers"
 	bloopyCommands "github.com/h3mmy/bloopyboi/bot/discord/commands"
 	"github.com/h3mmy/bloopyboi/bot/handlers"
 	"github.com/h3mmy/bloopyboi/bot/internal/config"
@@ -27,18 +28,18 @@ const (
 
 // DiscordManager is responsible for interfacing with the discord session
 type DiscordManager struct {
-	botMentionRegex    *regexp.Regexp
-	log                *zap.Logger
-	botId              int64
-	discordSvc         *services.DiscordService
-	discordCfg *config.DiscordConfig
+	botMentionRegex *regexp.Regexp
+	log             *zap.Logger
+	botId           int64
+	discordSvc      *services.DiscordService
+	discordCfg      *config.DiscordConfig
 }
 
 // Constructs new Discord Manager
-func NewDiscordManager(cfg *config.DiscordConfig,logger *zap.Logger) (*DiscordManager, error) {
+func NewDiscordManager(cfg *config.DiscordConfig, logger *zap.Logger) (*DiscordManager, error) {
 	botID := cfg.GetAppID()
 
-	botMentionRegex, err := regexp.Compile(fmt.Sprintf(discordBotMentionRegexFmt, fmt.Sprintf("%d",botID)))
+	botMentionRegex, err := regexp.Compile(fmt.Sprintf(discordBotMentionRegexFmt, fmt.Sprintf("%d", botID)))
 	if err != nil {
 		return nil, fmt.Errorf("while compiling bot mention regex: %w", err)
 	}
@@ -59,10 +60,12 @@ func NewDiscordManager(cfg *config.DiscordConfig,logger *zap.Logger) (*DiscordMa
 
 // Initiates websocket connection with Discord and starts listening
 func (d *DiscordManager) Start(ctx context.Context) error {
+	messageReactor := asynchandlers.NewMessageReactor()
 	d.log.Info("Starting Bot")
 	d.discordSvc.AddInteractionHandlerProxy()
 	d.discordSvc.AddHandler(bloopyCommands.DirectMessageCreate)
 	d.discordSvc.AddHandler(bloopyCommands.DirectedMessageReceive)
+	d.discordSvc.AddHandler(messageReactor.Handle)
 
 	d.log.Debug("Using config", zap.Any("config", d.discordCfg))
 
