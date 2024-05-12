@@ -94,7 +94,7 @@ func (mr *MessageReactor) ShouldAddReaction(s *discordgo.Session, m *discordgo.M
 		timeDiff := lastMsgTimestamp.Sub(m.Timestamp)
 		logger.Debug("time difference between messages", zap.Duration("timeDiff", timeDiff))
 		if timeDiff < 7*time.Minute {
-			mr.ReactToMessage(s, lastMessage)
+			_ = mr.ReactToMessage(s, lastMessage)
 			return true
 		}
 	}
