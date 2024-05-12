@@ -25,7 +25,7 @@ func NewMessageReactor() *MessageReactor {
 	}
 }
 
-func (mr *MessageReactor) Handle(s *discordgo.Session, m *discordgo.Message) {
+func (mr *MessageReactor) Handle(s *discordgo.Session, m *discordgo.MessageCreate) {
 	// Ignore all messages created by the bot itself
 	// This isn't required in this specific example but it's 1=a good practice.
 	if m.Author.ID == s.State.User.ID {
@@ -33,7 +33,7 @@ func (mr *MessageReactor) Handle(s *discordgo.Session, m *discordgo.Message) {
 	}
 	logger := mr.logger.With(zap.String("method", "Handle"), zap.String("messageID", m.ID))
 	logger.Debug(fmt.Sprintf("Processing Message from %s with Content %s", m.Author.Username, m.Content))
-	if mr.ShouldAddReaction(s, m) {
+	if mr.ShouldAddReaction(s, m.Message) {
 		logger.Debug("Will add reaction")
 	} else {
 		logger.Debug("Will NOT add reaction")
