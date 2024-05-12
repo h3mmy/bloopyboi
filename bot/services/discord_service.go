@@ -19,8 +19,8 @@ type DiscordService struct {
 	meta           models.BloopyMeta
 	logger         *zap.Logger
 	discordSession *discordgo.Session
-	// The handlers registered with this service, keyed by the command name
-	handlerRegistry map[string]func(*discordgo.Session, *discordgo.InteractionCreate)
+	// The interaction handlers registered with this service, keyed by the command name
+	interactionHandlerRegistry map[string]func(*discordgo.Session, *discordgo.InteractionCreate)
 	// The commands registered with discord that will need to be de-registered on shutdown
 	commandRegistry map[string]*discordgo.ApplicationCommand
 	db              *ent.Client
@@ -44,7 +44,7 @@ func NewDiscordService() *DiscordService {
 		dbEnabled:       false,
 		db:              nil,
 		intents:         DefaultIntents,
-		handlerRegistry: make(map[string]func(*discordgo.Session, *discordgo.InteractionCreate)),
+		interactionHandlerRegistry: make(map[string]func(*discordgo.Session, *discordgo.InteractionCreate)),
 		commandRegistry: make(map[string]*discordgo.ApplicationCommand),
 	}
 }
@@ -98,6 +98,7 @@ func (d *DiscordService) GetSession() *discordgo.Session {
 }
 
 func (d *DiscordService) AddHandler(handler interface{}) func() {
+	logger.Debug("Adding simple handler")
 	return d.discordSession.AddHandler(handler)
 }
 
@@ -117,7 +118,7 @@ func (d *DiscordService) SetIntents(intents discordgo.Intent) {
 // Registers an app command with discord and adds the respective handler to the svc handler registry.
 func (d *DiscordService) RegisterAppCommand(command models.DiscordAppCommand) (*discordgo.ApplicationCommand, error) {
 	d.logger.Debug(fmt.Sprintf("adding handler for %s to registry", command.GetAppCommand().Name))
-	d.handlerRegistry[command.GetAppCommand().Name] = command.GetAppCommandHandler()
+	d.interactionHandlerRegistry[command.GetAppCommand().Name] = command.GetAppCommandHandler()
 
 	cmd, err := d.discordSession.ApplicationCommandCreate(d.discordSession.State.User.ID, command.GetGuildID(), command.GetAppCommand())
 	if err != nil {
@@ -133,7 +134,7 @@ func (d *DiscordService) RegisterAppCommand(command models.DiscordAppCommand) (*
 func (d *DiscordService) RegisterMessageComponentHandlers(additionalHandlers map[string]func(*discordgo.Session, *discordgo.InteractionCreate)) error {
 	for k, h := range additionalHandlers {
 		d.logger.Debug(fmt.Sprintf("adding handler for %s to registry", k))
-		d.handlerRegistry[k] = h
+		d.interactionHandlerRegistry[k] = h
 	}
 	return nil
 }
@@ -144,19 +145,19 @@ func (d *DiscordService) AddInteractionHandlerProxy() {
 		func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			switch i.Type {
 			case discordgo.InteractionApplicationCommand:
-				if h, ok := d.handlerRegistry[i.ApplicationCommandData().Name]; ok {
+				if h, ok := d.interactionHandlerRegistry[i.ApplicationCommandData().Name]; ok {
 					h(s, i)
 				} else {
 					logger.Info("no handler registered for command", zap.String("command", i.ApplicationCommandData().Name))
 				}
 			case discordgo.InteractionMessageComponent:
-				if h, ok := d.handlerRegistry[i.MessageComponentData().CustomID]; ok {
+				if h, ok := d.interactionHandlerRegistry[i.MessageComponentData().CustomID]; ok {
 					h(s, i)
 				} else {
 					logger.Info("no handler registered for message component", zap.String("customID", i.MessageComponentData().CustomID))
 				}
 			case discordgo.InteractionModalSubmit:
-				if h, ok := d.handlerRegistry[i.ModalSubmitData().CustomID]; ok {
+				if h, ok := d.interactionHandlerRegistry[i.ModalSubmitData().CustomID]; ok {
 					h(s, i)
 				} else {
 					logger.Info("no handler registered for modal submit data", zap.String("customID", i.ModalSubmitData().CustomID))
