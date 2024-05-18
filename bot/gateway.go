@@ -2,7 +2,9 @@ package bot
 
 import (
 	"context"
+	"net/http"
 
+	"github.com/h3mmy/bloopyboi/bot/discord"
 	"github.com/h3mmy/bloopyboi/bot/internal/models"
 	"github.com/h3mmy/bloopyboi/bot/servers"
 	pmodels "github.com/h3mmy/bloopyboi/internal/models"
@@ -25,6 +27,7 @@ type Gateway struct {
 	meta     models.BloopyMeta
 	echoServ *echo.Echo
 	config   *pmodels.GatewayConfig
+	bot      *BloopyBoi
 }
 
 func NewGateway(cfg *pmodels.GatewayConfig) *Gateway {
@@ -38,12 +41,19 @@ func NewGateway(cfg *pmodels.GatewayConfig) *Gateway {
 	}
 }
 
+func (g *Gateway) WithBotInstance(bot *BloopyBoi) *Gateway {
+	g.bot = bot
+	return g
+}
+
 func NewDefaultGateway() *Gateway {
 	return NewGateway(defaultGatewayConfig)
 }
 
 func (g *Gateway) Start() error {
 	g.echoServ.GET("/info", GetAppInfo)
+	dg := g.echoServ.Group("/discord")
+	dg = RegisterDiscordSvcRoutes(dg, g.bot.DiscordManager)
 
 	return g.echoServ.Start(":8080")
 }
@@ -53,7 +63,22 @@ func (g *Gateway) Shutdown(ctx context.Context) error {
 }
 
 func GetAppInfo(c echo.Context) error {
-	return c.JSON(200, "Hello World")
+	return c.JSON(http.StatusOK, "Hello World")
+}
+
+func RegisterDiscordSvcRoutes(echoGroup *echo.Group, discMgr *discord.DiscordManager) *echo.Group {
+	dg := echoGroup
+	dg.GET("/manager/meta", GetDiscordManagerMeta(discMgr))
+	return dg
+}
+
+func GetDiscordManagerMeta(g *discord.DiscordManager) func(c echo.Context) error {
+	return func(c echo.Context) error {
+		if g == nil {
+			return c.JSON(http.StatusServiceUnavailable, "Bot Instance Not Attached")
+		}
+		return c.JSON(http.StatusOK, g.GetDiscordService().GetMeta())
+	}
 }
 
 // func (g *Gateway) startGRPC() error {

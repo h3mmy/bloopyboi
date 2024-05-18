@@ -16,6 +16,7 @@ import (
 	"github.com/h3mmy/bloopyboi/ent/bookauthor"
 	"github.com/h3mmy/bloopyboi/ent/discordguild"
 	"github.com/h3mmy/bloopyboi/ent/discordmessage"
+	"github.com/h3mmy/bloopyboi/ent/discordmessagereaction"
 	"github.com/h3mmy/bloopyboi/ent/discorduser"
 	"github.com/h3mmy/bloopyboi/ent/mediarequest"
 )
@@ -78,12 +79,13 @@ var (
 func checkColumn(table, column string) error {
 	initCheck.Do(func() {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
-			book.Table:           book.ValidColumn,
-			bookauthor.Table:     bookauthor.ValidColumn,
-			discordguild.Table:   discordguild.ValidColumn,
-			discordmessage.Table: discordmessage.ValidColumn,
-			discorduser.Table:    discorduser.ValidColumn,
-			mediarequest.Table:   mediarequest.ValidColumn,
+			book.Table:                   book.ValidColumn,
+			bookauthor.Table:             bookauthor.ValidColumn,
+			discordguild.Table:           discordguild.ValidColumn,
+			discordmessage.Table:         discordmessage.ValidColumn,
+			discordmessagereaction.Table: discordmessagereaction.ValidColumn,
+			discorduser.Table:            discorduser.ValidColumn,
+			mediarequest.Table:           mediarequest.ValidColumn,
 		})
 	})
 	return columnCheck(table, column)

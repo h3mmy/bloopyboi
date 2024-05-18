@@ -36,5 +36,6 @@ func (DiscordGuild) Fields() []ent.Field {
 func (DiscordGuild) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.To("members", DiscordUser.Type),
+		edge.To("discord_messages", DiscordMessage.Type),
 	}
 }

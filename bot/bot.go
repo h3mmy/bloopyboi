@@ -78,9 +78,9 @@ func (bot *BloopyBoi) Run(ctx context.Context) error {
 
 func (bot *BloopyBoi) initializeDiscord(ctx context.Context) error {
 
-	discordConfig := config.GetConfig().DiscordConfig
+	discordConfig := providers.GetDiscordConfig()
 
-	discordClient, err := discord.NewDiscordManager(discordConfig, bot.log.With(zapcore.Field{
+	discordManager, err := discord.NewDiscordManager(discordConfig, bot.log.With(zapcore.Field{
 		Key:    botLogFieldKey,
 		Type:   zapcore.StringType,
 		String: "Discord",
@@ -90,9 +90,9 @@ func (bot *BloopyBoi) initializeDiscord(ctx context.Context) error {
 		return err
 	}
 
-	bot.DiscordManager = discordClient
+	bot.DiscordManager = discordManager
 
-	bot.log.Debug("Starting Discord Client...")
+	bot.log.Debug("Starting Discord Manager...")
 	return bot.DiscordManager.Start(ctx)
 
 }
@@ -124,3 +124,4 @@ func (bot *BloopyBoi) GetReadinessChecker() health.Checker {
 
 	return providers.NewReadinessChecker(discordReady)
 }
+

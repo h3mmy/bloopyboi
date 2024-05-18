@@ -13,7 +13,9 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
+	"github.com/h3mmy/bloopyboi/ent/discordguild"
 	"github.com/h3mmy/bloopyboi/ent/discordmessage"
+	"github.com/h3mmy/bloopyboi/ent/discordmessagereaction"
 	"github.com/h3mmy/bloopyboi/ent/discorduser"
 	"github.com/h3mmy/bloopyboi/ent/predicate"
 )
@@ -21,13 +23,16 @@ import (
 // DiscordMessageQuery is the builder for querying DiscordMessage entities.
 type DiscordMessageQuery struct {
 	config
-	ctx             *QueryContext
-	order           []discordmessage.OrderOption
-	inters          []Interceptor
-	predicates      []predicate.DiscordMessage
-	withAuthor      *DiscordUserQuery
-	modifiers       []func(*sql.Selector)
-	withNamedAuthor map[string]*DiscordUserQuery
+	ctx                       *QueryContext
+	order                     []discordmessage.OrderOption
+	inters                    []Interceptor
+	predicates                []predicate.DiscordMessage
+	withAuthor                *DiscordUserQuery
+	withMessageReactions      *DiscordMessageReactionQuery
+	withGuild                 *DiscordGuildQuery
+	withFKs                   bool
+	modifiers                 []func(*sql.Selector)
+	withNamedMessageReactions map[string]*DiscordMessageReactionQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -78,7 +83,51 @@ func (dmq *DiscordMessageQuery) QueryAuthor() *DiscordUserQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(discordmessage.Table, discordmessage.FieldID, selector),
 			sqlgraph.To(discorduser.Table, discorduser.FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, true, discordmessage.AuthorTable, discordmessage.AuthorPrimaryKey...),
+			sqlgraph.Edge(sqlgraph.M2O, true, discordmessage.AuthorTable, discordmessage.AuthorColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(dmq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryMessageReactions chains the current query on the "message_reactions" edge.
+func (dmq *DiscordMessageQuery) QueryMessageReactions() *DiscordMessageReactionQuery {
+	query := (&DiscordMessageReactionClient{config: dmq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := dmq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := dmq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(discordmessage.Table, discordmessage.FieldID, selector),
+			sqlgraph.To(discordmessagereaction.Table, discordmessagereaction.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, discordmessage.MessageReactionsTable, discordmessage.MessageReactionsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(dmq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryGuild chains the current query on the "guild" edge.
+func (dmq *DiscordMessageQuery) QueryGuild() *DiscordGuildQuery {
+	query := (&DiscordGuildClient{config: dmq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := dmq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := dmq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(discordmessage.Table, discordmessage.FieldID, selector),
+			sqlgraph.To(discordguild.Table, discordguild.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, discordmessage.GuildTable, discordmessage.GuildColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(dmq.driver.Dialect(), step)
 		return fromU, nil
@@ -110,8 +159,8 @@ func (dmq *DiscordMessageQuery) FirstX(ctx context.Context) *DiscordMessage {
 
 // FirstID returns the first DiscordMessage ID from the query.
 // Returns a *NotFoundError when no DiscordMessage ID was found.
-func (dmq *DiscordMessageQuery) FirstID(ctx context.Context) (id string, err error) {
-	var ids []string
+func (dmq *DiscordMessageQuery) FirstID(ctx context.Context) (id uuid.UUID, err error) {
+	var ids []uuid.UUID
 	if ids, err = dmq.Limit(1).IDs(setContextOp(ctx, dmq.ctx, "FirstID")); err != nil {
 		return
 	}
@@ -123,7 +172,7 @@ func (dmq *DiscordMessageQuery) FirstID(ctx context.Context) (id string, err err
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (dmq *DiscordMessageQuery) FirstIDX(ctx context.Context) string {
+func (dmq *DiscordMessageQuery) FirstIDX(ctx context.Context) uuid.UUID {
 	id, err := dmq.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -161,8 +210,8 @@ func (dmq *DiscordMessageQuery) OnlyX(ctx context.Context) *DiscordMessage {
 // OnlyID is like Only, but returns the only DiscordMessage ID in the query.
 // Returns a *NotSingularError when more than one DiscordMessage ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (dmq *DiscordMessageQuery) OnlyID(ctx context.Context) (id string, err error) {
-	var ids []string
+func (dmq *DiscordMessageQuery) OnlyID(ctx context.Context) (id uuid.UUID, err error) {
+	var ids []uuid.UUID
 	if ids, err = dmq.Limit(2).IDs(setContextOp(ctx, dmq.ctx, "OnlyID")); err != nil {
 		return
 	}
@@ -178,7 +227,7 @@ func (dmq *DiscordMessageQuery) OnlyID(ctx context.Context) (id string, err erro
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (dmq *DiscordMessageQuery) OnlyIDX(ctx context.Context) string {
+func (dmq *DiscordMessageQuery) OnlyIDX(ctx context.Context) uuid.UUID {
 	id, err := dmq.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -206,7 +255,7 @@ func (dmq *DiscordMessageQuery) AllX(ctx context.Context) []*DiscordMessage {
 }
 
 // IDs executes the query and returns a list of DiscordMessage IDs.
-func (dmq *DiscordMessageQuery) IDs(ctx context.Context) (ids []string, err error) {
+func (dmq *DiscordMessageQuery) IDs(ctx context.Context) (ids []uuid.UUID, err error) {
 	if dmq.ctx.Unique == nil && dmq.path != nil {
 		dmq.Unique(true)
 	}
@@ -218,7 +267,7 @@ func (dmq *DiscordMessageQuery) IDs(ctx context.Context) (ids []string, err erro
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (dmq *DiscordMessageQuery) IDsX(ctx context.Context) []string {
+func (dmq *DiscordMessageQuery) IDsX(ctx context.Context) []uuid.UUID {
 	ids, err := dmq.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -273,12 +322,14 @@ func (dmq *DiscordMessageQuery) Clone() *DiscordMessageQuery {
 		return nil
 	}
 	return &DiscordMessageQuery{
-		config:     dmq.config,
-		ctx:        dmq.ctx.Clone(),
-		order:      append([]discordmessage.OrderOption{}, dmq.order...),
-		inters:     append([]Interceptor{}, dmq.inters...),
-		predicates: append([]predicate.DiscordMessage{}, dmq.predicates...),
-		withAuthor: dmq.withAuthor.Clone(),
+		config:               dmq.config,
+		ctx:                  dmq.ctx.Clone(),
+		order:                append([]discordmessage.OrderOption{}, dmq.order...),
+		inters:               append([]Interceptor{}, dmq.inters...),
+		predicates:           append([]predicate.DiscordMessage{}, dmq.predicates...),
+		withAuthor:           dmq.withAuthor.Clone(),
+		withMessageReactions: dmq.withMessageReactions.Clone(),
+		withGuild:            dmq.withGuild.Clone(),
 		// clone intermediate query.
 		sql:  dmq.sql.Clone(),
 		path: dmq.path,
@@ -293,6 +344,28 @@ func (dmq *DiscordMessageQuery) WithAuthor(opts ...func(*DiscordUserQuery)) *Dis
 		opt(query)
 	}
 	dmq.withAuthor = query
+	return dmq
+}
+
+// WithMessageReactions tells the query-builder to eager-load the nodes that are connected to
+// the "message_reactions" edge. The optional arguments are used to configure the query builder of the edge.
+func (dmq *DiscordMessageQuery) WithMessageReactions(opts ...func(*DiscordMessageReactionQuery)) *DiscordMessageQuery {
+	query := (&DiscordMessageReactionClient{config: dmq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	dmq.withMessageReactions = query
+	return dmq
+}
+
+// WithGuild tells the query-builder to eager-load the nodes that are connected to
+// the "guild" edge. The optional arguments are used to configure the query builder of the edge.
+func (dmq *DiscordMessageQuery) WithGuild(opts ...func(*DiscordGuildQuery)) *DiscordMessageQuery {
+	query := (&DiscordGuildClient{config: dmq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	dmq.withGuild = query
 	return dmq
 }
 
@@ -373,11 +446,20 @@ func (dmq *DiscordMessageQuery) prepareQuery(ctx context.Context) error {
 func (dmq *DiscordMessageQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*DiscordMessage, error) {
 	var (
 		nodes       = []*DiscordMessage{}
+		withFKs     = dmq.withFKs
 		_spec       = dmq.querySpec()
-		loadedTypes = [1]bool{
+		loadedTypes = [3]bool{
 			dmq.withAuthor != nil,
+			dmq.withMessageReactions != nil,
+			dmq.withGuild != nil,
 		}
 	)
+	if dmq.withAuthor != nil || dmq.withGuild != nil {
+		withFKs = true
+	}
+	if withFKs {
+		_spec.Node.Columns = append(_spec.Node.Columns, discordmessage.ForeignKeys...)
+	}
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*DiscordMessage).scanValues(nil, columns)
 	}
@@ -400,16 +482,30 @@ func (dmq *DiscordMessageQuery) sqlAll(ctx context.Context, hooks ...queryHook) 
 		return nodes, nil
 	}
 	if query := dmq.withAuthor; query != nil {
-		if err := dmq.loadAuthor(ctx, query, nodes,
-			func(n *DiscordMessage) { n.Edges.Author = []*DiscordUser{} },
-			func(n *DiscordMessage, e *DiscordUser) { n.Edges.Author = append(n.Edges.Author, e) }); err != nil {
+		if err := dmq.loadAuthor(ctx, query, nodes, nil,
+			func(n *DiscordMessage, e *DiscordUser) { n.Edges.Author = e }); err != nil {
 			return nil, err
 		}
 	}
-	for name, query := range dmq.withNamedAuthor {
-		if err := dmq.loadAuthor(ctx, query, nodes,
-			func(n *DiscordMessage) { n.appendNamedAuthor(name) },
-			func(n *DiscordMessage, e *DiscordUser) { n.appendNamedAuthor(name, e) }); err != nil {
+	if query := dmq.withMessageReactions; query != nil {
+		if err := dmq.loadMessageReactions(ctx, query, nodes,
+			func(n *DiscordMessage) { n.Edges.MessageReactions = []*DiscordMessageReaction{} },
+			func(n *DiscordMessage, e *DiscordMessageReaction) {
+				n.Edges.MessageReactions = append(n.Edges.MessageReactions, e)
+			}); err != nil {
+			return nil, err
+		}
+	}
+	if query := dmq.withGuild; query != nil {
+		if err := dmq.loadGuild(ctx, query, nodes, nil,
+			func(n *DiscordMessage, e *DiscordGuild) { n.Edges.Guild = e }); err != nil {
+			return nil, err
+		}
+	}
+	for name, query := range dmq.withNamedMessageReactions {
+		if err := dmq.loadMessageReactions(ctx, query, nodes,
+			func(n *DiscordMessage) { n.appendNamedMessageReactions(name) },
+			func(n *DiscordMessage, e *DiscordMessageReaction) { n.appendNamedMessageReactions(name, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -417,62 +513,96 @@ func (dmq *DiscordMessageQuery) sqlAll(ctx context.Context, hooks ...queryHook) 
 }
 
 func (dmq *DiscordMessageQuery) loadAuthor(ctx context.Context, query *DiscordUserQuery, nodes []*DiscordMessage, init func(*DiscordMessage), assign func(*DiscordMessage, *DiscordUser)) error {
-	edgeIDs := make([]driver.Value, len(nodes))
-	byID := make(map[string]*DiscordMessage)
-	nids := make(map[uuid.UUID]map[*DiscordMessage]struct{})
-	for i, node := range nodes {
-		edgeIDs[i] = node.ID
-		byID[node.ID] = node
-		if init != nil {
-			init(node)
+	ids := make([]uuid.UUID, 0, len(nodes))
+	nodeids := make(map[uuid.UUID][]*DiscordMessage)
+	for i := range nodes {
+		if nodes[i].discord_user_discord_messages == nil {
+			continue
 		}
+		fk := *nodes[i].discord_user_discord_messages
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
 	}
-	query.Where(func(s *sql.Selector) {
-		joinT := sql.Table(discordmessage.AuthorTable)
-		s.Join(joinT).On(s.C(discorduser.FieldID), joinT.C(discordmessage.AuthorPrimaryKey[0]))
-		s.Where(sql.InValues(joinT.C(discordmessage.AuthorPrimaryKey[1]), edgeIDs...))
-		columns := s.SelectedColumns()
-		s.Select(joinT.C(discordmessage.AuthorPrimaryKey[1]))
-		s.AppendSelect(columns...)
-		s.SetDistinct(false)
-	})
-	if err := query.prepareQuery(ctx); err != nil {
-		return err
+	if len(ids) == 0 {
+		return nil
 	}
-	qr := QuerierFunc(func(ctx context.Context, q Query) (Value, error) {
-		return query.sqlAll(ctx, func(_ context.Context, spec *sqlgraph.QuerySpec) {
-			assign := spec.Assign
-			values := spec.ScanValues
-			spec.ScanValues = func(columns []string) ([]any, error) {
-				values, err := values(columns[1:])
-				if err != nil {
-					return nil, err
-				}
-				return append([]any{new(sql.NullString)}, values...), nil
-			}
-			spec.Assign = func(columns []string, values []any) error {
-				outValue := values[0].(*sql.NullString).String
-				inValue := *values[1].(*uuid.UUID)
-				if nids[inValue] == nil {
-					nids[inValue] = map[*DiscordMessage]struct{}{byID[outValue]: {}}
-					return assign(columns[1:], values[1:])
-				}
-				nids[inValue][byID[outValue]] = struct{}{}
-				return nil
-			}
-		})
-	})
-	neighbors, err := withInterceptors[[]*DiscordUser](ctx, query, qr, query.inters)
+	query.Where(discorduser.IDIn(ids...))
+	neighbors, err := query.All(ctx)
 	if err != nil {
 		return err
 	}
 	for _, n := range neighbors {
-		nodes, ok := nids[n.ID]
+		nodes, ok := nodeids[n.ID]
 		if !ok {
-			return fmt.Errorf(`unexpected "author" node returned %v`, n.ID)
+			return fmt.Errorf(`unexpected foreign-key "discord_user_discord_messages" returned %v`, n.ID)
 		}
-		for kn := range nodes {
-			assign(kn, n)
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
+	}
+	return nil
+}
+func (dmq *DiscordMessageQuery) loadMessageReactions(ctx context.Context, query *DiscordMessageReactionQuery, nodes []*DiscordMessage, init func(*DiscordMessage), assign func(*DiscordMessage, *DiscordMessageReaction)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*DiscordMessage)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	query.withFKs = true
+	query.Where(predicate.DiscordMessageReaction(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(discordmessage.MessageReactionsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.discord_message_message_reactions
+		if fk == nil {
+			return fmt.Errorf(`foreign-key "discord_message_message_reactions" is nil for node %v`, n.ID)
+		}
+		node, ok := nodeids[*fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "discord_message_message_reactions" returned %v for node %v`, *fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (dmq *DiscordMessageQuery) loadGuild(ctx context.Context, query *DiscordGuildQuery, nodes []*DiscordMessage, init func(*DiscordMessage), assign func(*DiscordMessage, *DiscordGuild)) error {
+	ids := make([]uuid.UUID, 0, len(nodes))
+	nodeids := make(map[uuid.UUID][]*DiscordMessage)
+	for i := range nodes {
+		if nodes[i].discord_guild_discord_messages == nil {
+			continue
+		}
+		fk := *nodes[i].discord_guild_discord_messages
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(discordguild.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "discord_guild_discord_messages" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
 		}
 	}
 	return nil
@@ -491,7 +621,7 @@ func (dmq *DiscordMessageQuery) sqlCount(ctx context.Context) (int, error) {
 }
 
 func (dmq *DiscordMessageQuery) querySpec() *sqlgraph.QuerySpec {
-	_spec := sqlgraph.NewQuerySpec(discordmessage.Table, discordmessage.Columns, sqlgraph.NewFieldSpec(discordmessage.FieldID, field.TypeString))
+	_spec := sqlgraph.NewQuerySpec(discordmessage.Table, discordmessage.Columns, sqlgraph.NewFieldSpec(discordmessage.FieldID, field.TypeUUID))
 	_spec.From = dmq.sql
 	if unique := dmq.ctx.Unique; unique != nil {
 		_spec.Unique = *unique
@@ -591,17 +721,17 @@ func (dmq *DiscordMessageQuery) ForShare(opts ...sql.LockOption) *DiscordMessage
 	return dmq
 }
 
-// WithNamedAuthor tells the query-builder to eager-load the nodes that are connected to the "author"
+// WithNamedMessageReactions tells the query-builder to eager-load the nodes that are connected to the "message_reactions"
 // edge with the given name. The optional arguments are used to configure the query builder of the edge.
-func (dmq *DiscordMessageQuery) WithNamedAuthor(name string, opts ...func(*DiscordUserQuery)) *DiscordMessageQuery {
-	query := (&DiscordUserClient{config: dmq.config}).Query()
+func (dmq *DiscordMessageQuery) WithNamedMessageReactions(name string, opts ...func(*DiscordMessageReactionQuery)) *DiscordMessageQuery {
+	query := (&DiscordMessageReactionClient{config: dmq.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
-	if dmq.withNamedAuthor == nil {
-		dmq.withNamedAuthor = make(map[string]*DiscordUserQuery)
+	if dmq.withNamedMessageReactions == nil {
+		dmq.withNamedMessageReactions = make(map[string]*DiscordMessageReactionQuery)
 	}
-	dmq.withNamedAuthor[name] = query
+	dmq.withNamedMessageReactions[name] = query
 	return dmq
 }
 

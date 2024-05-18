@@ -13,6 +13,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/h3mmy/bloopyboi/ent/discordguild"
 	"github.com/h3mmy/bloopyboi/ent/discordmessage"
+	"github.com/h3mmy/bloopyboi/ent/discordmessagereaction"
 	"github.com/h3mmy/bloopyboi/ent/discorduser"
 	"github.com/h3mmy/bloopyboi/ent/mediarequest"
 	"github.com/h3mmy/bloopyboi/ent/predicate"
@@ -115,14 +116,14 @@ func (duu *DiscordUserUpdate) AddGuilds(d ...*DiscordGuild) *DiscordUserUpdate {
 }
 
 // AddDiscordMessageIDs adds the "discord_messages" edge to the DiscordMessage entity by IDs.
-func (duu *DiscordUserUpdate) AddDiscordMessageIDs(ids ...string) *DiscordUserUpdate {
+func (duu *DiscordUserUpdate) AddDiscordMessageIDs(ids ...uuid.UUID) *DiscordUserUpdate {
 	duu.mutation.AddDiscordMessageIDs(ids...)
 	return duu
 }
 
 // AddDiscordMessages adds the "discord_messages" edges to the DiscordMessage entity.
 func (duu *DiscordUserUpdate) AddDiscordMessages(d ...*DiscordMessage) *DiscordUserUpdate {
-	ids := make([]string, len(d))
+	ids := make([]uuid.UUID, len(d))
 	for i := range d {
 		ids[i] = d[i].ID
 	}
@@ -142,6 +143,21 @@ func (duu *DiscordUserUpdate) AddMediaRequests(m ...*MediaRequest) *DiscordUserU
 		ids[i] = m[i].ID
 	}
 	return duu.AddMediaRequestIDs(ids...)
+}
+
+// AddMessageReactionIDs adds the "message_reactions" edge to the DiscordMessageReaction entity by IDs.
+func (duu *DiscordUserUpdate) AddMessageReactionIDs(ids ...uuid.UUID) *DiscordUserUpdate {
+	duu.mutation.AddMessageReactionIDs(ids...)
+	return duu
+}
+
+// AddMessageReactions adds the "message_reactions" edges to the DiscordMessageReaction entity.
+func (duu *DiscordUserUpdate) AddMessageReactions(d ...*DiscordMessageReaction) *DiscordUserUpdate {
+	ids := make([]uuid.UUID, len(d))
+	for i := range d {
+		ids[i] = d[i].ID
+	}
+	return duu.AddMessageReactionIDs(ids...)
 }
 
 // Mutation returns the DiscordUserMutation object of the builder.
@@ -177,14 +193,14 @@ func (duu *DiscordUserUpdate) ClearDiscordMessages() *DiscordUserUpdate {
 }
 
 // RemoveDiscordMessageIDs removes the "discord_messages" edge to DiscordMessage entities by IDs.
-func (duu *DiscordUserUpdate) RemoveDiscordMessageIDs(ids ...string) *DiscordUserUpdate {
+func (duu *DiscordUserUpdate) RemoveDiscordMessageIDs(ids ...uuid.UUID) *DiscordUserUpdate {
 	duu.mutation.RemoveDiscordMessageIDs(ids...)
 	return duu
 }
 
 // RemoveDiscordMessages removes "discord_messages" edges to DiscordMessage entities.
 func (duu *DiscordUserUpdate) RemoveDiscordMessages(d ...*DiscordMessage) *DiscordUserUpdate {
-	ids := make([]string, len(d))
+	ids := make([]uuid.UUID, len(d))
 	for i := range d {
 		ids[i] = d[i].ID
 	}
@@ -210,6 +226,27 @@ func (duu *DiscordUserUpdate) RemoveMediaRequests(m ...*MediaRequest) *DiscordUs
 		ids[i] = m[i].ID
 	}
 	return duu.RemoveMediaRequestIDs(ids...)
+}
+
+// ClearMessageReactions clears all "message_reactions" edges to the DiscordMessageReaction entity.
+func (duu *DiscordUserUpdate) ClearMessageReactions() *DiscordUserUpdate {
+	duu.mutation.ClearMessageReactions()
+	return duu
+}
+
+// RemoveMessageReactionIDs removes the "message_reactions" edge to DiscordMessageReaction entities by IDs.
+func (duu *DiscordUserUpdate) RemoveMessageReactionIDs(ids ...uuid.UUID) *DiscordUserUpdate {
+	duu.mutation.RemoveMessageReactionIDs(ids...)
+	return duu
+}
+
+// RemoveMessageReactions removes "message_reactions" edges to DiscordMessageReaction entities.
+func (duu *DiscordUserUpdate) RemoveMessageReactions(d ...*DiscordMessageReaction) *DiscordUserUpdate {
+	ids := make([]uuid.UUID, len(d))
+	for i := range d {
+		ids[i] = d[i].ID
+	}
+	return duu.RemoveMessageReactionIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -313,26 +350,26 @@ func (duu *DiscordUserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if duu.mutation.DiscordMessagesCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
+			Rel:     sqlgraph.O2M,
 			Inverse: false,
 			Table:   discorduser.DiscordMessagesTable,
-			Columns: discorduser.DiscordMessagesPrimaryKey,
+			Columns: []string{discorduser.DiscordMessagesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(discordmessage.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(discordmessage.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
 	if nodes := duu.mutation.RemovedDiscordMessagesIDs(); len(nodes) > 0 && !duu.mutation.DiscordMessagesCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
+			Rel:     sqlgraph.O2M,
 			Inverse: false,
 			Table:   discorduser.DiscordMessagesTable,
-			Columns: discorduser.DiscordMessagesPrimaryKey,
+			Columns: []string{discorduser.DiscordMessagesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(discordmessage.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(discordmessage.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -342,13 +379,13 @@ func (duu *DiscordUserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if nodes := duu.mutation.DiscordMessagesIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
+			Rel:     sqlgraph.O2M,
 			Inverse: false,
 			Table:   discorduser.DiscordMessagesTable,
-			Columns: discorduser.DiscordMessagesPrimaryKey,
+			Columns: []string{discorduser.DiscordMessagesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(discordmessage.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(discordmessage.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -394,6 +431,51 @@ func (duu *DiscordUserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(mediarequest.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if duu.mutation.MessageReactionsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   discorduser.MessageReactionsTable,
+			Columns: []string{discorduser.MessageReactionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(discordmessagereaction.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := duu.mutation.RemovedMessageReactionsIDs(); len(nodes) > 0 && !duu.mutation.MessageReactionsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   discorduser.MessageReactionsTable,
+			Columns: []string{discorduser.MessageReactionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(discordmessagereaction.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := duu.mutation.MessageReactionsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   discorduser.MessageReactionsTable,
+			Columns: []string{discorduser.MessageReactionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(discordmessagereaction.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -505,14 +587,14 @@ func (duuo *DiscordUserUpdateOne) AddGuilds(d ...*DiscordGuild) *DiscordUserUpda
 }
 
 // AddDiscordMessageIDs adds the "discord_messages" edge to the DiscordMessage entity by IDs.
-func (duuo *DiscordUserUpdateOne) AddDiscordMessageIDs(ids ...string) *DiscordUserUpdateOne {
+func (duuo *DiscordUserUpdateOne) AddDiscordMessageIDs(ids ...uuid.UUID) *DiscordUserUpdateOne {
 	duuo.mutation.AddDiscordMessageIDs(ids...)
 	return duuo
 }
 
 // AddDiscordMessages adds the "discord_messages" edges to the DiscordMessage entity.
 func (duuo *DiscordUserUpdateOne) AddDiscordMessages(d ...*DiscordMessage) *DiscordUserUpdateOne {
-	ids := make([]string, len(d))
+	ids := make([]uuid.UUID, len(d))
 	for i := range d {
 		ids[i] = d[i].ID
 	}
@@ -532,6 +614,21 @@ func (duuo *DiscordUserUpdateOne) AddMediaRequests(m ...*MediaRequest) *DiscordU
 		ids[i] = m[i].ID
 	}
 	return duuo.AddMediaRequestIDs(ids...)
+}
+
+// AddMessageReactionIDs adds the "message_reactions" edge to the DiscordMessageReaction entity by IDs.
+func (duuo *DiscordUserUpdateOne) AddMessageReactionIDs(ids ...uuid.UUID) *DiscordUserUpdateOne {
+	duuo.mutation.AddMessageReactionIDs(ids...)
+	return duuo
+}
+
+// AddMessageReactions adds the "message_reactions" edges to the DiscordMessageReaction entity.
+func (duuo *DiscordUserUpdateOne) AddMessageReactions(d ...*DiscordMessageReaction) *DiscordUserUpdateOne {
+	ids := make([]uuid.UUID, len(d))
+	for i := range d {
+		ids[i] = d[i].ID
+	}
+	return duuo.AddMessageReactionIDs(ids...)
 }
 
 // Mutation returns the DiscordUserMutation object of the builder.
@@ -567,14 +664,14 @@ func (duuo *DiscordUserUpdateOne) ClearDiscordMessages() *DiscordUserUpdateOne {
 }
 
 // RemoveDiscordMessageIDs removes the "discord_messages" edge to DiscordMessage entities by IDs.
-func (duuo *DiscordUserUpdateOne) RemoveDiscordMessageIDs(ids ...string) *DiscordUserUpdateOne {
+func (duuo *DiscordUserUpdateOne) RemoveDiscordMessageIDs(ids ...uuid.UUID) *DiscordUserUpdateOne {
 	duuo.mutation.RemoveDiscordMessageIDs(ids...)
 	return duuo
 }
 
 // RemoveDiscordMessages removes "discord_messages" edges to DiscordMessage entities.
 func (duuo *DiscordUserUpdateOne) RemoveDiscordMessages(d ...*DiscordMessage) *DiscordUserUpdateOne {
-	ids := make([]string, len(d))
+	ids := make([]uuid.UUID, len(d))
 	for i := range d {
 		ids[i] = d[i].ID
 	}
@@ -600,6 +697,27 @@ func (duuo *DiscordUserUpdateOne) RemoveMediaRequests(m ...*MediaRequest) *Disco
 		ids[i] = m[i].ID
 	}
 	return duuo.RemoveMediaRequestIDs(ids...)
+}
+
+// ClearMessageReactions clears all "message_reactions" edges to the DiscordMessageReaction entity.
+func (duuo *DiscordUserUpdateOne) ClearMessageReactions() *DiscordUserUpdateOne {
+	duuo.mutation.ClearMessageReactions()
+	return duuo
+}
+
+// RemoveMessageReactionIDs removes the "message_reactions" edge to DiscordMessageReaction entities by IDs.
+func (duuo *DiscordUserUpdateOne) RemoveMessageReactionIDs(ids ...uuid.UUID) *DiscordUserUpdateOne {
+	duuo.mutation.RemoveMessageReactionIDs(ids...)
+	return duuo
+}
+
+// RemoveMessageReactions removes "message_reactions" edges to DiscordMessageReaction entities.
+func (duuo *DiscordUserUpdateOne) RemoveMessageReactions(d ...*DiscordMessageReaction) *DiscordUserUpdateOne {
+	ids := make([]uuid.UUID, len(d))
+	for i := range d {
+		ids[i] = d[i].ID
+	}
+	return duuo.RemoveMessageReactionIDs(ids...)
 }
 
 // Where appends a list predicates to the DiscordUserUpdate builder.
@@ -733,26 +851,26 @@ func (duuo *DiscordUserUpdateOne) sqlSave(ctx context.Context) (_node *DiscordUs
 	}
 	if duuo.mutation.DiscordMessagesCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
+			Rel:     sqlgraph.O2M,
 			Inverse: false,
 			Table:   discorduser.DiscordMessagesTable,
-			Columns: discorduser.DiscordMessagesPrimaryKey,
+			Columns: []string{discorduser.DiscordMessagesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(discordmessage.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(discordmessage.FieldID, field.TypeUUID),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
 	if nodes := duuo.mutation.RemovedDiscordMessagesIDs(); len(nodes) > 0 && !duuo.mutation.DiscordMessagesCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
+			Rel:     sqlgraph.O2M,
 			Inverse: false,
 			Table:   discorduser.DiscordMessagesTable,
-			Columns: discorduser.DiscordMessagesPrimaryKey,
+			Columns: []string{discorduser.DiscordMessagesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(discordmessage.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(discordmessage.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -762,13 +880,13 @@ func (duuo *DiscordUserUpdateOne) sqlSave(ctx context.Context) (_node *DiscordUs
 	}
 	if nodes := duuo.mutation.DiscordMessagesIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
+			Rel:     sqlgraph.O2M,
 			Inverse: false,
 			Table:   discorduser.DiscordMessagesTable,
-			Columns: discorduser.DiscordMessagesPrimaryKey,
+			Columns: []string{discorduser.DiscordMessagesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(discordmessage.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(discordmessage.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -814,6 +932,51 @@ func (duuo *DiscordUserUpdateOne) sqlSave(ctx context.Context) (_node *DiscordUs
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(mediarequest.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if duuo.mutation.MessageReactionsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   discorduser.MessageReactionsTable,
+			Columns: []string{discorduser.MessageReactionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(discordmessagereaction.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := duuo.mutation.RemovedMessageReactionsIDs(); len(nodes) > 0 && !duuo.mutation.MessageReactionsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   discorduser.MessageReactionsTable,
+			Columns: []string{discorduser.MessageReactionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(discordmessagereaction.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := duuo.mutation.MessageReactionsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   discorduser.MessageReactionsTable,
+			Columns: []string{discorduser.MessageReactionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(discordmessagereaction.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

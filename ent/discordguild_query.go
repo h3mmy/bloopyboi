@@ -14,6 +14,7 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
 	"github.com/h3mmy/bloopyboi/ent/discordguild"
+	"github.com/h3mmy/bloopyboi/ent/discordmessage"
 	"github.com/h3mmy/bloopyboi/ent/discorduser"
 	"github.com/h3mmy/bloopyboi/ent/predicate"
 )
@@ -21,13 +22,15 @@ import (
 // DiscordGuildQuery is the builder for querying DiscordGuild entities.
 type DiscordGuildQuery struct {
 	config
-	ctx              *QueryContext
-	order            []discordguild.OrderOption
-	inters           []Interceptor
-	predicates       []predicate.DiscordGuild
-	withMembers      *DiscordUserQuery
-	modifiers        []func(*sql.Selector)
-	withNamedMembers map[string]*DiscordUserQuery
+	ctx                      *QueryContext
+	order                    []discordguild.OrderOption
+	inters                   []Interceptor
+	predicates               []predicate.DiscordGuild
+	withMembers              *DiscordUserQuery
+	withDiscordMessages      *DiscordMessageQuery
+	modifiers                []func(*sql.Selector)
+	withNamedMembers         map[string]*DiscordUserQuery
+	withNamedDiscordMessages map[string]*DiscordMessageQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -79,6 +82,28 @@ func (dgq *DiscordGuildQuery) QueryMembers() *DiscordUserQuery {
 			sqlgraph.From(discordguild.Table, discordguild.FieldID, selector),
 			sqlgraph.To(discorduser.Table, discorduser.FieldID),
 			sqlgraph.Edge(sqlgraph.M2M, false, discordguild.MembersTable, discordguild.MembersPrimaryKey...),
+		)
+		fromU = sqlgraph.SetNeighbors(dgq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryDiscordMessages chains the current query on the "discord_messages" edge.
+func (dgq *DiscordGuildQuery) QueryDiscordMessages() *DiscordMessageQuery {
+	query := (&DiscordMessageClient{config: dgq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := dgq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := dgq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(discordguild.Table, discordguild.FieldID, selector),
+			sqlgraph.To(discordmessage.Table, discordmessage.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, discordguild.DiscordMessagesTable, discordguild.DiscordMessagesColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(dgq.driver.Dialect(), step)
 		return fromU, nil
@@ -273,12 +298,13 @@ func (dgq *DiscordGuildQuery) Clone() *DiscordGuildQuery {
 		return nil
 	}
 	return &DiscordGuildQuery{
-		config:      dgq.config,
-		ctx:         dgq.ctx.Clone(),
-		order:       append([]discordguild.OrderOption{}, dgq.order...),
-		inters:      append([]Interceptor{}, dgq.inters...),
-		predicates:  append([]predicate.DiscordGuild{}, dgq.predicates...),
-		withMembers: dgq.withMembers.Clone(),
+		config:              dgq.config,
+		ctx:                 dgq.ctx.Clone(),
+		order:               append([]discordguild.OrderOption{}, dgq.order...),
+		inters:              append([]Interceptor{}, dgq.inters...),
+		predicates:          append([]predicate.DiscordGuild{}, dgq.predicates...),
+		withMembers:         dgq.withMembers.Clone(),
+		withDiscordMessages: dgq.withDiscordMessages.Clone(),
 		// clone intermediate query.
 		sql:  dgq.sql.Clone(),
 		path: dgq.path,
@@ -293,6 +319,17 @@ func (dgq *DiscordGuildQuery) WithMembers(opts ...func(*DiscordUserQuery)) *Disc
 		opt(query)
 	}
 	dgq.withMembers = query
+	return dgq
+}
+
+// WithDiscordMessages tells the query-builder to eager-load the nodes that are connected to
+// the "discord_messages" edge. The optional arguments are used to configure the query builder of the edge.
+func (dgq *DiscordGuildQuery) WithDiscordMessages(opts ...func(*DiscordMessageQuery)) *DiscordGuildQuery {
+	query := (&DiscordMessageClient{config: dgq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	dgq.withDiscordMessages = query
 	return dgq
 }
 
@@ -374,8 +411,9 @@ func (dgq *DiscordGuildQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([
 	var (
 		nodes       = []*DiscordGuild{}
 		_spec       = dgq.querySpec()
-		loadedTypes = [1]bool{
+		loadedTypes = [2]bool{
 			dgq.withMembers != nil,
+			dgq.withDiscordMessages != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -406,10 +444,24 @@ func (dgq *DiscordGuildQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([
 			return nil, err
 		}
 	}
+	if query := dgq.withDiscordMessages; query != nil {
+		if err := dgq.loadDiscordMessages(ctx, query, nodes,
+			func(n *DiscordGuild) { n.Edges.DiscordMessages = []*DiscordMessage{} },
+			func(n *DiscordGuild, e *DiscordMessage) { n.Edges.DiscordMessages = append(n.Edges.DiscordMessages, e) }); err != nil {
+			return nil, err
+		}
+	}
 	for name, query := range dgq.withNamedMembers {
 		if err := dgq.loadMembers(ctx, query, nodes,
 			func(n *DiscordGuild) { n.appendNamedMembers(name) },
 			func(n *DiscordGuild, e *DiscordUser) { n.appendNamedMembers(name, e) }); err != nil {
+			return nil, err
+		}
+	}
+	for name, query := range dgq.withNamedDiscordMessages {
+		if err := dgq.loadDiscordMessages(ctx, query, nodes,
+			func(n *DiscordGuild) { n.appendNamedDiscordMessages(name) },
+			func(n *DiscordGuild, e *DiscordMessage) { n.appendNamedDiscordMessages(name, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -474,6 +526,37 @@ func (dgq *DiscordGuildQuery) loadMembers(ctx context.Context, query *DiscordUse
 		for kn := range nodes {
 			assign(kn, n)
 		}
+	}
+	return nil
+}
+func (dgq *DiscordGuildQuery) loadDiscordMessages(ctx context.Context, query *DiscordMessageQuery, nodes []*DiscordGuild, init func(*DiscordGuild), assign func(*DiscordGuild, *DiscordMessage)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*DiscordGuild)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	query.withFKs = true
+	query.Where(predicate.DiscordMessage(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(discordguild.DiscordMessagesColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.discord_guild_discord_messages
+		if fk == nil {
+			return fmt.Errorf(`foreign-key "discord_guild_discord_messages" is nil for node %v`, n.ID)
+		}
+		node, ok := nodeids[*fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "discord_guild_discord_messages" returned %v for node %v`, *fk, n.ID)
+		}
+		assign(node, n)
 	}
 	return nil
 }
@@ -602,6 +685,20 @@ func (dgq *DiscordGuildQuery) WithNamedMembers(name string, opts ...func(*Discor
 		dgq.withNamedMembers = make(map[string]*DiscordUserQuery)
 	}
 	dgq.withNamedMembers[name] = query
+	return dgq
+}
+
+// WithNamedDiscordMessages tells the query-builder to eager-load the nodes that are connected to the "discord_messages"
+// edge with the given name. The optional arguments are used to configure the query builder of the edge.
+func (dgq *DiscordGuildQuery) WithNamedDiscordMessages(name string, opts ...func(*DiscordMessageQuery)) *DiscordGuildQuery {
+	query := (&DiscordMessageClient{config: dgq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	if dgq.withNamedDiscordMessages == nil {
+		dgq.withNamedDiscordMessages = make(map[string]*DiscordMessageQuery)
+	}
+	dgq.withNamedDiscordMessages[name] = query
 	return dgq
 }
 

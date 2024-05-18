@@ -57,6 +57,18 @@ func (f DiscordMessageFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Val
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.DiscordMessageMutation", m)
 }
 
+// The DiscordMessageReactionFunc type is an adapter to allow the use of ordinary
+// function as DiscordMessageReaction mutator.
+type DiscordMessageReactionFunc func(context.Context, *ent.DiscordMessageReactionMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f DiscordMessageReactionFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.DiscordMessageReactionMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.DiscordMessageReactionMutation", m)
+}
+
 // The DiscordUserFunc type is an adapter to allow the use of ordinary
 // function as DiscordUser mutator.
 type DiscordUserFunc func(context.Context, *ent.DiscordUserMutation) (ent.Value, error)

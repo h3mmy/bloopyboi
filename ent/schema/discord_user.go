@@ -37,5 +37,6 @@ func (DiscordUser) Edges() []ent.Edge {
 		edge.From("guilds", DiscordGuild.Type).Ref("members"),
 		edge.To("discord_messages", DiscordMessage.Type),
 		edge.To("media_requests", MediaRequest.Type),
+		edge.To("message_reactions", DiscordMessageReaction.Type),
 	}
 }

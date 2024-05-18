@@ -69,7 +69,7 @@ func main() {
 		return boi.Run(ctx)
 	})
 
-	gateway := bot.NewDefaultGateway()
+	gateway := bot.NewDefaultGateway().WithBotInstance(boi)
 
 	// Start server
 	errGroup.Go(func() error {

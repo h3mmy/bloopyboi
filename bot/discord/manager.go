@@ -37,7 +37,7 @@ type DiscordManager struct {
 
 // Constructs new Discord Manager
 func NewDiscordManager(cfg *config.DiscordConfig, logger *zap.Logger) (*DiscordManager, error) {
-	botID := cfg.GetAppID()
+	botID := cfg.AppID
 
 	botMentionRegex, err := regexp.Compile(fmt.Sprintf(discordBotMentionRegexFmt, fmt.Sprintf("%d", botID)))
 	if err != nil {
@@ -137,4 +137,8 @@ func getBloopyChanHandler(s *discordgo.Session, msgSendChan *chan *models.Discor
 
 func (d *DiscordManager) IsReady() bool {
 	return d.discordSvc.GetDataReady()
+}
+
+func (d *DiscordManager) GetDiscordService() *services.DiscordService {
+	return d.discordSvc
 }

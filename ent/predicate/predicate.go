@@ -18,6 +18,9 @@ type DiscordGuild func(*sql.Selector)
 // DiscordMessage is the predicate function for discordmessage builders.
 type DiscordMessage func(*sql.Selector)
 
+// DiscordMessageReaction is the predicate function for discordmessagereaction builders.
+type DiscordMessageReaction func(*sql.Selector)
+
 // DiscordUser is the predicate function for discorduser builders.
 type DiscordUser func(*sql.Selector)
 

@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/h3mmy/bloopyboi/ent/discordmessage"
+	"github.com/h3mmy/bloopyboi/ent/discordmessagereaction"
 	"github.com/h3mmy/bloopyboi/ent/mediarequest"
 	"github.com/h3mmy/bloopyboi/ent/schema"
 )
@@ -29,6 +30,25 @@ func init() {
 	discordmessage.DefaultUpdateTime = discordmessageDescUpdateTime.Default.(func() time.Time)
 	// discordmessage.UpdateDefaultUpdateTime holds the default value on update for the update_time field.
 	discordmessage.UpdateDefaultUpdateTime = discordmessageDescUpdateTime.UpdateDefault.(func() time.Time)
+	discordmessagereactionMixin := schema.DiscordMessageReaction{}.Mixin()
+	discordmessagereactionMixinFields0 := discordmessagereactionMixin[0].Fields()
+	_ = discordmessagereactionMixinFields0
+	discordmessagereactionFields := schema.DiscordMessageReaction{}.Fields()
+	_ = discordmessagereactionFields
+	// discordmessagereactionDescCreateTime is the schema descriptor for create_time field.
+	discordmessagereactionDescCreateTime := discordmessagereactionMixinFields0[0].Descriptor()
+	// discordmessagereaction.DefaultCreateTime holds the default value on creation for the create_time field.
+	discordmessagereaction.DefaultCreateTime = discordmessagereactionDescCreateTime.Default.(func() time.Time)
+	// discordmessagereactionDescUpdateTime is the schema descriptor for update_time field.
+	discordmessagereactionDescUpdateTime := discordmessagereactionMixinFields0[1].Descriptor()
+	// discordmessagereaction.DefaultUpdateTime holds the default value on creation for the update_time field.
+	discordmessagereaction.DefaultUpdateTime = discordmessagereactionDescUpdateTime.Default.(func() time.Time)
+	// discordmessagereaction.UpdateDefaultUpdateTime holds the default value on update for the update_time field.
+	discordmessagereaction.UpdateDefaultUpdateTime = discordmessagereactionDescUpdateTime.UpdateDefault.(func() time.Time)
+	// discordmessagereactionDescRemoved is the schema descriptor for removed field.
+	discordmessagereactionDescRemoved := discordmessagereactionFields[1].Descriptor()
+	// discordmessagereaction.DefaultRemoved holds the default value on creation for the removed field.
+	discordmessagereaction.DefaultRemoved = discordmessagereactionDescRemoved.Default.(bool)
 	mediarequestMixin := schema.MediaRequest{}.Mixin()
 	mediarequestMixinFields0 := mediarequestMixin[0].Fields()
 	_ = mediarequestMixinFields0

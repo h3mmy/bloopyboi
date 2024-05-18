@@ -13,6 +13,7 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
 	"github.com/h3mmy/bloopyboi/ent/discordguild"
+	"github.com/h3mmy/bloopyboi/ent/discordmessage"
 	"github.com/h3mmy/bloopyboi/ent/discorduser"
 )
 
@@ -111,6 +112,21 @@ func (dgc *DiscordGuildCreate) AddMembers(d ...*DiscordUser) *DiscordGuildCreate
 		ids[i] = d[i].ID
 	}
 	return dgc.AddMemberIDs(ids...)
+}
+
+// AddDiscordMessageIDs adds the "discord_messages" edge to the DiscordMessage entity by IDs.
+func (dgc *DiscordGuildCreate) AddDiscordMessageIDs(ids ...uuid.UUID) *DiscordGuildCreate {
+	dgc.mutation.AddDiscordMessageIDs(ids...)
+	return dgc
+}
+
+// AddDiscordMessages adds the "discord_messages" edges to the DiscordMessage entity.
+func (dgc *DiscordGuildCreate) AddDiscordMessages(d ...*DiscordMessage) *DiscordGuildCreate {
+	ids := make([]uuid.UUID, len(d))
+	for i := range d {
+		ids[i] = d[i].ID
+	}
+	return dgc.AddDiscordMessageIDs(ids...)
 }
 
 // Mutation returns the DiscordGuildMutation object of the builder.
@@ -222,6 +238,22 @@ func (dgc *DiscordGuildCreate) createSpec() (*DiscordGuild, *sqlgraph.CreateSpec
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(discorduser.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := dgc.mutation.DiscordMessagesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   discordguild.DiscordMessagesTable,
+			Columns: []string{discordguild.DiscordMessagesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(discordmessage.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

@@ -40,7 +40,7 @@ func (dmd *DiscordMessageDelete) ExecX(ctx context.Context) int {
 }
 
 func (dmd *DiscordMessageDelete) sqlExec(ctx context.Context) (int, error) {
-	_spec := sqlgraph.NewDeleteSpec(discordmessage.Table, sqlgraph.NewFieldSpec(discordmessage.FieldID, field.TypeString))
+	_spec := sqlgraph.NewDeleteSpec(discordmessage.Table, sqlgraph.NewFieldSpec(discordmessage.FieldID, field.TypeUUID))
 	if ps := dmd.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {

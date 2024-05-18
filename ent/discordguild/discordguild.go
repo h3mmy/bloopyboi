@@ -26,6 +26,8 @@ const (
 	FieldNsfwLevel = "nsfw_level"
 	// EdgeMembers holds the string denoting the members edge name in mutations.
 	EdgeMembers = "members"
+	// EdgeDiscordMessages holds the string denoting the discord_messages edge name in mutations.
+	EdgeDiscordMessages = "discord_messages"
 	// Table holds the table name of the discordguild in the database.
 	Table = "discord_guilds"
 	// MembersTable is the table that holds the members relation/edge. The primary key declared below.
@@ -33,6 +35,13 @@ const (
 	// MembersInverseTable is the table name for the DiscordUser entity.
 	// It exists in this package in order to avoid circular dependency with the "discorduser" package.
 	MembersInverseTable = "discord_users"
+	// DiscordMessagesTable is the table that holds the discord_messages relation/edge.
+	DiscordMessagesTable = "discord_messages"
+	// DiscordMessagesInverseTable is the table name for the DiscordMessage entity.
+	// It exists in this package in order to avoid circular dependency with the "discordmessage" package.
+	DiscordMessagesInverseTable = "discord_messages"
+	// DiscordMessagesColumn is the table column denoting the discord_messages relation/edge.
+	DiscordMessagesColumn = "discord_guild_discord_messages"
 )
 
 // Columns holds all SQL columns for discordguild fields.
@@ -113,10 +122,31 @@ func ByMembers(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newMembersStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
+
+// ByDiscordMessagesCount orders the results by discord_messages count.
+func ByDiscordMessagesCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newDiscordMessagesStep(), opts...)
+	}
+}
+
+// ByDiscordMessages orders the results by discord_messages terms.
+func ByDiscordMessages(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newDiscordMessagesStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
 func newMembersStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(MembersInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.M2M, false, MembersTable, MembersPrimaryKey...),
+	)
+}
+func newDiscordMessagesStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(DiscordMessagesInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, DiscordMessagesTable, DiscordMessagesColumn),
 	)
 }

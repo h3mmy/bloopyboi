@@ -47,6 +47,11 @@ func (mr *MessageReactor) Handle(s *discordgo.Session, m *discordgo.MessageCreat
 
 func (mr *MessageReactor) ShouldAddReaction(s *discordgo.Session, m *discordgo.Message) bool {
 	logger := mr.logger.With(zap.String("method", "ShouldAddReaction"))
+	// Ignore all messages created by the bot itself
+	// This isn't required in this specific example but it's 1=a good practice.
+	if m.Author.ID == s.State.User.ID {
+		return false
+	}
 	if len(m.Mentions) > 0 {
 		return true
 	}
