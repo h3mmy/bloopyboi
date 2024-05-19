@@ -54,7 +54,7 @@ func (g *Gateway) Start() error {
 	g.echoServ.GET("/info", GetAppInfo)
 	dg := g.echoServ.Group("/discord")
 	dg = RegisterDiscordSvcRoutes(dg, g.bot.DiscordManager)
-
+	g.logger.Debug("registered group", zap.Bool("isnil", dg == nil))
 	return g.echoServ.Start(":8080")
 }
 
