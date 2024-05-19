@@ -7,6 +7,7 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/google/uuid"
 )
 
 const (
@@ -18,6 +19,8 @@ const (
 	FieldCreateTime = "create_time"
 	// FieldUpdateTime holds the string denoting the update_time field in the database.
 	FieldUpdateTime = "update_time"
+	// FieldEmojiAPIName holds the string denoting the emoji_api_name field in the database.
+	FieldEmojiAPIName = "emoji_api_name"
 	// FieldRemoved holds the string denoting the removed field in the database.
 	FieldRemoved = "removed"
 	// FieldRaw holds the string denoting the raw field in the database.
@@ -49,6 +52,7 @@ var Columns = []string{
 	FieldID,
 	FieldCreateTime,
 	FieldUpdateTime,
+	FieldEmojiAPIName,
 	FieldRemoved,
 	FieldRaw,
 }
@@ -84,6 +88,8 @@ var (
 	UpdateDefaultUpdateTime func() time.Time
 	// DefaultRemoved holds the default value on creation for the "removed" field.
 	DefaultRemoved bool
+	// DefaultID holds the default value on creation for the "id" field.
+	DefaultID func() uuid.UUID
 )
 
 // OrderOption defines the ordering options for the DiscordMessageReaction queries.
@@ -102,6 +108,11 @@ func ByCreateTime(opts ...sql.OrderTermOption) OrderOption {
 // ByUpdateTime orders the results by the update_time field.
 func ByUpdateTime(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldUpdateTime, opts...).ToFunc()
+}
+
+// ByEmojiAPIName orders the results by the emoji_api_name field.
+func ByEmojiAPIName(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldEmojiAPIName, opts...).ToFunc()
 }
 
 // ByRemoved orders the results by the removed field.

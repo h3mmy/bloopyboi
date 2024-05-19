@@ -535,6 +535,29 @@ func HasDiscordMessagesWith(preds ...predicate.DiscordMessage) predicate.Discord
 	})
 }
 
+// HasGuildChannels applies the HasEdge predicate on the "guild_channels" edge.
+func HasGuildChannels() predicate.DiscordGuild {
+	return predicate.DiscordGuild(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, false, GuildChannelsTable, GuildChannelsPrimaryKey...),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasGuildChannelsWith applies the HasEdge predicate on the "guild_channels" edge with a given conditions (other predicates).
+func HasGuildChannelsWith(preds ...predicate.DiscordChannel) predicate.DiscordGuild {
+	return predicate.DiscordGuild(func(s *sql.Selector) {
+		step := newGuildChannelsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
 // And groups predicates with the AND operator between them.
 func And(predicates ...predicate.DiscordGuild) predicate.DiscordGuild {
 	return predicate.DiscordGuild(sql.AndPredicates(predicates...))

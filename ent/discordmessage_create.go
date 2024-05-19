@@ -14,6 +14,7 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/bwmarrin/discordgo"
 	"github.com/google/uuid"
+	"github.com/h3mmy/bloopyboi/ent/discordchannel"
 	"github.com/h3mmy/bloopyboi/ent/discordguild"
 	"github.com/h3mmy/bloopyboi/ent/discordmessage"
 	"github.com/h3mmy/bloopyboi/ent/discordmessagereaction"
@@ -62,6 +63,20 @@ func (dmc *DiscordMessageCreate) SetDiscordid(s string) *DiscordMessageCreate {
 	return dmc
 }
 
+// SetContent sets the "content" field.
+func (dmc *DiscordMessageCreate) SetContent(s string) *DiscordMessageCreate {
+	dmc.mutation.SetContent(s)
+	return dmc
+}
+
+// SetNillableContent sets the "content" field if the given value is not nil.
+func (dmc *DiscordMessageCreate) SetNillableContent(s *string) *DiscordMessageCreate {
+	if s != nil {
+		dmc.SetContent(*s)
+	}
+	return dmc
+}
+
 // SetRaw sets the "raw" field.
 func (dmc *DiscordMessageCreate) SetRaw(d discordgo.Message) *DiscordMessageCreate {
 	dmc.mutation.SetRaw(d)
@@ -71,6 +86,14 @@ func (dmc *DiscordMessageCreate) SetRaw(d discordgo.Message) *DiscordMessageCrea
 // SetID sets the "id" field.
 func (dmc *DiscordMessageCreate) SetID(u uuid.UUID) *DiscordMessageCreate {
 	dmc.mutation.SetID(u)
+	return dmc
+}
+
+// SetNillableID sets the "id" field if the given value is not nil.
+func (dmc *DiscordMessageCreate) SetNillableID(u *uuid.UUID) *DiscordMessageCreate {
+	if u != nil {
+		dmc.SetID(*u)
+	}
 	return dmc
 }
 
@@ -106,6 +129,25 @@ func (dmc *DiscordMessageCreate) AddMessageReactions(d ...*DiscordMessageReactio
 		ids[i] = d[i].ID
 	}
 	return dmc.AddMessageReactionIDs(ids...)
+}
+
+// SetChannelID sets the "channel" edge to the DiscordChannel entity by ID.
+func (dmc *DiscordMessageCreate) SetChannelID(id uuid.UUID) *DiscordMessageCreate {
+	dmc.mutation.SetChannelID(id)
+	return dmc
+}
+
+// SetNillableChannelID sets the "channel" edge to the DiscordChannel entity by ID if the given value is not nil.
+func (dmc *DiscordMessageCreate) SetNillableChannelID(id *uuid.UUID) *DiscordMessageCreate {
+	if id != nil {
+		dmc = dmc.SetChannelID(*id)
+	}
+	return dmc
+}
+
+// SetChannel sets the "channel" edge to the DiscordChannel entity.
+func (dmc *DiscordMessageCreate) SetChannel(d *DiscordChannel) *DiscordMessageCreate {
+	return dmc.SetChannelID(d.ID)
 }
 
 // SetGuildID sets the "guild" edge to the DiscordGuild entity by ID.
@@ -169,6 +211,10 @@ func (dmc *DiscordMessageCreate) defaults() {
 	if _, ok := dmc.mutation.UpdateTime(); !ok {
 		v := discordmessage.DefaultUpdateTime()
 		dmc.mutation.SetUpdateTime(v)
+	}
+	if _, ok := dmc.mutation.ID(); !ok {
+		v := discordmessage.DefaultID()
+		dmc.mutation.SetID(v)
 	}
 }
 
@@ -234,6 +280,10 @@ func (dmc *DiscordMessageCreate) createSpec() (*DiscordMessage, *sqlgraph.Create
 		_spec.SetField(discordmessage.FieldDiscordid, field.TypeString, value)
 		_node.Discordid = value
 	}
+	if value, ok := dmc.mutation.Content(); ok {
+		_spec.SetField(discordmessage.FieldContent, field.TypeString, value)
+		_node.Content = value
+	}
 	if value, ok := dmc.mutation.Raw(); ok {
 		_spec.SetField(discordmessage.FieldRaw, field.TypeJSON, value)
 		_node.Raw = value
@@ -269,6 +319,23 @@ func (dmc *DiscordMessageCreate) createSpec() (*DiscordMessage, *sqlgraph.Create
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := dmc.mutation.ChannelIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   discordmessage.ChannelTable,
+			Columns: []string{discordmessage.ChannelColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(discordchannel.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.discord_channel_messages = &nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	if nodes := dmc.mutation.GuildIDs(); len(nodes) > 0 {
@@ -364,6 +431,24 @@ func (u *DiscordMessageUpsert) UpdateDiscordid() *DiscordMessageUpsert {
 	return u
 }
 
+// SetContent sets the "content" field.
+func (u *DiscordMessageUpsert) SetContent(v string) *DiscordMessageUpsert {
+	u.Set(discordmessage.FieldContent, v)
+	return u
+}
+
+// UpdateContent sets the "content" field to the value that was provided on create.
+func (u *DiscordMessageUpsert) UpdateContent() *DiscordMessageUpsert {
+	u.SetExcluded(discordmessage.FieldContent)
+	return u
+}
+
+// ClearContent clears the value of the "content" field.
+func (u *DiscordMessageUpsert) ClearContent() *DiscordMessageUpsert {
+	u.SetNull(discordmessage.FieldContent)
+	return u
+}
+
 // SetRaw sets the "raw" field.
 func (u *DiscordMessageUpsert) SetRaw(v discordgo.Message) *DiscordMessageUpsert {
 	u.Set(discordmessage.FieldRaw, v)
@@ -452,6 +537,27 @@ func (u *DiscordMessageUpsertOne) SetDiscordid(v string) *DiscordMessageUpsertOn
 func (u *DiscordMessageUpsertOne) UpdateDiscordid() *DiscordMessageUpsertOne {
 	return u.Update(func(s *DiscordMessageUpsert) {
 		s.UpdateDiscordid()
+	})
+}
+
+// SetContent sets the "content" field.
+func (u *DiscordMessageUpsertOne) SetContent(v string) *DiscordMessageUpsertOne {
+	return u.Update(func(s *DiscordMessageUpsert) {
+		s.SetContent(v)
+	})
+}
+
+// UpdateContent sets the "content" field to the value that was provided on create.
+func (u *DiscordMessageUpsertOne) UpdateContent() *DiscordMessageUpsertOne {
+	return u.Update(func(s *DiscordMessageUpsert) {
+		s.UpdateContent()
+	})
+}
+
+// ClearContent clears the value of the "content" field.
+func (u *DiscordMessageUpsertOne) ClearContent() *DiscordMessageUpsertOne {
+	return u.Update(func(s *DiscordMessageUpsert) {
+		s.ClearContent()
 	})
 }
 
@@ -712,6 +818,27 @@ func (u *DiscordMessageUpsertBulk) SetDiscordid(v string) *DiscordMessageUpsertB
 func (u *DiscordMessageUpsertBulk) UpdateDiscordid() *DiscordMessageUpsertBulk {
 	return u.Update(func(s *DiscordMessageUpsert) {
 		s.UpdateDiscordid()
+	})
+}
+
+// SetContent sets the "content" field.
+func (u *DiscordMessageUpsertBulk) SetContent(v string) *DiscordMessageUpsertBulk {
+	return u.Update(func(s *DiscordMessageUpsert) {
+		s.SetContent(v)
+	})
+}
+
+// UpdateContent sets the "content" field to the value that was provided on create.
+func (u *DiscordMessageUpsertBulk) UpdateContent() *DiscordMessageUpsertBulk {
+	return u.Update(func(s *DiscordMessageUpsert) {
+		s.UpdateContent()
+	})
+}
+
+// ClearContent clears the value of the "content" field.
+func (u *DiscordMessageUpsertBulk) ClearContent() *DiscordMessageUpsertBulk {
+	return u.Update(func(s *DiscordMessageUpsert) {
+		s.ClearContent()
 	})
 }
 

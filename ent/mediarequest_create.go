@@ -81,6 +81,14 @@ func (mrc *MediaRequestCreate) SetID(u uuid.UUID) *MediaRequestCreate {
 	return mrc
 }
 
+// SetNillableID sets the "id" field if the given value is not nil.
+func (mrc *MediaRequestCreate) SetNillableID(u *uuid.UUID) *MediaRequestCreate {
+	if u != nil {
+		mrc.SetID(*u)
+	}
+	return mrc
+}
+
 // AddDiscordUserIDs adds the "discord_users" edge to the DiscordUser entity by IDs.
 func (mrc *MediaRequestCreate) AddDiscordUserIDs(ids ...uuid.UUID) *MediaRequestCreate {
 	mrc.mutation.AddDiscordUserIDs(ids...)
@@ -161,6 +169,10 @@ func (mrc *MediaRequestCreate) defaults() {
 	if _, ok := mrc.mutation.Priority(); !ok {
 		v := mediarequest.DefaultPriority
 		mrc.mutation.SetPriority(v)
+	}
+	if _, ok := mrc.mutation.ID(); !ok {
+		v := mediarequest.DefaultID()
+		mrc.mutation.SetID(v)
 	}
 }
 

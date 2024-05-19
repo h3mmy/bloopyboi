@@ -15,7 +15,8 @@ type DiscordUser struct {
 // Fields of the DiscordUser.
 func (DiscordUser) Fields() []ent.Field {
 	return []ent.Field{
-		field.UUID("id", uuid.New()).
+		field.UUID("id", uuid.UUID{}).
+			Default(uuid.New).
 			Unique(),
 		field.String("discordid").
 			Unique(),

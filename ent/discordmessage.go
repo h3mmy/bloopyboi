@@ -12,6 +12,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"github.com/bwmarrin/discordgo"
 	"github.com/google/uuid"
+	"github.com/h3mmy/bloopyboi/ent/discordchannel"
 	"github.com/h3mmy/bloopyboi/ent/discordguild"
 	"github.com/h3mmy/bloopyboi/ent/discordmessage"
 	"github.com/h3mmy/bloopyboi/ent/discorduser"
@@ -28,11 +29,14 @@ type DiscordMessage struct {
 	UpdateTime time.Time `json:"update_time,omitempty"`
 	// Discordid holds the value of the "discordid" field.
 	Discordid string `json:"discordid,omitempty"`
+	// Content holds the value of the "content" field.
+	Content string `json:"content,omitempty"`
 	// Raw holds the value of the "raw" field.
 	Raw discordgo.Message `json:"raw,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the DiscordMessageQuery when eager-loading is set.
 	Edges                          DiscordMessageEdges `json:"edges"`
+	discord_channel_messages       *uuid.UUID
 	discord_guild_discord_messages *uuid.UUID
 	discord_user_discord_messages  *uuid.UUID
 	selectValues                   sql.SelectValues
@@ -44,11 +48,13 @@ type DiscordMessageEdges struct {
 	Author *DiscordUser `json:"author,omitempty"`
 	// MessageReactions holds the value of the message_reactions edge.
 	MessageReactions []*DiscordMessageReaction `json:"message_reactions,omitempty"`
+	// Channel holds the value of the channel edge.
+	Channel *DiscordChannel `json:"channel,omitempty"`
 	// Guild holds the value of the guild edge.
 	Guild *DiscordGuild `json:"guild,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes           [3]bool
+	loadedTypes           [4]bool
 	namedMessageReactions map[string][]*DiscordMessageReaction
 }
 
@@ -72,12 +78,23 @@ func (e DiscordMessageEdges) MessageReactionsOrErr() ([]*DiscordMessageReaction,
 	return nil, &NotLoadedError{edge: "message_reactions"}
 }
 
+// ChannelOrErr returns the Channel value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e DiscordMessageEdges) ChannelOrErr() (*DiscordChannel, error) {
+	if e.Channel != nil {
+		return e.Channel, nil
+	} else if e.loadedTypes[2] {
+		return nil, &NotFoundError{label: discordchannel.Label}
+	}
+	return nil, &NotLoadedError{edge: "channel"}
+}
+
 // GuildOrErr returns the Guild value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
 func (e DiscordMessageEdges) GuildOrErr() (*DiscordGuild, error) {
 	if e.Guild != nil {
 		return e.Guild, nil
-	} else if e.loadedTypes[2] {
+	} else if e.loadedTypes[3] {
 		return nil, &NotFoundError{label: discordguild.Label}
 	}
 	return nil, &NotLoadedError{edge: "guild"}
@@ -90,15 +107,17 @@ func (*DiscordMessage) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case discordmessage.FieldRaw:
 			values[i] = new([]byte)
-		case discordmessage.FieldDiscordid:
+		case discordmessage.FieldDiscordid, discordmessage.FieldContent:
 			values[i] = new(sql.NullString)
 		case discordmessage.FieldCreateTime, discordmessage.FieldUpdateTime:
 			values[i] = new(sql.NullTime)
 		case discordmessage.FieldID:
 			values[i] = new(uuid.UUID)
-		case discordmessage.ForeignKeys[0]: // discord_guild_discord_messages
+		case discordmessage.ForeignKeys[0]: // discord_channel_messages
 			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
-		case discordmessage.ForeignKeys[1]: // discord_user_discord_messages
+		case discordmessage.ForeignKeys[1]: // discord_guild_discord_messages
+			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
+		case discordmessage.ForeignKeys[2]: // discord_user_discord_messages
 			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
 		default:
 			values[i] = new(sql.UnknownType)
@@ -139,6 +158,12 @@ func (dm *DiscordMessage) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				dm.Discordid = value.String
 			}
+		case discordmessage.FieldContent:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field content", values[i])
+			} else if value.Valid {
+				dm.Content = value.String
+			}
 		case discordmessage.FieldRaw:
 			if value, ok := values[i].(*[]byte); !ok {
 				return fmt.Errorf("unexpected type %T for field raw", values[i])
@@ -149,12 +174,19 @@ func (dm *DiscordMessage) assignValues(columns []string, values []any) error {
 			}
 		case discordmessage.ForeignKeys[0]:
 			if value, ok := values[i].(*sql.NullScanner); !ok {
+				return fmt.Errorf("unexpected type %T for field discord_channel_messages", values[i])
+			} else if value.Valid {
+				dm.discord_channel_messages = new(uuid.UUID)
+				*dm.discord_channel_messages = *value.S.(*uuid.UUID)
+			}
+		case discordmessage.ForeignKeys[1]:
+			if value, ok := values[i].(*sql.NullScanner); !ok {
 				return fmt.Errorf("unexpected type %T for field discord_guild_discord_messages", values[i])
 			} else if value.Valid {
 				dm.discord_guild_discord_messages = new(uuid.UUID)
 				*dm.discord_guild_discord_messages = *value.S.(*uuid.UUID)
 			}
-		case discordmessage.ForeignKeys[1]:
+		case discordmessage.ForeignKeys[2]:
 			if value, ok := values[i].(*sql.NullScanner); !ok {
 				return fmt.Errorf("unexpected type %T for field discord_user_discord_messages", values[i])
 			} else if value.Valid {
@@ -182,6 +214,11 @@ func (dm *DiscordMessage) QueryAuthor() *DiscordUserQuery {
 // QueryMessageReactions queries the "message_reactions" edge of the DiscordMessage entity.
 func (dm *DiscordMessage) QueryMessageReactions() *DiscordMessageReactionQuery {
 	return NewDiscordMessageClient(dm.config).QueryMessageReactions(dm)
+}
+
+// QueryChannel queries the "channel" edge of the DiscordMessage entity.
+func (dm *DiscordMessage) QueryChannel() *DiscordChannelQuery {
+	return NewDiscordMessageClient(dm.config).QueryChannel(dm)
 }
 
 // QueryGuild queries the "guild" edge of the DiscordMessage entity.
@@ -220,6 +257,9 @@ func (dm *DiscordMessage) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("discordid=")
 	builder.WriteString(dm.Discordid)
+	builder.WriteString(", ")
+	builder.WriteString("content=")
+	builder.WriteString(dm.Content)
 	builder.WriteString(", ")
 	builder.WriteString("raw=")
 	builder.WriteString(fmt.Sprintf("%v", dm.Raw))

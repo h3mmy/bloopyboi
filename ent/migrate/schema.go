@@ -37,6 +37,23 @@ var (
 		Columns:    BookAuthorsColumns,
 		PrimaryKey: []*schema.Column{BookAuthorsColumns[0]},
 	}
+	// DiscordChannelsColumns holds the columns for the "discord_channels" table.
+	DiscordChannelsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID, Unique: true},
+		{Name: "create_time", Type: field.TypeTime},
+		{Name: "update_time", Type: field.TypeTime},
+		{Name: "discordid", Type: field.TypeString, Unique: true},
+		{Name: "name", Type: field.TypeString},
+		{Name: "type", Type: field.TypeInt},
+		{Name: "nsfw", Type: field.TypeBool, Default: false},
+		{Name: "flags", Type: field.TypeInt, Nullable: true},
+	}
+	// DiscordChannelsTable holds the schema information for the "discord_channels" table.
+	DiscordChannelsTable = &schema.Table{
+		Name:       "discord_channels",
+		Columns:    DiscordChannelsColumns,
+		PrimaryKey: []*schema.Column{DiscordChannelsColumns[0]},
+	}
 	// DiscordGuildsColumns holds the columns for the "discord_guilds" table.
 	DiscordGuildsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUUID, Unique: true},
@@ -59,7 +76,9 @@ var (
 		{Name: "create_time", Type: field.TypeTime},
 		{Name: "update_time", Type: field.TypeTime},
 		{Name: "discordid", Type: field.TypeString, Unique: true},
+		{Name: "content", Type: field.TypeString, Nullable: true},
 		{Name: "raw", Type: field.TypeJSON},
+		{Name: "discord_channel_messages", Type: field.TypeUUID, Nullable: true},
 		{Name: "discord_guild_discord_messages", Type: field.TypeUUID, Nullable: true},
 		{Name: "discord_user_discord_messages", Type: field.TypeUUID, Nullable: true},
 	}
@@ -70,14 +89,20 @@ var (
 		PrimaryKey: []*schema.Column{DiscordMessagesColumns[0]},
 		ForeignKeys: []*schema.ForeignKey{
 			{
+				Symbol:     "discord_messages_discord_channels_messages",
+				Columns:    []*schema.Column{DiscordMessagesColumns[6]},
+				RefColumns: []*schema.Column{DiscordChannelsColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+			{
 				Symbol:     "discord_messages_discord_guilds_discord_messages",
-				Columns:    []*schema.Column{DiscordMessagesColumns[5]},
+				Columns:    []*schema.Column{DiscordMessagesColumns[7]},
 				RefColumns: []*schema.Column{DiscordGuildsColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 			{
 				Symbol:     "discord_messages_discord_users_discord_messages",
-				Columns:    []*schema.Column{DiscordMessagesColumns[6]},
+				Columns:    []*schema.Column{DiscordMessagesColumns[8]},
 				RefColumns: []*schema.Column{DiscordUsersColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
@@ -88,6 +113,7 @@ var (
 		{Name: "id", Type: field.TypeUUID, Unique: true},
 		{Name: "create_time", Type: field.TypeTime},
 		{Name: "update_time", Type: field.TypeTime},
+		{Name: "emoji_api_name", Type: field.TypeString},
 		{Name: "removed", Type: field.TypeBool, Default: false},
 		{Name: "raw", Type: field.TypeJSON},
 		{Name: "discord_message_message_reactions", Type: field.TypeUUID, Nullable: true},
@@ -101,13 +127,13 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "discord_message_reactions_discord_messages_message_reactions",
-				Columns:    []*schema.Column{DiscordMessageReactionsColumns[5]},
+				Columns:    []*schema.Column{DiscordMessageReactionsColumns[6]},
 				RefColumns: []*schema.Column{DiscordMessagesColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 			{
 				Symbol:     "discord_message_reactions_discord_users_message_reactions",
-				Columns:    []*schema.Column{DiscordMessageReactionsColumns[6]},
+				Columns:    []*schema.Column{DiscordMessageReactionsColumns[7]},
 				RefColumns: []*schema.Column{DiscordUsersColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
@@ -200,6 +226,31 @@ var (
 			},
 		},
 	}
+	// DiscordGuildGuildChannelsColumns holds the columns for the "discord_guild_guild_channels" table.
+	DiscordGuildGuildChannelsColumns = []*schema.Column{
+		{Name: "discord_guild_id", Type: field.TypeUUID},
+		{Name: "discord_channel_id", Type: field.TypeUUID},
+	}
+	// DiscordGuildGuildChannelsTable holds the schema information for the "discord_guild_guild_channels" table.
+	DiscordGuildGuildChannelsTable = &schema.Table{
+		Name:       "discord_guild_guild_channels",
+		Columns:    DiscordGuildGuildChannelsColumns,
+		PrimaryKey: []*schema.Column{DiscordGuildGuildChannelsColumns[0], DiscordGuildGuildChannelsColumns[1]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "discord_guild_guild_channels_discord_guild_id",
+				Columns:    []*schema.Column{DiscordGuildGuildChannelsColumns[0]},
+				RefColumns: []*schema.Column{DiscordGuildsColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+			{
+				Symbol:     "discord_guild_guild_channels_discord_channel_id",
+				Columns:    []*schema.Column{DiscordGuildGuildChannelsColumns[1]},
+				RefColumns: []*schema.Column{DiscordChannelsColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+		},
+	}
 	// DiscordUserMediaRequestsColumns holds the columns for the "discord_user_media_requests" table.
 	DiscordUserMediaRequestsColumns = []*schema.Column{
 		{Name: "discord_user_id", Type: field.TypeUUID},
@@ -229,6 +280,7 @@ var (
 	Tables = []*schema.Table{
 		BooksTable,
 		BookAuthorsTable,
+		DiscordChannelsTable,
 		DiscordGuildsTable,
 		DiscordMessagesTable,
 		DiscordMessageReactionsTable,
@@ -236,13 +288,15 @@ var (
 		MediaRequestsTable,
 		BookAuthorBooksTable,
 		DiscordGuildMembersTable,
+		DiscordGuildGuildChannelsTable,
 		DiscordUserMediaRequestsTable,
 	}
 )
 
 func init() {
-	DiscordMessagesTable.ForeignKeys[0].RefTable = DiscordGuildsTable
-	DiscordMessagesTable.ForeignKeys[1].RefTable = DiscordUsersTable
+	DiscordMessagesTable.ForeignKeys[0].RefTable = DiscordChannelsTable
+	DiscordMessagesTable.ForeignKeys[1].RefTable = DiscordGuildsTable
+	DiscordMessagesTable.ForeignKeys[2].RefTable = DiscordUsersTable
 	DiscordMessageReactionsTable.ForeignKeys[0].RefTable = DiscordMessagesTable
 	DiscordMessageReactionsTable.ForeignKeys[1].RefTable = DiscordUsersTable
 	MediaRequestsTable.ForeignKeys[0].RefTable = BooksTable
@@ -250,6 +304,8 @@ func init() {
 	BookAuthorBooksTable.ForeignKeys[1].RefTable = BooksTable
 	DiscordGuildMembersTable.ForeignKeys[0].RefTable = DiscordGuildsTable
 	DiscordGuildMembersTable.ForeignKeys[1].RefTable = DiscordUsersTable
+	DiscordGuildGuildChannelsTable.ForeignKeys[0].RefTable = DiscordGuildsTable
+	DiscordGuildGuildChannelsTable.ForeignKeys[1].RefTable = DiscordChannelsTable
 	DiscordUserMediaRequestsTable.ForeignKeys[0].RefTable = DiscordUsersTable
 	DiscordUserMediaRequestsTable.ForeignKeys[1].RefTable = MediaRequestsTable
 }

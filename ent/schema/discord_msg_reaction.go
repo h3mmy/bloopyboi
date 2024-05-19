@@ -17,8 +17,10 @@ type DiscordMessageReaction struct {
 // Fields of the DiscordMessageReaction.
 func (DiscordMessageReaction) Fields() []ent.Field {
 	return []ent.Field{
-		field.UUID("id", uuid.New()).
+		field.UUID("id", uuid.UUID{}).
+			Default(uuid.New).
 			Unique(),
+		field.String("emoji_api_name"),
 		field.Bool("removed").
 			Default(false),
 		field.JSON("raw", discordgo.MessageReaction{}),
@@ -29,11 +31,13 @@ func (DiscordMessageReaction) Fields() []ent.Field {
 func (DiscordMessageReaction) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.From("discord_message", DiscordMessage.Type).
-		Ref("message_reactions").
-		Unique(),
+			Ref("message_reactions").
+			Required().
+			Unique(),
 		edge.From("author", DiscordUser.Type).
-		Ref("message_reactions").
-		Unique(),
+			Ref("message_reactions").
+			Required().
+			Unique(),
 	}
 }
 

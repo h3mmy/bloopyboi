@@ -13,6 +13,7 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/bwmarrin/discordgo"
 	"github.com/google/uuid"
+	"github.com/h3mmy/bloopyboi/ent/discordchannel"
 	"github.com/h3mmy/bloopyboi/ent/discordguild"
 	"github.com/h3mmy/bloopyboi/ent/discordmessage"
 	"github.com/h3mmy/bloopyboi/ent/discordmessagereaction"
@@ -50,6 +51,26 @@ func (dmu *DiscordMessageUpdate) SetNillableDiscordid(s *string) *DiscordMessage
 	if s != nil {
 		dmu.SetDiscordid(*s)
 	}
+	return dmu
+}
+
+// SetContent sets the "content" field.
+func (dmu *DiscordMessageUpdate) SetContent(s string) *DiscordMessageUpdate {
+	dmu.mutation.SetContent(s)
+	return dmu
+}
+
+// SetNillableContent sets the "content" field if the given value is not nil.
+func (dmu *DiscordMessageUpdate) SetNillableContent(s *string) *DiscordMessageUpdate {
+	if s != nil {
+		dmu.SetContent(*s)
+	}
+	return dmu
+}
+
+// ClearContent clears the value of the "content" field.
+func (dmu *DiscordMessageUpdate) ClearContent() *DiscordMessageUpdate {
+	dmu.mutation.ClearContent()
 	return dmu
 }
 
@@ -101,6 +122,25 @@ func (dmu *DiscordMessageUpdate) AddMessageReactions(d ...*DiscordMessageReactio
 	return dmu.AddMessageReactionIDs(ids...)
 }
 
+// SetChannelID sets the "channel" edge to the DiscordChannel entity by ID.
+func (dmu *DiscordMessageUpdate) SetChannelID(id uuid.UUID) *DiscordMessageUpdate {
+	dmu.mutation.SetChannelID(id)
+	return dmu
+}
+
+// SetNillableChannelID sets the "channel" edge to the DiscordChannel entity by ID if the given value is not nil.
+func (dmu *DiscordMessageUpdate) SetNillableChannelID(id *uuid.UUID) *DiscordMessageUpdate {
+	if id != nil {
+		dmu = dmu.SetChannelID(*id)
+	}
+	return dmu
+}
+
+// SetChannel sets the "channel" edge to the DiscordChannel entity.
+func (dmu *DiscordMessageUpdate) SetChannel(d *DiscordChannel) *DiscordMessageUpdate {
+	return dmu.SetChannelID(d.ID)
+}
+
 // SetGuildID sets the "guild" edge to the DiscordGuild entity by ID.
 func (dmu *DiscordMessageUpdate) SetGuildID(id uuid.UUID) *DiscordMessageUpdate {
 	dmu.mutation.SetGuildID(id)
@@ -150,6 +190,12 @@ func (dmu *DiscordMessageUpdate) RemoveMessageReactions(d ...*DiscordMessageReac
 		ids[i] = d[i].ID
 	}
 	return dmu.RemoveMessageReactionIDs(ids...)
+}
+
+// ClearChannel clears the "channel" edge to the DiscordChannel entity.
+func (dmu *DiscordMessageUpdate) ClearChannel() *DiscordMessageUpdate {
+	dmu.mutation.ClearChannel()
+	return dmu
 }
 
 // ClearGuild clears the "guild" edge to the DiscordGuild entity.
@@ -208,6 +254,12 @@ func (dmu *DiscordMessageUpdate) sqlSave(ctx context.Context) (n int, err error)
 	}
 	if value, ok := dmu.mutation.Discordid(); ok {
 		_spec.SetField(discordmessage.FieldDiscordid, field.TypeString, value)
+	}
+	if value, ok := dmu.mutation.Content(); ok {
+		_spec.SetField(discordmessage.FieldContent, field.TypeString, value)
+	}
+	if dmu.mutation.ContentCleared() {
+		_spec.ClearField(discordmessage.FieldContent, field.TypeString)
 	}
 	if value, ok := dmu.mutation.Raw(); ok {
 		_spec.SetField(discordmessage.FieldRaw, field.TypeJSON, value)
@@ -286,6 +338,35 @@ func (dmu *DiscordMessageUpdate) sqlSave(ctx context.Context) (n int, err error)
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
+	if dmu.mutation.ChannelCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   discordmessage.ChannelTable,
+			Columns: []string{discordmessage.ChannelColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(discordchannel.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := dmu.mutation.ChannelIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   discordmessage.ChannelTable,
+			Columns: []string{discordmessage.ChannelColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(discordchannel.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	if dmu.mutation.GuildCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
@@ -355,6 +436,26 @@ func (dmuo *DiscordMessageUpdateOne) SetNillableDiscordid(s *string) *DiscordMes
 	return dmuo
 }
 
+// SetContent sets the "content" field.
+func (dmuo *DiscordMessageUpdateOne) SetContent(s string) *DiscordMessageUpdateOne {
+	dmuo.mutation.SetContent(s)
+	return dmuo
+}
+
+// SetNillableContent sets the "content" field if the given value is not nil.
+func (dmuo *DiscordMessageUpdateOne) SetNillableContent(s *string) *DiscordMessageUpdateOne {
+	if s != nil {
+		dmuo.SetContent(*s)
+	}
+	return dmuo
+}
+
+// ClearContent clears the value of the "content" field.
+func (dmuo *DiscordMessageUpdateOne) ClearContent() *DiscordMessageUpdateOne {
+	dmuo.mutation.ClearContent()
+	return dmuo
+}
+
 // SetRaw sets the "raw" field.
 func (dmuo *DiscordMessageUpdateOne) SetRaw(d discordgo.Message) *DiscordMessageUpdateOne {
 	dmuo.mutation.SetRaw(d)
@@ -401,6 +502,25 @@ func (dmuo *DiscordMessageUpdateOne) AddMessageReactions(d ...*DiscordMessageRea
 		ids[i] = d[i].ID
 	}
 	return dmuo.AddMessageReactionIDs(ids...)
+}
+
+// SetChannelID sets the "channel" edge to the DiscordChannel entity by ID.
+func (dmuo *DiscordMessageUpdateOne) SetChannelID(id uuid.UUID) *DiscordMessageUpdateOne {
+	dmuo.mutation.SetChannelID(id)
+	return dmuo
+}
+
+// SetNillableChannelID sets the "channel" edge to the DiscordChannel entity by ID if the given value is not nil.
+func (dmuo *DiscordMessageUpdateOne) SetNillableChannelID(id *uuid.UUID) *DiscordMessageUpdateOne {
+	if id != nil {
+		dmuo = dmuo.SetChannelID(*id)
+	}
+	return dmuo
+}
+
+// SetChannel sets the "channel" edge to the DiscordChannel entity.
+func (dmuo *DiscordMessageUpdateOne) SetChannel(d *DiscordChannel) *DiscordMessageUpdateOne {
+	return dmuo.SetChannelID(d.ID)
 }
 
 // SetGuildID sets the "guild" edge to the DiscordGuild entity by ID.
@@ -452,6 +572,12 @@ func (dmuo *DiscordMessageUpdateOne) RemoveMessageReactions(d ...*DiscordMessage
 		ids[i] = d[i].ID
 	}
 	return dmuo.RemoveMessageReactionIDs(ids...)
+}
+
+// ClearChannel clears the "channel" edge to the DiscordChannel entity.
+func (dmuo *DiscordMessageUpdateOne) ClearChannel() *DiscordMessageUpdateOne {
+	dmuo.mutation.ClearChannel()
+	return dmuo
 }
 
 // ClearGuild clears the "guild" edge to the DiscordGuild entity.
@@ -541,6 +667,12 @@ func (dmuo *DiscordMessageUpdateOne) sqlSave(ctx context.Context) (_node *Discor
 	if value, ok := dmuo.mutation.Discordid(); ok {
 		_spec.SetField(discordmessage.FieldDiscordid, field.TypeString, value)
 	}
+	if value, ok := dmuo.mutation.Content(); ok {
+		_spec.SetField(discordmessage.FieldContent, field.TypeString, value)
+	}
+	if dmuo.mutation.ContentCleared() {
+		_spec.ClearField(discordmessage.FieldContent, field.TypeString)
+	}
 	if value, ok := dmuo.mutation.Raw(); ok {
 		_spec.SetField(discordmessage.FieldRaw, field.TypeJSON, value)
 	}
@@ -611,6 +743,35 @@ func (dmuo *DiscordMessageUpdateOne) sqlSave(ctx context.Context) (_node *Discor
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(discordmessagereaction.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if dmuo.mutation.ChannelCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   discordmessage.ChannelTable,
+			Columns: []string{discordmessage.ChannelColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(discordchannel.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := dmuo.mutation.ChannelIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   discordmessage.ChannelTable,
+			Columns: []string{discordmessage.ChannelColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(discordchannel.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

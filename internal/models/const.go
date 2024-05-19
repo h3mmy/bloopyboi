@@ -32,10 +32,12 @@ const (
 )
 
 const (
-	CtxKeyInteraction CtxKey = "interaction_id"
+	CtxKeyInteraction CtxKey = "discord_interaction_id"
 	CtxKeyRequestID CtxKey = "media_request_id"
 	CtxKeyMediaRequestStatus CtxKey = "media_request_status"
-	CtxKeyMessageID CtxKey = "message_id"
+	CtxKeyMessageID CtxKey = "discord_message_id"
+	CtxChannelID CtxKey = "discord_channel_id"
+	CtxDiscordGuildID CtxKey = "discord_guild_id"
 )
 
 const (

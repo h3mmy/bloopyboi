@@ -26,6 +26,8 @@ type DiscordMessageReaction struct {
 	CreateTime time.Time `json:"create_time,omitempty"`
 	// UpdateTime holds the value of the "update_time" field.
 	UpdateTime time.Time `json:"update_time,omitempty"`
+	// EmojiAPIName holds the value of the "emoji_api_name" field.
+	EmojiAPIName string `json:"emoji_api_name,omitempty"`
 	// Removed holds the value of the "removed" field.
 	Removed bool `json:"removed,omitempty"`
 	// Raw holds the value of the "raw" field.
@@ -80,6 +82,8 @@ func (*DiscordMessageReaction) scanValues(columns []string) ([]any, error) {
 			values[i] = new([]byte)
 		case discordmessagereaction.FieldRemoved:
 			values[i] = new(sql.NullBool)
+		case discordmessagereaction.FieldEmojiAPIName:
+			values[i] = new(sql.NullString)
 		case discordmessagereaction.FieldCreateTime, discordmessagereaction.FieldUpdateTime:
 			values[i] = new(sql.NullTime)
 		case discordmessagereaction.FieldID:
@@ -120,6 +124,12 @@ func (dmr *DiscordMessageReaction) assignValues(columns []string, values []any) 
 				return fmt.Errorf("unexpected type %T for field update_time", values[i])
 			} else if value.Valid {
 				dmr.UpdateTime = value.Time
+			}
+		case discordmessagereaction.FieldEmojiAPIName:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field emoji_api_name", values[i])
+			} else if value.Valid {
+				dmr.EmojiAPIName = value.String
 			}
 		case discordmessagereaction.FieldRemoved:
 			if value, ok := values[i].(*sql.NullBool); !ok {
@@ -200,6 +210,9 @@ func (dmr *DiscordMessageReaction) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("update_time=")
 	builder.WriteString(dmr.UpdateTime.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("emoji_api_name=")
+	builder.WriteString(dmr.EmojiAPIName)
 	builder.WriteString(", ")
 	builder.WriteString("removed=")
 	builder.WriteString(fmt.Sprintf("%v", dmr.Removed))

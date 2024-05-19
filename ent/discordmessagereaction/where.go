@@ -66,6 +66,11 @@ func UpdateTime(v time.Time) predicate.DiscordMessageReaction {
 	return predicate.DiscordMessageReaction(sql.FieldEQ(FieldUpdateTime, v))
 }
 
+// EmojiAPIName applies equality check predicate on the "emoji_api_name" field. It's identical to EmojiAPINameEQ.
+func EmojiAPIName(v string) predicate.DiscordMessageReaction {
+	return predicate.DiscordMessageReaction(sql.FieldEQ(FieldEmojiAPIName, v))
+}
+
 // Removed applies equality check predicate on the "removed" field. It's identical to RemovedEQ.
 func Removed(v bool) predicate.DiscordMessageReaction {
 	return predicate.DiscordMessageReaction(sql.FieldEQ(FieldRemoved, v))
@@ -149,6 +154,71 @@ func UpdateTimeLT(v time.Time) predicate.DiscordMessageReaction {
 // UpdateTimeLTE applies the LTE predicate on the "update_time" field.
 func UpdateTimeLTE(v time.Time) predicate.DiscordMessageReaction {
 	return predicate.DiscordMessageReaction(sql.FieldLTE(FieldUpdateTime, v))
+}
+
+// EmojiAPINameEQ applies the EQ predicate on the "emoji_api_name" field.
+func EmojiAPINameEQ(v string) predicate.DiscordMessageReaction {
+	return predicate.DiscordMessageReaction(sql.FieldEQ(FieldEmojiAPIName, v))
+}
+
+// EmojiAPINameNEQ applies the NEQ predicate on the "emoji_api_name" field.
+func EmojiAPINameNEQ(v string) predicate.DiscordMessageReaction {
+	return predicate.DiscordMessageReaction(sql.FieldNEQ(FieldEmojiAPIName, v))
+}
+
+// EmojiAPINameIn applies the In predicate on the "emoji_api_name" field.
+func EmojiAPINameIn(vs ...string) predicate.DiscordMessageReaction {
+	return predicate.DiscordMessageReaction(sql.FieldIn(FieldEmojiAPIName, vs...))
+}
+
+// EmojiAPINameNotIn applies the NotIn predicate on the "emoji_api_name" field.
+func EmojiAPINameNotIn(vs ...string) predicate.DiscordMessageReaction {
+	return predicate.DiscordMessageReaction(sql.FieldNotIn(FieldEmojiAPIName, vs...))
+}
+
+// EmojiAPINameGT applies the GT predicate on the "emoji_api_name" field.
+func EmojiAPINameGT(v string) predicate.DiscordMessageReaction {
+	return predicate.DiscordMessageReaction(sql.FieldGT(FieldEmojiAPIName, v))
+}
+
+// EmojiAPINameGTE applies the GTE predicate on the "emoji_api_name" field.
+func EmojiAPINameGTE(v string) predicate.DiscordMessageReaction {
+	return predicate.DiscordMessageReaction(sql.FieldGTE(FieldEmojiAPIName, v))
+}
+
+// EmojiAPINameLT applies the LT predicate on the "emoji_api_name" field.
+func EmojiAPINameLT(v string) predicate.DiscordMessageReaction {
+	return predicate.DiscordMessageReaction(sql.FieldLT(FieldEmojiAPIName, v))
+}
+
+// EmojiAPINameLTE applies the LTE predicate on the "emoji_api_name" field.
+func EmojiAPINameLTE(v string) predicate.DiscordMessageReaction {
+	return predicate.DiscordMessageReaction(sql.FieldLTE(FieldEmojiAPIName, v))
+}
+
+// EmojiAPINameContains applies the Contains predicate on the "emoji_api_name" field.
+func EmojiAPINameContains(v string) predicate.DiscordMessageReaction {
+	return predicate.DiscordMessageReaction(sql.FieldContains(FieldEmojiAPIName, v))
+}
+
+// EmojiAPINameHasPrefix applies the HasPrefix predicate on the "emoji_api_name" field.
+func EmojiAPINameHasPrefix(v string) predicate.DiscordMessageReaction {
+	return predicate.DiscordMessageReaction(sql.FieldHasPrefix(FieldEmojiAPIName, v))
+}
+
+// EmojiAPINameHasSuffix applies the HasSuffix predicate on the "emoji_api_name" field.
+func EmojiAPINameHasSuffix(v string) predicate.DiscordMessageReaction {
+	return predicate.DiscordMessageReaction(sql.FieldHasSuffix(FieldEmojiAPIName, v))
+}
+
+// EmojiAPINameEqualFold applies the EqualFold predicate on the "emoji_api_name" field.
+func EmojiAPINameEqualFold(v string) predicate.DiscordMessageReaction {
+	return predicate.DiscordMessageReaction(sql.FieldEqualFold(FieldEmojiAPIName, v))
+}
+
+// EmojiAPINameContainsFold applies the ContainsFold predicate on the "emoji_api_name" field.
+func EmojiAPINameContainsFold(v string) predicate.DiscordMessageReaction {
+	return predicate.DiscordMessageReaction(sql.FieldContainsFold(FieldEmojiAPIName, v))
 }
 
 // RemovedEQ applies the EQ predicate on the "removed" field.

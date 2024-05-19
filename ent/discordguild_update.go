@@ -11,6 +11,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
+	"github.com/h3mmy/bloopyboi/ent/discordchannel"
 	"github.com/h3mmy/bloopyboi/ent/discordguild"
 	"github.com/h3mmy/bloopyboi/ent/discordmessage"
 	"github.com/h3mmy/bloopyboi/ent/discorduser"
@@ -175,6 +176,21 @@ func (dgu *DiscordGuildUpdate) AddDiscordMessages(d ...*DiscordMessage) *Discord
 	return dgu.AddDiscordMessageIDs(ids...)
 }
 
+// AddGuildChannelIDs adds the "guild_channels" edge to the DiscordChannel entity by IDs.
+func (dgu *DiscordGuildUpdate) AddGuildChannelIDs(ids ...uuid.UUID) *DiscordGuildUpdate {
+	dgu.mutation.AddGuildChannelIDs(ids...)
+	return dgu
+}
+
+// AddGuildChannels adds the "guild_channels" edges to the DiscordChannel entity.
+func (dgu *DiscordGuildUpdate) AddGuildChannels(d ...*DiscordChannel) *DiscordGuildUpdate {
+	ids := make([]uuid.UUID, len(d))
+	for i := range d {
+		ids[i] = d[i].ID
+	}
+	return dgu.AddGuildChannelIDs(ids...)
+}
+
 // Mutation returns the DiscordGuildMutation object of the builder.
 func (dgu *DiscordGuildUpdate) Mutation() *DiscordGuildMutation {
 	return dgu.mutation
@@ -220,6 +236,27 @@ func (dgu *DiscordGuildUpdate) RemoveDiscordMessages(d ...*DiscordMessage) *Disc
 		ids[i] = d[i].ID
 	}
 	return dgu.RemoveDiscordMessageIDs(ids...)
+}
+
+// ClearGuildChannels clears all "guild_channels" edges to the DiscordChannel entity.
+func (dgu *DiscordGuildUpdate) ClearGuildChannels() *DiscordGuildUpdate {
+	dgu.mutation.ClearGuildChannels()
+	return dgu
+}
+
+// RemoveGuildChannelIDs removes the "guild_channels" edge to DiscordChannel entities by IDs.
+func (dgu *DiscordGuildUpdate) RemoveGuildChannelIDs(ids ...uuid.UUID) *DiscordGuildUpdate {
+	dgu.mutation.RemoveGuildChannelIDs(ids...)
+	return dgu
+}
+
+// RemoveGuildChannels removes "guild_channels" edges to DiscordChannel entities.
+func (dgu *DiscordGuildUpdate) RemoveGuildChannels(d ...*DiscordChannel) *DiscordGuildUpdate {
+	ids := make([]uuid.UUID, len(d))
+	for i := range d {
+		ids[i] = d[i].ID
+	}
+	return dgu.RemoveGuildChannelIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -374,6 +411,51 @@ func (dgu *DiscordGuildUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(discordmessage.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if dgu.mutation.GuildChannelsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   discordguild.GuildChannelsTable,
+			Columns: discordguild.GuildChannelsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(discordchannel.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := dgu.mutation.RemovedGuildChannelsIDs(); len(nodes) > 0 && !dgu.mutation.GuildChannelsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   discordguild.GuildChannelsTable,
+			Columns: discordguild.GuildChannelsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(discordchannel.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := dgu.mutation.GuildChannelsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   discordguild.GuildChannelsTable,
+			Columns: discordguild.GuildChannelsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(discordchannel.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -546,6 +628,21 @@ func (dguo *DiscordGuildUpdateOne) AddDiscordMessages(d ...*DiscordMessage) *Dis
 	return dguo.AddDiscordMessageIDs(ids...)
 }
 
+// AddGuildChannelIDs adds the "guild_channels" edge to the DiscordChannel entity by IDs.
+func (dguo *DiscordGuildUpdateOne) AddGuildChannelIDs(ids ...uuid.UUID) *DiscordGuildUpdateOne {
+	dguo.mutation.AddGuildChannelIDs(ids...)
+	return dguo
+}
+
+// AddGuildChannels adds the "guild_channels" edges to the DiscordChannel entity.
+func (dguo *DiscordGuildUpdateOne) AddGuildChannels(d ...*DiscordChannel) *DiscordGuildUpdateOne {
+	ids := make([]uuid.UUID, len(d))
+	for i := range d {
+		ids[i] = d[i].ID
+	}
+	return dguo.AddGuildChannelIDs(ids...)
+}
+
 // Mutation returns the DiscordGuildMutation object of the builder.
 func (dguo *DiscordGuildUpdateOne) Mutation() *DiscordGuildMutation {
 	return dguo.mutation
@@ -591,6 +688,27 @@ func (dguo *DiscordGuildUpdateOne) RemoveDiscordMessages(d ...*DiscordMessage) *
 		ids[i] = d[i].ID
 	}
 	return dguo.RemoveDiscordMessageIDs(ids...)
+}
+
+// ClearGuildChannels clears all "guild_channels" edges to the DiscordChannel entity.
+func (dguo *DiscordGuildUpdateOne) ClearGuildChannels() *DiscordGuildUpdateOne {
+	dguo.mutation.ClearGuildChannels()
+	return dguo
+}
+
+// RemoveGuildChannelIDs removes the "guild_channels" edge to DiscordChannel entities by IDs.
+func (dguo *DiscordGuildUpdateOne) RemoveGuildChannelIDs(ids ...uuid.UUID) *DiscordGuildUpdateOne {
+	dguo.mutation.RemoveGuildChannelIDs(ids...)
+	return dguo
+}
+
+// RemoveGuildChannels removes "guild_channels" edges to DiscordChannel entities.
+func (dguo *DiscordGuildUpdateOne) RemoveGuildChannels(d ...*DiscordChannel) *DiscordGuildUpdateOne {
+	ids := make([]uuid.UUID, len(d))
+	for i := range d {
+		ids[i] = d[i].ID
+	}
+	return dguo.RemoveGuildChannelIDs(ids...)
 }
 
 // Where appends a list predicates to the DiscordGuildUpdate builder.
@@ -775,6 +893,51 @@ func (dguo *DiscordGuildUpdateOne) sqlSave(ctx context.Context) (_node *DiscordG
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(discordmessage.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if dguo.mutation.GuildChannelsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   discordguild.GuildChannelsTable,
+			Columns: discordguild.GuildChannelsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(discordchannel.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := dguo.mutation.RemovedGuildChannelsIDs(); len(nodes) > 0 && !dguo.mutation.GuildChannelsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   discordguild.GuildChannelsTable,
+			Columns: discordguild.GuildChannelsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(discordchannel.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := dguo.mutation.GuildChannelsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   discordguild.GuildChannelsTable,
+			Columns: discordguild.GuildChannelsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(discordchannel.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

@@ -14,6 +14,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/h3mmy/bloopyboi/ent/book"
 	"github.com/h3mmy/bloopyboi/ent/bookauthor"
+	"github.com/h3mmy/bloopyboi/ent/discordchannel"
 	"github.com/h3mmy/bloopyboi/ent/discordguild"
 	"github.com/h3mmy/bloopyboi/ent/discordmessage"
 	"github.com/h3mmy/bloopyboi/ent/discordmessagereaction"
@@ -81,6 +82,7 @@ func checkColumn(table, column string) error {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
 			book.Table:                   book.ValidColumn,
 			bookauthor.Table:             bookauthor.ValidColumn,
+			discordchannel.Table:         discordchannel.ValidColumn,
 			discordguild.Table:           discordguild.ValidColumn,
 			discordmessage.Table:         discordmessage.ValidColumn,
 			discordmessagereaction.Table: discordmessagereaction.ValidColumn,

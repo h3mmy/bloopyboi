@@ -12,6 +12,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
+	"github.com/h3mmy/bloopyboi/ent/discordchannel"
 	"github.com/h3mmy/bloopyboi/ent/discordguild"
 	"github.com/h3mmy/bloopyboi/ent/discordmessage"
 	"github.com/h3mmy/bloopyboi/ent/discorduser"
@@ -99,6 +100,14 @@ func (dgc *DiscordGuildCreate) SetID(u uuid.UUID) *DiscordGuildCreate {
 	return dgc
 }
 
+// SetNillableID sets the "id" field if the given value is not nil.
+func (dgc *DiscordGuildCreate) SetNillableID(u *uuid.UUID) *DiscordGuildCreate {
+	if u != nil {
+		dgc.SetID(*u)
+	}
+	return dgc
+}
+
 // AddMemberIDs adds the "members" edge to the DiscordUser entity by IDs.
 func (dgc *DiscordGuildCreate) AddMemberIDs(ids ...uuid.UUID) *DiscordGuildCreate {
 	dgc.mutation.AddMemberIDs(ids...)
@@ -129,6 +138,21 @@ func (dgc *DiscordGuildCreate) AddDiscordMessages(d ...*DiscordMessage) *Discord
 	return dgc.AddDiscordMessageIDs(ids...)
 }
 
+// AddGuildChannelIDs adds the "guild_channels" edge to the DiscordChannel entity by IDs.
+func (dgc *DiscordGuildCreate) AddGuildChannelIDs(ids ...uuid.UUID) *DiscordGuildCreate {
+	dgc.mutation.AddGuildChannelIDs(ids...)
+	return dgc
+}
+
+// AddGuildChannels adds the "guild_channels" edges to the DiscordChannel entity.
+func (dgc *DiscordGuildCreate) AddGuildChannels(d ...*DiscordChannel) *DiscordGuildCreate {
+	ids := make([]uuid.UUID, len(d))
+	for i := range d {
+		ids[i] = d[i].ID
+	}
+	return dgc.AddGuildChannelIDs(ids...)
+}
+
 // Mutation returns the DiscordGuildMutation object of the builder.
 func (dgc *DiscordGuildCreate) Mutation() *DiscordGuildMutation {
 	return dgc.mutation
@@ -136,6 +160,7 @@ func (dgc *DiscordGuildCreate) Mutation() *DiscordGuildMutation {
 
 // Save creates the DiscordGuild in the database.
 func (dgc *DiscordGuildCreate) Save(ctx context.Context) (*DiscordGuild, error) {
+	dgc.defaults()
 	return withHooks(ctx, dgc.sqlSave, dgc.mutation, dgc.hooks)
 }
 
@@ -158,6 +183,14 @@ func (dgc *DiscordGuildCreate) Exec(ctx context.Context) error {
 func (dgc *DiscordGuildCreate) ExecX(ctx context.Context) {
 	if err := dgc.Exec(ctx); err != nil {
 		panic(err)
+	}
+}
+
+// defaults sets the default values of the builder before save.
+func (dgc *DiscordGuildCreate) defaults() {
+	if _, ok := dgc.mutation.ID(); !ok {
+		v := discordguild.DefaultID()
+		dgc.mutation.SetID(v)
 	}
 }
 
@@ -254,6 +287,22 @@ func (dgc *DiscordGuildCreate) createSpec() (*DiscordGuild, *sqlgraph.CreateSpec
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(discordmessage.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := dgc.mutation.GuildChannelsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   discordguild.GuildChannelsTable,
+			Columns: discordguild.GuildChannelsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(discordchannel.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -639,6 +688,7 @@ func (dgcb *DiscordGuildCreateBulk) Save(ctx context.Context) ([]*DiscordGuild, 
 	for i := range dgcb.builders {
 		func(i int, root context.Context) {
 			builder := dgcb.builders[i]
+			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*DiscordGuildMutation)
 				if !ok {

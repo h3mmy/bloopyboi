@@ -17,10 +17,13 @@ type DiscordMessage struct {
 // Fields of the DiscordMessage.
 func (DiscordMessage) Fields() []ent.Field {
 	return []ent.Field{
-		field.UUID("id", uuid.New()).
+		field.UUID("id", uuid.UUID{}).
+			Default(uuid.New).
 			Unique(),
 		field.String("discordid").
 			Unique(),
+		field.String("content").
+			Optional(),
 		field.JSON("raw", discordgo.Message{}),
 	}
 }
@@ -30,7 +33,7 @@ func (DiscordMessage) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.From("author", DiscordUser.Type).Ref("discord_messages").Unique(),
 		edge.To("message_reactions", DiscordMessageReaction.Type),
-		// edge.To("channel", DiscordChannel.Type),
+		edge.From("channel", DiscordChannel.Type).Ref("messages").Unique(),
 		edge.From("guild", DiscordGuild.Type).Ref("discord_messages").Unique(),
 	}
 }

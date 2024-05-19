@@ -71,6 +71,11 @@ func Discordid(v string) predicate.DiscordMessage {
 	return predicate.DiscordMessage(sql.FieldEQ(FieldDiscordid, v))
 }
 
+// Content applies equality check predicate on the "content" field. It's identical to ContentEQ.
+func Content(v string) predicate.DiscordMessage {
+	return predicate.DiscordMessage(sql.FieldEQ(FieldContent, v))
+}
+
 // CreateTimeEQ applies the EQ predicate on the "create_time" field.
 func CreateTimeEQ(v time.Time) predicate.DiscordMessage {
 	return predicate.DiscordMessage(sql.FieldEQ(FieldCreateTime, v))
@@ -216,6 +221,81 @@ func DiscordidContainsFold(v string) predicate.DiscordMessage {
 	return predicate.DiscordMessage(sql.FieldContainsFold(FieldDiscordid, v))
 }
 
+// ContentEQ applies the EQ predicate on the "content" field.
+func ContentEQ(v string) predicate.DiscordMessage {
+	return predicate.DiscordMessage(sql.FieldEQ(FieldContent, v))
+}
+
+// ContentNEQ applies the NEQ predicate on the "content" field.
+func ContentNEQ(v string) predicate.DiscordMessage {
+	return predicate.DiscordMessage(sql.FieldNEQ(FieldContent, v))
+}
+
+// ContentIn applies the In predicate on the "content" field.
+func ContentIn(vs ...string) predicate.DiscordMessage {
+	return predicate.DiscordMessage(sql.FieldIn(FieldContent, vs...))
+}
+
+// ContentNotIn applies the NotIn predicate on the "content" field.
+func ContentNotIn(vs ...string) predicate.DiscordMessage {
+	return predicate.DiscordMessage(sql.FieldNotIn(FieldContent, vs...))
+}
+
+// ContentGT applies the GT predicate on the "content" field.
+func ContentGT(v string) predicate.DiscordMessage {
+	return predicate.DiscordMessage(sql.FieldGT(FieldContent, v))
+}
+
+// ContentGTE applies the GTE predicate on the "content" field.
+func ContentGTE(v string) predicate.DiscordMessage {
+	return predicate.DiscordMessage(sql.FieldGTE(FieldContent, v))
+}
+
+// ContentLT applies the LT predicate on the "content" field.
+func ContentLT(v string) predicate.DiscordMessage {
+	return predicate.DiscordMessage(sql.FieldLT(FieldContent, v))
+}
+
+// ContentLTE applies the LTE predicate on the "content" field.
+func ContentLTE(v string) predicate.DiscordMessage {
+	return predicate.DiscordMessage(sql.FieldLTE(FieldContent, v))
+}
+
+// ContentContains applies the Contains predicate on the "content" field.
+func ContentContains(v string) predicate.DiscordMessage {
+	return predicate.DiscordMessage(sql.FieldContains(FieldContent, v))
+}
+
+// ContentHasPrefix applies the HasPrefix predicate on the "content" field.
+func ContentHasPrefix(v string) predicate.DiscordMessage {
+	return predicate.DiscordMessage(sql.FieldHasPrefix(FieldContent, v))
+}
+
+// ContentHasSuffix applies the HasSuffix predicate on the "content" field.
+func ContentHasSuffix(v string) predicate.DiscordMessage {
+	return predicate.DiscordMessage(sql.FieldHasSuffix(FieldContent, v))
+}
+
+// ContentIsNil applies the IsNil predicate on the "content" field.
+func ContentIsNil() predicate.DiscordMessage {
+	return predicate.DiscordMessage(sql.FieldIsNull(FieldContent))
+}
+
+// ContentNotNil applies the NotNil predicate on the "content" field.
+func ContentNotNil() predicate.DiscordMessage {
+	return predicate.DiscordMessage(sql.FieldNotNull(FieldContent))
+}
+
+// ContentEqualFold applies the EqualFold predicate on the "content" field.
+func ContentEqualFold(v string) predicate.DiscordMessage {
+	return predicate.DiscordMessage(sql.FieldEqualFold(FieldContent, v))
+}
+
+// ContentContainsFold applies the ContainsFold predicate on the "content" field.
+func ContentContainsFold(v string) predicate.DiscordMessage {
+	return predicate.DiscordMessage(sql.FieldContainsFold(FieldContent, v))
+}
+
 // HasAuthor applies the HasEdge predicate on the "author" edge.
 func HasAuthor() predicate.DiscordMessage {
 	return predicate.DiscordMessage(func(s *sql.Selector) {
@@ -254,6 +334,29 @@ func HasMessageReactions() predicate.DiscordMessage {
 func HasMessageReactionsWith(preds ...predicate.DiscordMessageReaction) predicate.DiscordMessage {
 	return predicate.DiscordMessage(func(s *sql.Selector) {
 		step := newMessageReactionsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasChannel applies the HasEdge predicate on the "channel" edge.
+func HasChannel() predicate.DiscordMessage {
+	return predicate.DiscordMessage(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, ChannelTable, ChannelColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasChannelWith applies the HasEdge predicate on the "channel" edge with a given conditions (other predicates).
+func HasChannelWith(preds ...predicate.DiscordChannel) predicate.DiscordMessage {
+	return predicate.DiscordMessage(func(s *sql.Selector) {
+		step := newChannelStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

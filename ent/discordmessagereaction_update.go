@@ -38,6 +38,20 @@ func (dmru *DiscordMessageReactionUpdate) SetUpdateTime(t time.Time) *DiscordMes
 	return dmru
 }
 
+// SetEmojiAPIName sets the "emoji_api_name" field.
+func (dmru *DiscordMessageReactionUpdate) SetEmojiAPIName(s string) *DiscordMessageReactionUpdate {
+	dmru.mutation.SetEmojiAPIName(s)
+	return dmru
+}
+
+// SetNillableEmojiAPIName sets the "emoji_api_name" field if the given value is not nil.
+func (dmru *DiscordMessageReactionUpdate) SetNillableEmojiAPIName(s *string) *DiscordMessageReactionUpdate {
+	if s != nil {
+		dmru.SetEmojiAPIName(*s)
+	}
+	return dmru
+}
+
 // SetRemoved sets the "removed" field.
 func (dmru *DiscordMessageReactionUpdate) SetRemoved(b bool) *DiscordMessageReactionUpdate {
 	dmru.mutation.SetRemoved(b)
@@ -169,6 +183,9 @@ func (dmru *DiscordMessageReactionUpdate) sqlSave(ctx context.Context) (n int, e
 	if value, ok := dmru.mutation.UpdateTime(); ok {
 		_spec.SetField(discordmessagereaction.FieldUpdateTime, field.TypeTime, value)
 	}
+	if value, ok := dmru.mutation.EmojiAPIName(); ok {
+		_spec.SetField(discordmessagereaction.FieldEmojiAPIName, field.TypeString, value)
+	}
 	if value, ok := dmru.mutation.Removed(); ok {
 		_spec.SetField(discordmessagereaction.FieldRemoved, field.TypeBool, value)
 	}
@@ -256,6 +273,20 @@ type DiscordMessageReactionUpdateOne struct {
 // SetUpdateTime sets the "update_time" field.
 func (dmruo *DiscordMessageReactionUpdateOne) SetUpdateTime(t time.Time) *DiscordMessageReactionUpdateOne {
 	dmruo.mutation.SetUpdateTime(t)
+	return dmruo
+}
+
+// SetEmojiAPIName sets the "emoji_api_name" field.
+func (dmruo *DiscordMessageReactionUpdateOne) SetEmojiAPIName(s string) *DiscordMessageReactionUpdateOne {
+	dmruo.mutation.SetEmojiAPIName(s)
+	return dmruo
+}
+
+// SetNillableEmojiAPIName sets the "emoji_api_name" field if the given value is not nil.
+func (dmruo *DiscordMessageReactionUpdateOne) SetNillableEmojiAPIName(s *string) *DiscordMessageReactionUpdateOne {
+	if s != nil {
+		dmruo.SetEmojiAPIName(*s)
+	}
 	return dmruo
 }
 
@@ -419,6 +450,9 @@ func (dmruo *DiscordMessageReactionUpdateOne) sqlSave(ctx context.Context) (_nod
 	}
 	if value, ok := dmruo.mutation.UpdateTime(); ok {
 		_spec.SetField(discordmessagereaction.FieldUpdateTime, field.TypeTime, value)
+	}
+	if value, ok := dmruo.mutation.EmojiAPIName(); ok {
+		_spec.SetField(discordmessagereaction.FieldEmojiAPIName, field.TypeString, value)
 	}
 	if value, ok := dmruo.mutation.Removed(); ok {
 		_spec.SetField(discordmessagereaction.FieldRemoved, field.TypeBool, value)

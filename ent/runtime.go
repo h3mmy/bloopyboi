@@ -5,8 +5,14 @@ package ent
 import (
 	"time"
 
+	"github.com/google/uuid"
+	"github.com/h3mmy/bloopyboi/ent/book"
+	"github.com/h3mmy/bloopyboi/ent/bookauthor"
+	"github.com/h3mmy/bloopyboi/ent/discordchannel"
+	"github.com/h3mmy/bloopyboi/ent/discordguild"
 	"github.com/h3mmy/bloopyboi/ent/discordmessage"
 	"github.com/h3mmy/bloopyboi/ent/discordmessagereaction"
+	"github.com/h3mmy/bloopyboi/ent/discorduser"
 	"github.com/h3mmy/bloopyboi/ent/mediarequest"
 	"github.com/h3mmy/bloopyboi/ent/schema"
 )
@@ -15,6 +21,47 @@ import (
 // (default values, validators, hooks and policies) and stitches it
 // to their package variables.
 func init() {
+	bookFields := schema.Book{}.Fields()
+	_ = bookFields
+	// bookDescID is the schema descriptor for id field.
+	bookDescID := bookFields[0].Descriptor()
+	// book.DefaultID holds the default value on creation for the id field.
+	book.DefaultID = bookDescID.Default.(func() uuid.UUID)
+	bookauthorFields := schema.BookAuthor{}.Fields()
+	_ = bookauthorFields
+	// bookauthorDescID is the schema descriptor for id field.
+	bookauthorDescID := bookauthorFields[0].Descriptor()
+	// bookauthor.DefaultID holds the default value on creation for the id field.
+	bookauthor.DefaultID = bookauthorDescID.Default.(func() uuid.UUID)
+	discordchannelMixin := schema.DiscordChannel{}.Mixin()
+	discordchannelMixinFields0 := discordchannelMixin[0].Fields()
+	_ = discordchannelMixinFields0
+	discordchannelFields := schema.DiscordChannel{}.Fields()
+	_ = discordchannelFields
+	// discordchannelDescCreateTime is the schema descriptor for create_time field.
+	discordchannelDescCreateTime := discordchannelMixinFields0[0].Descriptor()
+	// discordchannel.DefaultCreateTime holds the default value on creation for the create_time field.
+	discordchannel.DefaultCreateTime = discordchannelDescCreateTime.Default.(func() time.Time)
+	// discordchannelDescUpdateTime is the schema descriptor for update_time field.
+	discordchannelDescUpdateTime := discordchannelMixinFields0[1].Descriptor()
+	// discordchannel.DefaultUpdateTime holds the default value on creation for the update_time field.
+	discordchannel.DefaultUpdateTime = discordchannelDescUpdateTime.Default.(func() time.Time)
+	// discordchannel.UpdateDefaultUpdateTime holds the default value on update for the update_time field.
+	discordchannel.UpdateDefaultUpdateTime = discordchannelDescUpdateTime.UpdateDefault.(func() time.Time)
+	// discordchannelDescNsfw is the schema descriptor for nsfw field.
+	discordchannelDescNsfw := discordchannelFields[4].Descriptor()
+	// discordchannel.DefaultNsfw holds the default value on creation for the nsfw field.
+	discordchannel.DefaultNsfw = discordchannelDescNsfw.Default.(bool)
+	// discordchannelDescID is the schema descriptor for id field.
+	discordchannelDescID := discordchannelFields[0].Descriptor()
+	// discordchannel.DefaultID holds the default value on creation for the id field.
+	discordchannel.DefaultID = discordchannelDescID.Default.(func() uuid.UUID)
+	discordguildFields := schema.DiscordGuild{}.Fields()
+	_ = discordguildFields
+	// discordguildDescID is the schema descriptor for id field.
+	discordguildDescID := discordguildFields[0].Descriptor()
+	// discordguild.DefaultID holds the default value on creation for the id field.
+	discordguild.DefaultID = discordguildDescID.Default.(func() uuid.UUID)
 	discordmessageMixin := schema.DiscordMessage{}.Mixin()
 	discordmessageMixinFields0 := discordmessageMixin[0].Fields()
 	_ = discordmessageMixinFields0
@@ -30,6 +77,10 @@ func init() {
 	discordmessage.DefaultUpdateTime = discordmessageDescUpdateTime.Default.(func() time.Time)
 	// discordmessage.UpdateDefaultUpdateTime holds the default value on update for the update_time field.
 	discordmessage.UpdateDefaultUpdateTime = discordmessageDescUpdateTime.UpdateDefault.(func() time.Time)
+	// discordmessageDescID is the schema descriptor for id field.
+	discordmessageDescID := discordmessageFields[0].Descriptor()
+	// discordmessage.DefaultID holds the default value on creation for the id field.
+	discordmessage.DefaultID = discordmessageDescID.Default.(func() uuid.UUID)
 	discordmessagereactionMixin := schema.DiscordMessageReaction{}.Mixin()
 	discordmessagereactionMixinFields0 := discordmessagereactionMixin[0].Fields()
 	_ = discordmessagereactionMixinFields0
@@ -46,9 +97,19 @@ func init() {
 	// discordmessagereaction.UpdateDefaultUpdateTime holds the default value on update for the update_time field.
 	discordmessagereaction.UpdateDefaultUpdateTime = discordmessagereactionDescUpdateTime.UpdateDefault.(func() time.Time)
 	// discordmessagereactionDescRemoved is the schema descriptor for removed field.
-	discordmessagereactionDescRemoved := discordmessagereactionFields[1].Descriptor()
+	discordmessagereactionDescRemoved := discordmessagereactionFields[2].Descriptor()
 	// discordmessagereaction.DefaultRemoved holds the default value on creation for the removed field.
 	discordmessagereaction.DefaultRemoved = discordmessagereactionDescRemoved.Default.(bool)
+	// discordmessagereactionDescID is the schema descriptor for id field.
+	discordmessagereactionDescID := discordmessagereactionFields[0].Descriptor()
+	// discordmessagereaction.DefaultID holds the default value on creation for the id field.
+	discordmessagereaction.DefaultID = discordmessagereactionDescID.Default.(func() uuid.UUID)
+	discorduserFields := schema.DiscordUser{}.Fields()
+	_ = discorduserFields
+	// discorduserDescID is the schema descriptor for id field.
+	discorduserDescID := discorduserFields[0].Descriptor()
+	// discorduser.DefaultID holds the default value on creation for the id field.
+	discorduser.DefaultID = discorduserDescID.Default.(func() uuid.UUID)
 	mediarequestMixin := schema.MediaRequest{}.Mixin()
 	mediarequestMixinFields0 := mediarequestMixin[0].Fields()
 	_ = mediarequestMixinFields0
@@ -68,4 +129,8 @@ func init() {
 	mediarequestDescPriority := mediarequestFields[2].Descriptor()
 	// mediarequest.DefaultPriority holds the default value on creation for the priority field.
 	mediarequest.DefaultPriority = mediarequestDescPriority.Default.(int)
+	// mediarequestDescID is the schema descriptor for id field.
+	mediarequestDescID := mediarequestFields[0].Descriptor()
+	// mediarequest.DefaultID holds the default value on creation for the id field.
+	mediarequest.DefaultID = mediarequestDescID.Default.(func() uuid.UUID)
 }

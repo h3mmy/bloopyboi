@@ -13,6 +13,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
+	"github.com/h3mmy/bloopyboi/ent/discordchannel"
 	"github.com/h3mmy/bloopyboi/ent/discordguild"
 	"github.com/h3mmy/bloopyboi/ent/discordmessage"
 	"github.com/h3mmy/bloopyboi/ent/discordmessagereaction"
@@ -29,6 +30,7 @@ type DiscordMessageQuery struct {
 	predicates                []predicate.DiscordMessage
 	withAuthor                *DiscordUserQuery
 	withMessageReactions      *DiscordMessageReactionQuery
+	withChannel               *DiscordChannelQuery
 	withGuild                 *DiscordGuildQuery
 	withFKs                   bool
 	modifiers                 []func(*sql.Selector)
@@ -106,6 +108,28 @@ func (dmq *DiscordMessageQuery) QueryMessageReactions() *DiscordMessageReactionQ
 			sqlgraph.From(discordmessage.Table, discordmessage.FieldID, selector),
 			sqlgraph.To(discordmessagereaction.Table, discordmessagereaction.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, discordmessage.MessageReactionsTable, discordmessage.MessageReactionsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(dmq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryChannel chains the current query on the "channel" edge.
+func (dmq *DiscordMessageQuery) QueryChannel() *DiscordChannelQuery {
+	query := (&DiscordChannelClient{config: dmq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := dmq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := dmq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(discordmessage.Table, discordmessage.FieldID, selector),
+			sqlgraph.To(discordchannel.Table, discordchannel.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, discordmessage.ChannelTable, discordmessage.ChannelColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(dmq.driver.Dialect(), step)
 		return fromU, nil
@@ -329,6 +353,7 @@ func (dmq *DiscordMessageQuery) Clone() *DiscordMessageQuery {
 		predicates:           append([]predicate.DiscordMessage{}, dmq.predicates...),
 		withAuthor:           dmq.withAuthor.Clone(),
 		withMessageReactions: dmq.withMessageReactions.Clone(),
+		withChannel:          dmq.withChannel.Clone(),
 		withGuild:            dmq.withGuild.Clone(),
 		// clone intermediate query.
 		sql:  dmq.sql.Clone(),
@@ -355,6 +380,17 @@ func (dmq *DiscordMessageQuery) WithMessageReactions(opts ...func(*DiscordMessag
 		opt(query)
 	}
 	dmq.withMessageReactions = query
+	return dmq
+}
+
+// WithChannel tells the query-builder to eager-load the nodes that are connected to
+// the "channel" edge. The optional arguments are used to configure the query builder of the edge.
+func (dmq *DiscordMessageQuery) WithChannel(opts ...func(*DiscordChannelQuery)) *DiscordMessageQuery {
+	query := (&DiscordChannelClient{config: dmq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	dmq.withChannel = query
 	return dmq
 }
 
@@ -448,13 +484,14 @@ func (dmq *DiscordMessageQuery) sqlAll(ctx context.Context, hooks ...queryHook) 
 		nodes       = []*DiscordMessage{}
 		withFKs     = dmq.withFKs
 		_spec       = dmq.querySpec()
-		loadedTypes = [3]bool{
+		loadedTypes = [4]bool{
 			dmq.withAuthor != nil,
 			dmq.withMessageReactions != nil,
+			dmq.withChannel != nil,
 			dmq.withGuild != nil,
 		}
 	)
-	if dmq.withAuthor != nil || dmq.withGuild != nil {
+	if dmq.withAuthor != nil || dmq.withChannel != nil || dmq.withGuild != nil {
 		withFKs = true
 	}
 	if withFKs {
@@ -493,6 +530,12 @@ func (dmq *DiscordMessageQuery) sqlAll(ctx context.Context, hooks ...queryHook) 
 			func(n *DiscordMessage, e *DiscordMessageReaction) {
 				n.Edges.MessageReactions = append(n.Edges.MessageReactions, e)
 			}); err != nil {
+			return nil, err
+		}
+	}
+	if query := dmq.withChannel; query != nil {
+		if err := dmq.loadChannel(ctx, query, nodes, nil,
+			func(n *DiscordMessage, e *DiscordChannel) { n.Edges.Channel = e }); err != nil {
 			return nil, err
 		}
 	}
@@ -572,6 +615,38 @@ func (dmq *DiscordMessageQuery) loadMessageReactions(ctx context.Context, query 
 			return fmt.Errorf(`unexpected referenced foreign-key "discord_message_message_reactions" returned %v for node %v`, *fk, n.ID)
 		}
 		assign(node, n)
+	}
+	return nil
+}
+func (dmq *DiscordMessageQuery) loadChannel(ctx context.Context, query *DiscordChannelQuery, nodes []*DiscordMessage, init func(*DiscordMessage), assign func(*DiscordMessage, *DiscordChannel)) error {
+	ids := make([]uuid.UUID, 0, len(nodes))
+	nodeids := make(map[uuid.UUID][]*DiscordMessage)
+	for i := range nodes {
+		if nodes[i].discord_channel_messages == nil {
+			continue
+		}
+		fk := *nodes[i].discord_channel_messages
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(discordchannel.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "discord_channel_messages" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
 	}
 	return nil
 }

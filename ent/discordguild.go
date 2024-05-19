@@ -41,11 +41,14 @@ type DiscordGuildEdges struct {
 	Members []*DiscordUser `json:"members,omitempty"`
 	// DiscordMessages holds the value of the discord_messages edge.
 	DiscordMessages []*DiscordMessage `json:"discord_messages,omitempty"`
+	// GuildChannels holds the value of the guild_channels edge.
+	GuildChannels []*DiscordChannel `json:"guild_channels,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes          [2]bool
+	loadedTypes          [3]bool
 	namedMembers         map[string][]*DiscordUser
 	namedDiscordMessages map[string][]*DiscordMessage
+	namedGuildChannels   map[string][]*DiscordChannel
 }
 
 // MembersOrErr returns the Members value or an error if the edge
@@ -64,6 +67,15 @@ func (e DiscordGuildEdges) DiscordMessagesOrErr() ([]*DiscordMessage, error) {
 		return e.DiscordMessages, nil
 	}
 	return nil, &NotLoadedError{edge: "discord_messages"}
+}
+
+// GuildChannelsOrErr returns the GuildChannels value or an error if the edge
+// was not loaded in eager-loading.
+func (e DiscordGuildEdges) GuildChannelsOrErr() ([]*DiscordChannel, error) {
+	if e.loadedTypes[2] {
+		return e.GuildChannels, nil
+	}
+	return nil, &NotLoadedError{edge: "guild_channels"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -157,6 +169,11 @@ func (dg *DiscordGuild) QueryDiscordMessages() *DiscordMessageQuery {
 	return NewDiscordGuildClient(dg.config).QueryDiscordMessages(dg)
 }
 
+// QueryGuildChannels queries the "guild_channels" edge of the DiscordGuild entity.
+func (dg *DiscordGuild) QueryGuildChannels() *DiscordChannelQuery {
+	return NewDiscordGuildClient(dg.config).QueryGuildChannels(dg)
+}
+
 // Update returns a builder for updating this DiscordGuild.
 // Note that you need to call DiscordGuild.Unwrap() before calling this method if this DiscordGuild
 // was returned from a transaction, and the transaction was committed or rolled back.
@@ -246,6 +263,30 @@ func (dg *DiscordGuild) appendNamedDiscordMessages(name string, edges ...*Discor
 		dg.Edges.namedDiscordMessages[name] = []*DiscordMessage{}
 	} else {
 		dg.Edges.namedDiscordMessages[name] = append(dg.Edges.namedDiscordMessages[name], edges...)
+	}
+}
+
+// NamedGuildChannels returns the GuildChannels named value or an error if the edge was not
+// loaded in eager-loading with this name.
+func (dg *DiscordGuild) NamedGuildChannels(name string) ([]*DiscordChannel, error) {
+	if dg.Edges.namedGuildChannels == nil {
+		return nil, &NotLoadedError{edge: name}
+	}
+	nodes, ok := dg.Edges.namedGuildChannels[name]
+	if !ok {
+		return nil, &NotLoadedError{edge: name}
+	}
+	return nodes, nil
+}
+
+func (dg *DiscordGuild) appendNamedGuildChannels(name string, edges ...*DiscordChannel) {
+	if dg.Edges.namedGuildChannels == nil {
+		dg.Edges.namedGuildChannels = make(map[string][]*DiscordChannel)
+	}
+	if len(edges) == 0 {
+		dg.Edges.namedGuildChannels[name] = []*DiscordChannel{}
+	} else {
+		dg.Edges.namedGuildChannels[name] = append(dg.Edges.namedGuildChannels[name], edges...)
 	}
 }
 

@@ -55,6 +55,12 @@ func (dmrc *DiscordMessageReactionCreate) SetNillableUpdateTime(t *time.Time) *D
 	return dmrc
 }
 
+// SetEmojiAPIName sets the "emoji_api_name" field.
+func (dmrc *DiscordMessageReactionCreate) SetEmojiAPIName(s string) *DiscordMessageReactionCreate {
+	dmrc.mutation.SetEmojiAPIName(s)
+	return dmrc
+}
+
 // SetRemoved sets the "removed" field.
 func (dmrc *DiscordMessageReactionCreate) SetRemoved(b bool) *DiscordMessageReactionCreate {
 	dmrc.mutation.SetRemoved(b)
@@ -78,6 +84,14 @@ func (dmrc *DiscordMessageReactionCreate) SetRaw(dr discordgo.MessageReaction) *
 // SetID sets the "id" field.
 func (dmrc *DiscordMessageReactionCreate) SetID(u uuid.UUID) *DiscordMessageReactionCreate {
 	dmrc.mutation.SetID(u)
+	return dmrc
+}
+
+// SetNillableID sets the "id" field if the given value is not nil.
+func (dmrc *DiscordMessageReactionCreate) SetNillableID(u *uuid.UUID) *DiscordMessageReactionCreate {
+	if u != nil {
+		dmrc.SetID(*u)
+	}
 	return dmrc
 }
 
@@ -166,6 +180,10 @@ func (dmrc *DiscordMessageReactionCreate) defaults() {
 		v := discordmessagereaction.DefaultRemoved
 		dmrc.mutation.SetRemoved(v)
 	}
+	if _, ok := dmrc.mutation.ID(); !ok {
+		v := discordmessagereaction.DefaultID()
+		dmrc.mutation.SetID(v)
+	}
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -175,6 +193,9 @@ func (dmrc *DiscordMessageReactionCreate) check() error {
 	}
 	if _, ok := dmrc.mutation.UpdateTime(); !ok {
 		return &ValidationError{Name: "update_time", err: errors.New(`ent: missing required field "DiscordMessageReaction.update_time"`)}
+	}
+	if _, ok := dmrc.mutation.EmojiAPIName(); !ok {
+		return &ValidationError{Name: "emoji_api_name", err: errors.New(`ent: missing required field "DiscordMessageReaction.emoji_api_name"`)}
 	}
 	if _, ok := dmrc.mutation.Removed(); !ok {
 		return &ValidationError{Name: "removed", err: errors.New(`ent: missing required field "DiscordMessageReaction.removed"`)}
@@ -225,6 +246,10 @@ func (dmrc *DiscordMessageReactionCreate) createSpec() (*DiscordMessageReaction,
 	if value, ok := dmrc.mutation.UpdateTime(); ok {
 		_spec.SetField(discordmessagereaction.FieldUpdateTime, field.TypeTime, value)
 		_node.UpdateTime = value
+	}
+	if value, ok := dmrc.mutation.EmojiAPIName(); ok {
+		_spec.SetField(discordmessagereaction.FieldEmojiAPIName, field.TypeString, value)
+		_node.EmojiAPIName = value
 	}
 	if value, ok := dmrc.mutation.Removed(); ok {
 		_spec.SetField(discordmessagereaction.FieldRemoved, field.TypeBool, value)
@@ -332,6 +357,18 @@ func (u *DiscordMessageReactionUpsert) UpdateUpdateTime() *DiscordMessageReactio
 	return u
 }
 
+// SetEmojiAPIName sets the "emoji_api_name" field.
+func (u *DiscordMessageReactionUpsert) SetEmojiAPIName(v string) *DiscordMessageReactionUpsert {
+	u.Set(discordmessagereaction.FieldEmojiAPIName, v)
+	return u
+}
+
+// UpdateEmojiAPIName sets the "emoji_api_name" field to the value that was provided on create.
+func (u *DiscordMessageReactionUpsert) UpdateEmojiAPIName() *DiscordMessageReactionUpsert {
+	u.SetExcluded(discordmessagereaction.FieldEmojiAPIName)
+	return u
+}
+
 // SetRemoved sets the "removed" field.
 func (u *DiscordMessageReactionUpsert) SetRemoved(v bool) *DiscordMessageReactionUpsert {
 	u.Set(discordmessagereaction.FieldRemoved, v)
@@ -418,6 +455,20 @@ func (u *DiscordMessageReactionUpsertOne) SetUpdateTime(v time.Time) *DiscordMes
 func (u *DiscordMessageReactionUpsertOne) UpdateUpdateTime() *DiscordMessageReactionUpsertOne {
 	return u.Update(func(s *DiscordMessageReactionUpsert) {
 		s.UpdateUpdateTime()
+	})
+}
+
+// SetEmojiAPIName sets the "emoji_api_name" field.
+func (u *DiscordMessageReactionUpsertOne) SetEmojiAPIName(v string) *DiscordMessageReactionUpsertOne {
+	return u.Update(func(s *DiscordMessageReactionUpsert) {
+		s.SetEmojiAPIName(v)
+	})
+}
+
+// UpdateEmojiAPIName sets the "emoji_api_name" field to the value that was provided on create.
+func (u *DiscordMessageReactionUpsertOne) UpdateEmojiAPIName() *DiscordMessageReactionUpsertOne {
+	return u.Update(func(s *DiscordMessageReactionUpsert) {
+		s.UpdateEmojiAPIName()
 	})
 }
 
@@ -678,6 +729,20 @@ func (u *DiscordMessageReactionUpsertBulk) SetUpdateTime(v time.Time) *DiscordMe
 func (u *DiscordMessageReactionUpsertBulk) UpdateUpdateTime() *DiscordMessageReactionUpsertBulk {
 	return u.Update(func(s *DiscordMessageReactionUpsert) {
 		s.UpdateUpdateTime()
+	})
+}
+
+// SetEmojiAPIName sets the "emoji_api_name" field.
+func (u *DiscordMessageReactionUpsertBulk) SetEmojiAPIName(v string) *DiscordMessageReactionUpsertBulk {
+	return u.Update(func(s *DiscordMessageReactionUpsert) {
+		s.SetEmojiAPIName(v)
+	})
+}
+
+// UpdateEmojiAPIName sets the "emoji_api_name" field to the value that was provided on create.
+func (u *DiscordMessageReactionUpsertBulk) UpdateEmojiAPIName() *DiscordMessageReactionUpsertBulk {
+	return u.Update(func(s *DiscordMessageReactionUpsert) {
+		s.UpdateEmojiAPIName()
 	})
 }
 

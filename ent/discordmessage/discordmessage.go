@@ -7,6 +7,7 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/google/uuid"
 )
 
 const (
@@ -20,12 +21,16 @@ const (
 	FieldUpdateTime = "update_time"
 	// FieldDiscordid holds the string denoting the discordid field in the database.
 	FieldDiscordid = "discordid"
+	// FieldContent holds the string denoting the content field in the database.
+	FieldContent = "content"
 	// FieldRaw holds the string denoting the raw field in the database.
 	FieldRaw = "raw"
 	// EdgeAuthor holds the string denoting the author edge name in mutations.
 	EdgeAuthor = "author"
 	// EdgeMessageReactions holds the string denoting the message_reactions edge name in mutations.
 	EdgeMessageReactions = "message_reactions"
+	// EdgeChannel holds the string denoting the channel edge name in mutations.
+	EdgeChannel = "channel"
 	// EdgeGuild holds the string denoting the guild edge name in mutations.
 	EdgeGuild = "guild"
 	// Table holds the table name of the discordmessage in the database.
@@ -44,6 +49,13 @@ const (
 	MessageReactionsInverseTable = "discord_message_reactions"
 	// MessageReactionsColumn is the table column denoting the message_reactions relation/edge.
 	MessageReactionsColumn = "discord_message_message_reactions"
+	// ChannelTable is the table that holds the channel relation/edge.
+	ChannelTable = "discord_messages"
+	// ChannelInverseTable is the table name for the DiscordChannel entity.
+	// It exists in this package in order to avoid circular dependency with the "discordchannel" package.
+	ChannelInverseTable = "discord_channels"
+	// ChannelColumn is the table column denoting the channel relation/edge.
+	ChannelColumn = "discord_channel_messages"
 	// GuildTable is the table that holds the guild relation/edge.
 	GuildTable = "discord_messages"
 	// GuildInverseTable is the table name for the DiscordGuild entity.
@@ -59,12 +71,14 @@ var Columns = []string{
 	FieldCreateTime,
 	FieldUpdateTime,
 	FieldDiscordid,
+	FieldContent,
 	FieldRaw,
 }
 
 // ForeignKeys holds the SQL foreign-keys that are owned by the "discord_messages"
 // table and are not defined as standalone fields in the schema.
 var ForeignKeys = []string{
+	"discord_channel_messages",
 	"discord_guild_discord_messages",
 	"discord_user_discord_messages",
 }
@@ -91,6 +105,8 @@ var (
 	DefaultUpdateTime func() time.Time
 	// UpdateDefaultUpdateTime holds the default value on update for the "update_time" field.
 	UpdateDefaultUpdateTime func() time.Time
+	// DefaultID holds the default value on creation for the "id" field.
+	DefaultID func() uuid.UUID
 )
 
 // OrderOption defines the ordering options for the DiscordMessage queries.
@@ -116,6 +132,11 @@ func ByDiscordid(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldDiscordid, opts...).ToFunc()
 }
 
+// ByContent orders the results by the content field.
+func ByContent(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldContent, opts...).ToFunc()
+}
+
 // ByAuthorField orders the results by author field.
 func ByAuthorField(field string, opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
@@ -137,6 +158,13 @@ func ByMessageReactions(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption 
 	}
 }
 
+// ByChannelField orders the results by channel field.
+func ByChannelField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newChannelStep(), sql.OrderByField(field, opts...))
+	}
+}
+
 // ByGuildField orders the results by guild field.
 func ByGuildField(field string, opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
@@ -155,6 +183,13 @@ func newMessageReactionsStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(MessageReactionsInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, MessageReactionsTable, MessageReactionsColumn),
+	)
+}
+func newChannelStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(ChannelInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, ChannelTable, ChannelColumn),
 	)
 }
 func newGuildStep() *sqlgraph.Step {

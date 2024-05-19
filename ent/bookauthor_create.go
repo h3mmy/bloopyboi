@@ -36,6 +36,14 @@ func (bac *BookAuthorCreate) SetID(u uuid.UUID) *BookAuthorCreate {
 	return bac
 }
 
+// SetNillableID sets the "id" field if the given value is not nil.
+func (bac *BookAuthorCreate) SetNillableID(u *uuid.UUID) *BookAuthorCreate {
+	if u != nil {
+		bac.SetID(*u)
+	}
+	return bac
+}
+
 // AddBookIDs adds the "books" edge to the Book entity by IDs.
 func (bac *BookAuthorCreate) AddBookIDs(ids ...uuid.UUID) *BookAuthorCreate {
 	bac.mutation.AddBookIDs(ids...)
@@ -58,6 +66,7 @@ func (bac *BookAuthorCreate) Mutation() *BookAuthorMutation {
 
 // Save creates the BookAuthor in the database.
 func (bac *BookAuthorCreate) Save(ctx context.Context) (*BookAuthor, error) {
+	bac.defaults()
 	return withHooks(ctx, bac.sqlSave, bac.mutation, bac.hooks)
 }
 
@@ -80,6 +89,14 @@ func (bac *BookAuthorCreate) Exec(ctx context.Context) error {
 func (bac *BookAuthorCreate) ExecX(ctx context.Context) {
 	if err := bac.Exec(ctx); err != nil {
 		panic(err)
+	}
+}
+
+// defaults sets the default values of the builder before save.
+func (bac *BookAuthorCreate) defaults() {
+	if _, ok := bac.mutation.ID(); !ok {
+		v := bookauthor.DefaultID()
+		bac.mutation.SetID(v)
 	}
 }
 
@@ -327,6 +344,7 @@ func (bacb *BookAuthorCreateBulk) Save(ctx context.Context) ([]*BookAuthor, erro
 	for i := range bacb.builders {
 		func(i int, root context.Context) {
 			builder := bacb.builders[i]
+			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*BookAuthorMutation)
 				if !ok {

@@ -73,6 +73,14 @@ func (duc *DiscordUserCreate) SetID(u uuid.UUID) *DiscordUserCreate {
 	return duc
 }
 
+// SetNillableID sets the "id" field if the given value is not nil.
+func (duc *DiscordUserCreate) SetNillableID(u *uuid.UUID) *DiscordUserCreate {
+	if u != nil {
+		duc.SetID(*u)
+	}
+	return duc
+}
+
 // AddGuildIDs adds the "guilds" edge to the DiscordGuild entity by IDs.
 func (duc *DiscordUserCreate) AddGuildIDs(ids ...uuid.UUID) *DiscordUserCreate {
 	duc.mutation.AddGuildIDs(ids...)
@@ -140,6 +148,7 @@ func (duc *DiscordUserCreate) Mutation() *DiscordUserMutation {
 
 // Save creates the DiscordUser in the database.
 func (duc *DiscordUserCreate) Save(ctx context.Context) (*DiscordUser, error) {
+	duc.defaults()
 	return withHooks(ctx, duc.sqlSave, duc.mutation, duc.hooks)
 }
 
@@ -162,6 +171,14 @@ func (duc *DiscordUserCreate) Exec(ctx context.Context) error {
 func (duc *DiscordUserCreate) ExecX(ctx context.Context) {
 	if err := duc.Exec(ctx); err != nil {
 		panic(err)
+	}
+}
+
+// defaults sets the default values of the builder before save.
+func (duc *DiscordUserCreate) defaults() {
+	if _, ok := duc.mutation.ID(); !ok {
+		v := discorduser.DefaultID()
+		duc.mutation.SetID(v)
 	}
 }
 
@@ -576,6 +593,7 @@ func (ducb *DiscordUserCreateBulk) Save(ctx context.Context) ([]*DiscordUser, er
 	for i := range ducb.builders {
 		func(i int, root context.Context) {
 			builder := ducb.builders[i]
+			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*DiscordUserMutation)
 				if !ok {

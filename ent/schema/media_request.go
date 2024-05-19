@@ -17,7 +17,8 @@ type MediaRequest struct {
 // Fields of the MediaRequest.
 func (MediaRequest) Fields() []ent.Field {
 	return []ent.Field{
-		field.UUID("id", uuid.New()).
+		field.UUID("id", uuid.UUID{}).
+			Default(uuid.New).
 			Unique(),
 		field.Enum("status").GoType(models.MediaRequestStatus("")),
 		field.Int("priority").

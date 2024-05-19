@@ -13,6 +13,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
+	"github.com/h3mmy/bloopyboi/ent/discordchannel"
 	"github.com/h3mmy/bloopyboi/ent/discordguild"
 	"github.com/h3mmy/bloopyboi/ent/discordmessage"
 	"github.com/h3mmy/bloopyboi/ent/discorduser"
@@ -28,9 +29,11 @@ type DiscordGuildQuery struct {
 	predicates               []predicate.DiscordGuild
 	withMembers              *DiscordUserQuery
 	withDiscordMessages      *DiscordMessageQuery
+	withGuildChannels        *DiscordChannelQuery
 	modifiers                []func(*sql.Selector)
 	withNamedMembers         map[string]*DiscordUserQuery
 	withNamedDiscordMessages map[string]*DiscordMessageQuery
+	withNamedGuildChannels   map[string]*DiscordChannelQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -104,6 +107,28 @@ func (dgq *DiscordGuildQuery) QueryDiscordMessages() *DiscordMessageQuery {
 			sqlgraph.From(discordguild.Table, discordguild.FieldID, selector),
 			sqlgraph.To(discordmessage.Table, discordmessage.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, discordguild.DiscordMessagesTable, discordguild.DiscordMessagesColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(dgq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryGuildChannels chains the current query on the "guild_channels" edge.
+func (dgq *DiscordGuildQuery) QueryGuildChannels() *DiscordChannelQuery {
+	query := (&DiscordChannelClient{config: dgq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := dgq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := dgq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(discordguild.Table, discordguild.FieldID, selector),
+			sqlgraph.To(discordchannel.Table, discordchannel.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, false, discordguild.GuildChannelsTable, discordguild.GuildChannelsPrimaryKey...),
 		)
 		fromU = sqlgraph.SetNeighbors(dgq.driver.Dialect(), step)
 		return fromU, nil
@@ -305,6 +330,7 @@ func (dgq *DiscordGuildQuery) Clone() *DiscordGuildQuery {
 		predicates:          append([]predicate.DiscordGuild{}, dgq.predicates...),
 		withMembers:         dgq.withMembers.Clone(),
 		withDiscordMessages: dgq.withDiscordMessages.Clone(),
+		withGuildChannels:   dgq.withGuildChannels.Clone(),
 		// clone intermediate query.
 		sql:  dgq.sql.Clone(),
 		path: dgq.path,
@@ -330,6 +356,17 @@ func (dgq *DiscordGuildQuery) WithDiscordMessages(opts ...func(*DiscordMessageQu
 		opt(query)
 	}
 	dgq.withDiscordMessages = query
+	return dgq
+}
+
+// WithGuildChannels tells the query-builder to eager-load the nodes that are connected to
+// the "guild_channels" edge. The optional arguments are used to configure the query builder of the edge.
+func (dgq *DiscordGuildQuery) WithGuildChannels(opts ...func(*DiscordChannelQuery)) *DiscordGuildQuery {
+	query := (&DiscordChannelClient{config: dgq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	dgq.withGuildChannels = query
 	return dgq
 }
 
@@ -411,9 +448,10 @@ func (dgq *DiscordGuildQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([
 	var (
 		nodes       = []*DiscordGuild{}
 		_spec       = dgq.querySpec()
-		loadedTypes = [2]bool{
+		loadedTypes = [3]bool{
 			dgq.withMembers != nil,
 			dgq.withDiscordMessages != nil,
+			dgq.withGuildChannels != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -451,6 +489,13 @@ func (dgq *DiscordGuildQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([
 			return nil, err
 		}
 	}
+	if query := dgq.withGuildChannels; query != nil {
+		if err := dgq.loadGuildChannels(ctx, query, nodes,
+			func(n *DiscordGuild) { n.Edges.GuildChannels = []*DiscordChannel{} },
+			func(n *DiscordGuild, e *DiscordChannel) { n.Edges.GuildChannels = append(n.Edges.GuildChannels, e) }); err != nil {
+			return nil, err
+		}
+	}
 	for name, query := range dgq.withNamedMembers {
 		if err := dgq.loadMembers(ctx, query, nodes,
 			func(n *DiscordGuild) { n.appendNamedMembers(name) },
@@ -462,6 +507,13 @@ func (dgq *DiscordGuildQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([
 		if err := dgq.loadDiscordMessages(ctx, query, nodes,
 			func(n *DiscordGuild) { n.appendNamedDiscordMessages(name) },
 			func(n *DiscordGuild, e *DiscordMessage) { n.appendNamedDiscordMessages(name, e) }); err != nil {
+			return nil, err
+		}
+	}
+	for name, query := range dgq.withNamedGuildChannels {
+		if err := dgq.loadGuildChannels(ctx, query, nodes,
+			func(n *DiscordGuild) { n.appendNamedGuildChannels(name) },
+			func(n *DiscordGuild, e *DiscordChannel) { n.appendNamedGuildChannels(name, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -557,6 +609,67 @@ func (dgq *DiscordGuildQuery) loadDiscordMessages(ctx context.Context, query *Di
 			return fmt.Errorf(`unexpected referenced foreign-key "discord_guild_discord_messages" returned %v for node %v`, *fk, n.ID)
 		}
 		assign(node, n)
+	}
+	return nil
+}
+func (dgq *DiscordGuildQuery) loadGuildChannels(ctx context.Context, query *DiscordChannelQuery, nodes []*DiscordGuild, init func(*DiscordGuild), assign func(*DiscordGuild, *DiscordChannel)) error {
+	edgeIDs := make([]driver.Value, len(nodes))
+	byID := make(map[uuid.UUID]*DiscordGuild)
+	nids := make(map[uuid.UUID]map[*DiscordGuild]struct{})
+	for i, node := range nodes {
+		edgeIDs[i] = node.ID
+		byID[node.ID] = node
+		if init != nil {
+			init(node)
+		}
+	}
+	query.Where(func(s *sql.Selector) {
+		joinT := sql.Table(discordguild.GuildChannelsTable)
+		s.Join(joinT).On(s.C(discordchannel.FieldID), joinT.C(discordguild.GuildChannelsPrimaryKey[1]))
+		s.Where(sql.InValues(joinT.C(discordguild.GuildChannelsPrimaryKey[0]), edgeIDs...))
+		columns := s.SelectedColumns()
+		s.Select(joinT.C(discordguild.GuildChannelsPrimaryKey[0]))
+		s.AppendSelect(columns...)
+		s.SetDistinct(false)
+	})
+	if err := query.prepareQuery(ctx); err != nil {
+		return err
+	}
+	qr := QuerierFunc(func(ctx context.Context, q Query) (Value, error) {
+		return query.sqlAll(ctx, func(_ context.Context, spec *sqlgraph.QuerySpec) {
+			assign := spec.Assign
+			values := spec.ScanValues
+			spec.ScanValues = func(columns []string) ([]any, error) {
+				values, err := values(columns[1:])
+				if err != nil {
+					return nil, err
+				}
+				return append([]any{new(uuid.UUID)}, values...), nil
+			}
+			spec.Assign = func(columns []string, values []any) error {
+				outValue := *values[0].(*uuid.UUID)
+				inValue := *values[1].(*uuid.UUID)
+				if nids[inValue] == nil {
+					nids[inValue] = map[*DiscordGuild]struct{}{byID[outValue]: {}}
+					return assign(columns[1:], values[1:])
+				}
+				nids[inValue][byID[outValue]] = struct{}{}
+				return nil
+			}
+		})
+	})
+	neighbors, err := withInterceptors[[]*DiscordChannel](ctx, query, qr, query.inters)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected "guild_channels" node returned %v`, n.ID)
+		}
+		for kn := range nodes {
+			assign(kn, n)
+		}
 	}
 	return nil
 }
@@ -699,6 +812,20 @@ func (dgq *DiscordGuildQuery) WithNamedDiscordMessages(name string, opts ...func
 		dgq.withNamedDiscordMessages = make(map[string]*DiscordMessageQuery)
 	}
 	dgq.withNamedDiscordMessages[name] = query
+	return dgq
+}
+
+// WithNamedGuildChannels tells the query-builder to eager-load the nodes that are connected to the "guild_channels"
+// edge with the given name. The optional arguments are used to configure the query builder of the edge.
+func (dgq *DiscordGuildQuery) WithNamedGuildChannels(name string, opts ...func(*DiscordChannelQuery)) *DiscordGuildQuery {
+	query := (&DiscordChannelClient{config: dgq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	if dgq.withNamedGuildChannels == nil {
+		dgq.withNamedGuildChannels = make(map[string]*DiscordChannelQuery)
+	}
+	dgq.withNamedGuildChannels[name] = query
 	return dgq
 }
 
