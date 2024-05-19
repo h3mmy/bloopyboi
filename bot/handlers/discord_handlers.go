@@ -11,6 +11,7 @@ import (
 	"github.com/h3mmy/bloopyboi/bot/services"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
+	pmodels "github.com/h3mmy/bloopyboi/internal/models"
 )
 
 var (
@@ -29,9 +30,11 @@ type MessageChanBlooper struct {
 	logger        *zap.Logger
 	msgRegistry   map[string]*discordgo.Message
 	inspiroSvc    *services.InspiroService
+	discordSvc *services.DiscordService
 }
 
 func NewMessageChanBlooper(
+	dService *services.DiscordService,
 	insproSvc *services.InspiroService,
 	createCh *chan *discordgo.MessageCreate,
 	reactACh *chan *discordgo.MessageReactionAdd,
@@ -46,6 +49,7 @@ func NewMessageChanBlooper(
 	})
 
 	return &MessageChanBlooper{
+		discordSvc: dService,
 		inspiroSvc:    insproSvc,
 		msgCreateChan: createCh,
 		msgReactAChan: reactACh,
@@ -85,6 +89,16 @@ func (mcb *MessageChanBlooper) Start(ctx context.Context) error {
 func (mcb *MessageChanBlooper) processIncomingMessage(msg *discordgo.MessageCreate) {
 	logger := mcb.logger.With(zapcore.Field{Key: "method", Type: zapcore.StringType, String: "processIncomingMessage"})
 	mcb.logger.Debug(fmt.Sprintf("processing new message with ID %s from user %s", msg.ID, msg.Author.Username))
+
+	// record message
+	ctx1 := context.WithValue(context.TODO(), pmodels.CtxKeyMessageID, msg.ID)
+	ctx2 := context.WithValue(ctx1, pmodels.CtxDiscordGuildID, msg.GuildID)
+	ctx := context.WithValue(ctx2, pmodels.CtxChannelID, msg.ChannelID)
+	err := mcb.discordSvc.RecordDiscordMessage(ctx, msg.Message)
+	if err !=nil {
+		logger.Error("error persisting message", zap.Error(err))
+		// Swallow Error
+	}
 
 	// Check for test message
 	if msg.Content == "test reaction thingy" {
@@ -141,6 +155,16 @@ func (mcb *MessageChanBlooper) processReactionAdd(msgRAdd *discordgo.MessageReac
 	mcb.logger.Debug(fmt.Sprintf("processing new reaction add on messageID %s with Emoji %v",
 		msgRAdd.MessageID,
 		msgRAdd.Emoji))
+
+		// record message
+	ctx1 := context.WithValue(context.TODO(), pmodels.CtxKeyMessageID, msgRAdd.MessageID)
+	ctx2 := context.WithValue(ctx1, pmodels.CtxDiscordGuildID, msgRAdd.GuildID)
+	ctx := context.WithValue(ctx2, pmodels.CtxChannelID, msgRAdd.ChannelID)
+	err := mcb.discordSvc.RecordMessageReaction(ctx, msgRAdd.MessageReaction)
+	if err !=nil {
+		mcb.logger.Error("error persisting message", zap.Error(err))
+		// Swallow Error
+	}
 
 	if smsg, ok := mcb.msgRegistry[msgRAdd.MessageID]; ok {
 		mcb.logger.Debug(fmt.Sprintf("found message id %s in registry", smsg.ID))

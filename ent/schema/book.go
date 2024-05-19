@@ -15,7 +15,8 @@ type Book struct {
 // Fields of the Book.
 func (Book) Fields() []ent.Field {
 	return []ent.Field{
-		field.UUID("id", uuid.New()).
+		field.UUID("id", uuid.UUID{}).
+			Default(uuid.New).
 			Unique(),
 		field.String("title"),
 		field.String("description").

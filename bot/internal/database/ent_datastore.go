@@ -8,6 +8,7 @@ import (
 	"entgo.io/ent/dialect"
 	"github.com/h3mmy/bloopyboi/bot/internal/config"
 	"github.com/h3mmy/bloopyboi/ent"
+	"github.com/h3mmy/bloopyboi/ent/migrate"
 	"github.com/uptrace/opentelemetry-go-extra/otelsql"
 	"go.uber.org/zap"
 
@@ -40,7 +41,7 @@ func Open() (*ent.Client, error) {
 
 func migrateSchema(client *ent.Client, ctx context.Context) error {
 	// Run the auto migration tool.
-	if err := client.Schema.Create(ctx); err != nil {
+	if err := client.Schema.Create(ctx, migrate.WithGlobalUniqueID(true)); err != nil {
 		logger.Error("failed creating schema resources", zap.Error(err))
 		return err
 	}

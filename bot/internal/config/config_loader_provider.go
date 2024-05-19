@@ -73,6 +73,7 @@ func GetConfig() *AppConfig {
 }
 
 func RefreshAppConfig() {
+	logger.Debug("refreshing App Config")
 	cfg, err := buildConfig()
 	if err != nil {
 		logger.Error("error updating config", zap.Error(err))

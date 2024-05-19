@@ -382,7 +382,7 @@ func HasDiscordMessages() predicate.DiscordUser {
 	return predicate.DiscordUser(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, false, DiscordMessagesTable, DiscordMessagesPrimaryKey...),
+			sqlgraph.Edge(sqlgraph.O2M, false, DiscordMessagesTable, DiscordMessagesColumn),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
@@ -415,6 +415,29 @@ func HasMediaRequests() predicate.DiscordUser {
 func HasMediaRequestsWith(preds ...predicate.MediaRequest) predicate.DiscordUser {
 	return predicate.DiscordUser(func(s *sql.Selector) {
 		step := newMediaRequestsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasMessageReactions applies the HasEdge predicate on the "message_reactions" edge.
+func HasMessageReactions() predicate.DiscordUser {
+	return predicate.DiscordUser(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, MessageReactionsTable, MessageReactionsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasMessageReactionsWith applies the HasEdge predicate on the "message_reactions" edge with a given conditions (other predicates).
+func HasMessageReactionsWith(preds ...predicate.DiscordMessageReaction) predicate.DiscordUser {
+	return predicate.DiscordUser(func(s *sql.Selector) {
+		step := newMessageReactionsStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

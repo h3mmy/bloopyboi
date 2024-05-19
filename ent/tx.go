@@ -16,10 +16,14 @@ type Tx struct {
 	Book *BookClient
 	// BookAuthor is the client for interacting with the BookAuthor builders.
 	BookAuthor *BookAuthorClient
+	// DiscordChannel is the client for interacting with the DiscordChannel builders.
+	DiscordChannel *DiscordChannelClient
 	// DiscordGuild is the client for interacting with the DiscordGuild builders.
 	DiscordGuild *DiscordGuildClient
 	// DiscordMessage is the client for interacting with the DiscordMessage builders.
 	DiscordMessage *DiscordMessageClient
+	// DiscordMessageReaction is the client for interacting with the DiscordMessageReaction builders.
+	DiscordMessageReaction *DiscordMessageReactionClient
 	// DiscordUser is the client for interacting with the DiscordUser builders.
 	DiscordUser *DiscordUserClient
 	// MediaRequest is the client for interacting with the MediaRequest builders.
@@ -157,8 +161,10 @@ func (tx *Tx) Client() *Client {
 func (tx *Tx) init() {
 	tx.Book = NewBookClient(tx.config)
 	tx.BookAuthor = NewBookAuthorClient(tx.config)
+	tx.DiscordChannel = NewDiscordChannelClient(tx.config)
 	tx.DiscordGuild = NewDiscordGuildClient(tx.config)
 	tx.DiscordMessage = NewDiscordMessageClient(tx.config)
+	tx.DiscordMessageReaction = NewDiscordMessageReactionClient(tx.config)
 	tx.DiscordUser = NewDiscordUserClient(tx.config)
 	tx.MediaRequest = NewMediaRequestClient(tx.config)
 }

@@ -14,7 +14,10 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/bwmarrin/discordgo"
 	"github.com/google/uuid"
+	"github.com/h3mmy/bloopyboi/ent/discordchannel"
+	"github.com/h3mmy/bloopyboi/ent/discordguild"
 	"github.com/h3mmy/bloopyboi/ent/discordmessage"
+	"github.com/h3mmy/bloopyboi/ent/discordmessagereaction"
 	"github.com/h3mmy/bloopyboi/ent/discorduser"
 )
 
@@ -54,6 +57,26 @@ func (dmc *DiscordMessageCreate) SetNillableUpdateTime(t *time.Time) *DiscordMes
 	return dmc
 }
 
+// SetDiscordid sets the "discordid" field.
+func (dmc *DiscordMessageCreate) SetDiscordid(s string) *DiscordMessageCreate {
+	dmc.mutation.SetDiscordid(s)
+	return dmc
+}
+
+// SetContent sets the "content" field.
+func (dmc *DiscordMessageCreate) SetContent(s string) *DiscordMessageCreate {
+	dmc.mutation.SetContent(s)
+	return dmc
+}
+
+// SetNillableContent sets the "content" field if the given value is not nil.
+func (dmc *DiscordMessageCreate) SetNillableContent(s *string) *DiscordMessageCreate {
+	if s != nil {
+		dmc.SetContent(*s)
+	}
+	return dmc
+}
+
 // SetRaw sets the "raw" field.
 func (dmc *DiscordMessageCreate) SetRaw(d discordgo.Message) *DiscordMessageCreate {
 	dmc.mutation.SetRaw(d)
@@ -61,24 +84,89 @@ func (dmc *DiscordMessageCreate) SetRaw(d discordgo.Message) *DiscordMessageCrea
 }
 
 // SetID sets the "id" field.
-func (dmc *DiscordMessageCreate) SetID(s string) *DiscordMessageCreate {
-	dmc.mutation.SetID(s)
+func (dmc *DiscordMessageCreate) SetID(u uuid.UUID) *DiscordMessageCreate {
+	dmc.mutation.SetID(u)
 	return dmc
 }
 
-// AddAuthorIDs adds the "author" edge to the DiscordUser entity by IDs.
-func (dmc *DiscordMessageCreate) AddAuthorIDs(ids ...uuid.UUID) *DiscordMessageCreate {
-	dmc.mutation.AddAuthorIDs(ids...)
+// SetNillableID sets the "id" field if the given value is not nil.
+func (dmc *DiscordMessageCreate) SetNillableID(u *uuid.UUID) *DiscordMessageCreate {
+	if u != nil {
+		dmc.SetID(*u)
+	}
 	return dmc
 }
 
-// AddAuthor adds the "author" edges to the DiscordUser entity.
-func (dmc *DiscordMessageCreate) AddAuthor(d ...*DiscordUser) *DiscordMessageCreate {
+// SetAuthorID sets the "author" edge to the DiscordUser entity by ID.
+func (dmc *DiscordMessageCreate) SetAuthorID(id uuid.UUID) *DiscordMessageCreate {
+	dmc.mutation.SetAuthorID(id)
+	return dmc
+}
+
+// SetNillableAuthorID sets the "author" edge to the DiscordUser entity by ID if the given value is not nil.
+func (dmc *DiscordMessageCreate) SetNillableAuthorID(id *uuid.UUID) *DiscordMessageCreate {
+	if id != nil {
+		dmc = dmc.SetAuthorID(*id)
+	}
+	return dmc
+}
+
+// SetAuthor sets the "author" edge to the DiscordUser entity.
+func (dmc *DiscordMessageCreate) SetAuthor(d *DiscordUser) *DiscordMessageCreate {
+	return dmc.SetAuthorID(d.ID)
+}
+
+// AddMessageReactionIDs adds the "message_reactions" edge to the DiscordMessageReaction entity by IDs.
+func (dmc *DiscordMessageCreate) AddMessageReactionIDs(ids ...uuid.UUID) *DiscordMessageCreate {
+	dmc.mutation.AddMessageReactionIDs(ids...)
+	return dmc
+}
+
+// AddMessageReactions adds the "message_reactions" edges to the DiscordMessageReaction entity.
+func (dmc *DiscordMessageCreate) AddMessageReactions(d ...*DiscordMessageReaction) *DiscordMessageCreate {
 	ids := make([]uuid.UUID, len(d))
 	for i := range d {
 		ids[i] = d[i].ID
 	}
-	return dmc.AddAuthorIDs(ids...)
+	return dmc.AddMessageReactionIDs(ids...)
+}
+
+// SetChannelID sets the "channel" edge to the DiscordChannel entity by ID.
+func (dmc *DiscordMessageCreate) SetChannelID(id uuid.UUID) *DiscordMessageCreate {
+	dmc.mutation.SetChannelID(id)
+	return dmc
+}
+
+// SetNillableChannelID sets the "channel" edge to the DiscordChannel entity by ID if the given value is not nil.
+func (dmc *DiscordMessageCreate) SetNillableChannelID(id *uuid.UUID) *DiscordMessageCreate {
+	if id != nil {
+		dmc = dmc.SetChannelID(*id)
+	}
+	return dmc
+}
+
+// SetChannel sets the "channel" edge to the DiscordChannel entity.
+func (dmc *DiscordMessageCreate) SetChannel(d *DiscordChannel) *DiscordMessageCreate {
+	return dmc.SetChannelID(d.ID)
+}
+
+// SetGuildID sets the "guild" edge to the DiscordGuild entity by ID.
+func (dmc *DiscordMessageCreate) SetGuildID(id uuid.UUID) *DiscordMessageCreate {
+	dmc.mutation.SetGuildID(id)
+	return dmc
+}
+
+// SetNillableGuildID sets the "guild" edge to the DiscordGuild entity by ID if the given value is not nil.
+func (dmc *DiscordMessageCreate) SetNillableGuildID(id *uuid.UUID) *DiscordMessageCreate {
+	if id != nil {
+		dmc = dmc.SetGuildID(*id)
+	}
+	return dmc
+}
+
+// SetGuild sets the "guild" edge to the DiscordGuild entity.
+func (dmc *DiscordMessageCreate) SetGuild(d *DiscordGuild) *DiscordMessageCreate {
+	return dmc.SetGuildID(d.ID)
 }
 
 // Mutation returns the DiscordMessageMutation object of the builder.
@@ -124,6 +212,10 @@ func (dmc *DiscordMessageCreate) defaults() {
 		v := discordmessage.DefaultUpdateTime()
 		dmc.mutation.SetUpdateTime(v)
 	}
+	if _, ok := dmc.mutation.ID(); !ok {
+		v := discordmessage.DefaultID()
+		dmc.mutation.SetID(v)
+	}
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -133,6 +225,9 @@ func (dmc *DiscordMessageCreate) check() error {
 	}
 	if _, ok := dmc.mutation.UpdateTime(); !ok {
 		return &ValidationError{Name: "update_time", err: errors.New(`ent: missing required field "DiscordMessage.update_time"`)}
+	}
+	if _, ok := dmc.mutation.Discordid(); !ok {
+		return &ValidationError{Name: "discordid", err: errors.New(`ent: missing required field "DiscordMessage.discordid"`)}
 	}
 	if _, ok := dmc.mutation.Raw(); !ok {
 		return &ValidationError{Name: "raw", err: errors.New(`ent: missing required field "DiscordMessage.raw"`)}
@@ -152,10 +247,10 @@ func (dmc *DiscordMessageCreate) sqlSave(ctx context.Context) (*DiscordMessage, 
 		return nil, err
 	}
 	if _spec.ID.Value != nil {
-		if id, ok := _spec.ID.Value.(string); ok {
-			_node.ID = id
-		} else {
-			return nil, fmt.Errorf("unexpected DiscordMessage.ID type: %T", _spec.ID.Value)
+		if id, ok := _spec.ID.Value.(*uuid.UUID); ok {
+			_node.ID = *id
+		} else if err := _node.ID.Scan(_spec.ID.Value); err != nil {
+			return nil, err
 		}
 	}
 	dmc.mutation.id = &_node.ID
@@ -166,12 +261,12 @@ func (dmc *DiscordMessageCreate) sqlSave(ctx context.Context) (*DiscordMessage, 
 func (dmc *DiscordMessageCreate) createSpec() (*DiscordMessage, *sqlgraph.CreateSpec) {
 	var (
 		_node = &DiscordMessage{config: dmc.config}
-		_spec = sqlgraph.NewCreateSpec(discordmessage.Table, sqlgraph.NewFieldSpec(discordmessage.FieldID, field.TypeString))
+		_spec = sqlgraph.NewCreateSpec(discordmessage.Table, sqlgraph.NewFieldSpec(discordmessage.FieldID, field.TypeUUID))
 	)
 	_spec.OnConflict = dmc.conflict
 	if id, ok := dmc.mutation.ID(); ok {
 		_node.ID = id
-		_spec.ID.Value = id
+		_spec.ID.Value = &id
 	}
 	if value, ok := dmc.mutation.CreateTime(); ok {
 		_spec.SetField(discordmessage.FieldCreateTime, field.TypeTime, value)
@@ -181,16 +276,24 @@ func (dmc *DiscordMessageCreate) createSpec() (*DiscordMessage, *sqlgraph.Create
 		_spec.SetField(discordmessage.FieldUpdateTime, field.TypeTime, value)
 		_node.UpdateTime = value
 	}
+	if value, ok := dmc.mutation.Discordid(); ok {
+		_spec.SetField(discordmessage.FieldDiscordid, field.TypeString, value)
+		_node.Discordid = value
+	}
+	if value, ok := dmc.mutation.Content(); ok {
+		_spec.SetField(discordmessage.FieldContent, field.TypeString, value)
+		_node.Content = value
+	}
 	if value, ok := dmc.mutation.Raw(); ok {
 		_spec.SetField(discordmessage.FieldRaw, field.TypeJSON, value)
 		_node.Raw = value
 	}
 	if nodes := dmc.mutation.AuthorIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
+			Rel:     sqlgraph.M2O,
 			Inverse: true,
 			Table:   discordmessage.AuthorTable,
-			Columns: discordmessage.AuthorPrimaryKey,
+			Columns: []string{discordmessage.AuthorColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(discorduser.FieldID, field.TypeUUID),
@@ -199,6 +302,57 @@ func (dmc *DiscordMessageCreate) createSpec() (*DiscordMessage, *sqlgraph.Create
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
+		_node.discord_user_discord_messages = &nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := dmc.mutation.MessageReactionsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   discordmessage.MessageReactionsTable,
+			Columns: []string{discordmessage.MessageReactionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(discordmessagereaction.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := dmc.mutation.ChannelIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   discordmessage.ChannelTable,
+			Columns: []string{discordmessage.ChannelColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(discordchannel.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.discord_channel_messages = &nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := dmc.mutation.GuildIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   discordmessage.GuildTable,
+			Columns: []string{discordmessage.GuildColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(discordguild.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.discord_guild_discord_messages = &nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
@@ -262,6 +416,36 @@ func (u *DiscordMessageUpsert) SetUpdateTime(v time.Time) *DiscordMessageUpsert 
 // UpdateUpdateTime sets the "update_time" field to the value that was provided on create.
 func (u *DiscordMessageUpsert) UpdateUpdateTime() *DiscordMessageUpsert {
 	u.SetExcluded(discordmessage.FieldUpdateTime)
+	return u
+}
+
+// SetDiscordid sets the "discordid" field.
+func (u *DiscordMessageUpsert) SetDiscordid(v string) *DiscordMessageUpsert {
+	u.Set(discordmessage.FieldDiscordid, v)
+	return u
+}
+
+// UpdateDiscordid sets the "discordid" field to the value that was provided on create.
+func (u *DiscordMessageUpsert) UpdateDiscordid() *DiscordMessageUpsert {
+	u.SetExcluded(discordmessage.FieldDiscordid)
+	return u
+}
+
+// SetContent sets the "content" field.
+func (u *DiscordMessageUpsert) SetContent(v string) *DiscordMessageUpsert {
+	u.Set(discordmessage.FieldContent, v)
+	return u
+}
+
+// UpdateContent sets the "content" field to the value that was provided on create.
+func (u *DiscordMessageUpsert) UpdateContent() *DiscordMessageUpsert {
+	u.SetExcluded(discordmessage.FieldContent)
+	return u
+}
+
+// ClearContent clears the value of the "content" field.
+func (u *DiscordMessageUpsert) ClearContent() *DiscordMessageUpsert {
+	u.SetNull(discordmessage.FieldContent)
 	return u
 }
 
@@ -342,6 +526,41 @@ func (u *DiscordMessageUpsertOne) UpdateUpdateTime() *DiscordMessageUpsertOne {
 	})
 }
 
+// SetDiscordid sets the "discordid" field.
+func (u *DiscordMessageUpsertOne) SetDiscordid(v string) *DiscordMessageUpsertOne {
+	return u.Update(func(s *DiscordMessageUpsert) {
+		s.SetDiscordid(v)
+	})
+}
+
+// UpdateDiscordid sets the "discordid" field to the value that was provided on create.
+func (u *DiscordMessageUpsertOne) UpdateDiscordid() *DiscordMessageUpsertOne {
+	return u.Update(func(s *DiscordMessageUpsert) {
+		s.UpdateDiscordid()
+	})
+}
+
+// SetContent sets the "content" field.
+func (u *DiscordMessageUpsertOne) SetContent(v string) *DiscordMessageUpsertOne {
+	return u.Update(func(s *DiscordMessageUpsert) {
+		s.SetContent(v)
+	})
+}
+
+// UpdateContent sets the "content" field to the value that was provided on create.
+func (u *DiscordMessageUpsertOne) UpdateContent() *DiscordMessageUpsertOne {
+	return u.Update(func(s *DiscordMessageUpsert) {
+		s.UpdateContent()
+	})
+}
+
+// ClearContent clears the value of the "content" field.
+func (u *DiscordMessageUpsertOne) ClearContent() *DiscordMessageUpsertOne {
+	return u.Update(func(s *DiscordMessageUpsert) {
+		s.ClearContent()
+	})
+}
+
 // SetRaw sets the "raw" field.
 func (u *DiscordMessageUpsertOne) SetRaw(v discordgo.Message) *DiscordMessageUpsertOne {
 	return u.Update(func(s *DiscordMessageUpsert) {
@@ -372,7 +591,7 @@ func (u *DiscordMessageUpsertOne) ExecX(ctx context.Context) {
 }
 
 // Exec executes the UPSERT query and returns the inserted/updated ID.
-func (u *DiscordMessageUpsertOne) ID(ctx context.Context) (id string, err error) {
+func (u *DiscordMessageUpsertOne) ID(ctx context.Context) (id uuid.UUID, err error) {
 	if u.create.driver.Dialect() == dialect.MySQL {
 		// In case of "ON CONFLICT", there is no way to get back non-numeric ID
 		// fields from the database since MySQL does not support the RETURNING clause.
@@ -386,7 +605,7 @@ func (u *DiscordMessageUpsertOne) ID(ctx context.Context) (id string, err error)
 }
 
 // IDX is like ID, but panics if an error occurs.
-func (u *DiscordMessageUpsertOne) IDX(ctx context.Context) string {
+func (u *DiscordMessageUpsertOne) IDX(ctx context.Context) uuid.UUID {
 	id, err := u.ID(ctx)
 	if err != nil {
 		panic(err)
@@ -585,6 +804,41 @@ func (u *DiscordMessageUpsertBulk) SetUpdateTime(v time.Time) *DiscordMessageUps
 func (u *DiscordMessageUpsertBulk) UpdateUpdateTime() *DiscordMessageUpsertBulk {
 	return u.Update(func(s *DiscordMessageUpsert) {
 		s.UpdateUpdateTime()
+	})
+}
+
+// SetDiscordid sets the "discordid" field.
+func (u *DiscordMessageUpsertBulk) SetDiscordid(v string) *DiscordMessageUpsertBulk {
+	return u.Update(func(s *DiscordMessageUpsert) {
+		s.SetDiscordid(v)
+	})
+}
+
+// UpdateDiscordid sets the "discordid" field to the value that was provided on create.
+func (u *DiscordMessageUpsertBulk) UpdateDiscordid() *DiscordMessageUpsertBulk {
+	return u.Update(func(s *DiscordMessageUpsert) {
+		s.UpdateDiscordid()
+	})
+}
+
+// SetContent sets the "content" field.
+func (u *DiscordMessageUpsertBulk) SetContent(v string) *DiscordMessageUpsertBulk {
+	return u.Update(func(s *DiscordMessageUpsert) {
+		s.SetContent(v)
+	})
+}
+
+// UpdateContent sets the "content" field to the value that was provided on create.
+func (u *DiscordMessageUpsertBulk) UpdateContent() *DiscordMessageUpsertBulk {
+	return u.Update(func(s *DiscordMessageUpsert) {
+		s.UpdateContent()
+	})
+}
+
+// ClearContent clears the value of the "content" field.
+func (u *DiscordMessageUpsertBulk) ClearContent() *DiscordMessageUpsertBulk {
+	return u.Update(func(s *DiscordMessageUpsert) {
+		s.ClearContent()
 	})
 }
 

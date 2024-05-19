@@ -16,7 +16,8 @@ type DiscordGuild struct {
 // https://discord.com/developers/docs/resources/guild
 func (DiscordGuild) Fields() []ent.Field {
 	return []ent.Field{
-		field.UUID("id", uuid.New()).
+		field.UUID("id", uuid.UUID{}).
+			Default(uuid.New).
 			Unique(),
 		field.String("discordid").
 			Unique(),
@@ -36,5 +37,7 @@ func (DiscordGuild) Fields() []ent.Field {
 func (DiscordGuild) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.To("members", DiscordUser.Type),
+		edge.To("discord_messages", DiscordMessage.Type),
+		edge.To("guild_channels", DiscordChannel.Type),
 	}
 }

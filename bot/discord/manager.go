@@ -37,7 +37,7 @@ type DiscordManager struct {
 
 // Constructs new Discord Manager
 func NewDiscordManager(cfg *config.DiscordConfig, logger *zap.Logger) (*DiscordManager, error) {
-	botID := cfg.GetAppID()
+	botID := cfg.AppID
 
 	botMentionRegex, err := regexp.Compile(fmt.Sprintf(discordBotMentionRegexFmt, fmt.Sprintf("%d", botID)))
 	if err != nil {
@@ -97,7 +97,7 @@ func (d *DiscordManager) Start(ctx context.Context) error {
 
 	d.log.Info("Initializing Experimental Handler")
 	msgSendChan := make(chan *models.DiscordMessageSendRequest, 20)
-	expHandler := getBloopyChanHandler(d.discordSvc.GetSession(), &msgSendChan)
+	expHandler := getBloopyChanHandler(d.discordSvc, &msgSendChan)
 
 	ctx, cancelFn := context.WithCancel(ctx)
 	defer cancelFn()
@@ -127,14 +127,19 @@ func (d *DiscordManager) Start(ctx context.Context) error {
 	return nil
 }
 
-func getBloopyChanHandler(s *discordgo.Session, msgSendChan *chan *models.DiscordMessageSendRequest) *handlers.MessageChanBlooper {
+func getBloopyChanHandler(ds *services.DiscordService, msgSendChan *chan *models.DiscordMessageSendRequest) *handlers.MessageChanBlooper {
+	s := ds.GetSession()
 	createCh := bloopyCommands.NextMessageCreateC(s)
 	reactACh := bloopyCommands.NextMessageReactionAddC(s)
 	reactRCh := bloopyCommands.NextMessageReactionRemoveC(s)
 
-	return handlers.NewMessageChanBlooper(providers.GetInspiroService(), &createCh, &reactACh, &reactRCh, msgSendChan)
+	return handlers.NewMessageChanBlooper(ds, providers.GetInspiroService(), &createCh, &reactACh, &reactRCh, msgSendChan)
 }
 
 func (d *DiscordManager) IsReady() bool {
 	return d.discordSvc.GetDataReady()
+}
+
+func (d *DiscordManager) GetDiscordService() *services.DiscordService {
+	return d.discordSvc
 }
