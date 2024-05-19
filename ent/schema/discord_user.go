@@ -15,7 +15,8 @@ type DiscordUser struct {
 // Fields of the DiscordUser.
 func (DiscordUser) Fields() []ent.Field {
 	return []ent.Field{
-		field.UUID("id", uuid.New()).
+		field.UUID("id", uuid.UUID{}).
+			Default(uuid.New).
 			Unique(),
 		field.String("discordid").
 			Unique(),
@@ -37,5 +38,6 @@ func (DiscordUser) Edges() []ent.Edge {
 		edge.From("guilds", DiscordGuild.Type).Ref("members"),
 		edge.To("discord_messages", DiscordMessage.Type),
 		edge.To("media_requests", MediaRequest.Type),
+		edge.To("message_reactions", DiscordMessageReaction.Type),
 	}
 }

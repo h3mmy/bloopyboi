@@ -1,14 +1,23 @@
 package services
 
 import (
+	"context"
+	"errors"
 	"fmt"
 
+	"entgo.io/ent/dialect/sql"
 	"github.com/bwmarrin/discordgo"
 	"github.com/h3mmy/bloopyboi/bot/internal/config"
 	"github.com/h3mmy/bloopyboi/bot/internal/database"
 	"github.com/h3mmy/bloopyboi/bot/internal/log"
 	"github.com/h3mmy/bloopyboi/bot/internal/models"
 	"github.com/h3mmy/bloopyboi/ent"
+	"github.com/h3mmy/bloopyboi/ent/discordchannel"
+	"github.com/h3mmy/bloopyboi/ent/discordguild"
+	"github.com/h3mmy/bloopyboi/ent/discordmessage"
+	"github.com/h3mmy/bloopyboi/ent/discordmessagereaction"
+	"github.com/h3mmy/bloopyboi/ent/discorduser"
+	"github.com/h3mmy/bloopyboi/internal/discord"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
@@ -38,14 +47,14 @@ func NewDiscordService() *DiscordService {
 			String: "discord",
 		})
 	return &DiscordService{
-		meta:            models.NewBloopyMeta(),
-		logger:          lgr,
-		discordSession:  nil,
-		dbEnabled:       false,
-		db:              nil,
-		intents:         DefaultIntents,
+		meta:                       models.NewBloopyMeta(),
+		logger:                     lgr,
+		discordSession:             nil,
+		dbEnabled:                  false,
+		db:                         nil,
+		intents:                    DefaultIntents,
 		interactionHandlerRegistry: make(map[string]func(*discordgo.Session, *discordgo.InteractionCreate)),
-		commandRegistry: make(map[string]*discordgo.ApplicationCommand),
+		commandRegistry:            make(map[string]*discordgo.ApplicationCommand),
 	}
 }
 
@@ -67,7 +76,7 @@ func (d *DiscordService) WithToken(token string) *DiscordService {
 }
 
 func (d *DiscordService) WithConfig(cfg *config.DiscordConfig) *DiscordService {
-	d = d.WithToken(cfg.GetToken())
+	d = d.WithToken(cfg.Token)
 	d.config = cfg
 	return d
 }
@@ -227,20 +236,283 @@ func (d *DiscordService) SendMessage(messageRequest models.DiscordMessageSendReq
 	}
 }
 
-// func (d *DiscordService) saveDiscordUser(user *discordgo.User) error {
-// 	if !d.dbEnabled {
-// 		return nil
-// 	}
-// 	_, err := d.db.DiscordUser.
-// 		Create().
-// 		SetID(uuid.New()).
-// 		SetUsername(user.Username).
-// 		SetDiscordid(user.ID).
-// 		SetEmail(user.Email).
-// 		SetDiscriminator(user.Discriminator).
-// 		Save(context.Background())
-// 	return err
-// }
+func (d *DiscordService) RecordDiscordMessage(ctx context.Context, m *discordgo.Message) error {
+	logger := d.logger.With(
+		zap.String("messageID", m.ID),
+		zap.String("guildID", m.GuildID),
+	)
+	logger.Debug("saving message to DB")
+	if !d.dbEnabled {
+		d.logger.Warn("database features disabled. Discarding message")
+		return nil
+	}
+	discUser, err := d.GetSavedDiscordUser(ctx, m.Author.ID)
+	if err != nil {
+		logger.Error("error getting discord user", zap.String("discordUserId", m.Author.ID), zap.Error(err))
+		return err
+	}
+	guild, err := d.GetSavedGuild(ctx, m.GuildID)
+	if err != nil {
+		logger.Error("error getting discord guild. May be a DM", zap.String("discordGuildId", m.GuildID), zap.Error(err))
+		return err
+	}
+	channel, err := d.GetSavedDiscordChannel(ctx, m.ChannelID)
+	if err != nil {
+		logger.Error("error getting discord channel", zap.String("discordChannelID", m.ChannelID), zap.Error(err))
+		return err
+	}
+	// save to DB
+	return database.WithTx(ctx, d.db, func(tx *ent.Tx) error {
+		return tx.DiscordMessage.Create().
+			SetAuthor(discUser).
+			SetDiscordid(m.ID).
+			SetGuild(guild).
+			SetChannel(channel).
+			SetContent(m.Content).
+			SetRaw(*m).
+			OnConflict(sql.ConflictColumns("discordid")).
+			UpdateNewValues().
+			Exec(ctx)
+	})
+}
+
+func (d *DiscordService) GetSavedDiscordMessage(ctx context.Context, channelID string, messageID string) (*ent.DiscordMessage, error) {
+	if !d.dbEnabled {
+		return nil, errors.New("DB Not Enabled")
+	}
+	discordMessage, err := d.db.DiscordMessage.
+		Query().
+		Where(discordmessage.DiscordidEQ(messageID)).
+		Only(ctx)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			discordMessage, err := d.discordSession.ChannelMessage(channelID, messageID)
+			if err != nil {
+				return nil, err
+			}
+			err = d.RecordDiscordMessage(ctx, discordMessage)
+			if err != nil {
+				return nil, err
+			}
+			return d.db.DiscordMessage.
+				Query().
+				Where(discordmessage.DiscordidEQ(messageID)).
+				Only(ctx)
+		}
+	}
+	return discordMessage, nil
+}
+
+func (d *DiscordService) RecordMessageReaction(ctx context.Context, reaction *discordgo.MessageReaction) error {
+	logger := d.logger.With(
+		zap.String("messageID", reaction.MessageID),
+		zap.String("guildID", reaction.GuildID),
+	)
+	logger.Debug("saving messageReaction to DB")
+	if !d.dbEnabled {
+		d.logger.Warn("database features disabled. Discarding message")
+		return nil
+	}
+	discUser, err := d.GetSavedDiscordUser(ctx, reaction.UserID)
+	if err != nil {
+		logger.Error("error getting discord user", zap.String("discordUserId", reaction.UserID), zap.Error(err))
+		return err
+	}
+	message, err := d.GetSavedDiscordMessage(ctx, reaction.ChannelID, reaction.MessageID)
+	if err != nil {
+		logger.Error("error getting discord message", zap.String("discordChannelID", reaction.ChannelID), zap.Error(err))
+		return err
+	}
+	// save to DB
+	return database.WithTx(ctx, d.db, func(tx *ent.Tx) error {
+		existingReaction, err := tx.DiscordMessageReaction.Query().
+			Where(discordmessagereaction.And(
+				discordmessagereaction.EmojiAPINameEQ(reaction.Emoji.APIName()),
+				discordmessagereaction.HasAuthorWith(discorduser.ID(discUser.ID)),
+				discordmessagereaction.HasDiscordMessageWith(discordmessage.ID(message.ID)),
+			)).
+			Only(ctx)
+		if err != nil {
+			if ent.IsNotFound(err) {
+				return tx.DiscordMessageReaction.Create().
+					SetAuthor(discUser).
+					SetRaw(*reaction).
+					SetDiscordMessage(message).
+					SetEmojiAPIName(reaction.Emoji.APIName()).
+					Exec(ctx)
+			}
+			return err
+		}
+		return tx.DiscordMessageReaction.UpdateOne(existingReaction).
+			SetAuthor(discUser).
+			SetRaw(*reaction).
+			SetDiscordMessage(message).
+			SetEmojiAPIName(reaction.Emoji.APIName()).
+			Exec(ctx)
+	})
+}
+
+func (d *DiscordService) saveDiscordUser(ctx context.Context, discUser *discordgo.User) error {
+	if !d.dbEnabled {
+		return nil
+	}
+	return database.WithTx(ctx, d.db, func(tx *ent.Tx) error {
+		return tx.DiscordUser.
+			Create().
+			SetDiscordid(discUser.ID).
+			SetUsername(discUser.Username).
+			SetEmail(discUser.Email).
+			SetDiscriminator(discUser.Discriminator).
+			OnConflict(
+				sql.ConflictColumns(discorduser.FieldDiscordid),
+			).
+			UpdateNewValues().
+			Exec(ctx)
+	})
+}
+
+func (d *DiscordService) saveDiscordGuild(ctx context.Context, discGuild *discordgo.Guild) error {
+	if !d.dbEnabled {
+		return nil
+	}
+	return database.WithTx(ctx, d.db, func(tx *ent.Tx) error {
+		return tx.DiscordGuild.
+			Create().
+			SetDiscordid(discGuild.ID).
+			SetName(discGuild.Name).
+			SetDescription(discGuild.Description).
+			SetPublicUpdatesChannelID(discGuild.PublicUpdatesChannelID).
+			SetRulesChannelID(discGuild.RulesChannelID).
+			OnConflict(
+				sql.ConflictColumns(discorduser.FieldDiscordid),
+			).
+			UpdateNewValues().
+			Exec(ctx)
+	})
+}
+
+func (d *DiscordService) saveDiscordChannel(ctx context.Context, discChannel *discordgo.Channel) error {
+	if !d.dbEnabled {
+		return nil
+	}
+	return database.WithTx(ctx, d.db, func(tx *ent.Tx) error {
+		return tx.DiscordChannel.
+			Create().
+			SetDiscordid(discChannel.ID).
+			SetName(discChannel.Name).
+			SetType(discord.ChannelType(int(discChannel.Type))).
+			SetNsfw(discChannel.NSFW).
+			SetFlags(int(discChannel.Flags)).
+			OnConflict(
+				sql.ConflictColumns(discorduser.FieldDiscordid),
+			).
+			UpdateNewValues().
+			Exec(ctx)
+	})
+}
+
+func (d *DiscordService) SyncSavedChannelWithActiveSession(ctx context.Context, discordChannelID string) error {
+	if !d.dbEnabled {
+		return errors.New("DB Not Enabled")
+	}
+	logger := d.logger.With(
+		zap.String("discordChannelID", discordChannelID),
+	)
+	dChannel, err := d.discordSession.Channel(discordChannelID)
+	if err != nil {
+		logger.Error("error retrieving channel from discord session", zap.Error(err))
+		return err
+	}
+	return d.saveDiscordChannel(ctx, dChannel)
+}
+
+func (d *DiscordService) SyncSavedDiscordUserWithActiveSession(ctx context.Context, discordUserID string) error {
+	if !d.dbEnabled {
+		return errors.New("DB Not Enabled")
+	}
+	logger := d.logger.With(
+		zap.String("discordUserID", discordUserID),
+	)
+	discordUser, err := d.discordSession.User(discordUserID)
+	if err != nil {
+		logger.Error("error retrieving user from discord session", zap.Error(err))
+		return err
+	}
+	return d.saveDiscordUser(ctx, discordUser)
+}
+
+func (d *DiscordService) GetSavedDiscordChannel(ctx context.Context, discordChannelID string) (*ent.DiscordChannel, error) {
+	if !d.dbEnabled {
+		return nil, errors.New("DB Not Enabled")
+	}
+	discChannel, err := d.db.DiscordChannel.
+		Query().
+		Where(discordchannel.DiscordidEQ(discordChannelID)).
+		Only(ctx)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			err = d.SyncSavedChannelWithActiveSession(ctx, discordChannelID)
+			if err != nil {
+				return nil, err
+			}
+			return d.db.DiscordChannel.
+				Query().
+				Where(discordchannel.DiscordidEQ(discordChannelID)).
+				Only(ctx)
+		}
+	}
+	return discChannel, err
+}
+
+func (d *DiscordService) GetSavedDiscordUser(ctx context.Context, discordUserID string) (*ent.DiscordUser, error) {
+	if !d.dbEnabled {
+		return nil, errors.New("DB Not Enabled")
+	}
+	discordUser, err := d.db.DiscordUser.
+		Query().
+		Where(discorduser.DiscordidEQ(discordUserID)).
+		Only(ctx)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			err = d.SyncSavedDiscordUserWithActiveSession(ctx, discordUserID)
+			if err != nil {
+				return nil, err
+			}
+			return d.db.DiscordUser.
+				Query().
+				Where(discorduser.Discordid(discordUserID)).
+				Only(ctx)
+		}
+	}
+	return discordUser, nil
+}
+
+func (d *DiscordService) GetSavedGuild(ctx context.Context, discordGuildId string) (*ent.DiscordGuild, error) {
+	if !d.dbEnabled {
+		return nil, errors.New("DB Not Enabled")
+	}
+	discordGuild, err := d.db.DiscordGuild.
+		Query().
+		Where(discordguild.DiscordidEQ(discordGuildId)).
+		Only(ctx)
+	if err != nil {
+		if ent.IsNotFound(err) {
+			discordGuild, err := d.discordSession.Guild(discordGuildId)
+			if err != nil {
+				return nil, err
+			}
+			err = d.saveDiscordGuild(ctx, discordGuild)
+			if err != nil {
+				return nil, err
+			}
+			return d.db.DiscordGuild.
+				Query().
+				Where(discordguild.Discordid(discordGuildId)).
+				Only(ctx)
+		}
+	}
+	return discordGuild, nil
+}
 
 // func (d *DiscordService) syncGuildUsers(guildId string) error {
 // 	if !d.dbEnabled {

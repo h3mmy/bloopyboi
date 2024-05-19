@@ -8,6 +8,7 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/google/uuid"
 	"github.com/h3mmy/bloopyboi/internal/models"
 )
 
@@ -89,6 +90,8 @@ var (
 	UpdateDefaultUpdateTime func() time.Time
 	// DefaultPriority holds the default value on creation for the "priority" field.
 	DefaultPriority int
+	// DefaultID holds the default value on creation for the "id" field.
+	DefaultID func() uuid.UUID
 )
 
 // StatusValidator is a validator for the "status" field enum values. It is called by the builders before save.

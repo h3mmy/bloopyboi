@@ -47,6 +47,11 @@ func (mr *MessageReactor) Handle(s *discordgo.Session, m *discordgo.MessageCreat
 
 func (mr *MessageReactor) ShouldAddReaction(s *discordgo.Session, m *discordgo.Message) bool {
 	logger := mr.logger.With(zap.String("method", "ShouldAddReaction"))
+	// Ignore all messages created by the bot itself
+	// This isn't required in this specific example but it's 1=a good practice.
+	if m.Author.ID == s.State.User.ID {
+		return false
+	}
 	if len(m.Mentions) > 0 {
 		return true
 	}
@@ -61,6 +66,7 @@ func (mr *MessageReactor) ShouldAddReaction(s *discordgo.Session, m *discordgo.M
 			zap.String("messageID", m.ID),
 		)
 		// react to the referenced message
+		// s.ChannelMessage(m.ChannelID, m.ID)
 		err := mr.ReactToMessage(s, m.ReferencedMessage)
 		if err != nil {
 			logger.Warn("failed reacting to referenced message", zap.Error(err))
@@ -78,6 +84,7 @@ func (mr *MessageReactor) ShouldAddReaction(s *discordgo.Session, m *discordgo.M
 		)
 		return false
 	} else {
+		logger.Debug("found the last message?", zap.Int("lastChannelMessages size", len(lastChannelMessages)))
 		lastMessage := lastChannelMessages[0]
 		if lastMessage != nil {
 			logger.Debug("last message is nil for some reason",
@@ -106,7 +113,7 @@ func (mr *MessageReactor) ShouldAddReaction(s *discordgo.Session, m *discordgo.M
 }
 
 func (mr *MessageReactor) ReactToMessage(s *discordgo.Session, m *discordgo.Message) error {
-	logger := mr.logger.With(zap.String("method", "ReactToMessage"))
+	logger := mr.logger.With(zap.String("method", "ReactToMessage"), zap.String("messageID", m.ID))
 	guildEmojis, err := s.GuildEmojis(m.GuildID)
 	if err != nil {
 		logger.Warn("could not get emoji for guild", zap.String("guildID", m.GuildID))

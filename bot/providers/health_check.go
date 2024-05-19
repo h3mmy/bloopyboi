@@ -43,6 +43,7 @@ func NewReadinessChecker(discordReady func() bool) health.Checker {
 		// More powerful hooks are also available (see docs). For guidance, please refer to the links
 		// listed in the main function documentation.
 		health.WithStatusListener(OnReadinessStatusChanged),
+		// health.
 	)
 }
 

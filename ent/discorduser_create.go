@@ -14,6 +14,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/h3mmy/bloopyboi/ent/discordguild"
 	"github.com/h3mmy/bloopyboi/ent/discordmessage"
+	"github.com/h3mmy/bloopyboi/ent/discordmessagereaction"
 	"github.com/h3mmy/bloopyboi/ent/discorduser"
 	"github.com/h3mmy/bloopyboi/ent/mediarequest"
 )
@@ -72,6 +73,14 @@ func (duc *DiscordUserCreate) SetID(u uuid.UUID) *DiscordUserCreate {
 	return duc
 }
 
+// SetNillableID sets the "id" field if the given value is not nil.
+func (duc *DiscordUserCreate) SetNillableID(u *uuid.UUID) *DiscordUserCreate {
+	if u != nil {
+		duc.SetID(*u)
+	}
+	return duc
+}
+
 // AddGuildIDs adds the "guilds" edge to the DiscordGuild entity by IDs.
 func (duc *DiscordUserCreate) AddGuildIDs(ids ...uuid.UUID) *DiscordUserCreate {
 	duc.mutation.AddGuildIDs(ids...)
@@ -88,14 +97,14 @@ func (duc *DiscordUserCreate) AddGuilds(d ...*DiscordGuild) *DiscordUserCreate {
 }
 
 // AddDiscordMessageIDs adds the "discord_messages" edge to the DiscordMessage entity by IDs.
-func (duc *DiscordUserCreate) AddDiscordMessageIDs(ids ...string) *DiscordUserCreate {
+func (duc *DiscordUserCreate) AddDiscordMessageIDs(ids ...uuid.UUID) *DiscordUserCreate {
 	duc.mutation.AddDiscordMessageIDs(ids...)
 	return duc
 }
 
 // AddDiscordMessages adds the "discord_messages" edges to the DiscordMessage entity.
 func (duc *DiscordUserCreate) AddDiscordMessages(d ...*DiscordMessage) *DiscordUserCreate {
-	ids := make([]string, len(d))
+	ids := make([]uuid.UUID, len(d))
 	for i := range d {
 		ids[i] = d[i].ID
 	}
@@ -117,6 +126,21 @@ func (duc *DiscordUserCreate) AddMediaRequests(m ...*MediaRequest) *DiscordUserC
 	return duc.AddMediaRequestIDs(ids...)
 }
 
+// AddMessageReactionIDs adds the "message_reactions" edge to the DiscordMessageReaction entity by IDs.
+func (duc *DiscordUserCreate) AddMessageReactionIDs(ids ...uuid.UUID) *DiscordUserCreate {
+	duc.mutation.AddMessageReactionIDs(ids...)
+	return duc
+}
+
+// AddMessageReactions adds the "message_reactions" edges to the DiscordMessageReaction entity.
+func (duc *DiscordUserCreate) AddMessageReactions(d ...*DiscordMessageReaction) *DiscordUserCreate {
+	ids := make([]uuid.UUID, len(d))
+	for i := range d {
+		ids[i] = d[i].ID
+	}
+	return duc.AddMessageReactionIDs(ids...)
+}
+
 // Mutation returns the DiscordUserMutation object of the builder.
 func (duc *DiscordUserCreate) Mutation() *DiscordUserMutation {
 	return duc.mutation
@@ -124,6 +148,7 @@ func (duc *DiscordUserCreate) Mutation() *DiscordUserMutation {
 
 // Save creates the DiscordUser in the database.
 func (duc *DiscordUserCreate) Save(ctx context.Context) (*DiscordUser, error) {
+	duc.defaults()
 	return withHooks(ctx, duc.sqlSave, duc.mutation, duc.hooks)
 }
 
@@ -146,6 +171,14 @@ func (duc *DiscordUserCreate) Exec(ctx context.Context) error {
 func (duc *DiscordUserCreate) ExecX(ctx context.Context) {
 	if err := duc.Exec(ctx); err != nil {
 		panic(err)
+	}
+}
+
+// defaults sets the default values of the builder before save.
+func (duc *DiscordUserCreate) defaults() {
+	if _, ok := duc.mutation.ID(); !ok {
+		v := discorduser.DefaultID()
+		duc.mutation.SetID(v)
 	}
 }
 
@@ -227,13 +260,13 @@ func (duc *DiscordUserCreate) createSpec() (*DiscordUser, *sqlgraph.CreateSpec) 
 	}
 	if nodes := duc.mutation.DiscordMessagesIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
+			Rel:     sqlgraph.O2M,
 			Inverse: false,
 			Table:   discorduser.DiscordMessagesTable,
-			Columns: discorduser.DiscordMessagesPrimaryKey,
+			Columns: []string{discorduser.DiscordMessagesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(discordmessage.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(discordmessage.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -250,6 +283,22 @@ func (duc *DiscordUserCreate) createSpec() (*DiscordUser, *sqlgraph.CreateSpec) 
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(mediarequest.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := duc.mutation.MessageReactionsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   discorduser.MessageReactionsTable,
+			Columns: []string{discorduser.MessageReactionsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(discordmessagereaction.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {
@@ -544,6 +593,7 @@ func (ducb *DiscordUserCreateBulk) Save(ctx context.Context) ([]*DiscordUser, er
 	for i := range ducb.builders {
 		func(i int, root context.Context) {
 			builder := ducb.builders[i]
+			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*DiscordUserMutation)
 				if !ok {

@@ -5,6 +5,7 @@ package discordguild
 import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/google/uuid"
 )
 
 const (
@@ -26,6 +27,10 @@ const (
 	FieldNsfwLevel = "nsfw_level"
 	// EdgeMembers holds the string denoting the members edge name in mutations.
 	EdgeMembers = "members"
+	// EdgeDiscordMessages holds the string denoting the discord_messages edge name in mutations.
+	EdgeDiscordMessages = "discord_messages"
+	// EdgeGuildChannels holds the string denoting the guild_channels edge name in mutations.
+	EdgeGuildChannels = "guild_channels"
 	// Table holds the table name of the discordguild in the database.
 	Table = "discord_guilds"
 	// MembersTable is the table that holds the members relation/edge. The primary key declared below.
@@ -33,6 +38,18 @@ const (
 	// MembersInverseTable is the table name for the DiscordUser entity.
 	// It exists in this package in order to avoid circular dependency with the "discorduser" package.
 	MembersInverseTable = "discord_users"
+	// DiscordMessagesTable is the table that holds the discord_messages relation/edge.
+	DiscordMessagesTable = "discord_messages"
+	// DiscordMessagesInverseTable is the table name for the DiscordMessage entity.
+	// It exists in this package in order to avoid circular dependency with the "discordmessage" package.
+	DiscordMessagesInverseTable = "discord_messages"
+	// DiscordMessagesColumn is the table column denoting the discord_messages relation/edge.
+	DiscordMessagesColumn = "discord_guild_discord_messages"
+	// GuildChannelsTable is the table that holds the guild_channels relation/edge. The primary key declared below.
+	GuildChannelsTable = "discord_guild_guild_channels"
+	// GuildChannelsInverseTable is the table name for the DiscordChannel entity.
+	// It exists in this package in order to avoid circular dependency with the "discordchannel" package.
+	GuildChannelsInverseTable = "discord_channels"
 )
 
 // Columns holds all SQL columns for discordguild fields.
@@ -50,6 +67,9 @@ var (
 	// MembersPrimaryKey and MembersColumn2 are the table columns denoting the
 	// primary key for the members relation (M2M).
 	MembersPrimaryKey = []string{"discord_guild_id", "discord_user_id"}
+	// GuildChannelsPrimaryKey and GuildChannelsColumn2 are the table columns denoting the
+	// primary key for the guild_channels relation (M2M).
+	GuildChannelsPrimaryKey = []string{"discord_guild_id", "discord_channel_id"}
 )
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -61,6 +81,11 @@ func ValidColumn(column string) bool {
 	}
 	return false
 }
+
+var (
+	// DefaultID holds the default value on creation for the "id" field.
+	DefaultID func() uuid.UUID
+)
 
 // OrderOption defines the ordering options for the DiscordGuild queries.
 type OrderOption func(*sql.Selector)
@@ -113,10 +138,52 @@ func ByMembers(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newMembersStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
+
+// ByDiscordMessagesCount orders the results by discord_messages count.
+func ByDiscordMessagesCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newDiscordMessagesStep(), opts...)
+	}
+}
+
+// ByDiscordMessages orders the results by discord_messages terms.
+func ByDiscordMessages(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newDiscordMessagesStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByGuildChannelsCount orders the results by guild_channels count.
+func ByGuildChannelsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newGuildChannelsStep(), opts...)
+	}
+}
+
+// ByGuildChannels orders the results by guild_channels terms.
+func ByGuildChannels(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newGuildChannelsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
 func newMembersStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(MembersInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.M2M, false, MembersTable, MembersPrimaryKey...),
+	)
+}
+func newDiscordMessagesStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(DiscordMessagesInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, DiscordMessagesTable, DiscordMessagesColumn),
+	)
+}
+func newGuildChannelsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(GuildChannelsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2M, false, GuildChannelsTable, GuildChannelsPrimaryKey...),
 	)
 }

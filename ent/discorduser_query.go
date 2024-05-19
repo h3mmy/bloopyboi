@@ -15,6 +15,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/h3mmy/bloopyboi/ent/discordguild"
 	"github.com/h3mmy/bloopyboi/ent/discordmessage"
+	"github.com/h3mmy/bloopyboi/ent/discordmessagereaction"
 	"github.com/h3mmy/bloopyboi/ent/discorduser"
 	"github.com/h3mmy/bloopyboi/ent/mediarequest"
 	"github.com/h3mmy/bloopyboi/ent/predicate"
@@ -23,17 +24,19 @@ import (
 // DiscordUserQuery is the builder for querying DiscordUser entities.
 type DiscordUserQuery struct {
 	config
-	ctx                      *QueryContext
-	order                    []discorduser.OrderOption
-	inters                   []Interceptor
-	predicates               []predicate.DiscordUser
-	withGuilds               *DiscordGuildQuery
-	withDiscordMessages      *DiscordMessageQuery
-	withMediaRequests        *MediaRequestQuery
-	modifiers                []func(*sql.Selector)
-	withNamedGuilds          map[string]*DiscordGuildQuery
-	withNamedDiscordMessages map[string]*DiscordMessageQuery
-	withNamedMediaRequests   map[string]*MediaRequestQuery
+	ctx                       *QueryContext
+	order                     []discorduser.OrderOption
+	inters                    []Interceptor
+	predicates                []predicate.DiscordUser
+	withGuilds                *DiscordGuildQuery
+	withDiscordMessages       *DiscordMessageQuery
+	withMediaRequests         *MediaRequestQuery
+	withMessageReactions      *DiscordMessageReactionQuery
+	modifiers                 []func(*sql.Selector)
+	withNamedGuilds           map[string]*DiscordGuildQuery
+	withNamedDiscordMessages  map[string]*DiscordMessageQuery
+	withNamedMediaRequests    map[string]*MediaRequestQuery
+	withNamedMessageReactions map[string]*DiscordMessageReactionQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -106,7 +109,7 @@ func (duq *DiscordUserQuery) QueryDiscordMessages() *DiscordMessageQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(discorduser.Table, discorduser.FieldID, selector),
 			sqlgraph.To(discordmessage.Table, discordmessage.FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, false, discorduser.DiscordMessagesTable, discorduser.DiscordMessagesPrimaryKey...),
+			sqlgraph.Edge(sqlgraph.O2M, false, discorduser.DiscordMessagesTable, discorduser.DiscordMessagesColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(duq.driver.Dialect(), step)
 		return fromU, nil
@@ -129,6 +132,28 @@ func (duq *DiscordUserQuery) QueryMediaRequests() *MediaRequestQuery {
 			sqlgraph.From(discorduser.Table, discorduser.FieldID, selector),
 			sqlgraph.To(mediarequest.Table, mediarequest.FieldID),
 			sqlgraph.Edge(sqlgraph.M2M, false, discorduser.MediaRequestsTable, discorduser.MediaRequestsPrimaryKey...),
+		)
+		fromU = sqlgraph.SetNeighbors(duq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryMessageReactions chains the current query on the "message_reactions" edge.
+func (duq *DiscordUserQuery) QueryMessageReactions() *DiscordMessageReactionQuery {
+	query := (&DiscordMessageReactionClient{config: duq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := duq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := duq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(discorduser.Table, discorduser.FieldID, selector),
+			sqlgraph.To(discordmessagereaction.Table, discordmessagereaction.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, discorduser.MessageReactionsTable, discorduser.MessageReactionsColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(duq.driver.Dialect(), step)
 		return fromU, nil
@@ -323,14 +348,15 @@ func (duq *DiscordUserQuery) Clone() *DiscordUserQuery {
 		return nil
 	}
 	return &DiscordUserQuery{
-		config:              duq.config,
-		ctx:                 duq.ctx.Clone(),
-		order:               append([]discorduser.OrderOption{}, duq.order...),
-		inters:              append([]Interceptor{}, duq.inters...),
-		predicates:          append([]predicate.DiscordUser{}, duq.predicates...),
-		withGuilds:          duq.withGuilds.Clone(),
-		withDiscordMessages: duq.withDiscordMessages.Clone(),
-		withMediaRequests:   duq.withMediaRequests.Clone(),
+		config:               duq.config,
+		ctx:                  duq.ctx.Clone(),
+		order:                append([]discorduser.OrderOption{}, duq.order...),
+		inters:               append([]Interceptor{}, duq.inters...),
+		predicates:           append([]predicate.DiscordUser{}, duq.predicates...),
+		withGuilds:           duq.withGuilds.Clone(),
+		withDiscordMessages:  duq.withDiscordMessages.Clone(),
+		withMediaRequests:    duq.withMediaRequests.Clone(),
+		withMessageReactions: duq.withMessageReactions.Clone(),
 		// clone intermediate query.
 		sql:  duq.sql.Clone(),
 		path: duq.path,
@@ -367,6 +393,17 @@ func (duq *DiscordUserQuery) WithMediaRequests(opts ...func(*MediaRequestQuery))
 		opt(query)
 	}
 	duq.withMediaRequests = query
+	return duq
+}
+
+// WithMessageReactions tells the query-builder to eager-load the nodes that are connected to
+// the "message_reactions" edge. The optional arguments are used to configure the query builder of the edge.
+func (duq *DiscordUserQuery) WithMessageReactions(opts ...func(*DiscordMessageReactionQuery)) *DiscordUserQuery {
+	query := (&DiscordMessageReactionClient{config: duq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	duq.withMessageReactions = query
 	return duq
 }
 
@@ -448,10 +485,11 @@ func (duq *DiscordUserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]
 	var (
 		nodes       = []*DiscordUser{}
 		_spec       = duq.querySpec()
-		loadedTypes = [3]bool{
+		loadedTypes = [4]bool{
 			duq.withGuilds != nil,
 			duq.withDiscordMessages != nil,
 			duq.withMediaRequests != nil,
+			duq.withMessageReactions != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -496,6 +534,15 @@ func (duq *DiscordUserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]
 			return nil, err
 		}
 	}
+	if query := duq.withMessageReactions; query != nil {
+		if err := duq.loadMessageReactions(ctx, query, nodes,
+			func(n *DiscordUser) { n.Edges.MessageReactions = []*DiscordMessageReaction{} },
+			func(n *DiscordUser, e *DiscordMessageReaction) {
+				n.Edges.MessageReactions = append(n.Edges.MessageReactions, e)
+			}); err != nil {
+			return nil, err
+		}
+	}
 	for name, query := range duq.withNamedGuilds {
 		if err := duq.loadGuilds(ctx, query, nodes,
 			func(n *DiscordUser) { n.appendNamedGuilds(name) },
@@ -514,6 +561,13 @@ func (duq *DiscordUserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]
 		if err := duq.loadMediaRequests(ctx, query, nodes,
 			func(n *DiscordUser) { n.appendNamedMediaRequests(name) },
 			func(n *DiscordUser, e *MediaRequest) { n.appendNamedMediaRequests(name, e) }); err != nil {
+			return nil, err
+		}
+	}
+	for name, query := range duq.withNamedMessageReactions {
+		if err := duq.loadMessageReactions(ctx, query, nodes,
+			func(n *DiscordUser) { n.appendNamedMessageReactions(name) },
+			func(n *DiscordUser, e *DiscordMessageReaction) { n.appendNamedMessageReactions(name, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -582,63 +636,33 @@ func (duq *DiscordUserQuery) loadGuilds(ctx context.Context, query *DiscordGuild
 	return nil
 }
 func (duq *DiscordUserQuery) loadDiscordMessages(ctx context.Context, query *DiscordMessageQuery, nodes []*DiscordUser, init func(*DiscordUser), assign func(*DiscordUser, *DiscordMessage)) error {
-	edgeIDs := make([]driver.Value, len(nodes))
-	byID := make(map[uuid.UUID]*DiscordUser)
-	nids := make(map[string]map[*DiscordUser]struct{})
-	for i, node := range nodes {
-		edgeIDs[i] = node.ID
-		byID[node.ID] = node
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*DiscordUser)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
 		if init != nil {
-			init(node)
+			init(nodes[i])
 		}
 	}
-	query.Where(func(s *sql.Selector) {
-		joinT := sql.Table(discorduser.DiscordMessagesTable)
-		s.Join(joinT).On(s.C(discordmessage.FieldID), joinT.C(discorduser.DiscordMessagesPrimaryKey[1]))
-		s.Where(sql.InValues(joinT.C(discorduser.DiscordMessagesPrimaryKey[0]), edgeIDs...))
-		columns := s.SelectedColumns()
-		s.Select(joinT.C(discorduser.DiscordMessagesPrimaryKey[0]))
-		s.AppendSelect(columns...)
-		s.SetDistinct(false)
-	})
-	if err := query.prepareQuery(ctx); err != nil {
-		return err
-	}
-	qr := QuerierFunc(func(ctx context.Context, q Query) (Value, error) {
-		return query.sqlAll(ctx, func(_ context.Context, spec *sqlgraph.QuerySpec) {
-			assign := spec.Assign
-			values := spec.ScanValues
-			spec.ScanValues = func(columns []string) ([]any, error) {
-				values, err := values(columns[1:])
-				if err != nil {
-					return nil, err
-				}
-				return append([]any{new(uuid.UUID)}, values...), nil
-			}
-			spec.Assign = func(columns []string, values []any) error {
-				outValue := *values[0].(*uuid.UUID)
-				inValue := values[1].(*sql.NullString).String
-				if nids[inValue] == nil {
-					nids[inValue] = map[*DiscordUser]struct{}{byID[outValue]: {}}
-					return assign(columns[1:], values[1:])
-				}
-				nids[inValue][byID[outValue]] = struct{}{}
-				return nil
-			}
-		})
-	})
-	neighbors, err := withInterceptors[[]*DiscordMessage](ctx, query, qr, query.inters)
+	query.withFKs = true
+	query.Where(predicate.DiscordMessage(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(discorduser.DiscordMessagesColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
 	if err != nil {
 		return err
 	}
 	for _, n := range neighbors {
-		nodes, ok := nids[n.ID]
+		fk := n.discord_user_discord_messages
+		if fk == nil {
+			return fmt.Errorf(`foreign-key "discord_user_discord_messages" is nil for node %v`, n.ID)
+		}
+		node, ok := nodeids[*fk]
 		if !ok {
-			return fmt.Errorf(`unexpected "discord_messages" node returned %v`, n.ID)
+			return fmt.Errorf(`unexpected referenced foreign-key "discord_user_discord_messages" returned %v for node %v`, *fk, n.ID)
 		}
-		for kn := range nodes {
-			assign(kn, n)
-		}
+		assign(node, n)
 	}
 	return nil
 }
@@ -700,6 +724,37 @@ func (duq *DiscordUserQuery) loadMediaRequests(ctx context.Context, query *Media
 		for kn := range nodes {
 			assign(kn, n)
 		}
+	}
+	return nil
+}
+func (duq *DiscordUserQuery) loadMessageReactions(ctx context.Context, query *DiscordMessageReactionQuery, nodes []*DiscordUser, init func(*DiscordUser), assign func(*DiscordUser, *DiscordMessageReaction)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*DiscordUser)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	query.withFKs = true
+	query.Where(predicate.DiscordMessageReaction(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(discorduser.MessageReactionsColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.discord_user_message_reactions
+		if fk == nil {
+			return fmt.Errorf(`foreign-key "discord_user_message_reactions" is nil for node %v`, n.ID)
+		}
+		node, ok := nodeids[*fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "discord_user_message_reactions" returned %v for node %v`, *fk, n.ID)
+		}
+		assign(node, n)
 	}
 	return nil
 }
@@ -856,6 +911,20 @@ func (duq *DiscordUserQuery) WithNamedMediaRequests(name string, opts ...func(*M
 		duq.withNamedMediaRequests = make(map[string]*MediaRequestQuery)
 	}
 	duq.withNamedMediaRequests[name] = query
+	return duq
+}
+
+// WithNamedMessageReactions tells the query-builder to eager-load the nodes that are connected to the "message_reactions"
+// edge with the given name. The optional arguments are used to configure the query builder of the edge.
+func (duq *DiscordUserQuery) WithNamedMessageReactions(name string, opts ...func(*DiscordMessageReactionQuery)) *DiscordUserQuery {
+	query := (&DiscordMessageReactionClient{config: duq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	if duq.withNamedMessageReactions == nil {
+		duq.withNamedMessageReactions = make(map[string]*DiscordMessageReactionQuery)
+	}
+	duq.withNamedMessageReactions[name] = query
 	return duq
 }
 

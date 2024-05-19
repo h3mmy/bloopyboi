@@ -11,43 +11,93 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"github.com/bwmarrin/discordgo"
+	"github.com/google/uuid"
+	"github.com/h3mmy/bloopyboi/ent/discordchannel"
+	"github.com/h3mmy/bloopyboi/ent/discordguild"
 	"github.com/h3mmy/bloopyboi/ent/discordmessage"
+	"github.com/h3mmy/bloopyboi/ent/discorduser"
 )
 
 // DiscordMessage is the model entity for the DiscordMessage schema.
 type DiscordMessage struct {
 	config `json:"-"`
 	// ID of the ent.
-	ID string `json:"id,omitempty"`
+	ID uuid.UUID `json:"id,omitempty"`
 	// CreateTime holds the value of the "create_time" field.
 	CreateTime time.Time `json:"create_time,omitempty"`
 	// UpdateTime holds the value of the "update_time" field.
 	UpdateTime time.Time `json:"update_time,omitempty"`
+	// Discordid holds the value of the "discordid" field.
+	Discordid string `json:"discordid,omitempty"`
+	// Content holds the value of the "content" field.
+	Content string `json:"content,omitempty"`
 	// Raw holds the value of the "raw" field.
 	Raw discordgo.Message `json:"raw,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the DiscordMessageQuery when eager-loading is set.
-	Edges        DiscordMessageEdges `json:"edges"`
-	selectValues sql.SelectValues
+	Edges                          DiscordMessageEdges `json:"edges"`
+	discord_channel_messages       *uuid.UUID
+	discord_guild_discord_messages *uuid.UUID
+	discord_user_discord_messages  *uuid.UUID
+	selectValues                   sql.SelectValues
 }
 
 // DiscordMessageEdges holds the relations/edges for other nodes in the graph.
 type DiscordMessageEdges struct {
 	// Author holds the value of the author edge.
-	Author []*DiscordUser `json:"author,omitempty"`
+	Author *DiscordUser `json:"author,omitempty"`
+	// MessageReactions holds the value of the message_reactions edge.
+	MessageReactions []*DiscordMessageReaction `json:"message_reactions,omitempty"`
+	// Channel holds the value of the channel edge.
+	Channel *DiscordChannel `json:"channel,omitempty"`
+	// Guild holds the value of the guild edge.
+	Guild *DiscordGuild `json:"guild,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [1]bool
-	namedAuthor map[string][]*DiscordUser
+	loadedTypes           [4]bool
+	namedMessageReactions map[string][]*DiscordMessageReaction
 }
 
 // AuthorOrErr returns the Author value or an error if the edge
-// was not loaded in eager-loading.
-func (e DiscordMessageEdges) AuthorOrErr() ([]*DiscordUser, error) {
-	if e.loadedTypes[0] {
+// was not loaded in eager-loading, or loaded but was not found.
+func (e DiscordMessageEdges) AuthorOrErr() (*DiscordUser, error) {
+	if e.Author != nil {
 		return e.Author, nil
+	} else if e.loadedTypes[0] {
+		return nil, &NotFoundError{label: discorduser.Label}
 	}
 	return nil, &NotLoadedError{edge: "author"}
+}
+
+// MessageReactionsOrErr returns the MessageReactions value or an error if the edge
+// was not loaded in eager-loading.
+func (e DiscordMessageEdges) MessageReactionsOrErr() ([]*DiscordMessageReaction, error) {
+	if e.loadedTypes[1] {
+		return e.MessageReactions, nil
+	}
+	return nil, &NotLoadedError{edge: "message_reactions"}
+}
+
+// ChannelOrErr returns the Channel value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e DiscordMessageEdges) ChannelOrErr() (*DiscordChannel, error) {
+	if e.Channel != nil {
+		return e.Channel, nil
+	} else if e.loadedTypes[2] {
+		return nil, &NotFoundError{label: discordchannel.Label}
+	}
+	return nil, &NotLoadedError{edge: "channel"}
+}
+
+// GuildOrErr returns the Guild value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e DiscordMessageEdges) GuildOrErr() (*DiscordGuild, error) {
+	if e.Guild != nil {
+		return e.Guild, nil
+	} else if e.loadedTypes[3] {
+		return nil, &NotFoundError{label: discordguild.Label}
+	}
+	return nil, &NotLoadedError{edge: "guild"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -57,10 +107,18 @@ func (*DiscordMessage) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case discordmessage.FieldRaw:
 			values[i] = new([]byte)
-		case discordmessage.FieldID:
+		case discordmessage.FieldDiscordid, discordmessage.FieldContent:
 			values[i] = new(sql.NullString)
 		case discordmessage.FieldCreateTime, discordmessage.FieldUpdateTime:
 			values[i] = new(sql.NullTime)
+		case discordmessage.FieldID:
+			values[i] = new(uuid.UUID)
+		case discordmessage.ForeignKeys[0]: // discord_channel_messages
+			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
+		case discordmessage.ForeignKeys[1]: // discord_guild_discord_messages
+			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
+		case discordmessage.ForeignKeys[2]: // discord_user_discord_messages
+			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -77,10 +135,10 @@ func (dm *DiscordMessage) assignValues(columns []string, values []any) error {
 	for i := range columns {
 		switch columns[i] {
 		case discordmessage.FieldID:
-			if value, ok := values[i].(*sql.NullString); !ok {
+			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field id", values[i])
-			} else if value.Valid {
-				dm.ID = value.String
+			} else if value != nil {
+				dm.ID = *value
 			}
 		case discordmessage.FieldCreateTime:
 			if value, ok := values[i].(*sql.NullTime); !ok {
@@ -94,6 +152,18 @@ func (dm *DiscordMessage) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				dm.UpdateTime = value.Time
 			}
+		case discordmessage.FieldDiscordid:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field discordid", values[i])
+			} else if value.Valid {
+				dm.Discordid = value.String
+			}
+		case discordmessage.FieldContent:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field content", values[i])
+			} else if value.Valid {
+				dm.Content = value.String
+			}
 		case discordmessage.FieldRaw:
 			if value, ok := values[i].(*[]byte); !ok {
 				return fmt.Errorf("unexpected type %T for field raw", values[i])
@@ -101,6 +171,27 @@ func (dm *DiscordMessage) assignValues(columns []string, values []any) error {
 				if err := json.Unmarshal(*value, &dm.Raw); err != nil {
 					return fmt.Errorf("unmarshal field raw: %w", err)
 				}
+			}
+		case discordmessage.ForeignKeys[0]:
+			if value, ok := values[i].(*sql.NullScanner); !ok {
+				return fmt.Errorf("unexpected type %T for field discord_channel_messages", values[i])
+			} else if value.Valid {
+				dm.discord_channel_messages = new(uuid.UUID)
+				*dm.discord_channel_messages = *value.S.(*uuid.UUID)
+			}
+		case discordmessage.ForeignKeys[1]:
+			if value, ok := values[i].(*sql.NullScanner); !ok {
+				return fmt.Errorf("unexpected type %T for field discord_guild_discord_messages", values[i])
+			} else if value.Valid {
+				dm.discord_guild_discord_messages = new(uuid.UUID)
+				*dm.discord_guild_discord_messages = *value.S.(*uuid.UUID)
+			}
+		case discordmessage.ForeignKeys[2]:
+			if value, ok := values[i].(*sql.NullScanner); !ok {
+				return fmt.Errorf("unexpected type %T for field discord_user_discord_messages", values[i])
+			} else if value.Valid {
+				dm.discord_user_discord_messages = new(uuid.UUID)
+				*dm.discord_user_discord_messages = *value.S.(*uuid.UUID)
 			}
 		default:
 			dm.selectValues.Set(columns[i], values[i])
@@ -118,6 +209,21 @@ func (dm *DiscordMessage) Value(name string) (ent.Value, error) {
 // QueryAuthor queries the "author" edge of the DiscordMessage entity.
 func (dm *DiscordMessage) QueryAuthor() *DiscordUserQuery {
 	return NewDiscordMessageClient(dm.config).QueryAuthor(dm)
+}
+
+// QueryMessageReactions queries the "message_reactions" edge of the DiscordMessage entity.
+func (dm *DiscordMessage) QueryMessageReactions() *DiscordMessageReactionQuery {
+	return NewDiscordMessageClient(dm.config).QueryMessageReactions(dm)
+}
+
+// QueryChannel queries the "channel" edge of the DiscordMessage entity.
+func (dm *DiscordMessage) QueryChannel() *DiscordChannelQuery {
+	return NewDiscordMessageClient(dm.config).QueryChannel(dm)
+}
+
+// QueryGuild queries the "guild" edge of the DiscordMessage entity.
+func (dm *DiscordMessage) QueryGuild() *DiscordGuildQuery {
+	return NewDiscordMessageClient(dm.config).QueryGuild(dm)
 }
 
 // Update returns a builder for updating this DiscordMessage.
@@ -149,33 +255,39 @@ func (dm *DiscordMessage) String() string {
 	builder.WriteString("update_time=")
 	builder.WriteString(dm.UpdateTime.Format(time.ANSIC))
 	builder.WriteString(", ")
+	builder.WriteString("discordid=")
+	builder.WriteString(dm.Discordid)
+	builder.WriteString(", ")
+	builder.WriteString("content=")
+	builder.WriteString(dm.Content)
+	builder.WriteString(", ")
 	builder.WriteString("raw=")
 	builder.WriteString(fmt.Sprintf("%v", dm.Raw))
 	builder.WriteByte(')')
 	return builder.String()
 }
 
-// NamedAuthor returns the Author named value or an error if the edge was not
+// NamedMessageReactions returns the MessageReactions named value or an error if the edge was not
 // loaded in eager-loading with this name.
-func (dm *DiscordMessage) NamedAuthor(name string) ([]*DiscordUser, error) {
-	if dm.Edges.namedAuthor == nil {
+func (dm *DiscordMessage) NamedMessageReactions(name string) ([]*DiscordMessageReaction, error) {
+	if dm.Edges.namedMessageReactions == nil {
 		return nil, &NotLoadedError{edge: name}
 	}
-	nodes, ok := dm.Edges.namedAuthor[name]
+	nodes, ok := dm.Edges.namedMessageReactions[name]
 	if !ok {
 		return nil, &NotLoadedError{edge: name}
 	}
 	return nodes, nil
 }
 
-func (dm *DiscordMessage) appendNamedAuthor(name string, edges ...*DiscordUser) {
-	if dm.Edges.namedAuthor == nil {
-		dm.Edges.namedAuthor = make(map[string][]*DiscordUser)
+func (dm *DiscordMessage) appendNamedMessageReactions(name string, edges ...*DiscordMessageReaction) {
+	if dm.Edges.namedMessageReactions == nil {
+		dm.Edges.namedMessageReactions = make(map[string][]*DiscordMessageReaction)
 	}
 	if len(edges) == 0 {
-		dm.Edges.namedAuthor[name] = []*DiscordUser{}
+		dm.Edges.namedMessageReactions[name] = []*DiscordMessageReaction{}
 	} else {
-		dm.Edges.namedAuthor[name] = append(dm.Edges.namedAuthor[name], edges...)
+		dm.Edges.namedMessageReactions[name] = append(dm.Edges.namedMessageReactions[name], edges...)
 	}
 }
 

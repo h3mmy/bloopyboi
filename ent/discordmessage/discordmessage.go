@@ -7,6 +7,7 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/google/uuid"
 )
 
 const (
@@ -18,17 +19,50 @@ const (
 	FieldCreateTime = "create_time"
 	// FieldUpdateTime holds the string denoting the update_time field in the database.
 	FieldUpdateTime = "update_time"
+	// FieldDiscordid holds the string denoting the discordid field in the database.
+	FieldDiscordid = "discordid"
+	// FieldContent holds the string denoting the content field in the database.
+	FieldContent = "content"
 	// FieldRaw holds the string denoting the raw field in the database.
 	FieldRaw = "raw"
 	// EdgeAuthor holds the string denoting the author edge name in mutations.
 	EdgeAuthor = "author"
+	// EdgeMessageReactions holds the string denoting the message_reactions edge name in mutations.
+	EdgeMessageReactions = "message_reactions"
+	// EdgeChannel holds the string denoting the channel edge name in mutations.
+	EdgeChannel = "channel"
+	// EdgeGuild holds the string denoting the guild edge name in mutations.
+	EdgeGuild = "guild"
 	// Table holds the table name of the discordmessage in the database.
 	Table = "discord_messages"
-	// AuthorTable is the table that holds the author relation/edge. The primary key declared below.
-	AuthorTable = "discord_user_discord_messages"
+	// AuthorTable is the table that holds the author relation/edge.
+	AuthorTable = "discord_messages"
 	// AuthorInverseTable is the table name for the DiscordUser entity.
 	// It exists in this package in order to avoid circular dependency with the "discorduser" package.
 	AuthorInverseTable = "discord_users"
+	// AuthorColumn is the table column denoting the author relation/edge.
+	AuthorColumn = "discord_user_discord_messages"
+	// MessageReactionsTable is the table that holds the message_reactions relation/edge.
+	MessageReactionsTable = "discord_message_reactions"
+	// MessageReactionsInverseTable is the table name for the DiscordMessageReaction entity.
+	// It exists in this package in order to avoid circular dependency with the "discordmessagereaction" package.
+	MessageReactionsInverseTable = "discord_message_reactions"
+	// MessageReactionsColumn is the table column denoting the message_reactions relation/edge.
+	MessageReactionsColumn = "discord_message_message_reactions"
+	// ChannelTable is the table that holds the channel relation/edge.
+	ChannelTable = "discord_messages"
+	// ChannelInverseTable is the table name for the DiscordChannel entity.
+	// It exists in this package in order to avoid circular dependency with the "discordchannel" package.
+	ChannelInverseTable = "discord_channels"
+	// ChannelColumn is the table column denoting the channel relation/edge.
+	ChannelColumn = "discord_channel_messages"
+	// GuildTable is the table that holds the guild relation/edge.
+	GuildTable = "discord_messages"
+	// GuildInverseTable is the table name for the DiscordGuild entity.
+	// It exists in this package in order to avoid circular dependency with the "discordguild" package.
+	GuildInverseTable = "discord_guilds"
+	// GuildColumn is the table column denoting the guild relation/edge.
+	GuildColumn = "discord_guild_discord_messages"
 )
 
 // Columns holds all SQL columns for discordmessage fields.
@@ -36,19 +70,28 @@ var Columns = []string{
 	FieldID,
 	FieldCreateTime,
 	FieldUpdateTime,
+	FieldDiscordid,
+	FieldContent,
 	FieldRaw,
 }
 
-var (
-	// AuthorPrimaryKey and AuthorColumn2 are the table columns denoting the
-	// primary key for the author relation (M2M).
-	AuthorPrimaryKey = []string{"discord_user_id", "discord_message_id"}
-)
+// ForeignKeys holds the SQL foreign-keys that are owned by the "discord_messages"
+// table and are not defined as standalone fields in the schema.
+var ForeignKeys = []string{
+	"discord_channel_messages",
+	"discord_guild_discord_messages",
+	"discord_user_discord_messages",
+}
 
 // ValidColumn reports if the column name is valid (part of the table columns).
 func ValidColumn(column string) bool {
 	for i := range Columns {
 		if column == Columns[i] {
+			return true
+		}
+	}
+	for i := range ForeignKeys {
+		if column == ForeignKeys[i] {
 			return true
 		}
 	}
@@ -62,6 +105,8 @@ var (
 	DefaultUpdateTime func() time.Time
 	// UpdateDefaultUpdateTime holds the default value on update for the "update_time" field.
 	UpdateDefaultUpdateTime func() time.Time
+	// DefaultID holds the default value on creation for the "id" field.
+	DefaultID func() uuid.UUID
 )
 
 // OrderOption defines the ordering options for the DiscordMessage queries.
@@ -82,23 +127,75 @@ func ByUpdateTime(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldUpdateTime, opts...).ToFunc()
 }
 
-// ByAuthorCount orders the results by author count.
-func ByAuthorCount(opts ...sql.OrderTermOption) OrderOption {
+// ByDiscordid orders the results by the discordid field.
+func ByDiscordid(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDiscordid, opts...).ToFunc()
+}
+
+// ByContent orders the results by the content field.
+func ByContent(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldContent, opts...).ToFunc()
+}
+
+// ByAuthorField orders the results by author field.
+func ByAuthorField(field string, opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborsCount(s, newAuthorStep(), opts...)
+		sqlgraph.OrderByNeighborTerms(s, newAuthorStep(), sql.OrderByField(field, opts...))
 	}
 }
 
-// ByAuthor orders the results by author terms.
-func ByAuthor(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+// ByMessageReactionsCount orders the results by message_reactions count.
+func ByMessageReactionsCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newAuthorStep(), append([]sql.OrderTerm{term}, terms...)...)
+		sqlgraph.OrderByNeighborsCount(s, newMessageReactionsStep(), opts...)
+	}
+}
+
+// ByMessageReactions orders the results by message_reactions terms.
+func ByMessageReactions(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newMessageReactionsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByChannelField orders the results by channel field.
+func ByChannelField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newChannelStep(), sql.OrderByField(field, opts...))
+	}
+}
+
+// ByGuildField orders the results by guild field.
+func ByGuildField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newGuildStep(), sql.OrderByField(field, opts...))
 	}
 }
 func newAuthorStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(AuthorInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2M, true, AuthorTable, AuthorPrimaryKey...),
+		sqlgraph.Edge(sqlgraph.M2O, true, AuthorTable, AuthorColumn),
+	)
+}
+func newMessageReactionsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(MessageReactionsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, MessageReactionsTable, MessageReactionsColumn),
+	)
+}
+func newChannelStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(ChannelInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, ChannelTable, ChannelColumn),
+	)
+}
+func newGuildStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(GuildInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, GuildTable, GuildColumn),
 	)
 }

@@ -39,12 +39,15 @@ type DiscordUserEdges struct {
 	DiscordMessages []*DiscordMessage `json:"discord_messages,omitempty"`
 	// MediaRequests holds the value of the media_requests edge.
 	MediaRequests []*MediaRequest `json:"media_requests,omitempty"`
+	// MessageReactions holds the value of the message_reactions edge.
+	MessageReactions []*DiscordMessageReaction `json:"message_reactions,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes          [3]bool
-	namedGuilds          map[string][]*DiscordGuild
-	namedDiscordMessages map[string][]*DiscordMessage
-	namedMediaRequests   map[string][]*MediaRequest
+	loadedTypes           [4]bool
+	namedGuilds           map[string][]*DiscordGuild
+	namedDiscordMessages  map[string][]*DiscordMessage
+	namedMediaRequests    map[string][]*MediaRequest
+	namedMessageReactions map[string][]*DiscordMessageReaction
 }
 
 // GuildsOrErr returns the Guilds value or an error if the edge
@@ -72,6 +75,15 @@ func (e DiscordUserEdges) MediaRequestsOrErr() ([]*MediaRequest, error) {
 		return e.MediaRequests, nil
 	}
 	return nil, &NotLoadedError{edge: "media_requests"}
+}
+
+// MessageReactionsOrErr returns the MessageReactions value or an error if the edge
+// was not loaded in eager-loading.
+func (e DiscordUserEdges) MessageReactionsOrErr() ([]*DiscordMessageReaction, error) {
+	if e.loadedTypes[3] {
+		return e.MessageReactions, nil
+	}
+	return nil, &NotLoadedError{edge: "message_reactions"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -154,6 +166,11 @@ func (du *DiscordUser) QueryDiscordMessages() *DiscordMessageQuery {
 // QueryMediaRequests queries the "media_requests" edge of the DiscordUser entity.
 func (du *DiscordUser) QueryMediaRequests() *MediaRequestQuery {
 	return NewDiscordUserClient(du.config).QueryMediaRequests(du)
+}
+
+// QueryMessageReactions queries the "message_reactions" edge of the DiscordUser entity.
+func (du *DiscordUser) QueryMessageReactions() *DiscordMessageReactionQuery {
+	return NewDiscordUserClient(du.config).QueryMessageReactions(du)
 }
 
 // Update returns a builder for updating this DiscordUser.
@@ -263,6 +280,30 @@ func (du *DiscordUser) appendNamedMediaRequests(name string, edges ...*MediaRequ
 		du.Edges.namedMediaRequests[name] = []*MediaRequest{}
 	} else {
 		du.Edges.namedMediaRequests[name] = append(du.Edges.namedMediaRequests[name], edges...)
+	}
+}
+
+// NamedMessageReactions returns the MessageReactions named value or an error if the edge was not
+// loaded in eager-loading with this name.
+func (du *DiscordUser) NamedMessageReactions(name string) ([]*DiscordMessageReaction, error) {
+	if du.Edges.namedMessageReactions == nil {
+		return nil, &NotLoadedError{edge: name}
+	}
+	nodes, ok := du.Edges.namedMessageReactions[name]
+	if !ok {
+		return nil, &NotLoadedError{edge: name}
+	}
+	return nodes, nil
+}
+
+func (du *DiscordUser) appendNamedMessageReactions(name string, edges ...*DiscordMessageReaction) {
+	if du.Edges.namedMessageReactions == nil {
+		du.Edges.namedMessageReactions = make(map[string][]*DiscordMessageReaction)
+	}
+	if len(edges) == 0 {
+		du.Edges.namedMessageReactions[name] = []*DiscordMessageReaction{}
+	} else {
+		du.Edges.namedMessageReactions[name] = append(du.Edges.namedMessageReactions[name], edges...)
 	}
 }
 
