@@ -22,6 +22,6 @@
   "commitBodyTable": true,
   "rebaseWhen": "conflicted",
   "postUpdateOptions": ["gomodTidy"],
-  "ignoredGitAuthors": bloopy-boi <166688+bloopy-boi[bot]@users.noreply.github.com>"
+  "gitIgnoredAuthors": bloopy-boi <166688+bloopy-boi[bot]@users.noreply.github.com>"
 
 }
