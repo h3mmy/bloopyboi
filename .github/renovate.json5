@@ -21,5 +21,7 @@
   "suppressNotifications": ["prIgnoreNotification"],
   "commitBodyTable": true,
   "rebaseWhen": "conflicted",
-  "postUpdateOptions": ["gomodTidy"]
+  "postUpdateOptions": ["gomodTidy"],
+  "ignoredGitAuthors": bloopy-boi <166688+bloopy-boi[bot]@users.noreply.github.com>"
+
 }
