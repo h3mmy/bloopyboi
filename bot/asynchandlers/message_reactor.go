@@ -70,6 +70,7 @@ func (mr *MessageReactor) ShouldAddReaction(s *discordgo.Session, m *discordgo.M
 		err := mr.ReactToMessage(s, m.ReferencedMessage)
 		if err != nil {
 			logger.Warn("failed reacting to referenced message", zap.Error(err))
+			return false
 		}
 		return true
 	}
@@ -87,7 +88,7 @@ func (mr *MessageReactor) ShouldAddReaction(s *discordgo.Session, m *discordgo.M
 		logger.Debug("found the last message?", zap.Int("lastChannelMessages size", len(lastChannelMessages)))
 		lastMessage := lastChannelMessages[0]
 		if lastMessage != nil {
-			logger.Debug("last message is nil for some reason",
+			logger.Debug("last message is not nil",
 				zap.String("channelID", m.ChannelID),
 				zap.String("messageID", m.ID),
 			)
