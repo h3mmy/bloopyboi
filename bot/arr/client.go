@@ -5,6 +5,9 @@ import (
 	"strings"
 
 	"github.com/h3mmy/bloopyboi/bot/internal/config"
+	"github.com/h3mmy/bloopyboi/bot/internal/log"
+	"github.com/h3mmy/bloopyboi/bot/internal/models"
+	"go.uber.org/zap"
 	"golift.io/starr"
 	"golift.io/starr/lidarr"
 	"golift.io/starr/prowlarr"
@@ -14,7 +17,23 @@ import (
 )
 
 type ArrClientMap map[string]starr.APIer
-type ArrClientRegistry map[starr.App]ArrClientMap
+type ArrClientRegister map[starr.App]ArrClientMap
+
+type ArrClientRegistry struct {
+	meta models.BloopyMeta
+	logger *zap.Logger
+	registry ArrClientRegister
+}
+
+func NewArrClientRegistry(controllerName string) *ArrClientRegistry {
+	mta := models.NewBloopyMeta(controllerName)
+	lgr := log.NewZapLogger().Named("arr_client_registry").With
+	return &ArrClientRegistry{
+		meta: mta,
+		logger: lgr,
+		registry: make(map[starr.App]ArrClientMap),
+	}
+}
 
 func BuildArrClient(cfg *config.ArrClientConfig) (starr.APIer, error) {
 	params := cfg.ToParams()
@@ -38,25 +57,34 @@ func BuildArrClient(cfg *config.ArrClientConfig) (starr.APIer, error) {
 	return nil, fmt.Errorf("Could not build client %s of type: %s", cfg.Name, cfg.Type)
 }
 
-func BuildArrClientRegistry(cfg *config.AppConfig) ArrClientRegistry {
-	registry:= make(map[starr.App]ArrClientMap)
-	for _, arrCfg := range *cfg.Arrs {
-		key := starr.App(arrCfg.Type)
-		if val, ok := registry[key]; ok {
-			client, err := BuildArrClient(&arrCfg)
-			if err != nil {
-				// log
-			}
-			val[arrCfg.Name] = client
-		} else {
-			cMap := make(map[string]starr.APIer)
-			client, err := BuildArrClient(&arrCfg)
-			if err != nil {
-				// log
-			}
-			cMap[arrCfg.Name] = client
-			registry[key] = cMap
+func (s *ArrClientRegistry) AddClient(cfg *config.ArrClientConfig) error {
+	logger := s.logger.With(zap.String("clientName", cfg.Name)).With(zap.String("clientType", cfg.Type))
+	key := starr.App(cfg.Type)
+	if val, ok := s.registry[key]; ok {
+		logger.Debug("register exists for client type.")
+		client, err := BuildArrClient(cfg)
+		if err != nil {
+			logger.Error("error building client", zap.Error(err))
+			return err
 		}
+		if _, ok := val[cfg.Name]; ok {
+			logger.Warn("entry already exists with client Name. Existing entry will be overwritten.")
+		}
+		val[cfg.Name] = client
+		logger.Debug("added client to register")
+	} else {
+		logger.Debug("no existing entries for client type. adding new entry")
+		cMap := make(map[string]starr.APIer)
+		client, err := BuildArrClient(cfg)
+		if err != nil {
+			logger.Error("error building client", zap.Error(err))
+			return err
+		}
+		cMap[cfg.Name] = client
+		logger.Debug("added client to registry")
+		s.registry[key] = cMap
+		logger.Debug("Added new type to register")
 	}
-	return registry
+
+	return nil
 }
