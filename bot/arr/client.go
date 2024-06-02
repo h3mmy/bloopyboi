@@ -25,9 +25,25 @@ type ArrClientRegistry struct {
 	registry ArrClientRegister
 }
 
+type ArrClientSet struct {
+	meta models.BloopyMeta
+	logger *zap.Logger
+	clientMap map[string]starr.APIer
+}
+
+func NewArrClientSet(clients map[string]starr.APIer) *ArrClientSet {
+	mta := models.NewBloopyMeta()
+	lgr := log.NewZapLogger()
+	return &ArrClientSet{
+		meta: mta,
+		logger: lgr,
+		clientMap: clients,
+	}
+}
+
 func NewArrClientRegistry(controllerName string) *ArrClientRegistry {
 	mta := models.NewBloopyMeta(controllerName)
-	lgr := log.NewZapLogger().Named("arr_client_registry").With
+	lgr := log.NewZapLogger().Named("arr_client_registry")
 	return &ArrClientRegistry{
 		meta: mta,
 		logger: lgr,
@@ -88,3 +104,7 @@ func (s *ArrClientRegistry) AddClient(cfg *config.ArrClientConfig) error {
 
 	return nil
 }
+
+// func (s *ArrClientRegistry) GetClientSet(starr.App) (starr.APIer, error) {
+// 	if cMap, ok := s.
+// }

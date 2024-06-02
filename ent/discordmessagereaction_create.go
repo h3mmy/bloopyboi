@@ -101,14 +101,6 @@ func (dmrc *DiscordMessageReactionCreate) SetDiscordMessageID(id uuid.UUID) *Dis
 	return dmrc
 }
 
-// SetNillableDiscordMessageID sets the "discord_message" edge to the DiscordMessage entity by ID if the given value is not nil.
-func (dmrc *DiscordMessageReactionCreate) SetNillableDiscordMessageID(id *uuid.UUID) *DiscordMessageReactionCreate {
-	if id != nil {
-		dmrc = dmrc.SetDiscordMessageID(*id)
-	}
-	return dmrc
-}
-
 // SetDiscordMessage sets the "discord_message" edge to the DiscordMessage entity.
 func (dmrc *DiscordMessageReactionCreate) SetDiscordMessage(d *DiscordMessage) *DiscordMessageReactionCreate {
 	return dmrc.SetDiscordMessageID(d.ID)
@@ -117,14 +109,6 @@ func (dmrc *DiscordMessageReactionCreate) SetDiscordMessage(d *DiscordMessage) *
 // SetAuthorID sets the "author" edge to the DiscordUser entity by ID.
 func (dmrc *DiscordMessageReactionCreate) SetAuthorID(id uuid.UUID) *DiscordMessageReactionCreate {
 	dmrc.mutation.SetAuthorID(id)
-	return dmrc
-}
-
-// SetNillableAuthorID sets the "author" edge to the DiscordUser entity by ID if the given value is not nil.
-func (dmrc *DiscordMessageReactionCreate) SetNillableAuthorID(id *uuid.UUID) *DiscordMessageReactionCreate {
-	if id != nil {
-		dmrc = dmrc.SetAuthorID(*id)
-	}
 	return dmrc
 }
 
@@ -202,6 +186,12 @@ func (dmrc *DiscordMessageReactionCreate) check() error {
 	}
 	if _, ok := dmrc.mutation.Raw(); !ok {
 		return &ValidationError{Name: "raw", err: errors.New(`ent: missing required field "DiscordMessageReaction.raw"`)}
+	}
+	if _, ok := dmrc.mutation.DiscordMessageID(); !ok {
+		return &ValidationError{Name: "discord_message", err: errors.New(`ent: missing required edge "DiscordMessageReaction.discord_message"`)}
+	}
+	if _, ok := dmrc.mutation.AuthorID(); !ok {
+		return &ValidationError{Name: "author", err: errors.New(`ent: missing required edge "DiscordMessageReaction.author"`)}
 	}
 	return nil
 }

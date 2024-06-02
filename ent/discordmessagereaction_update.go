@@ -86,14 +86,6 @@ func (dmru *DiscordMessageReactionUpdate) SetDiscordMessageID(id uuid.UUID) *Dis
 	return dmru
 }
 
-// SetNillableDiscordMessageID sets the "discord_message" edge to the DiscordMessage entity by ID if the given value is not nil.
-func (dmru *DiscordMessageReactionUpdate) SetNillableDiscordMessageID(id *uuid.UUID) *DiscordMessageReactionUpdate {
-	if id != nil {
-		dmru = dmru.SetDiscordMessageID(*id)
-	}
-	return dmru
-}
-
 // SetDiscordMessage sets the "discord_message" edge to the DiscordMessage entity.
 func (dmru *DiscordMessageReactionUpdate) SetDiscordMessage(d *DiscordMessage) *DiscordMessageReactionUpdate {
 	return dmru.SetDiscordMessageID(d.ID)
@@ -102,14 +94,6 @@ func (dmru *DiscordMessageReactionUpdate) SetDiscordMessage(d *DiscordMessage) *
 // SetAuthorID sets the "author" edge to the DiscordUser entity by ID.
 func (dmru *DiscordMessageReactionUpdate) SetAuthorID(id uuid.UUID) *DiscordMessageReactionUpdate {
 	dmru.mutation.SetAuthorID(id)
-	return dmru
-}
-
-// SetNillableAuthorID sets the "author" edge to the DiscordUser entity by ID if the given value is not nil.
-func (dmru *DiscordMessageReactionUpdate) SetNillableAuthorID(id *uuid.UUID) *DiscordMessageReactionUpdate {
-	if id != nil {
-		dmru = dmru.SetAuthorID(*id)
-	}
 	return dmru
 }
 
@@ -171,7 +155,21 @@ func (dmru *DiscordMessageReactionUpdate) defaults() {
 	}
 }
 
+// check runs all checks and user-defined validators on the builder.
+func (dmru *DiscordMessageReactionUpdate) check() error {
+	if _, ok := dmru.mutation.DiscordMessageID(); dmru.mutation.DiscordMessageCleared() && !ok {
+		return errors.New(`ent: clearing a required unique edge "DiscordMessageReaction.discord_message"`)
+	}
+	if _, ok := dmru.mutation.AuthorID(); dmru.mutation.AuthorCleared() && !ok {
+		return errors.New(`ent: clearing a required unique edge "DiscordMessageReaction.author"`)
+	}
+	return nil
+}
+
 func (dmru *DiscordMessageReactionUpdate) sqlSave(ctx context.Context) (n int, err error) {
+	if err := dmru.check(); err != nil {
+		return n, err
+	}
 	_spec := sqlgraph.NewUpdateSpec(discordmessagereaction.Table, discordmessagereaction.Columns, sqlgraph.NewFieldSpec(discordmessagereaction.FieldID, field.TypeUUID))
 	if ps := dmru.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
@@ -324,14 +322,6 @@ func (dmruo *DiscordMessageReactionUpdateOne) SetDiscordMessageID(id uuid.UUID) 
 	return dmruo
 }
 
-// SetNillableDiscordMessageID sets the "discord_message" edge to the DiscordMessage entity by ID if the given value is not nil.
-func (dmruo *DiscordMessageReactionUpdateOne) SetNillableDiscordMessageID(id *uuid.UUID) *DiscordMessageReactionUpdateOne {
-	if id != nil {
-		dmruo = dmruo.SetDiscordMessageID(*id)
-	}
-	return dmruo
-}
-
 // SetDiscordMessage sets the "discord_message" edge to the DiscordMessage entity.
 func (dmruo *DiscordMessageReactionUpdateOne) SetDiscordMessage(d *DiscordMessage) *DiscordMessageReactionUpdateOne {
 	return dmruo.SetDiscordMessageID(d.ID)
@@ -340,14 +330,6 @@ func (dmruo *DiscordMessageReactionUpdateOne) SetDiscordMessage(d *DiscordMessag
 // SetAuthorID sets the "author" edge to the DiscordUser entity by ID.
 func (dmruo *DiscordMessageReactionUpdateOne) SetAuthorID(id uuid.UUID) *DiscordMessageReactionUpdateOne {
 	dmruo.mutation.SetAuthorID(id)
-	return dmruo
-}
-
-// SetNillableAuthorID sets the "author" edge to the DiscordUser entity by ID if the given value is not nil.
-func (dmruo *DiscordMessageReactionUpdateOne) SetNillableAuthorID(id *uuid.UUID) *DiscordMessageReactionUpdateOne {
-	if id != nil {
-		dmruo = dmruo.SetAuthorID(*id)
-	}
 	return dmruo
 }
 
@@ -422,7 +404,21 @@ func (dmruo *DiscordMessageReactionUpdateOne) defaults() {
 	}
 }
 
+// check runs all checks and user-defined validators on the builder.
+func (dmruo *DiscordMessageReactionUpdateOne) check() error {
+	if _, ok := dmruo.mutation.DiscordMessageID(); dmruo.mutation.DiscordMessageCleared() && !ok {
+		return errors.New(`ent: clearing a required unique edge "DiscordMessageReaction.discord_message"`)
+	}
+	if _, ok := dmruo.mutation.AuthorID(); dmruo.mutation.AuthorCleared() && !ok {
+		return errors.New(`ent: clearing a required unique edge "DiscordMessageReaction.author"`)
+	}
+	return nil
+}
+
 func (dmruo *DiscordMessageReactionUpdateOne) sqlSave(ctx context.Context) (_node *DiscordMessageReaction, err error) {
+	if err := dmruo.check(); err != nil {
+		return _node, err
+	}
 	_spec := sqlgraph.NewUpdateSpec(discordmessagereaction.Table, discordmessagereaction.Columns, sqlgraph.NewFieldSpec(discordmessagereaction.FieldID, field.TypeUUID))
 	id, ok := dmruo.mutation.ID()
 	if !ok {
