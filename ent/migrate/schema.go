@@ -116,8 +116,8 @@ var (
 		{Name: "emoji_api_name", Type: field.TypeString},
 		{Name: "removed", Type: field.TypeBool, Default: false},
 		{Name: "raw", Type: field.TypeJSON},
-		{Name: "discord_message_message_reactions", Type: field.TypeUUID, Nullable: true},
-		{Name: "discord_user_message_reactions", Type: field.TypeUUID, Nullable: true},
+		{Name: "discord_message_message_reactions", Type: field.TypeUUID},
+		{Name: "discord_user_message_reactions", Type: field.TypeUUID},
 	}
 	// DiscordMessageReactionsTable holds the schema information for the "discord_message_reactions" table.
 	DiscordMessageReactionsTable = &schema.Table{
@@ -129,13 +129,13 @@ var (
 				Symbol:     "discord_message_reactions_discord_messages_message_reactions",
 				Columns:    []*schema.Column{DiscordMessageReactionsColumns[6]},
 				RefColumns: []*schema.Column{DiscordMessagesColumns[0]},
-				OnDelete:   schema.SetNull,
+				OnDelete:   schema.NoAction,
 			},
 			{
 				Symbol:     "discord_message_reactions_discord_users_message_reactions",
 				Columns:    []*schema.Column{DiscordMessageReactionsColumns[7]},
 				RefColumns: []*schema.Column{DiscordUsersColumns[0]},
-				OnDelete:   schema.SetNull,
+				OnDelete:   schema.NoAction,
 			},
 		},
 	}
@@ -143,7 +143,7 @@ var (
 	DiscordUsersColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUUID, Unique: true},
 		{Name: "discordid", Type: field.TypeString, Unique: true},
-		{Name: "username", Type: field.TypeString, Unique: true},
+		{Name: "username", Type: field.TypeString},
 		{Name: "email", Type: field.TypeString, Nullable: true},
 		{Name: "discriminator", Type: field.TypeString, Nullable: true},
 	}

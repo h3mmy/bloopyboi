@@ -103,13 +103,22 @@ func (c *UserRequestCommand) GetAppCommandHandler() func(s *discordgo.Session, i
 					}
 				} else {
 					c.logger.Info("got book requests for user", zap.Int("count", len(allBookReqs)), zap.String("username", discordUser.Username))
+					bookEmbeds := []*discordgo.MessageEmbed{}
+					embedLimit := 3
+					for i, req := range allBookReqs {
+						if i<embedLimit {
+							bookEmbeds = append(bookEmbeds, c.bookSvc.BuildBookRequestStatusAsEmbed(context.TODO(), req))
+						} else {
+							break
+						}
+					}
 					err = s.InteractionRespond(i.Interaction,
 						&discordgo.InteractionResponse{
 							Type: discordgo.InteractionResponseChannelMessageWithSource,
 							Data: &discordgo.InteractionResponseData{
-								Content: fmt.Sprintf("Here are your book requests: %s", allBookReqs),
+								Content: fmt.Sprintf("You have %d total book requests. I can only show %d at a time", len(allBookReqs), embedLimit),
 								Flags:   discordgo.MessageFlagsEphemeral, // only show to user who requested it
-								Embeds: nil,
+								Embeds: bookEmbeds,
 							},
 						})
 					if err != nil {

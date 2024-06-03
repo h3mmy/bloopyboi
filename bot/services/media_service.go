@@ -19,6 +19,7 @@ type MediaService struct {
 	logger           *zap.Logger
 	overseerrService *OverseerrService
 	bookService      *BookService
+	arrService *ArrService
 	db               *ent.Client
 	dbEnabled        bool
 }
@@ -43,6 +44,10 @@ func (s *MediaService) WithBookService(bsvc *BookService) {
 
 func (s *MediaService) WithOverseerrService(osvc *OverseerrService) {
 	s.overseerrService = osvc
+}
+
+func (s *MediaService) WithArrService(svc *ArrService) {
+	s.arrService = svc
 }
 
 func (s *MediaService) RefreshDBConnection() error {
@@ -82,3 +87,4 @@ func (s *MediaService) GetMediaRequestsForUser(ctx context.Context, discordUserI
 	s.logger.Warn("database not enabled")
 	return nil, nil
 }
+
