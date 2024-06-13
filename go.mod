@@ -13,7 +13,7 @@ require (
 	github.com/dustin/go-humanize v1.0.1
 	github.com/labstack/echo/v4 v4.11.4
 	github.com/spf13/viper v1.19.0
-	github.com/uptrace/opentelemetry-go-extra/otelsql v0.3.0
+	github.com/uptrace/opentelemetry-go-extra/otelsql v0.3.1
 	github.com/uptrace/opentelemetry-go-extra/otelzap v0.3.0
 	go.uber.org/zap v1.27.0
 	golift.io/starr v1.0.0
