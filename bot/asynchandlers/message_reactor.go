@@ -53,7 +53,7 @@ func (mr *MessageReactor) ShouldAddReaction(s *discordgo.Session, m *discordgo.M
 		return false
 	}
 	if len(m.Mentions) > 0 {
-		return true
+		return rand.Float64() < 0.7
 	}
 	if m.GuildID == "" {
 		// Implies a DM
@@ -92,7 +92,7 @@ func (mr *MessageReactor) ShouldAddReaction(s *discordgo.Session, m *discordgo.M
 				zap.String("channelID", m.ChannelID),
 				zap.String("messageID", m.ID),
 			)
-			return true
+			return rand.Float64() < 0.5
 		}
 		lastMsgTimestamp, err := discord.SnowflakeTimestamp(lastMessage.ID)
 		if err != nil {
@@ -107,10 +107,10 @@ func (mr *MessageReactor) ShouldAddReaction(s *discordgo.Session, m *discordgo.M
 		logger.Debug("time difference between messages", zap.Duration("timeDiff", timeDiff))
 		if timeDiff < 7*time.Minute {
 			_ = mr.ReactToMessage(s, lastMessage)
-			return true
+			return rand.Float64() < 0.6
 		}
 	}
-	return rand.Float64() < 0.6
+	return rand.Float64() < 0.4
 }
 
 func (mr *MessageReactor) ReactToMessage(s *discordgo.Session, m *discordgo.Message) error {
