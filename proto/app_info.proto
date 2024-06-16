@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package info;
 
-option go_package="bot/servers";
+option go_package="pkg/api/pb";
 
 message AppInfoRequest {
 }
