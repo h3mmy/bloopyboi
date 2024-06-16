@@ -8,15 +8,15 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"github.com/bwmarrin/discordgo"
 	"github.com/google/uuid"
-	"github.com/h3mmy/bloopyboi/bot/internal/database"
-	"github.com/h3mmy/bloopyboi/bot/internal/log"
-	"github.com/h3mmy/bloopyboi/bot/internal/models"
+	"github.com/h3mmy/bloopyboi/pkg/database"
+	"github.com/h3mmy/bloopyboi/internal/models"
 	"github.com/h3mmy/bloopyboi/ent"
 	"github.com/h3mmy/bloopyboi/ent/book"
 	"github.com/h3mmy/bloopyboi/ent/bookauthor"
 	"github.com/h3mmy/bloopyboi/ent/discorduser"
 	"github.com/h3mmy/bloopyboi/ent/mediarequest"
 	pmodels "github.com/h3mmy/bloopyboi/internal/models"
+	log "github.com/h3mmy/bloopyboi/pkg/logs"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	books "google.golang.org/api/books/v1"
@@ -350,11 +350,11 @@ func (b *BookService) BuildBookRequestStatusAsEmbed(ctx context.Context, req *en
 				Value: book.GoogleVolumeID,
 			},
 			{
-				Name: "Requested",
+				Name:  "Requested",
 				Value: req.CreateTime.Format("2006-01-02"),
 			},
 			{
-				Name: "Status",
+				Name:  "Status",
 				Value: string(req.Status),
 			},
 		},

@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/alexliesenfeld/health"
-	"github.com/h3mmy/bloopyboi/bot/internal/log"
+	log "github.com/h3mmy/bloopyboi/pkg/logs"
 )
 
 func OnComponentStatusChanged(_ context.Context, name string, state health.CheckState) {

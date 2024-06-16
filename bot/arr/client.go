@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/h3mmy/bloopyboi/bot/internal/config"
-	"github.com/h3mmy/bloopyboi/bot/internal/log"
-	"github.com/h3mmy/bloopyboi/bot/internal/models"
+	"github.com/h3mmy/bloopyboi/internal/models"
+	"github.com/h3mmy/bloopyboi/pkg/config"
+	log "github.com/h3mmy/bloopyboi/pkg/logs"
 	"go.uber.org/zap"
 	"golift.io/starr"
 	"golift.io/starr/lidarr"
@@ -20,14 +20,14 @@ type ArrClientMap map[string]starr.APIer
 type ArrClientRegister map[starr.App]ArrClientMap
 
 type ArrClientRegistry struct {
-	meta models.BloopyMeta
-	logger *zap.Logger
+	meta     models.BloopyMeta
+	logger   *zap.Logger
 	registry ArrClientRegister
 }
 
 type ArrClientSet struct {
-	meta models.BloopyMeta
-	logger *zap.Logger
+	meta      models.BloopyMeta
+	logger    *zap.Logger
 	clientMap map[string]starr.APIer
 }
 
@@ -35,8 +35,8 @@ func NewArrClientSet(clients map[string]starr.APIer) *ArrClientSet {
 	mta := models.NewBloopyMeta()
 	lgr := log.NewZapLogger()
 	return &ArrClientSet{
-		meta: mta,
-		logger: lgr,
+		meta:      mta,
+		logger:    lgr,
 		clientMap: clients,
 	}
 }
@@ -45,8 +45,8 @@ func NewArrClientRegistry(controllerName string) *ArrClientRegistry {
 	mta := models.NewBloopyMeta(controllerName)
 	lgr := log.NewZapLogger().Named("arr_client_registry")
 	return &ArrClientRegistry{
-		meta: mta,
-		logger: lgr,
+		meta:     mta,
+		logger:   lgr,
 		registry: make(map[starr.App]ArrClientMap),
 	}
 }

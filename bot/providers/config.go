@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/h3mmy/bloopyboi/bot/internal/config"
+	"github.com/h3mmy/bloopyboi/pkg/config"
 	"go.uber.org/zap/zapcore"
 )
 

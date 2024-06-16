@@ -3,7 +3,7 @@ package k8s
 import (
 	"os"
 
-	"github.com/h3mmy/bloopyboi/bot/internal/log"
+	log "github.com/h3mmy/bloopyboi/pkg/logs"
 	"go.uber.org/zap"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"

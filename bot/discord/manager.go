@@ -9,10 +9,10 @@ import (
 	"github.com/h3mmy/bloopyboi/bot/asynchandlers"
 	bloopyCommands "github.com/h3mmy/bloopyboi/bot/discord/commands"
 	"github.com/h3mmy/bloopyboi/bot/handlers"
-	"github.com/h3mmy/bloopyboi/bot/internal/config"
-	"github.com/h3mmy/bloopyboi/bot/internal/models"
+	"github.com/h3mmy/bloopyboi/internal/models"
 	"github.com/h3mmy/bloopyboi/bot/providers"
 	"github.com/h3mmy/bloopyboi/bot/services"
+	"github.com/h3mmy/bloopyboi/pkg/config"
 	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
 )

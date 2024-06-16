@@ -5,15 +5,14 @@ import (
 	"net/http"
 
 	"github.com/h3mmy/bloopyboi/bot/discord"
-	"github.com/h3mmy/bloopyboi/bot/internal/models"
+	"github.com/h3mmy/bloopyboi/internal/models"
 	"github.com/h3mmy/bloopyboi/bot/servers"
-	pmodels "github.com/h3mmy/bloopyboi/internal/models"
 	"github.com/labstack/echo/v4"
 	"github.com/uptrace/opentelemetry-go-extra/otelzap"
 	"go.uber.org/zap"
 )
 
-var defaultGatewayConfig = &pmodels.GatewayConfig{
+var defaultGatewayConfig = &models.GatewayConfig{
 	HttpPort: 8080,
 	GrpcPort: 8081,
 }
@@ -26,11 +25,11 @@ type Gateway struct {
 	logger   *otelzap.Logger
 	meta     models.BloopyMeta
 	echoServ *echo.Echo
-	config   *pmodels.GatewayConfig
+	config   *models.GatewayConfig
 	bot      *BloopyBoi
 }
 
-func NewGateway(cfg *pmodels.GatewayConfig) *Gateway {
+func NewGateway(cfg *models.GatewayConfig) *Gateway {
 	echoServ := echo.New()
 	lgr := otelzap.New(zap.L())
 	return &Gateway{
