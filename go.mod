@@ -7,10 +7,12 @@ toolchain go1.22.4
 // replace github.com/googleapis/gnostic => github.com/googleapis/gnostic v0.5.5
 
 require (
+	github.com/adrg/strutil v0.3.1
 	github.com/bwmarrin/discordgo v0.28.1
 	github.com/cdfmlr/ellipsis v0.0.1
 	github.com/devopsarr/overseerr-go v1.0.0
 	github.com/dustin/go-humanize v1.0.1
+	github.com/kljensen/snowball v0.9.0
 	github.com/labstack/echo/v4 v4.11.4
 	github.com/spf13/viper v1.19.0
 	github.com/uptrace/opentelemetry-go-extra/otelsql v0.3.0

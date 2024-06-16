@@ -3,12 +3,15 @@ package asynchandlers
 import (
 	"fmt"
 	"math/rand"
+	"slices"
 	"time"
 
+	"github.com/adrg/strutil/metrics"
 	"github.com/bwmarrin/discordgo"
 	"github.com/h3mmy/bloopyboi/bot/internal/log"
 	"github.com/h3mmy/bloopyboi/bot/internal/models"
 	"github.com/h3mmy/bloopyboi/internal/discord"
+	"github.com/kljensen/snowball"
 	"go.uber.org/zap"
 )
 
@@ -121,7 +124,7 @@ func (mr *MessageReactor) ReactToMessage(s *discordgo.Session, m *discordgo.Mess
 	}
 	if guildEmojis != nil {
 		logger.Debug("Found Guild Emojis", zap.Int("count", len(guildEmojis)))
-		emj := mr.SelectGuildEmojiForReaction(guildEmojis)
+		emj := mr.SelectGuildEmojiForReaction(m, guildEmojis)
 		if emj.Available {
 			logger.Debug("selected emoji is available", zap.String("emoji", emj.APIName()))
 			err = s.MessageReactionAdd(m.ChannelID, m.ID, emj.APIName())
@@ -136,6 +139,39 @@ func (mr *MessageReactor) ReactToMessage(s *discordgo.Session, m *discordgo.Mess
 	return err
 }
 
-func (mr *MessageReactor) SelectGuildEmojiForReaction(emojiPool []*discordgo.Emoji) *discordgo.Emoji {
-	return emojiPool[rand.Intn(len(emojiPool))]
+func (mr *MessageReactor) SelectGuildEmojiForReaction(m *discordgo.Message, emojiPool []*discordgo.Emoji) *discordgo.Emoji {
+	siftedEmojiPool := mr.FindSimilarEmoji(m, emojiPool)
+	return siftedEmojiPool[rand.Intn(len(siftedEmojiPool))]
+}
+
+// This is extremely crude at the moment. I intend to use something like james-bowman/nlp to properly check semantic similarity in the future
+func (mr *MessageReactor) FindSimilarEmoji(m *discordgo.Message, emojiPool []*discordgo.Emoji) []*discordgo.Emoji {
+	logger := mr.logger.With(zap.String("method", "FindSimilarEmoji"), zap.String("messageID", m.ID))
+
+		stemmed, err := snowball.Stem(m.Content, "english", true)
+		if err != nil {
+			logger.Error("error while stemming", zap.Error(err))
+			stemmed= m.Content
+		}
+		logger.Debug("stemmed a thing",zap.String("post stemming", stemmed))
+		oc := metrics.NewOverlapCoefficient()
+		revisedEmojiPool := []*discordgo.Emoji{}
+		highestSim:=0.0
+		// def not efficient
+		for _, emoji := range emojiPool {
+			sim := oc.Compare(emoji.Name, stemmed)
+			if sim >= float64(highestSim) {
+				highestSim = sim
+				if len(revisedEmojiPool) > 5 {
+					revisedEmojiPool = slices.Delete(revisedEmojiPool, 0,1)
+				}
+				logger.Debug(fmt.Sprintf("Adding with similarity score: .2%f", sim), zap.String("emoji", emoji.Name), zap.String("stemmed", stemmed))
+				revisedEmojiPool = append(revisedEmojiPool, emoji)
+			}
+		}
+		if len(revisedEmojiPool) == 0 {
+			logger.Warn("no emoji similar enough. Returning OG pool")
+			return emojiPool
+		}
+		return revisedEmojiPool
 }
