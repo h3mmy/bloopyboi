@@ -8,9 +8,9 @@ import (
 
 	"github.com/adrg/strutil/metrics"
 	"github.com/bwmarrin/discordgo"
-	"github.com/h3mmy/bloopyboi/bot/internal/log"
-	"github.com/h3mmy/bloopyboi/bot/internal/models"
+	"github.com/h3mmy/bloopyboi/internal/models"
 	"github.com/h3mmy/bloopyboi/internal/discord"
+	log "github.com/h3mmy/bloopyboi/pkg/logs"
 	"github.com/kljensen/snowball"
 	"go.uber.org/zap"
 )
@@ -101,8 +101,8 @@ func (mr *MessageReactor) ShouldAddReaction(s *discordgo.Session, m *discordgo.M
 		if err != nil {
 			logger.Warn(
 				"error calculating snowflake timestamp",
-			 zap.String("messageID", lastMessage.ID),
-			 zap.Error(err),
+				zap.String("messageID", lastMessage.ID),
+				zap.Error(err),
 			)
 			lastMsgTimestamp = lastMessage.Timestamp
 		}
@@ -148,30 +148,30 @@ func (mr *MessageReactor) SelectGuildEmojiForReaction(m *discordgo.Message, emoj
 func (mr *MessageReactor) FindSimilarEmoji(m *discordgo.Message, emojiPool []*discordgo.Emoji) []*discordgo.Emoji {
 	logger := mr.logger.With(zap.String("method", "FindSimilarEmoji"), zap.String("messageID", m.ID))
 
-		stemmed, err := snowball.Stem(m.Content, "english", true)
-		if err != nil {
-			logger.Error("error while stemming", zap.Error(err))
-			stemmed= m.Content
-		}
-		logger.Debug("stemmed a thing",zap.String("post stemming", stemmed))
-		oc := metrics.NewOverlapCoefficient()
-		revisedEmojiPool := []*discordgo.Emoji{}
-		highestSim:=0.0
-		// def not efficient
-		for _, emoji := range emojiPool {
-			sim := oc.Compare(emoji.Name, stemmed)
-			if sim >= float64(highestSim) {
-				highestSim = sim
-				if len(revisedEmojiPool) > 5 {
-					revisedEmojiPool = slices.Delete(revisedEmojiPool, 0,1)
-				}
-				logger.Debug(fmt.Sprintf("Adding with similarity score: .2%f", sim), zap.String("emoji", emoji.Name), zap.String("stemmed", stemmed))
-				revisedEmojiPool = append(revisedEmojiPool, emoji)
+	stemmed, err := snowball.Stem(m.Content, "english", true)
+	if err != nil {
+		logger.Error("error while stemming", zap.Error(err))
+		stemmed = m.Content
+	}
+	logger.Debug("stemmed a thing", zap.String("post stemming", stemmed))
+	oc := metrics.NewOverlapCoefficient()
+	revisedEmojiPool := []*discordgo.Emoji{}
+	highestSim := 0.0
+	// def not efficient
+	for _, emoji := range emojiPool {
+		sim := oc.Compare(emoji.Name, stemmed)
+		if sim >= float64(highestSim) {
+			highestSim = sim
+			if len(revisedEmojiPool) > 5 {
+				revisedEmojiPool = slices.Delete(revisedEmojiPool, 0, 1)
 			}
+			logger.Debug(fmt.Sprintf("Adding with similarity score: .2%f", sim), zap.String("emoji", emoji.Name), zap.String("stemmed", stemmed))
+			revisedEmojiPool = append(revisedEmojiPool, emoji)
 		}
-		if len(revisedEmojiPool) == 0 {
-			logger.Warn("no emoji similar enough. Returning OG pool")
-			return emojiPool
-		}
-		return revisedEmojiPool
+	}
+	if len(revisedEmojiPool) == 0 {
+		logger.Warn("no emoji similar enough. Returning OG pool")
+		return emojiPool
+	}
+	return revisedEmojiPool
 }

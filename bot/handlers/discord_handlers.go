@@ -6,18 +6,17 @@ import (
 	"strings"
 
 	"github.com/bwmarrin/discordgo"
-	"github.com/h3mmy/bloopyboi/bot/internal/log"
-	"github.com/h3mmy/bloopyboi/bot/internal/models"
+	"github.com/h3mmy/bloopyboi/internal/models"
 	"github.com/h3mmy/bloopyboi/bot/services"
+	log "github.com/h3mmy/bloopyboi/pkg/logs"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
-	pmodels "github.com/h3mmy/bloopyboi/internal/models"
 )
 
 var (
 	textResponseMap = map[string]string{
-		"pong": "Ping!",
-		"Pong!": "-_-",
+		"pong":   "Ping!",
+		"Pong!":  "-_-",
 		"!bliss": "I use slash commands now. Try using /bliss",
 	}
 )
@@ -30,7 +29,7 @@ type MessageChanBlooper struct {
 	logger        *zap.Logger
 	msgRegistry   map[string]*discordgo.Message
 	inspiroSvc    *services.InspiroService
-	discordSvc *services.DiscordService
+	discordSvc    *services.DiscordService
 }
 
 func NewMessageChanBlooper(
@@ -49,7 +48,7 @@ func NewMessageChanBlooper(
 	})
 
 	return &MessageChanBlooper{
-		discordSvc: dService,
+		discordSvc:    dService,
 		inspiroSvc:    insproSvc,
 		msgCreateChan: createCh,
 		msgReactAChan: reactACh,
@@ -91,11 +90,11 @@ func (mcb *MessageChanBlooper) processIncomingMessage(msg *discordgo.MessageCrea
 	mcb.logger.Debug(fmt.Sprintf("processing new message with ID %s from user %s", msg.ID, msg.Author.Username))
 
 	// record message
-	ctx1 := context.WithValue(context.TODO(), pmodels.CtxKeyMessageID, msg.ID)
-	ctx2 := context.WithValue(ctx1, pmodels.CtxDiscordGuildID, msg.GuildID)
-	ctx := context.WithValue(ctx2, pmodels.CtxChannelID, msg.ChannelID)
+	ctx1 := context.WithValue(context.TODO(), models.CtxKeyMessageID, msg.ID)
+	ctx2 := context.WithValue(ctx1, models.CtxDiscordGuildID, msg.GuildID)
+	ctx := context.WithValue(ctx2, models.CtxChannelID, msg.ChannelID)
 	err := mcb.discordSvc.RecordDiscordMessage(ctx, msg.Message)
-	if err !=nil {
+	if err != nil {
 		logger.Error("error persisting message", zap.Error(err))
 		// Swallow Error
 	}
@@ -156,12 +155,12 @@ func (mcb *MessageChanBlooper) processReactionAdd(msgRAdd *discordgo.MessageReac
 		msgRAdd.MessageID,
 		msgRAdd.Emoji))
 
-		// record message
-	ctx1 := context.WithValue(context.TODO(), pmodels.CtxKeyMessageID, msgRAdd.MessageID)
-	ctx2 := context.WithValue(ctx1, pmodels.CtxDiscordGuildID, msgRAdd.GuildID)
-	ctx := context.WithValue(ctx2, pmodels.CtxChannelID, msgRAdd.ChannelID)
+	// record message
+	ctx1 := context.WithValue(context.TODO(), models.CtxKeyMessageID, msgRAdd.MessageID)
+	ctx2 := context.WithValue(ctx1, models.CtxDiscordGuildID, msgRAdd.GuildID)
+	ctx := context.WithValue(ctx2, models.CtxChannelID, msgRAdd.ChannelID)
 	err := mcb.discordSvc.RecordMessageReaction(ctx, msgRAdd.MessageReaction)
-	if err !=nil {
+	if err != nil {
 		mcb.logger.Error("error persisting message", zap.Error(err))
 		// Swallow Error
 	}

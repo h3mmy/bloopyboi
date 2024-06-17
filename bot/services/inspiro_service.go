@@ -2,14 +2,14 @@ package services
 
 import (
 	"github.com/bwmarrin/discordgo"
-	"github.com/h3mmy/bloopyboi/bot/internal/log"
+	log "github.com/h3mmy/bloopyboi/pkg/logs"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
 
 type InspiroService struct {
 	inspiroClient *InspiroClient
-	logger         *zap.Logger
+	logger        *zap.Logger
 }
 
 // Creates New InspiroService with specified Service
@@ -21,7 +21,7 @@ func NewInspiroService(inspiro *InspiroClient) *InspiroService {
 	})
 	return &InspiroService{
 		inspiroClient: inspiro,
-		logger:         lgr,
+		logger:        lgr,
 	}
 }
 

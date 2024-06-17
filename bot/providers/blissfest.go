@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/h3mmy/bloopyboi/bot/internal/config"
+	"github.com/h3mmy/bloopyboi/pkg/config"
 	"github.com/h3mmy/bloopyboi/bot/services"
 	pkgmodels "github.com/h3mmy/bloopyboi/internal/models"
 	"go.uber.org/zap"

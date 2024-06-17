@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package config;
 
-option go_package="bot/servers";
+option go_package="pkg/api/pb";
 
 message DiscordConfigurationRequest {
   string app_name = 1;

@@ -6,9 +6,9 @@ import (
 
 	"github.com/alexliesenfeld/health"
 	"github.com/h3mmy/bloopyboi/bot/discord"
-	"github.com/h3mmy/bloopyboi/bot/internal/config"
-	"github.com/h3mmy/bloopyboi/bot/internal/models"
+	"github.com/h3mmy/bloopyboi/internal/models"
 	"github.com/h3mmy/bloopyboi/bot/providers"
+	"github.com/h3mmy/bloopyboi/pkg/config"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"golang.org/x/sync/errgroup"
@@ -124,4 +124,3 @@ func (bot *BloopyBoi) GetReadinessChecker() health.Checker {
 
 	return providers.NewReadinessChecker(discordReady)
 }
-

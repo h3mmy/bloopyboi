@@ -1,22 +1,13 @@
-package bot
+package api
 
 import (
 	"context"
 	"net/http"
 
+	"github.com/h3mmy/bloopyboi/bot"
 	"github.com/h3mmy/bloopyboi/bot/discord"
-
-
-
-
-
-
-	
-	"github.com/labstack/echo/v4/middleware"
-
-	"github.com/h3mmy/bloopyboi/internal/models"
 	"github.com/h3mmy/bloopyboi/pkg/api/pb"
-
+	"github.com/h3mmy/bloopyboi/internal/models"
 	"github.com/labstack/echo/v4"
 	"github.com/uptrace/opentelemetry-go-extra/otelzap"
 	"go.uber.org/zap"
@@ -36,7 +27,7 @@ type Gateway struct {
 	meta     models.BloopyMeta
 	echoServ *echo.Echo
 	config   *models.GatewayConfig
-	bot      *BloopyBoi
+	bot      *bot.BloopyBoi
 }
 
 func NewGateway(cfg *models.GatewayConfig) *Gateway {
@@ -50,7 +41,7 @@ func NewGateway(cfg *models.GatewayConfig) *Gateway {
 	}
 }
 
-func (g *Gateway) WithBotInstance(bot *BloopyBoi) *Gateway {
+func (g *Gateway) WithBotInstance(bot *bot.BloopyBoi) *Gateway {
 	g.bot = bot
 	return g
 }
@@ -61,10 +52,6 @@ func NewDefaultGateway() *Gateway {
 
 func (g *Gateway) Start() error {
 	g.echoServ.GET("/info", GetAppInfo)
-
-	// Uses Default CORS config (Temporary during development)
-	g.echoServ.Use(middleware.CORS())
-
 	dg := g.echoServ.Group("/discord")
 	dg = RegisterDiscordSvcRoutes(dg, g.bot.DiscordManager)
 	g.logger.Debug("registered group", zap.Bool("isnil", dg == nil))
@@ -82,7 +69,6 @@ func GetAppInfo(c echo.Context) error {
 func RegisterDiscordSvcRoutes(echoGroup *echo.Group, discMgr *discord.DiscordManager) *echo.Group {
 	dg := echoGroup
 	dg.GET("/manager/meta", GetDiscordManagerMeta(discMgr))
-	dg.GET("/manager/commands/app", GetDiscordManagerMeta(discMgr))
 	return dg
 }
 
@@ -92,15 +78,6 @@ func GetDiscordManagerMeta(g *discord.DiscordManager) func(c echo.Context) error
 			return c.JSON(http.StatusServiceUnavailable, "Bot Instance Not Attached")
 		}
 		return c.JSON(http.StatusOK, g.GetDiscordService().GetMeta())
-	}
-}
-
-func GetCurrentDiscordAppCommands(g *discord.DiscordManager) func(c echo.Context) error {
-	return func (c echo.Context) error {
-		if g == nil {
-			return c.JSON(http.StatusServiceUnavailable, "Bot Instance Not Attached")
-		}
-		return c.JSON(http.StatusOK, g.GetDiscordService().GetCurrentAppCommands())
 	}
 }
 

@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	overseerr_go "github.com/devopsarr/overseerr-go/overseerr"
-	"github.com/h3mmy/bloopyboi/bot/internal/models"
+	"github.com/h3mmy/bloopyboi/internal/models"
 )
 
 type OverseerrClientGenerator struct {
