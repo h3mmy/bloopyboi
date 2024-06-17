@@ -6,7 +6,7 @@ import (
 
 	"github.com/h3mmy/bloopyboi/bot"
 	"github.com/h3mmy/bloopyboi/bot/discord"
-	"github.com/h3mmy/bloopyboi/bot/servers"
+	"github.com/h3mmy/bloopyboi/api/pb"
 	"github.com/h3mmy/bloopyboi/internal/models"
 	"github.com/labstack/echo/v4"
 	"github.com/uptrace/opentelemetry-go-extra/otelzap"
@@ -19,7 +19,7 @@ var defaultGatewayConfig = &models.GatewayConfig{
 }
 
 type AppInfoServer struct {
-	servers.UnimplementedInfoServiceServer
+	pb.UnimplementedInfoServiceServer
 }
 
 type Gateway struct {
