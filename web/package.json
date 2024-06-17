@@ -27,6 +27,7 @@
 		"postcss-nesting": "^12.1.5",
 		"prettier": "^3.1.1",
 		"prettier-plugin-svelte": "^3.1.2",
+		"protoc-gen-ts": "^0.8.7",
 		"scss": "^0.2.4",
 		"svelte": "^4.2.18",
 		"svelte-check": "^3.6.0",
@@ -44,6 +45,7 @@
 	},
 	"type": "module",
 	"dependencies": {
-		"@iconify/svelte": "^4.0.2"
+		"@iconify/svelte": "^4.0.2",
+		"google-protobuf": "^3.21.2"
 	}
 }
