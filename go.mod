@@ -15,7 +15,7 @@ require (
 	github.com/kljensen/snowball v0.9.0
 	github.com/labstack/echo/v4 v4.11.4
 	github.com/spf13/viper v1.19.0
-	github.com/uptrace/opentelemetry-go-extra/otelsql v0.3.0
+	github.com/uptrace/opentelemetry-go-extra/otelsql v0.3.1
 	github.com/uptrace/opentelemetry-go-extra/otelzap v0.3.0
 	go.uber.org/zap v1.27.0
 	golift.io/starr v1.0.0
@@ -122,7 +122,7 @@ require (
 	github.com/spf13/cast v1.6.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/subosito/gotenv v1.6.0 // indirect
-	goauthentik.io/api/v3 v3.2024042.12
+	goauthentik.io/api/v3 v3.2024042.13
 	golang.org/x/crypto v0.24.0 // indirect
 	golang.org/x/sync v0.7.0
 	golang.org/x/sys v0.21.0 // indirect
