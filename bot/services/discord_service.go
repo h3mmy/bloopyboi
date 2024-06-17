@@ -7,10 +7,8 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"github.com/bwmarrin/discordgo"
-	"github.com/h3mmy/bloopyboi/bot/internal/config"
-	"github.com/h3mmy/bloopyboi/bot/internal/database"
-	"github.com/h3mmy/bloopyboi/bot/internal/log"
-	"github.com/h3mmy/bloopyboi/bot/internal/models"
+	"github.com/h3mmy/bloopyboi/pkg/database"
+	"github.com/h3mmy/bloopyboi/internal/models"
 	"github.com/h3mmy/bloopyboi/ent"
 	"github.com/h3mmy/bloopyboi/ent/discordchannel"
 	"github.com/h3mmy/bloopyboi/ent/discordguild"
@@ -18,6 +16,8 @@ import (
 	"github.com/h3mmy/bloopyboi/ent/discordmessagereaction"
 	"github.com/h3mmy/bloopyboi/ent/discorduser"
 	"github.com/h3mmy/bloopyboi/internal/discord"
+	"github.com/h3mmy/bloopyboi/pkg/config"
+	log "github.com/h3mmy/bloopyboi/pkg/logs"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )

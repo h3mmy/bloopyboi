@@ -5,8 +5,8 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/h3mmy/bloopyboi/bot/internal/config"
-	"github.com/h3mmy/bloopyboi/bot/internal/log"
+	"github.com/h3mmy/bloopyboi/pkg/config"
+	log "github.com/h3mmy/bloopyboi/pkg/logs"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )

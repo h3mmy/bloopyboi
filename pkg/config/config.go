@@ -3,12 +3,12 @@ package config
 import (
 	"errors"
 
-	"github.com/h3mmy/bloopyboi/bot/internal/log"
+	"github.com/h3mmy/bloopyboi/pkg/logs"
 	"go.uber.org/zap/zapcore"
 )
 
 var (
-	logger = log.NewZapLogger().With(
+	logger = logs.NewZapLogger().With(
 		zapcore.Field{
 			Key:    "group",
 			Type:   zapcore.StringType,
