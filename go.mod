@@ -16,7 +16,7 @@ require (
 	github.com/labstack/echo/v4 v4.11.4
 	github.com/spf13/viper v1.19.0
 	github.com/uptrace/opentelemetry-go-extra/otelsql v0.3.1
-	github.com/uptrace/opentelemetry-go-extra/otelzap v0.3.0
+	github.com/uptrace/opentelemetry-go-extra/otelzap v0.3.1
 	go.uber.org/zap v1.27.0
 	golift.io/starr v1.0.0
 	google.golang.org/grpc v1.64.0
@@ -78,7 +78,7 @@ require (
 	github.com/sagikazarmark/locafero v0.4.0 // indirect
 	github.com/sagikazarmark/slog-shim v0.1.0 // indirect
 	github.com/sourcegraph/conc v0.3.0 // indirect
-	github.com/uptrace/opentelemetry-go-extra/otelutil v0.3.0 // indirect
+	github.com/uptrace/opentelemetry-go-extra/otelutil v0.3.1 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasttemplate v1.2.2 // indirect
 	github.com/zclconf/go-cty v1.13.2 // indirect
