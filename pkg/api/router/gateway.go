@@ -1,12 +1,13 @@
-package bot
+package api
 
 import (
 	"context"
 	"net/http"
 
+	"github.com/h3mmy/bloopyboi/bot"
 	"github.com/h3mmy/bloopyboi/bot/discord"
-	"github.com/h3mmy/bloopyboi/internal/models"
 	"github.com/h3mmy/bloopyboi/pkg/api/pb"
+	"github.com/h3mmy/bloopyboi/internal/models"
 	"github.com/labstack/echo/v4"
 	"github.com/uptrace/opentelemetry-go-extra/otelzap"
 	"go.uber.org/zap"
@@ -26,7 +27,7 @@ type Gateway struct {
 	meta     models.BloopyMeta
 	echoServ *echo.Echo
 	config   *models.GatewayConfig
-	bot      *BloopyBoi
+	bot      *bot.BloopyBoi
 }
 
 func NewGateway(cfg *models.GatewayConfig) *Gateway {
@@ -40,7 +41,7 @@ func NewGateway(cfg *models.GatewayConfig) *Gateway {
 	}
 }
 
-func (g *Gateway) WithBotInstance(bot *BloopyBoi) *Gateway {
+func (g *Gateway) WithBotInstance(bot *bot.BloopyBoi) *Gateway {
 	g.bot = bot
 	return g
 }

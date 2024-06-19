@@ -4,9 +4,9 @@ import (
 	"strings"
 
 	"github.com/bwmarrin/discordgo"
-	"github.com/h3mmy/bloopyboi/bot/internal/log"
-	"github.com/h3mmy/bloopyboi/bot/internal/models"
+	"github.com/h3mmy/bloopyboi/internal/models"
 	"github.com/h3mmy/bloopyboi/bot/services"
+	log "github.com/h3mmy/bloopyboi/pkg/logs"
 	"go.uber.org/zap"
 )
 

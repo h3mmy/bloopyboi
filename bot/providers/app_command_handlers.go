@@ -2,9 +2,8 @@ package providers
 
 import (
 	"github.com/h3mmy/bloopyboi/bot/handlers"
-	"github.com/h3mmy/bloopyboi/bot/internal/config"
-	"github.com/h3mmy/bloopyboi/bot/internal/models"
-	pkgmodels "github.com/h3mmy/bloopyboi/internal/models"
+	"github.com/h3mmy/bloopyboi/internal/models"
+	"github.com/h3mmy/bloopyboi/pkg/config"
 	"go.uber.org/zap"
 )
 
@@ -40,7 +39,7 @@ func GetCommandWithConfig(guildId string, cfg config.GuildCommandConfig) models.
 	// get from repository TODO
 	if cfg.Name == "blissfest" {
 		flogger.Debug("Checking if feature enabled")
-		if IsFeatureEnabled(pkgmodels.BlissfestFeatureKey) {
+		if IsFeatureEnabled(models.BlissfestFeatureKey) {
 			return handlers.NewBlissfestCommand(GetBlissfestService()).WithGuild(guildId).WithRoles(cfg.Roles...)
 		}
 		flogger.Warn("blissfest guild command exists but feature is disabled")

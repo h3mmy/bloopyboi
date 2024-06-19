@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/bwmarrin/discordgo"
-	"github.com/h3mmy/bloopyboi/bot/internal/log"
+	log "github.com/h3mmy/bloopyboi/pkg/logs"
 	"go.uber.org/zap/zapcore"
 )
 

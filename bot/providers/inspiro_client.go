@@ -1,8 +1,8 @@
 package providers
 
 import (
-	"github.com/h3mmy/bloopyboi/bot/internal/config"
 	"github.com/h3mmy/bloopyboi/bot/services"
+	"github.com/h3mmy/bloopyboi/pkg/config"
 )
 
 func GetInspiroService() *services.InspiroService {

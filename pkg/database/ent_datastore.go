@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"entgo.io/ent/dialect"
-	"github.com/h3mmy/bloopyboi/bot/internal/config"
+	"github.com/h3mmy/bloopyboi/pkg/config"
 	"github.com/h3mmy/bloopyboi/ent"
 	"github.com/h3mmy/bloopyboi/ent/migrate"
 	"github.com/uptrace/opentelemetry-go-extra/otelsql"

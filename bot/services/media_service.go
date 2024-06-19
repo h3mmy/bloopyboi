@@ -4,12 +4,12 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/h3mmy/bloopyboi/bot/internal/database"
-	"github.com/h3mmy/bloopyboi/bot/internal/log"
-	"github.com/h3mmy/bloopyboi/bot/internal/models"
+	"github.com/h3mmy/bloopyboi/pkg/database"
+	"github.com/h3mmy/bloopyboi/internal/models"
 	"github.com/h3mmy/bloopyboi/ent"
 	"github.com/h3mmy/bloopyboi/ent/discorduser"
 	"github.com/h3mmy/bloopyboi/ent/mediarequest"
+	log "github.com/h3mmy/bloopyboi/pkg/logs"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
@@ -19,6 +19,7 @@ type MediaService struct {
 	logger           *zap.Logger
 	overseerrService *OverseerrService
 	bookService      *BookService
+	arrService       *ArrService
 	db               *ent.Client
 	dbEnabled        bool
 }
@@ -43,6 +44,10 @@ func (s *MediaService) WithBookService(bsvc *BookService) {
 
 func (s *MediaService) WithOverseerrService(osvc *OverseerrService) {
 	s.overseerrService = osvc
+}
+
+func (s *MediaService) WithArrService(svc *ArrService) {
+	s.arrService = svc
 }
 
 func (s *MediaService) RefreshDBConnection() error {

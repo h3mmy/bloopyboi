@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/h3mmy/bloopyboi/bot/internal/log"
+	log "github.com/h3mmy/bloopyboi/pkg/logs"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	api "goauthentik.io/api/v3"

@@ -20,11 +20,10 @@ func (DiscordUser) Fields() []ent.Field {
 			Unique(),
 		field.String("discordid").
 			Unique(),
-		field.String("username").
-			Unique(),
+		field.String("username"),
 		field.String("email").
 			Optional(),
-			field.String("discriminator").
+		field.String("discriminator").
 			Optional(),
 	}
 }
