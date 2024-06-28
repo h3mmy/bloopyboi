@@ -56,7 +56,7 @@ func (mr *MessageReactor) ShouldAddReaction(s *discordgo.Session, m *discordgo.M
 		return false
 	}
 	if len(m.Mentions) > 0 {
-		return rand.Float64() < 0.7
+		return rand.Float64() < 0.55
 	}
 	if m.GuildID == "" {
 		// Implies a DM
@@ -110,7 +110,7 @@ func (mr *MessageReactor) ShouldAddReaction(s *discordgo.Session, m *discordgo.M
 		logger.Debug("time difference between messages", zap.Duration("timeDiff", timeDiff))
 		if timeDiff < 7*time.Minute {
 			_ = mr.ReactToMessage(s, lastMessage)
-			return rand.Float64() < 0.6
+			return rand.Float64() < 0.55
 		}
 	}
 	return rand.Float64() < 0.4
