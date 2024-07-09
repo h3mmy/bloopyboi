@@ -39,9 +39,11 @@ func (mr *MessageReactor) Handle(s *discordgo.Session, m *discordgo.MessageCreat
 	logger.Debug(fmt.Sprintf("Processing Message from %s with Content %s", m.Author.Username, m.Content))
 	if mr.ShouldAddReaction(s, m.Message) {
 		logger.Debug("Will add reaction")
-		err := mr.ReactToMessage(s, m.Message)
-		if err != nil {
-			logger.Error("failed reacting to message", zap.Error(err))
+		if rand.Float() < 0.1 {
+		  err := mr.ReactToMessage(s, m.Message)
+		  if err != nil {
+			  logger.Error("failed reacting to message", zap.Error(err))
+		  }
 		}
 	} else {
 		logger.Debug("Will NOT add reaction")
