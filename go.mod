@@ -12,7 +12,7 @@ require (
 	github.com/cdfmlr/ellipsis v0.0.1
 	github.com/devopsarr/overseerr-go v1.0.0
 	github.com/dustin/go-humanize v1.0.1
-	github.com/kljensen/snowball v0.9.0
+	github.com/kljensen/snowball v0.10.0
 	github.com/labstack/echo/v4 v4.11.4
 	github.com/spf13/viper v1.19.0
 	github.com/uptrace/opentelemetry-go-extra/otelsql v0.3.1
