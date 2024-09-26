@@ -22,7 +22,7 @@ env:
 jobs:
   tag-charts:
     name: Tag charts
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: "Generate Short Lived OAuth App Token (ghs_*)"
         uses: actions/create-github-app-token@v1.11.0
