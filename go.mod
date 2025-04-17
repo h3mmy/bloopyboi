@@ -1,8 +1,7 @@
 module github.com/h3mmy/bloopyboi
 
 go 1.22.0
-
-toolchain go1.22.4
+toolchain go1.24.1
 
 // replace github.com/googleapis/gnostic => github.com/googleapis/gnostic v0.5.5
 
@@ -92,9 +91,9 @@ require (
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/exp v0.0.0-20230905200255-921286631fa9 // indirect
 	golang.org/x/mod v0.17.0 // indirect
-	golang.org/x/net v0.26.0 // indirect
+	golang.org/x/net v0.38.0 // indirect
 	golang.org/x/oauth2 v0.21.0 // indirect
-	golang.org/x/term v0.27.0 // indirect
+	golang.org/x/term v0.30.0 // indirect
 	golang.org/x/time v0.5.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240617180043-68d350f18fd4 // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
@@ -123,10 +122,10 @@ require (
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/subosito/gotenv v1.6.0 // indirect
 	goauthentik.io/api/v3 v3.2024060.6
-	golang.org/x/crypto v0.31.0 // indirect
-	golang.org/x/sync v0.10.0
-	golang.org/x/sys v0.28.0 // indirect
-	golang.org/x/text v0.21.0 // indirect
+	golang.org/x/crypto v0.36.0 // indirect
+	golang.org/x/sync v0.12.0
+	golang.org/x/sys v0.31.0 // indirect
+	golang.org/x/text v0.23.0 // indirect
 	google.golang.org/api v0.185.0
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
