@@ -18,7 +18,7 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
       - name: Generate Token
-        uses: actions/create-github-app-token@v2.0.3
+        uses: actions/create-github-app-token@v2.0.4
         id: generate-token
         with:
           app-id: "${{ secrets.APP_ID }}"
