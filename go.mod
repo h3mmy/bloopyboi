@@ -10,7 +10,7 @@ require (
 	github.com/adrg/strutil v0.3.1
 	github.com/bwmarrin/discordgo v0.28.1
 	github.com/cdfmlr/ellipsis v0.0.1
-	github.com/devopsarr/overseerr-go v1.0.0
+	github.com/devopsarr/overseerr-go v1.0.1
 	github.com/dustin/go-humanize v1.0.1
 	github.com/kljensen/snowball v0.9.0
 	github.com/labstack/echo/v4 v4.11.4
@@ -98,6 +98,7 @@ require (
 	golang.org/x/time v0.5.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240617180043-68d350f18fd4 // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
+	gopkg.in/validator.v2 v2.0.1 // indirect
 	k8s.io/klog/v2 v2.120.1 // indirect
 	k8s.io/kube-openapi v0.0.0-20240228011516-70dd3763d340 // indirect
 	k8s.io/utils v0.0.0-20230726121419-3b25d923346b // indirect
