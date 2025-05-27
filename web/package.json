@@ -45,7 +45,7 @@
 	},
 	"type": "module",
 	"dependencies": {
-		"@iconify/svelte": "^4.0.2",
-		"google-protobuf": "^3.21.2"
+		"@grpc/grpc-js": "^1.10.9",
+		"@iconify/svelte": "^4.0.2"
 	}
 }
