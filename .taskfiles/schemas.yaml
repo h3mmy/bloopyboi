@@ -65,13 +65,17 @@ tasks:
 
   proto:
     desc: Generate proto files
+    sources:
+      - "{{.PROTO_FILES}}/*.proto"
     cmds:
       - task: refresh-deps
       - protoc --go_out=. --go-grpc_out=. --go_opt=paths=import --go-grpc_opt=paths=import {{.PROTO_FILES}}/*.proto
-    sources:
-      - "{{.PROTO_FILES}}/*proto"
+      - for: sources
+        cmd: protoc --plugin={{.WEB_DIR}}/node_modules/.bin/protoc-gen-ts.cmd --ts_opt='target=node,runtime_package=npm:google-protobuf' --ts_out='import_style=module,bin:{{.WEB_DIR}}/src/lib/grpc' --proto_path={{.PROTO_FILES}} {{toSlash .ITEM}}
     generates:
       - "bot/servers/*pb.go"
+      - "web/src/lib/grpc/*.ts"
     vars:
       PROTO_FILES: "./proto"
       GO_PACKAGE: "./bot/servers"
+      WEB_DIR: "./web"
