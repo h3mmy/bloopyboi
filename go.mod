@@ -1,6 +1,7 @@
 module github.com/h3mmy/bloopyboi
 
-go 1.22.0
+go 1.23.0
+
 toolchain go1.24.1
 
 // replace github.com/googleapis/gnostic => github.com/googleapis/gnostic v0.5.5
@@ -107,7 +108,7 @@ require (
 
 require (
 	entgo.io/ent v0.13.1
-	github.com/alexliesenfeld/health v0.8.0
+	github.com/alexliesenfeld/health v0.8.1
 	github.com/fsnotify/fsnotify v1.7.0
 	github.com/go-openapi/runtime v0.28.0
 	github.com/google/uuid v1.6.0
