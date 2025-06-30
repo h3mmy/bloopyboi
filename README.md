@@ -10,7 +10,9 @@ This is still a work in progress, so if you have suggestions for future function
 
 Bot that can be linked to a discord server. Is able to register slash commands and DMs. Includes a command to generate an inspirobot image.
 
-Runs in a container, and comes with a helm chart for k8s integration (WIP)
+Runs in a container.
+
+Note: The Helm Chart is Deprecated currently. 
 
 ## Authors and acknowledgment
 
