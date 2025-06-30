@@ -1,18 +1,35 @@
 package config
 
 type DiscordConfig struct {
-	Token string `mapstructure:"token"`
-	AppName  string `mapstructure:"name"`
-	AppID    int64  `mapstructure:"appId"`
+	Token        string               `mapstructure:"token"`
+	AppName      string               `mapstructure:"name"`
+	AppID        int64                `mapstructure:"appId"`
 	GuildConfigs []DiscordGuildConfig `mapstructure:"guilds"`
 }
 
 // Guild Specific Config
 type DiscordGuildConfig struct {
-	GuildId     string `mapstructure:"id"`
+	GuildId string `mapstructure:"id"`
 	// Channel to be used for bot-specific announcements. If empty, no announcement will be sent.
-	Announcement *AnnouncementConfig `mapstructure:"announcement"`
-	GuildCommandConfig []GuildCommandConfig `mapstructure:"commands"`
+	Announcement        *AnnouncementConfig  `mapstructure:"announcement"`
+	GuildCommandConfig  []GuildCommandConfig `mapstructure:"commands"`
+	RoleSelectionConfig *RoleSelectionConfig `mapstructure:"roleSelection"`
+}
+
+// RoleSelectionConfig is intended to configure role selection prompts
+// Eventually, this should be stateful and customizable, but UI needs to happen first
+type RoleSelectionConfig struct {
+	ChannelID            string                `mapstructure:"id"`
+	Prompts []RoleSelectionPrompt `mapstructure:"prompts"`
+}
+
+type RoleSelectionPrompt struct {
+	Message     string `mapstructure:"message"`
+	Options []struct {
+		EmojiID     string `mapstructure:"emojiID"`
+		Description string `mapstructure:"description"`
+		RoleID      string `mapstructure:"roleId"`
+	}
 }
 
 // Config for dedicated announcement channel. If empty, no announcement will be sent.
@@ -22,7 +39,7 @@ type AnnouncementConfig struct {
 	// Channel to be used for bot-specific announcements.
 	Channel struct {
 		Name string `mapstructure:"name"`
-		ID string `mapstructure:"id"`
+		ID   string `mapstructure:"id"`
 	}
 	NSFW bool `mapstructure:"nsfw"`
 }
