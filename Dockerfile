@@ -22,7 +22,7 @@ RUN go mod download
 RUN go build -ldflags="-w -s" .
 RUN echo $(ls .)
 
-FROM gcr.io/distroless/static@sha256:95eb83a44a62c1c27e5f0b38d26085c486d71ece83dd64540b7209536bb13f6d
+FROM gcr.io/distroless/static@sha256:b7b9a6953e7bed6baaf37329331051d7bdc1b99c885f6dbeb72d75b1baad54f9
 
 COPY --from=build /build/bloopyboi /
 
