@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"sync"
+
 	"github.com/bwmarrin/discordgo"
 	"github.com/h3mmy/bloopyboi/internal/models"
 	"github.com/h3mmy/bloopyboi/pkg/config"
@@ -17,6 +19,7 @@ type RoleSelectionHandler struct {
 	logger      *zap.Logger
 	prompts     map[string]SelectionPrompt
 	initialized bool
+	reconciling sync.RWMutex
 }
 
 func NewRoleSelectionHandler(guildID string, config *config.RoleSelectionConfig) *RoleSelectionHandler {
@@ -34,26 +37,36 @@ func NewRoleSelectionHandler(guildID string, config *config.RoleSelectionConfig)
 }
 
 func (r *RoleSelectionHandler) ReconcileConfig(s *discordgo.Session) error {
+	r.reconciling.RLock()
 	chList, err := s.GuildChannels(r.guildID)
 	if err != nil {
 		r.logger.Error("error getting channels for guild", zap.String("guildID", r.guildID), zap.Error(err))
+		r.reconciling.RUnlock()
 		return err
 	}
 	roleChExists := false
 	var roleChannel *discordgo.Channel
 	for _, ch := range chList {
-		if ch.ID == r.config.ChannelID {
+		if ch.ID == r.config.Channel.ID {
 			r.logger.Debug("role channel exists!", zap.String("channel", ch.Name))
 			roleChExists = true
 			roleChannel = ch
 		}
 	}
+	r.reconciling.RUnlock()
 	if !roleChExists {
 		r.logger.Debug("channel does not yet exist. Wat?!")
 		// create channel
 	}
 	messagesCreated := 0
-	if roleChannel.MessageCount == 0 {
+	// TODO: Do this more reliably instead of relying on counts
+	if roleChannel.MessageCount == 0 && len(r.prompts) < len(r.config.Prompts) {
+		r.logger.Debug("locking for message creation")
+		r.reconciling.Lock()
+		defer func(){
+			r.logger.Debug("unlocking msg creation")
+			r.reconciling.Unlock()
+		}()
 		for _, p := range r.config.Prompts {
 			msg, err := s.ChannelMessageSend(roleChannel.ID, p.Message)
 			if err != nil {
@@ -89,7 +102,7 @@ func (r *RoleSelectionHandler) HandleReactionAdd(s *discordgo.Session, m *discor
 		}
 	}
 	// Ignore reactions in non-target channel
-	if m.ChannelID != r.config.ChannelID {
+	if m.ChannelID != r.config.Channel.ID {
 		return
 	}
 	if pr, ok := r.prompts[m.MessageID]; !ok {
@@ -133,7 +146,7 @@ func (r *RoleSelectionHandler) HandleReactionRemove(s *discordgo.Session, m *dis
 		}
 	}
 	// Ignore reactions in non-target channel
-	if m.ChannelID != r.config.ChannelID {
+	if m.ChannelID != r.config.Channel.ID {
 		return
 	}
 	if pr, ok := r.prompts[m.MessageID]; !ok {

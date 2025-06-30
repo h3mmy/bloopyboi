@@ -19,7 +19,10 @@ type DiscordGuildConfig struct {
 // RoleSelectionConfig is intended to configure role selection prompts
 // Eventually, this should be stateful and customizable, but UI needs to happen first
 type RoleSelectionConfig struct {
-	ChannelID            string                `mapstructure:"id"`
+	Channel struct {
+		Name string `mapstructure:"name"`
+		ID   string `mapstructure:"id"`
+	}
 	Prompts []RoleSelectionPrompt `mapstructure:"prompts"`
 }
 
