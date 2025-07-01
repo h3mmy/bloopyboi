@@ -122,7 +122,7 @@ require (
 	github.com/spf13/cast v1.6.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/subosito/gotenv v1.6.0 // indirect
-	goauthentik.io/api/v3 v3.2024060.6
+	goauthentik.io/api/v3 v3.2025063.1
 	golang.org/x/crypto v0.36.0 // indirect
 	golang.org/x/sync v0.12.0
 	golang.org/x/sys v0.31.0 // indirect
