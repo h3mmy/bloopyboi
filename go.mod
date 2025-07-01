@@ -1,8 +1,8 @@
 module github.com/h3mmy/bloopyboi
 
-go 1.22.0
+go 1.23.0
 
-toolchain go1.22.4
+toolchain go1.24.1
 
 // replace github.com/googleapis/gnostic => github.com/googleapis/gnostic v0.5.5
 
@@ -19,8 +19,8 @@ require (
 	github.com/uptrace/opentelemetry-go-extra/otelzap v0.3.1
 	go.uber.org/zap v1.27.0
 	golift.io/starr v1.0.0
-	google.golang.org/grpc v1.64.0
-	google.golang.org/protobuf v1.34.2
+	google.golang.org/grpc v1.66.0
+	google.golang.org/protobuf v1.35.1
 	k8s.io/api v0.30.2
 	k8s.io/apimachinery v0.30.2
 )
@@ -92,11 +92,11 @@ require (
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/exp v0.0.0-20230905200255-921286631fa9 // indirect
 	golang.org/x/mod v0.17.0 // indirect
-	golang.org/x/net v0.26.0 // indirect
+	golang.org/x/net v0.38.0 // indirect
 	golang.org/x/oauth2 v0.21.0 // indirect
-	golang.org/x/term v0.21.0 // indirect
+	golang.org/x/term v0.30.0 // indirect
 	golang.org/x/time v0.5.0 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20240604185151-ef581f913117 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20240617180043-68d350f18fd4 // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	k8s.io/klog/v2 v2.120.1 // indirect
 	k8s.io/kube-openapi v0.0.0-20240228011516-70dd3763d340 // indirect
@@ -108,7 +108,7 @@ require (
 
 require (
 	entgo.io/ent v0.13.1
-	github.com/alexliesenfeld/health v0.8.0
+	github.com/alexliesenfeld/health v0.8.1
 	github.com/fsnotify/fsnotify v1.7.0
 	github.com/go-openapi/runtime v0.28.0
 	github.com/google/uuid v1.6.0
@@ -122,12 +122,12 @@ require (
 	github.com/spf13/cast v1.6.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/subosito/gotenv v1.6.0 // indirect
-	goauthentik.io/api/v3 v3.2024042.13
-	golang.org/x/crypto v0.24.0 // indirect
-	golang.org/x/sync v0.7.0
-	golang.org/x/sys v0.21.0 // indirect
-	golang.org/x/text v0.16.0 // indirect
-	google.golang.org/api v0.184.0
+	goauthentik.io/api/v3 v3.2024060.6
+	golang.org/x/crypto v0.36.0 // indirect
+	golang.org/x/sync v0.12.0
+	golang.org/x/sys v0.31.0 // indirect
+	golang.org/x/text v0.23.0 // indirect
+	google.golang.org/api v0.185.0
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect

@@ -95,6 +95,17 @@ func (d *DiscordManager) Start(ctx context.Context) error {
 		}
 	}
 
+	d.log.Debug("rotating through guild configs")
+	for _, gcfg := range d.discordCfg.GuildConfigs {
+		d.log.Debug("processing guild config", zap.Any("guildConfig", gcfg))
+		if gcfg.RoleSelectionConfig != nil {
+			d.log.Debug("importing role selection config")
+			roleSelector := handlers.NewRoleSelectionHandler(gcfg.GuildId, gcfg.RoleSelectionConfig)
+			d.discordSvc.AddHandler(roleSelector.HandleReactionAdd)
+			d.discordSvc.AddHandler(roleSelector.HandleReactionRemove)
+		}
+	}
+
 	d.log.Info("Initializing Experimental Handler")
 	msgSendChan := make(chan *models.DiscordMessageSendRequest, 20)
 	expHandler := getBloopyChanHandler(d.discordSvc, &msgSendChan)
