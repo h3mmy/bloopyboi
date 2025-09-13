@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Generate Token
-        uses: actions/create-github-app-token@v2.1.2
+        uses: actions/create-github-app-token@v2.1.4
         id: generate-token
         with:
           app-id: "${{ secrets.APP_ID }}"
