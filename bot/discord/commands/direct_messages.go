@@ -1,10 +1,9 @@
 package commands
 
 import (
-	"github.com/bwmarrin/discordgo"
 	"fmt"
+	"github.com/bwmarrin/discordgo"
 )
-
 
 // Temporary method to check if command is relevant
 func IsNotDMCommand(q string) bool {
@@ -44,11 +43,11 @@ func DirectMessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		//    new ones.
 		fmt.Println("error creating channel:", err)
 		typingStop <- true
-		_, err= s.ChannelMessageSend(
+		_, err = s.ChannelMessageSend(
 			m.ChannelID,
 			"Something went wrong while sending the DM!",
 		)
-		if err!= nil {
+		if err != nil {
 			fmt.Println("error sending message:", err)
 		}
 		return
@@ -68,7 +67,7 @@ func DirectMessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 			"Failed to send you a DM. "+
 				"Did you disable DM in your privacy settings?",
 		)
-		if err!= nil {
+		if err != nil {
 			fmt.Println("error sending message:", err)
 		}
 	}

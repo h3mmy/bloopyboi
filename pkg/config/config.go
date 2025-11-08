@@ -20,10 +20,10 @@ var (
 type AppConfig struct {
 	DiscordConfig *DiscordConfig `mapstructure:"discord"`
 	Features      []FeatureConfig
-	LogLevel      string         `mapstructure:"logLevel"`
+	LogLevel      string          `mapstructure:"logLevel"`
 	DBConfig      *PostgresConfig `mapstructure:"db"`
 	FeatureMap    map[string]FeatureConfig
-	Arrs *[]ArrClientConfig `mapstructure:"arrs"`
+	Arrs          *[]ArrClientConfig `mapstructure:"arrs"`
 }
 
 // Feature Specific Config

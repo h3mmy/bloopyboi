@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/h3mmy/bloopyboi/internal/models"
-	pkgmodels "github.com/h3mmy/bloopyboi/internal/models"
 	log "github.com/h3mmy/bloopyboi/pkg/logs"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -35,11 +34,11 @@ var blissfestLogoURI = "https://blissfest.org/cdn/shop/files/Bliss_Logo_2024sm.j
 
 type BlissfestService struct {
 	bloopymeta models.BloopyMeta
-	config     pkgmodels.BlissfestConfig
+	config     models.BlissfestConfig
 	logger     *zap.Logger
 }
 
-func NewBlissfestService(config pkgmodels.BlissfestConfig) *BlissfestService {
+func NewBlissfestService(config models.BlissfestConfig) *BlissfestService {
 	lgr := log.NewZapLogger().With(
 		zapcore.Field{Type: zapcore.StringType, Key: ServiceLoggerFieldKey, String: "blissfest_service"},
 	)
@@ -99,33 +98,37 @@ func (bs *BlissfestService) GetLineupImageURI() string {
 	return lineupImageURI
 }
 
-func (bs *BlissfestService) GetShowclixTicketData() (*[]pkgmodels.PriceLevel, error) {
-	resp, err := http.Get(fmt.Sprintf("%s%s/%d/all_levels", pkgmodels.ShowclixAPIURL, pkgmodels.ShowclixAPIEventPrefix, blissfestShowclixEventID))
+func (bs *BlissfestService) GetShowclixTicketData() (*[]models.PriceLevel, error) {
+	resp, err := http.Get(fmt.Sprintf("%s%s/%d/all_levels", models.ShowclixAPIURL, models.ShowclixAPIEventPrefix, blissfestShowclixEventID))
 	if err != nil {
 		bs.logger.Error("error getting showclix ticket data", zap.Error(err))
 		return nil, err
 	}
 
-	defer resp.Body.Close()
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			bs.logger.Error("failed to close http response body", zap.Error(err))
+		}
+	}()
 	result, err := io.ReadAll(resp.Body)
 	if err != nil {
 		bs.logger.Error("error reading showclix ticket data", zap.Error(err))
 		return nil, err
 	}
-	var priceLevels map[int]pkgmodels.PriceLevel
+	var priceLevels map[int]models.PriceLevel
 	err = json.Unmarshal(result, &priceLevels)
 	if err != nil {
 		bs.logger.Error("error unmarshalling showclix ticket data", zap.Error(err), zap.ByteString("response", result))
 		return nil, err
 	}
-	priceLevelSlice := []pkgmodels.PriceLevel{}
+	priceLevelSlice := []models.PriceLevel{}
 	for _, priceLevel := range priceLevels {
 		priceLevelSlice = append(priceLevelSlice, priceLevel)
 	}
 	return &priceLevelSlice, nil
 }
 
-func (bs *BlissfestService) GetAdultWeekendPriceLevel() (*pkgmodels.PriceLevel, error) {
+func (bs *BlissfestService) GetAdultWeekendPriceLevel() (*models.PriceLevel, error) {
 	priceLevelName := "Adult Weekend (18+)"
 	priceLevels, err := bs.GetShowclixTicketData()
 	if err != nil {
