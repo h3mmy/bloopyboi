@@ -70,7 +70,11 @@ func (inspiroService *InspiroClient) GetInspiro() string {
 	if err != nil {
 		return err.Error()
 	}
-	defer image_link.Body.Close()
+	defer func() {
+		if err := image_link.Body.Close(); err != nil {
+			inspiroService.logger.Error("failed to close http response body", zap.Error(err))
+		}
+	}()
 
 	result, err := io.ReadAll(image_link.Body)
 	if err != nil {

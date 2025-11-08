@@ -8,8 +8,8 @@ import (
 
 	"github.com/adrg/strutil/metrics"
 	"github.com/bwmarrin/discordgo"
-	"github.com/h3mmy/bloopyboi/internal/models"
 	"github.com/h3mmy/bloopyboi/internal/discord"
+	"github.com/h3mmy/bloopyboi/internal/models"
 	log "github.com/h3mmy/bloopyboi/pkg/logs"
 	"github.com/kljensen/snowball"
 	"go.uber.org/zap"
@@ -40,10 +40,10 @@ func (mr *MessageReactor) Handle(s *discordgo.Session, m *discordgo.MessageCreat
 	if mr.ShouldAddReaction(s, m.Message) {
 		logger.Debug("Will add reaction")
 		if rand.Float64() < 0.1 {
-		  err := mr.ReactToMessage(s, m.Message)
-		  if err != nil {
-			  logger.Error("failed reacting to message", zap.Error(err))
-		  }
+			err := mr.ReactToMessage(s, m.Message)
+			if err != nil {
+				logger.Error("failed reacting to message", zap.Error(err))
+			}
 		}
 	} else {
 		logger.Debug("Will NOT add reaction")

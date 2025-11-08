@@ -2,8 +2,8 @@ package handlers
 
 import (
 	"github.com/bwmarrin/discordgo"
-	"github.com/h3mmy/bloopyboi/internal/models"
 	"github.com/h3mmy/bloopyboi/ent"
+	"github.com/h3mmy/bloopyboi/internal/models"
 )
 
 // typeInChannel sets the typing indicator for a channel. The indicator is cleared
@@ -40,9 +40,10 @@ func GetBookRequestsAsEmbeds(requests []*ent.MediaRequest) []*discordgo.MessageE
 			continue
 		}
 		var colorCode models.ColorCode
-		if request.Status == "Pending" {
+		switch request.Status {
+		case "Pending":
 			colorCode = models.ColorCodeInfo
-		} else if request.Status == "Approved" {
+		case "Approved":
 			colorCode = models.ColorCodeSuccess
 		}
 		embed := &discordgo.MessageEmbed{

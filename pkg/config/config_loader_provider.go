@@ -77,7 +77,7 @@ func RefreshAppConfig() {
 	cfg, err := buildConfig()
 	if err != nil {
 		logger.Error("error updating config", zap.Error(err))
-	} else{
-	GetAppConfigLoader().UpdateConfig(cfg)
-}
+	} else {
+		GetAppConfigLoader().UpdateConfig(cfg)
+	}
 }
