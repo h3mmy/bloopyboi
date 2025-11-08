@@ -63,7 +63,7 @@ func (r *RoleSelectionHandler) ReconcileConfig(s *discordgo.Session) error {
 	if roleChannel.MessageCount == 0 && len(r.prompts) < len(r.config.Prompts) {
 		r.logger.Debug("locking for message creation")
 		r.reconciling.Lock()
-		defer func(){
+		defer func() {
 			r.logger.Debug("unlocking msg creation")
 			r.reconciling.Unlock()
 		}()

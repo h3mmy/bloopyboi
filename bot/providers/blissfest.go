@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/h3mmy/bloopyboi/pkg/config"
 	"github.com/h3mmy/bloopyboi/bot/services"
 	pkgmodels "github.com/h3mmy/bloopyboi/internal/models"
+	"github.com/h3mmy/bloopyboi/pkg/config"
 	"go.uber.org/zap"
 )
 

@@ -70,7 +70,7 @@ func BuildArrClient(cfg *config.ArrClientConfig) (starr.APIer, error) {
 	case starr.Lidarr.Lower():
 		return lidarr.New(starrConfig), nil
 	}
-	return nil, fmt.Errorf("Could not build client %s of type: %s", cfg.Name, cfg.Type)
+	return nil, fmt.Errorf("could not build client %s of type: %s", cfg.Name, cfg.Type)
 }
 
 func (s *ArrClientRegistry) AddClient(cfg *config.ArrClientConfig) error {

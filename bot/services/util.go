@@ -7,7 +7,7 @@ import (
 
 const (
 	ServiceLoggerFieldKey = "service_name"
-	DefaultUUID = ""
+	DefaultUUID           = ""
 )
 
 // GetTLSTransport Get a TLS transport instance, that skips verification if configured via environment variables.

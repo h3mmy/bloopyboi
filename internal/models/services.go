@@ -19,8 +19,8 @@ type BloopyMeta struct {
 
 func NewBloopyMeta(owners ...string) BloopyMeta {
 	return BloopyMeta{
-		Id: uuid.New(),
+		Id:        uuid.New(),
 		CreatedAt: time.Now(),
-		OwnerRef: owners,
+		OwnerRef:  owners,
 	}
 }

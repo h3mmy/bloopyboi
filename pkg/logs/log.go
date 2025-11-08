@@ -6,9 +6,9 @@ import (
 	"time"
 
 	"github.com/alexliesenfeld/health"
+	"github.com/uptrace/opentelemetry-go-extra/otelzap"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
-	"github.com/uptrace/opentelemetry-go-extra/otelzap"
 )
 
 const DefaultHealthCheckLoggerName = "health_check"

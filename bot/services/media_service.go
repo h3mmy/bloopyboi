@@ -4,11 +4,11 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/h3mmy/bloopyboi/pkg/database"
-	"github.com/h3mmy/bloopyboi/internal/models"
 	"github.com/h3mmy/bloopyboi/ent"
 	"github.com/h3mmy/bloopyboi/ent/discorduser"
 	"github.com/h3mmy/bloopyboi/ent/mediarequest"
+	"github.com/h3mmy/bloopyboi/internal/models"
+	"github.com/h3mmy/bloopyboi/pkg/database"
 	log "github.com/h3mmy/bloopyboi/pkg/logs"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -52,7 +52,9 @@ func (s *MediaService) WithArrService(svc *ArrService) {
 
 func (s *MediaService) RefreshDBConnection() error {
 	if s.dbEnabled {
-		s.db.Close()
+		if err := s.db.Close(); err != nil {
+			s.logger.Error("failed to close database connection", zap.Error(err))
+		}
 	}
 	dbEnabled := true
 	dbClient, err := database.Open()

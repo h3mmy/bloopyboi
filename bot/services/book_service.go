@@ -8,14 +8,13 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"github.com/bwmarrin/discordgo"
 	"github.com/google/uuid"
-	"github.com/h3mmy/bloopyboi/pkg/database"
-	"github.com/h3mmy/bloopyboi/internal/models"
 	"github.com/h3mmy/bloopyboi/ent"
 	"github.com/h3mmy/bloopyboi/ent/book"
 	"github.com/h3mmy/bloopyboi/ent/bookauthor"
 	"github.com/h3mmy/bloopyboi/ent/discorduser"
 	"github.com/h3mmy/bloopyboi/ent/mediarequest"
-	pmodels "github.com/h3mmy/bloopyboi/internal/models"
+	"github.com/h3mmy/bloopyboi/internal/models"
+	"github.com/h3mmy/bloopyboi/pkg/database"
 	log "github.com/h3mmy/bloopyboi/pkg/logs"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -118,7 +117,7 @@ func (b *BookService) SearchBook(ctx context.Context, req *models.BookSearchRequ
 }
 
 func (b *BookService) buildSearchString(req *models.BookSearchRequest) string {
-	var q string = ""
+	var q = ""
 	if req.Title != "" {
 		q += "intitle:" + req.Title
 	}
@@ -210,7 +209,7 @@ func (b *BookService) SubmitBookRequest(ctx context.Context, discUser *discordgo
 					SetID(uuid.New()).
 					SetBookID(bookid).
 					AddDiscordUserIDs(discordUserId).
-					SetStatus(pmodels.MediaRequestStatusRequested).
+					SetStatus(models.MediaRequestStatusRequested).
 					Exec(ctx)
 			})
 			if err != nil {
