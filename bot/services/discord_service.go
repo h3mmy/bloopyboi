@@ -7,8 +7,6 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"github.com/bwmarrin/discordgo"
-	"github.com/h3mmy/bloopyboi/pkg/database"
-	"github.com/h3mmy/bloopyboi/internal/models"
 	"github.com/h3mmy/bloopyboi/ent"
 	"github.com/h3mmy/bloopyboi/ent/discordchannel"
 	"github.com/h3mmy/bloopyboi/ent/discordguild"
@@ -16,7 +14,9 @@ import (
 	"github.com/h3mmy/bloopyboi/ent/discordmessagereaction"
 	"github.com/h3mmy/bloopyboi/ent/discorduser"
 	"github.com/h3mmy/bloopyboi/internal/discord"
+	"github.com/h3mmy/bloopyboi/internal/models"
 	"github.com/h3mmy/bloopyboi/pkg/config"
+	"github.com/h3mmy/bloopyboi/pkg/database"
 	log "github.com/h3mmy/bloopyboi/pkg/logs"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -83,7 +83,9 @@ func (d *DiscordService) WithConfig(cfg *config.DiscordConfig) *DiscordService {
 
 func (d *DiscordService) RefreshDBConnection() error {
 	if d.dbEnabled {
-		d.db.Close()
+		if err := d.db.Close(); err != nil {
+			d.logger.Error("failed to close database connection", zap.Error(err))
+		}
 	}
 	dbEnabled := true
 	dbClient, err := database.Open()

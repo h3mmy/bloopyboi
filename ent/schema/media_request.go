@@ -32,8 +32,8 @@ func (MediaRequest) Edges() []ent.Edge {
 		edge.From("discord_users", DiscordUser.Type).
 			Ref("media_requests"),
 		edge.From("book", Book.Type).
-		Ref("media_request").
-		Unique(),
+			Ref("media_request").
+			Unique(),
 	}
 }
 

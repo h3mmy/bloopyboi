@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/h3mmy/bloopyboi/pkg/config"
 	"github.com/h3mmy/bloopyboi/bot/services"
 	pkgmodels "github.com/h3mmy/bloopyboi/internal/models"
+	"github.com/h3mmy/bloopyboi/pkg/config"
 	"go.uber.org/zap"
 )
 
@@ -16,7 +16,7 @@ const BlissfestHomepage = "https://www.blissfest.org/"
 // Blissfest is in MI and bound to the US Eastern Timezone
 // Since it always happens in the summer we can assume EDT
 var blissfestTZ = time.FixedZone("UTC-4", -4*60*60)
-var defaultBlissfestStartDate = time.Date(2024, 7, 12, 0, 0, 0, 0, blissfestTZ)
+var defaultBlissfestStartDate = time.Date(2025, 7, 10, 0, 0, 0, 0, blissfestTZ)
 
 func GetBlissfestService() *services.BlissfestService {
 	// Blissfest is in MI and bound to the US Eastern Timezone

@@ -37,20 +37,21 @@ func GetGuildAppCommands(cfgs []config.DiscordGuildConfig) []models.DiscordAppCo
 func GetCommandWithConfig(guildId string, cfg config.GuildCommandConfig) models.DiscordAppCommand {
 	flogger := logger.With(zap.String("guild_app_command", cfg.Name), zap.String("guild_id", guildId))
 	// get from repository TODO
-	if cfg.Name == "blissfest" {
+	switch cfg.Name {
+	case "blissfest":
 		flogger.Debug("Checking if feature enabled")
 		if IsFeatureEnabled(models.BlissfestFeatureKey) {
 			return handlers.NewBlissfestCommand(GetBlissfestService()).WithGuild(guildId).WithRoles(cfg.Roles...)
 		}
 		flogger.Warn("blissfest guild command exists but feature is disabled")
-	} else if cfg.Name == "book" {
+	case "book":
 		bookSvc, err := GetBookService()
 		if err != nil {
 			flogger.Error("failed to create book svc", zap.Error(err))
 		} else {
 			return handlers.NewBookCommand(bookSvc).WithRoles(cfg.Roles...).WithGuild(guildId)
 		}
-	} else if cfg.Name == "requests" {
+	case "requests":
 		bookSvc, err := GetBookService()
 		if err != nil {
 			flogger.Error("failed to create book svc", zap.Error(err))
