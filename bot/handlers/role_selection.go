@@ -63,6 +63,7 @@ func (r *RoleSelectionHandler) ReconcileConfig(s *discordgo.Session) error {
 		r.logger.Error("error getting messages for channel", zap.String("channelID", roleChannel.ID), zap.Error(err))
 		return err
 	}
+	// TODO: add logic for prompt removal when removed from configuration
 	if len(messages) > len(r.config.Prompts)*2 {
 		r.logger.Warn("more messages in channel than configured prompts", zap.Int("messageCount", len(messages)), zap.Int("promptCount", len(r.config.Prompts)))
 	}
