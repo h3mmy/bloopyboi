@@ -12,6 +12,7 @@ import (
 
 type SelectionPrompt = config.RoleSelectionPrompt
 
+// RoleSelectionHandler is responsible for managing role selection through reactions.
 type RoleSelectionHandler struct {
 	meta        models.BloopyMeta
 	config      *config.RoleSelectionConfig
@@ -22,6 +23,7 @@ type RoleSelectionHandler struct {
 	reconciling sync.RWMutex
 }
 
+// NewRoleSelectionHandler creates a new RoleSelectionHandler.
 func NewRoleSelectionHandler(guildID string, config *config.RoleSelectionConfig) *RoleSelectionHandler {
 	bmeta := models.NewBloopyMeta()
 	logger := log.NewZapLogger().Named("role_selection_handler")
@@ -36,6 +38,7 @@ func NewRoleSelectionHandler(guildID string, config *config.RoleSelectionConfig)
 	}
 }
 
+// ReconcileConfig ensures that the role selection channel and messages are in the desired state.
 func (r *RoleSelectionHandler) ReconcileConfig(s *discordgo.Session) error {
 	r.reconciling.RLock()
 	chList, err := s.GuildChannels(r.guildID)
@@ -51,30 +54,45 @@ func (r *RoleSelectionHandler) ReconcileConfig(s *discordgo.Session) error {
 			r.logger.Debug("role channel exists!", zap.String("channel", ch.Name))
 			roleChExists = true
 			roleChannel = ch
+			break
 		}
 	}
 	r.reconciling.RUnlock()
 	if !roleChExists {
-		r.logger.Debug("channel does not yet exist. Wat?!")
-		// create channel
+		r.logger.Error("role selection channel does not exist", zap.String("channel_id", r.config.Channel.ID))
+		// create channel maybe? for now, we just exit.
+		return nil
 	}
-	messagesCreated := 0
-	// TODO: Do this more reliably instead of relying on counts
-	if roleChannel.MessageCount == 0 && len(r.prompts) < len(r.config.Prompts) {
-		r.logger.Debug("locking for message creation")
-		r.reconciling.Lock()
-		defer func() {
-			r.logger.Debug("unlocking msg creation")
-			r.reconciling.Unlock()
-		}()
-		for _, p := range r.config.Prompts {
+
+	r.reconciling.Lock()
+	defer r.reconciling.Unlock()
+
+	messages, err := s.ChannelMessages(roleChannel.ID, 100, "", "", "")
+	if err != nil {
+		r.logger.Error("error getting messages for channel", zap.String("channelID", roleChannel.ID), zap.Error(err))
+		return err
+	}
+
+	for _, p := range r.config.Prompts {
+		messageExists := false
+		for _, msg := range messages {
+			if msg.Content == p.Message {
+				messageExists = true
+				if _, ok := r.prompts[msg.ID]; !ok {
+					r.prompts[msg.ID] = p
+				}
+				break
+			}
+		}
+
+		if !messageExists {
+			r.logger.Info("creating prompt message", zap.String("message", p.Message))
 			msg, err := s.ChannelMessageSend(roleChannel.ID, p.Message)
 			if err != nil {
 				r.logger.Error("error creating channel message", zap.String("channelName", roleChannel.Name), zap.String("channelId", roleChannel.ID), zap.Error(err))
 				continue
 			}
 			r.prompts[msg.ID] = p
-			messagesCreated++
 			for _, op := range p.Options {
 				err := s.MessageReactionAdd(msg.ChannelID, msg.ID, op.EmojiID)
 				if err != nil {
@@ -84,7 +102,6 @@ func (r *RoleSelectionHandler) ReconcileConfig(s *discordgo.Session) error {
 						zap.String("emojiID", op.EmojiID),
 						zap.String("option", op.Description),
 						zap.Error(err))
-					continue
 				}
 			}
 		}
@@ -92,6 +109,7 @@ func (r *RoleSelectionHandler) ReconcileConfig(s *discordgo.Session) error {
 	return nil
 }
 
+// HandleReactionAdd is called when a user adds a reaction to a message.
 func (r *RoleSelectionHandler) HandleReactionAdd(s *discordgo.Session, m *discordgo.MessageReactionAdd) {
 	if !r.initialized {
 		err2 := r.ReconcileConfig(s)
@@ -136,6 +154,7 @@ func (r *RoleSelectionHandler) HandleReactionAdd(s *discordgo.Session, m *discor
 
 }
 
+// HandleReactionRemove is called when a user removes a reaction from a message.
 func (r *RoleSelectionHandler) HandleReactionRemove(s *discordgo.Session, m *discordgo.MessageReactionRemove) {
 	if !r.initialized {
 		err2 := r.ReconcileConfig(s)
@@ -168,13 +187,12 @@ func (r *RoleSelectionHandler) HandleReactionRemove(s *discordgo.Session, m *dis
 		}
 		for _, roleID := range user.Roles {
 			if roleID == focusRoleId {
-				// user has role
+				err = s.GuildMemberRoleRemove(m.GuildID, m.UserID, focusRoleId)
+				if err != nil {
+					r.logger.Error("failed to remove role", zap.String("roleId", focusRoleId), zap.String("user", user.User.Username), zap.Error(err))
+				}
 				return
 			}
-		}
-		err = s.GuildMemberRoleRemove(m.GuildID, m.UserID, focusRoleId)
-		if err != nil {
-			r.logger.Error("failed to remove role", zap.String("roleId", focusRoleId), zap.String("user", user.User.Username), zap.Error(err))
 		}
 	}
 
