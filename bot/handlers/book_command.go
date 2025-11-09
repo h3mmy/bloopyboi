@@ -14,6 +14,8 @@ import (
 	"go.uber.org/zap"
 )
 
+// BookCommand is a command that provides information about books.
+// TODO: This is an experimental command and should be refactored.
 type BookCommand struct {
 	meta        models.BloopyMeta
 	Name        string
@@ -25,6 +27,7 @@ type BookCommand struct {
 	roles []int64
 }
 
+// NewBookCommand creates a new BookCommand.
 func NewBookCommand(bookSvc *services.BookService) *BookCommand {
 	return &BookCommand{
 		meta:        models.NewBloopyMeta(),
@@ -35,24 +38,29 @@ func NewBookCommand(bookSvc *services.BookService) *BookCommand {
 	}
 }
 
+// WithGuild sets the guild ID for the command.
 func (b *BookCommand) WithGuild(guildId string) *BookCommand {
 	b.guildId = guildId
 	return b
 }
 
+// WithRoles sets the allowed roles for the command.
 func (b *BookCommand) WithRoles(roles ...int64) *BookCommand {
 	b.roles = roles
 	return b
 }
 
+// GetAllowedRoles returns the allowed roles for the command.
 func (b *BookCommand) GetAllowedRoles() []int64 {
 	return b.roles
 }
 
+// GetGuildID returns the guild ID for the command.
 func (b *BookCommand) GetGuildID() string {
 	return b.guildId
 }
 
+// GetAppCommand returns the application command for the Book command.
 func (b *BookCommand) GetAppCommand() *discordgo.ApplicationCommand {
 	return &discordgo.ApplicationCommand{
 		Name:        strings.ToLower(b.Name),
@@ -98,6 +106,7 @@ func (b *BookCommand) GetAppCommand() *discordgo.ApplicationCommand {
 	}
 }
 
+// GetAppCommandHandler returns the handler for the Book command.
 func (b *BookCommand) GetAppCommandHandler() func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	return func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		options := i.ApplicationCommandData().Options
@@ -229,6 +238,7 @@ func (b *BookCommand) GetAppCommandHandler() func(s *discordgo.Session, i *disco
 	}
 }
 
+// GetMessageComponentHandlers returns the message component handlers for the Book command.
 func (b *BookCommand) GetMessageComponentHandlers() map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	return map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
 		"request_book": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
