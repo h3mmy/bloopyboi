@@ -27,193 +27,193 @@ type DiscordChannelUpdate struct {
 }
 
 // Where appends a list predicates to the DiscordChannelUpdate builder.
-func (dcu *DiscordChannelUpdate) Where(ps ...predicate.DiscordChannel) *DiscordChannelUpdate {
-	dcu.mutation.Where(ps...)
-	return dcu
+func (_u *DiscordChannelUpdate) Where(ps ...predicate.DiscordChannel) *DiscordChannelUpdate {
+	_u.mutation.Where(ps...)
+	return _u
 }
 
 // SetUpdateTime sets the "update_time" field.
-func (dcu *DiscordChannelUpdate) SetUpdateTime(t time.Time) *DiscordChannelUpdate {
-	dcu.mutation.SetUpdateTime(t)
-	return dcu
+func (_u *DiscordChannelUpdate) SetUpdateTime(v time.Time) *DiscordChannelUpdate {
+	_u.mutation.SetUpdateTime(v)
+	return _u
 }
 
 // SetDiscordid sets the "discordid" field.
-func (dcu *DiscordChannelUpdate) SetDiscordid(s string) *DiscordChannelUpdate {
-	dcu.mutation.SetDiscordid(s)
-	return dcu
+func (_u *DiscordChannelUpdate) SetDiscordid(v string) *DiscordChannelUpdate {
+	_u.mutation.SetDiscordid(v)
+	return _u
 }
 
 // SetNillableDiscordid sets the "discordid" field if the given value is not nil.
-func (dcu *DiscordChannelUpdate) SetNillableDiscordid(s *string) *DiscordChannelUpdate {
-	if s != nil {
-		dcu.SetDiscordid(*s)
+func (_u *DiscordChannelUpdate) SetNillableDiscordid(v *string) *DiscordChannelUpdate {
+	if v != nil {
+		_u.SetDiscordid(*v)
 	}
-	return dcu
+	return _u
 }
 
 // SetName sets the "name" field.
-func (dcu *DiscordChannelUpdate) SetName(s string) *DiscordChannelUpdate {
-	dcu.mutation.SetName(s)
-	return dcu
+func (_u *DiscordChannelUpdate) SetName(v string) *DiscordChannelUpdate {
+	_u.mutation.SetName(v)
+	return _u
 }
 
 // SetNillableName sets the "name" field if the given value is not nil.
-func (dcu *DiscordChannelUpdate) SetNillableName(s *string) *DiscordChannelUpdate {
-	if s != nil {
-		dcu.SetName(*s)
+func (_u *DiscordChannelUpdate) SetNillableName(v *string) *DiscordChannelUpdate {
+	if v != nil {
+		_u.SetName(*v)
 	}
-	return dcu
+	return _u
 }
 
 // SetType sets the "type" field.
-func (dcu *DiscordChannelUpdate) SetType(dt discord.ChannelType) *DiscordChannelUpdate {
-	dcu.mutation.ResetType()
-	dcu.mutation.SetType(dt)
-	return dcu
+func (_u *DiscordChannelUpdate) SetType(v discord.ChannelType) *DiscordChannelUpdate {
+	_u.mutation.ResetType()
+	_u.mutation.SetType(v)
+	return _u
 }
 
 // SetNillableType sets the "type" field if the given value is not nil.
-func (dcu *DiscordChannelUpdate) SetNillableType(dt *discord.ChannelType) *DiscordChannelUpdate {
-	if dt != nil {
-		dcu.SetType(*dt)
+func (_u *DiscordChannelUpdate) SetNillableType(v *discord.ChannelType) *DiscordChannelUpdate {
+	if v != nil {
+		_u.SetType(*v)
 	}
-	return dcu
+	return _u
 }
 
-// AddType adds dt to the "type" field.
-func (dcu *DiscordChannelUpdate) AddType(dt discord.ChannelType) *DiscordChannelUpdate {
-	dcu.mutation.AddType(dt)
-	return dcu
+// AddType adds value to the "type" field.
+func (_u *DiscordChannelUpdate) AddType(v discord.ChannelType) *DiscordChannelUpdate {
+	_u.mutation.AddType(v)
+	return _u
 }
 
 // SetNsfw sets the "nsfw" field.
-func (dcu *DiscordChannelUpdate) SetNsfw(b bool) *DiscordChannelUpdate {
-	dcu.mutation.SetNsfw(b)
-	return dcu
+func (_u *DiscordChannelUpdate) SetNsfw(v bool) *DiscordChannelUpdate {
+	_u.mutation.SetNsfw(v)
+	return _u
 }
 
 // SetNillableNsfw sets the "nsfw" field if the given value is not nil.
-func (dcu *DiscordChannelUpdate) SetNillableNsfw(b *bool) *DiscordChannelUpdate {
-	if b != nil {
-		dcu.SetNsfw(*b)
+func (_u *DiscordChannelUpdate) SetNillableNsfw(v *bool) *DiscordChannelUpdate {
+	if v != nil {
+		_u.SetNsfw(*v)
 	}
-	return dcu
+	return _u
 }
 
 // SetFlags sets the "flags" field.
-func (dcu *DiscordChannelUpdate) SetFlags(i int) *DiscordChannelUpdate {
-	dcu.mutation.ResetFlags()
-	dcu.mutation.SetFlags(i)
-	return dcu
+func (_u *DiscordChannelUpdate) SetFlags(v int) *DiscordChannelUpdate {
+	_u.mutation.ResetFlags()
+	_u.mutation.SetFlags(v)
+	return _u
 }
 
 // SetNillableFlags sets the "flags" field if the given value is not nil.
-func (dcu *DiscordChannelUpdate) SetNillableFlags(i *int) *DiscordChannelUpdate {
-	if i != nil {
-		dcu.SetFlags(*i)
+func (_u *DiscordChannelUpdate) SetNillableFlags(v *int) *DiscordChannelUpdate {
+	if v != nil {
+		_u.SetFlags(*v)
 	}
-	return dcu
+	return _u
 }
 
-// AddFlags adds i to the "flags" field.
-func (dcu *DiscordChannelUpdate) AddFlags(i int) *DiscordChannelUpdate {
-	dcu.mutation.AddFlags(i)
-	return dcu
+// AddFlags adds value to the "flags" field.
+func (_u *DiscordChannelUpdate) AddFlags(v int) *DiscordChannelUpdate {
+	_u.mutation.AddFlags(v)
+	return _u
 }
 
 // ClearFlags clears the value of the "flags" field.
-func (dcu *DiscordChannelUpdate) ClearFlags() *DiscordChannelUpdate {
-	dcu.mutation.ClearFlags()
-	return dcu
+func (_u *DiscordChannelUpdate) ClearFlags() *DiscordChannelUpdate {
+	_u.mutation.ClearFlags()
+	return _u
 }
 
 // AddDiscordGuildIDs adds the "discord_guild" edge to the DiscordGuild entity by IDs.
-func (dcu *DiscordChannelUpdate) AddDiscordGuildIDs(ids ...uuid.UUID) *DiscordChannelUpdate {
-	dcu.mutation.AddDiscordGuildIDs(ids...)
-	return dcu
+func (_u *DiscordChannelUpdate) AddDiscordGuildIDs(ids ...uuid.UUID) *DiscordChannelUpdate {
+	_u.mutation.AddDiscordGuildIDs(ids...)
+	return _u
 }
 
 // AddDiscordGuild adds the "discord_guild" edges to the DiscordGuild entity.
-func (dcu *DiscordChannelUpdate) AddDiscordGuild(d ...*DiscordGuild) *DiscordChannelUpdate {
-	ids := make([]uuid.UUID, len(d))
-	for i := range d {
-		ids[i] = d[i].ID
+func (_u *DiscordChannelUpdate) AddDiscordGuild(v ...*DiscordGuild) *DiscordChannelUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return dcu.AddDiscordGuildIDs(ids...)
+	return _u.AddDiscordGuildIDs(ids...)
 }
 
 // AddMessageIDs adds the "messages" edge to the DiscordMessage entity by IDs.
-func (dcu *DiscordChannelUpdate) AddMessageIDs(ids ...uuid.UUID) *DiscordChannelUpdate {
-	dcu.mutation.AddMessageIDs(ids...)
-	return dcu
+func (_u *DiscordChannelUpdate) AddMessageIDs(ids ...uuid.UUID) *DiscordChannelUpdate {
+	_u.mutation.AddMessageIDs(ids...)
+	return _u
 }
 
 // AddMessages adds the "messages" edges to the DiscordMessage entity.
-func (dcu *DiscordChannelUpdate) AddMessages(d ...*DiscordMessage) *DiscordChannelUpdate {
-	ids := make([]uuid.UUID, len(d))
-	for i := range d {
-		ids[i] = d[i].ID
+func (_u *DiscordChannelUpdate) AddMessages(v ...*DiscordMessage) *DiscordChannelUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return dcu.AddMessageIDs(ids...)
+	return _u.AddMessageIDs(ids...)
 }
 
 // Mutation returns the DiscordChannelMutation object of the builder.
-func (dcu *DiscordChannelUpdate) Mutation() *DiscordChannelMutation {
-	return dcu.mutation
+func (_u *DiscordChannelUpdate) Mutation() *DiscordChannelMutation {
+	return _u.mutation
 }
 
 // ClearDiscordGuild clears all "discord_guild" edges to the DiscordGuild entity.
-func (dcu *DiscordChannelUpdate) ClearDiscordGuild() *DiscordChannelUpdate {
-	dcu.mutation.ClearDiscordGuild()
-	return dcu
+func (_u *DiscordChannelUpdate) ClearDiscordGuild() *DiscordChannelUpdate {
+	_u.mutation.ClearDiscordGuild()
+	return _u
 }
 
 // RemoveDiscordGuildIDs removes the "discord_guild" edge to DiscordGuild entities by IDs.
-func (dcu *DiscordChannelUpdate) RemoveDiscordGuildIDs(ids ...uuid.UUID) *DiscordChannelUpdate {
-	dcu.mutation.RemoveDiscordGuildIDs(ids...)
-	return dcu
+func (_u *DiscordChannelUpdate) RemoveDiscordGuildIDs(ids ...uuid.UUID) *DiscordChannelUpdate {
+	_u.mutation.RemoveDiscordGuildIDs(ids...)
+	return _u
 }
 
 // RemoveDiscordGuild removes "discord_guild" edges to DiscordGuild entities.
-func (dcu *DiscordChannelUpdate) RemoveDiscordGuild(d ...*DiscordGuild) *DiscordChannelUpdate {
-	ids := make([]uuid.UUID, len(d))
-	for i := range d {
-		ids[i] = d[i].ID
+func (_u *DiscordChannelUpdate) RemoveDiscordGuild(v ...*DiscordGuild) *DiscordChannelUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return dcu.RemoveDiscordGuildIDs(ids...)
+	return _u.RemoveDiscordGuildIDs(ids...)
 }
 
 // ClearMessages clears all "messages" edges to the DiscordMessage entity.
-func (dcu *DiscordChannelUpdate) ClearMessages() *DiscordChannelUpdate {
-	dcu.mutation.ClearMessages()
-	return dcu
+func (_u *DiscordChannelUpdate) ClearMessages() *DiscordChannelUpdate {
+	_u.mutation.ClearMessages()
+	return _u
 }
 
 // RemoveMessageIDs removes the "messages" edge to DiscordMessage entities by IDs.
-func (dcu *DiscordChannelUpdate) RemoveMessageIDs(ids ...uuid.UUID) *DiscordChannelUpdate {
-	dcu.mutation.RemoveMessageIDs(ids...)
-	return dcu
+func (_u *DiscordChannelUpdate) RemoveMessageIDs(ids ...uuid.UUID) *DiscordChannelUpdate {
+	_u.mutation.RemoveMessageIDs(ids...)
+	return _u
 }
 
 // RemoveMessages removes "messages" edges to DiscordMessage entities.
-func (dcu *DiscordChannelUpdate) RemoveMessages(d ...*DiscordMessage) *DiscordChannelUpdate {
-	ids := make([]uuid.UUID, len(d))
-	for i := range d {
-		ids[i] = d[i].ID
+func (_u *DiscordChannelUpdate) RemoveMessages(v ...*DiscordMessage) *DiscordChannelUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return dcu.RemoveMessageIDs(ids...)
+	return _u.RemoveMessageIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
-func (dcu *DiscordChannelUpdate) Save(ctx context.Context) (int, error) {
-	dcu.defaults()
-	return withHooks(ctx, dcu.sqlSave, dcu.mutation, dcu.hooks)
+func (_u *DiscordChannelUpdate) Save(ctx context.Context) (int, error) {
+	_u.defaults()
+	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (dcu *DiscordChannelUpdate) SaveX(ctx context.Context) int {
-	affected, err := dcu.Save(ctx)
+func (_u *DiscordChannelUpdate) SaveX(ctx context.Context) int {
+	affected, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -221,63 +221,63 @@ func (dcu *DiscordChannelUpdate) SaveX(ctx context.Context) int {
 }
 
 // Exec executes the query.
-func (dcu *DiscordChannelUpdate) Exec(ctx context.Context) error {
-	_, err := dcu.Save(ctx)
+func (_u *DiscordChannelUpdate) Exec(ctx context.Context) error {
+	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (dcu *DiscordChannelUpdate) ExecX(ctx context.Context) {
-	if err := dcu.Exec(ctx); err != nil {
+func (_u *DiscordChannelUpdate) ExecX(ctx context.Context) {
+	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (dcu *DiscordChannelUpdate) defaults() {
-	if _, ok := dcu.mutation.UpdateTime(); !ok {
+func (_u *DiscordChannelUpdate) defaults() {
+	if _, ok := _u.mutation.UpdateTime(); !ok {
 		v := discordchannel.UpdateDefaultUpdateTime()
-		dcu.mutation.SetUpdateTime(v)
+		_u.mutation.SetUpdateTime(v)
 	}
 }
 
-func (dcu *DiscordChannelUpdate) sqlSave(ctx context.Context) (n int, err error) {
+func (_u *DiscordChannelUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	_spec := sqlgraph.NewUpdateSpec(discordchannel.Table, discordchannel.Columns, sqlgraph.NewFieldSpec(discordchannel.FieldID, field.TypeUUID))
-	if ps := dcu.mutation.predicates; len(ps) > 0 {
+	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if value, ok := dcu.mutation.UpdateTime(); ok {
+	if value, ok := _u.mutation.UpdateTime(); ok {
 		_spec.SetField(discordchannel.FieldUpdateTime, field.TypeTime, value)
 	}
-	if value, ok := dcu.mutation.Discordid(); ok {
+	if value, ok := _u.mutation.Discordid(); ok {
 		_spec.SetField(discordchannel.FieldDiscordid, field.TypeString, value)
 	}
-	if value, ok := dcu.mutation.Name(); ok {
+	if value, ok := _u.mutation.Name(); ok {
 		_spec.SetField(discordchannel.FieldName, field.TypeString, value)
 	}
-	if value, ok := dcu.mutation.GetType(); ok {
+	if value, ok := _u.mutation.GetType(); ok {
 		_spec.SetField(discordchannel.FieldType, field.TypeInt, value)
 	}
-	if value, ok := dcu.mutation.AddedType(); ok {
+	if value, ok := _u.mutation.AddedType(); ok {
 		_spec.AddField(discordchannel.FieldType, field.TypeInt, value)
 	}
-	if value, ok := dcu.mutation.Nsfw(); ok {
+	if value, ok := _u.mutation.Nsfw(); ok {
 		_spec.SetField(discordchannel.FieldNsfw, field.TypeBool, value)
 	}
-	if value, ok := dcu.mutation.Flags(); ok {
+	if value, ok := _u.mutation.Flags(); ok {
 		_spec.SetField(discordchannel.FieldFlags, field.TypeInt, value)
 	}
-	if value, ok := dcu.mutation.AddedFlags(); ok {
+	if value, ok := _u.mutation.AddedFlags(); ok {
 		_spec.AddField(discordchannel.FieldFlags, field.TypeInt, value)
 	}
-	if dcu.mutation.FlagsCleared() {
+	if _u.mutation.FlagsCleared() {
 		_spec.ClearField(discordchannel.FieldFlags, field.TypeInt)
 	}
-	if dcu.mutation.DiscordGuildCleared() {
+	if _u.mutation.DiscordGuildCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: true,
@@ -290,7 +290,7 @@ func (dcu *DiscordChannelUpdate) sqlSave(ctx context.Context) (n int, err error)
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := dcu.mutation.RemovedDiscordGuildIDs(); len(nodes) > 0 && !dcu.mutation.DiscordGuildCleared() {
+	if nodes := _u.mutation.RemovedDiscordGuildIDs(); len(nodes) > 0 && !_u.mutation.DiscordGuildCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: true,
@@ -306,7 +306,7 @@ func (dcu *DiscordChannelUpdate) sqlSave(ctx context.Context) (n int, err error)
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := dcu.mutation.DiscordGuildIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.DiscordGuildIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: true,
@@ -322,7 +322,7 @@ func (dcu *DiscordChannelUpdate) sqlSave(ctx context.Context) (n int, err error)
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if dcu.mutation.MessagesCleared() {
+	if _u.mutation.MessagesCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -335,7 +335,7 @@ func (dcu *DiscordChannelUpdate) sqlSave(ctx context.Context) (n int, err error)
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := dcu.mutation.RemovedMessagesIDs(); len(nodes) > 0 && !dcu.mutation.MessagesCleared() {
+	if nodes := _u.mutation.RemovedMessagesIDs(); len(nodes) > 0 && !_u.mutation.MessagesCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -351,7 +351,7 @@ func (dcu *DiscordChannelUpdate) sqlSave(ctx context.Context) (n int, err error)
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := dcu.mutation.MessagesIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.MessagesIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -367,7 +367,7 @@ func (dcu *DiscordChannelUpdate) sqlSave(ctx context.Context) (n int, err error)
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if n, err = sqlgraph.UpdateNodes(ctx, dcu.driver, _spec); err != nil {
+	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{discordchannel.Label}
 		} else if sqlgraph.IsConstraintError(err) {
@@ -375,8 +375,8 @@ func (dcu *DiscordChannelUpdate) sqlSave(ctx context.Context) (n int, err error)
 		}
 		return 0, err
 	}
-	dcu.mutation.done = true
-	return n, nil
+	_u.mutation.done = true
+	return _node, nil
 }
 
 // DiscordChannelUpdateOne is the builder for updating a single DiscordChannel entity.
@@ -388,200 +388,200 @@ type DiscordChannelUpdateOne struct {
 }
 
 // SetUpdateTime sets the "update_time" field.
-func (dcuo *DiscordChannelUpdateOne) SetUpdateTime(t time.Time) *DiscordChannelUpdateOne {
-	dcuo.mutation.SetUpdateTime(t)
-	return dcuo
+func (_u *DiscordChannelUpdateOne) SetUpdateTime(v time.Time) *DiscordChannelUpdateOne {
+	_u.mutation.SetUpdateTime(v)
+	return _u
 }
 
 // SetDiscordid sets the "discordid" field.
-func (dcuo *DiscordChannelUpdateOne) SetDiscordid(s string) *DiscordChannelUpdateOne {
-	dcuo.mutation.SetDiscordid(s)
-	return dcuo
+func (_u *DiscordChannelUpdateOne) SetDiscordid(v string) *DiscordChannelUpdateOne {
+	_u.mutation.SetDiscordid(v)
+	return _u
 }
 
 // SetNillableDiscordid sets the "discordid" field if the given value is not nil.
-func (dcuo *DiscordChannelUpdateOne) SetNillableDiscordid(s *string) *DiscordChannelUpdateOne {
-	if s != nil {
-		dcuo.SetDiscordid(*s)
+func (_u *DiscordChannelUpdateOne) SetNillableDiscordid(v *string) *DiscordChannelUpdateOne {
+	if v != nil {
+		_u.SetDiscordid(*v)
 	}
-	return dcuo
+	return _u
 }
 
 // SetName sets the "name" field.
-func (dcuo *DiscordChannelUpdateOne) SetName(s string) *DiscordChannelUpdateOne {
-	dcuo.mutation.SetName(s)
-	return dcuo
+func (_u *DiscordChannelUpdateOne) SetName(v string) *DiscordChannelUpdateOne {
+	_u.mutation.SetName(v)
+	return _u
 }
 
 // SetNillableName sets the "name" field if the given value is not nil.
-func (dcuo *DiscordChannelUpdateOne) SetNillableName(s *string) *DiscordChannelUpdateOne {
-	if s != nil {
-		dcuo.SetName(*s)
+func (_u *DiscordChannelUpdateOne) SetNillableName(v *string) *DiscordChannelUpdateOne {
+	if v != nil {
+		_u.SetName(*v)
 	}
-	return dcuo
+	return _u
 }
 
 // SetType sets the "type" field.
-func (dcuo *DiscordChannelUpdateOne) SetType(dt discord.ChannelType) *DiscordChannelUpdateOne {
-	dcuo.mutation.ResetType()
-	dcuo.mutation.SetType(dt)
-	return dcuo
+func (_u *DiscordChannelUpdateOne) SetType(v discord.ChannelType) *DiscordChannelUpdateOne {
+	_u.mutation.ResetType()
+	_u.mutation.SetType(v)
+	return _u
 }
 
 // SetNillableType sets the "type" field if the given value is not nil.
-func (dcuo *DiscordChannelUpdateOne) SetNillableType(dt *discord.ChannelType) *DiscordChannelUpdateOne {
-	if dt != nil {
-		dcuo.SetType(*dt)
+func (_u *DiscordChannelUpdateOne) SetNillableType(v *discord.ChannelType) *DiscordChannelUpdateOne {
+	if v != nil {
+		_u.SetType(*v)
 	}
-	return dcuo
+	return _u
 }
 
-// AddType adds dt to the "type" field.
-func (dcuo *DiscordChannelUpdateOne) AddType(dt discord.ChannelType) *DiscordChannelUpdateOne {
-	dcuo.mutation.AddType(dt)
-	return dcuo
+// AddType adds value to the "type" field.
+func (_u *DiscordChannelUpdateOne) AddType(v discord.ChannelType) *DiscordChannelUpdateOne {
+	_u.mutation.AddType(v)
+	return _u
 }
 
 // SetNsfw sets the "nsfw" field.
-func (dcuo *DiscordChannelUpdateOne) SetNsfw(b bool) *DiscordChannelUpdateOne {
-	dcuo.mutation.SetNsfw(b)
-	return dcuo
+func (_u *DiscordChannelUpdateOne) SetNsfw(v bool) *DiscordChannelUpdateOne {
+	_u.mutation.SetNsfw(v)
+	return _u
 }
 
 // SetNillableNsfw sets the "nsfw" field if the given value is not nil.
-func (dcuo *DiscordChannelUpdateOne) SetNillableNsfw(b *bool) *DiscordChannelUpdateOne {
-	if b != nil {
-		dcuo.SetNsfw(*b)
+func (_u *DiscordChannelUpdateOne) SetNillableNsfw(v *bool) *DiscordChannelUpdateOne {
+	if v != nil {
+		_u.SetNsfw(*v)
 	}
-	return dcuo
+	return _u
 }
 
 // SetFlags sets the "flags" field.
-func (dcuo *DiscordChannelUpdateOne) SetFlags(i int) *DiscordChannelUpdateOne {
-	dcuo.mutation.ResetFlags()
-	dcuo.mutation.SetFlags(i)
-	return dcuo
+func (_u *DiscordChannelUpdateOne) SetFlags(v int) *DiscordChannelUpdateOne {
+	_u.mutation.ResetFlags()
+	_u.mutation.SetFlags(v)
+	return _u
 }
 
 // SetNillableFlags sets the "flags" field if the given value is not nil.
-func (dcuo *DiscordChannelUpdateOne) SetNillableFlags(i *int) *DiscordChannelUpdateOne {
-	if i != nil {
-		dcuo.SetFlags(*i)
+func (_u *DiscordChannelUpdateOne) SetNillableFlags(v *int) *DiscordChannelUpdateOne {
+	if v != nil {
+		_u.SetFlags(*v)
 	}
-	return dcuo
+	return _u
 }
 
-// AddFlags adds i to the "flags" field.
-func (dcuo *DiscordChannelUpdateOne) AddFlags(i int) *DiscordChannelUpdateOne {
-	dcuo.mutation.AddFlags(i)
-	return dcuo
+// AddFlags adds value to the "flags" field.
+func (_u *DiscordChannelUpdateOne) AddFlags(v int) *DiscordChannelUpdateOne {
+	_u.mutation.AddFlags(v)
+	return _u
 }
 
 // ClearFlags clears the value of the "flags" field.
-func (dcuo *DiscordChannelUpdateOne) ClearFlags() *DiscordChannelUpdateOne {
-	dcuo.mutation.ClearFlags()
-	return dcuo
+func (_u *DiscordChannelUpdateOne) ClearFlags() *DiscordChannelUpdateOne {
+	_u.mutation.ClearFlags()
+	return _u
 }
 
 // AddDiscordGuildIDs adds the "discord_guild" edge to the DiscordGuild entity by IDs.
-func (dcuo *DiscordChannelUpdateOne) AddDiscordGuildIDs(ids ...uuid.UUID) *DiscordChannelUpdateOne {
-	dcuo.mutation.AddDiscordGuildIDs(ids...)
-	return dcuo
+func (_u *DiscordChannelUpdateOne) AddDiscordGuildIDs(ids ...uuid.UUID) *DiscordChannelUpdateOne {
+	_u.mutation.AddDiscordGuildIDs(ids...)
+	return _u
 }
 
 // AddDiscordGuild adds the "discord_guild" edges to the DiscordGuild entity.
-func (dcuo *DiscordChannelUpdateOne) AddDiscordGuild(d ...*DiscordGuild) *DiscordChannelUpdateOne {
-	ids := make([]uuid.UUID, len(d))
-	for i := range d {
-		ids[i] = d[i].ID
+func (_u *DiscordChannelUpdateOne) AddDiscordGuild(v ...*DiscordGuild) *DiscordChannelUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return dcuo.AddDiscordGuildIDs(ids...)
+	return _u.AddDiscordGuildIDs(ids...)
 }
 
 // AddMessageIDs adds the "messages" edge to the DiscordMessage entity by IDs.
-func (dcuo *DiscordChannelUpdateOne) AddMessageIDs(ids ...uuid.UUID) *DiscordChannelUpdateOne {
-	dcuo.mutation.AddMessageIDs(ids...)
-	return dcuo
+func (_u *DiscordChannelUpdateOne) AddMessageIDs(ids ...uuid.UUID) *DiscordChannelUpdateOne {
+	_u.mutation.AddMessageIDs(ids...)
+	return _u
 }
 
 // AddMessages adds the "messages" edges to the DiscordMessage entity.
-func (dcuo *DiscordChannelUpdateOne) AddMessages(d ...*DiscordMessage) *DiscordChannelUpdateOne {
-	ids := make([]uuid.UUID, len(d))
-	for i := range d {
-		ids[i] = d[i].ID
+func (_u *DiscordChannelUpdateOne) AddMessages(v ...*DiscordMessage) *DiscordChannelUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return dcuo.AddMessageIDs(ids...)
+	return _u.AddMessageIDs(ids...)
 }
 
 // Mutation returns the DiscordChannelMutation object of the builder.
-func (dcuo *DiscordChannelUpdateOne) Mutation() *DiscordChannelMutation {
-	return dcuo.mutation
+func (_u *DiscordChannelUpdateOne) Mutation() *DiscordChannelMutation {
+	return _u.mutation
 }
 
 // ClearDiscordGuild clears all "discord_guild" edges to the DiscordGuild entity.
-func (dcuo *DiscordChannelUpdateOne) ClearDiscordGuild() *DiscordChannelUpdateOne {
-	dcuo.mutation.ClearDiscordGuild()
-	return dcuo
+func (_u *DiscordChannelUpdateOne) ClearDiscordGuild() *DiscordChannelUpdateOne {
+	_u.mutation.ClearDiscordGuild()
+	return _u
 }
 
 // RemoveDiscordGuildIDs removes the "discord_guild" edge to DiscordGuild entities by IDs.
-func (dcuo *DiscordChannelUpdateOne) RemoveDiscordGuildIDs(ids ...uuid.UUID) *DiscordChannelUpdateOne {
-	dcuo.mutation.RemoveDiscordGuildIDs(ids...)
-	return dcuo
+func (_u *DiscordChannelUpdateOne) RemoveDiscordGuildIDs(ids ...uuid.UUID) *DiscordChannelUpdateOne {
+	_u.mutation.RemoveDiscordGuildIDs(ids...)
+	return _u
 }
 
 // RemoveDiscordGuild removes "discord_guild" edges to DiscordGuild entities.
-func (dcuo *DiscordChannelUpdateOne) RemoveDiscordGuild(d ...*DiscordGuild) *DiscordChannelUpdateOne {
-	ids := make([]uuid.UUID, len(d))
-	for i := range d {
-		ids[i] = d[i].ID
+func (_u *DiscordChannelUpdateOne) RemoveDiscordGuild(v ...*DiscordGuild) *DiscordChannelUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return dcuo.RemoveDiscordGuildIDs(ids...)
+	return _u.RemoveDiscordGuildIDs(ids...)
 }
 
 // ClearMessages clears all "messages" edges to the DiscordMessage entity.
-func (dcuo *DiscordChannelUpdateOne) ClearMessages() *DiscordChannelUpdateOne {
-	dcuo.mutation.ClearMessages()
-	return dcuo
+func (_u *DiscordChannelUpdateOne) ClearMessages() *DiscordChannelUpdateOne {
+	_u.mutation.ClearMessages()
+	return _u
 }
 
 // RemoveMessageIDs removes the "messages" edge to DiscordMessage entities by IDs.
-func (dcuo *DiscordChannelUpdateOne) RemoveMessageIDs(ids ...uuid.UUID) *DiscordChannelUpdateOne {
-	dcuo.mutation.RemoveMessageIDs(ids...)
-	return dcuo
+func (_u *DiscordChannelUpdateOne) RemoveMessageIDs(ids ...uuid.UUID) *DiscordChannelUpdateOne {
+	_u.mutation.RemoveMessageIDs(ids...)
+	return _u
 }
 
 // RemoveMessages removes "messages" edges to DiscordMessage entities.
-func (dcuo *DiscordChannelUpdateOne) RemoveMessages(d ...*DiscordMessage) *DiscordChannelUpdateOne {
-	ids := make([]uuid.UUID, len(d))
-	for i := range d {
-		ids[i] = d[i].ID
+func (_u *DiscordChannelUpdateOne) RemoveMessages(v ...*DiscordMessage) *DiscordChannelUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return dcuo.RemoveMessageIDs(ids...)
+	return _u.RemoveMessageIDs(ids...)
 }
 
 // Where appends a list predicates to the DiscordChannelUpdate builder.
-func (dcuo *DiscordChannelUpdateOne) Where(ps ...predicate.DiscordChannel) *DiscordChannelUpdateOne {
-	dcuo.mutation.Where(ps...)
-	return dcuo
+func (_u *DiscordChannelUpdateOne) Where(ps ...predicate.DiscordChannel) *DiscordChannelUpdateOne {
+	_u.mutation.Where(ps...)
+	return _u
 }
 
 // Select allows selecting one or more fields (columns) of the returned entity.
 // The default is selecting all fields defined in the entity schema.
-func (dcuo *DiscordChannelUpdateOne) Select(field string, fields ...string) *DiscordChannelUpdateOne {
-	dcuo.fields = append([]string{field}, fields...)
-	return dcuo
+func (_u *DiscordChannelUpdateOne) Select(field string, fields ...string) *DiscordChannelUpdateOne {
+	_u.fields = append([]string{field}, fields...)
+	return _u
 }
 
 // Save executes the query and returns the updated DiscordChannel entity.
-func (dcuo *DiscordChannelUpdateOne) Save(ctx context.Context) (*DiscordChannel, error) {
-	dcuo.defaults()
-	return withHooks(ctx, dcuo.sqlSave, dcuo.mutation, dcuo.hooks)
+func (_u *DiscordChannelUpdateOne) Save(ctx context.Context) (*DiscordChannel, error) {
+	_u.defaults()
+	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (dcuo *DiscordChannelUpdateOne) SaveX(ctx context.Context) *DiscordChannel {
-	node, err := dcuo.Save(ctx)
+func (_u *DiscordChannelUpdateOne) SaveX(ctx context.Context) *DiscordChannel {
+	node, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -589,34 +589,34 @@ func (dcuo *DiscordChannelUpdateOne) SaveX(ctx context.Context) *DiscordChannel 
 }
 
 // Exec executes the query on the entity.
-func (dcuo *DiscordChannelUpdateOne) Exec(ctx context.Context) error {
-	_, err := dcuo.Save(ctx)
+func (_u *DiscordChannelUpdateOne) Exec(ctx context.Context) error {
+	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (dcuo *DiscordChannelUpdateOne) ExecX(ctx context.Context) {
-	if err := dcuo.Exec(ctx); err != nil {
+func (_u *DiscordChannelUpdateOne) ExecX(ctx context.Context) {
+	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (dcuo *DiscordChannelUpdateOne) defaults() {
-	if _, ok := dcuo.mutation.UpdateTime(); !ok {
+func (_u *DiscordChannelUpdateOne) defaults() {
+	if _, ok := _u.mutation.UpdateTime(); !ok {
 		v := discordchannel.UpdateDefaultUpdateTime()
-		dcuo.mutation.SetUpdateTime(v)
+		_u.mutation.SetUpdateTime(v)
 	}
 }
 
-func (dcuo *DiscordChannelUpdateOne) sqlSave(ctx context.Context) (_node *DiscordChannel, err error) {
+func (_u *DiscordChannelUpdateOne) sqlSave(ctx context.Context) (_node *DiscordChannel, err error) {
 	_spec := sqlgraph.NewUpdateSpec(discordchannel.Table, discordchannel.Columns, sqlgraph.NewFieldSpec(discordchannel.FieldID, field.TypeUUID))
-	id, ok := dcuo.mutation.ID()
+	id, ok := _u.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "DiscordChannel.id" for update`)}
 	}
 	_spec.Node.ID.Value = id
-	if fields := dcuo.fields; len(fields) > 0 {
+	if fields := _u.fields; len(fields) > 0 {
 		_spec.Node.Columns = make([]string, 0, len(fields))
 		_spec.Node.Columns = append(_spec.Node.Columns, discordchannel.FieldID)
 		for _, f := range fields {
@@ -628,41 +628,41 @@ func (dcuo *DiscordChannelUpdateOne) sqlSave(ctx context.Context) (_node *Discor
 			}
 		}
 	}
-	if ps := dcuo.mutation.predicates; len(ps) > 0 {
+	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if value, ok := dcuo.mutation.UpdateTime(); ok {
+	if value, ok := _u.mutation.UpdateTime(); ok {
 		_spec.SetField(discordchannel.FieldUpdateTime, field.TypeTime, value)
 	}
-	if value, ok := dcuo.mutation.Discordid(); ok {
+	if value, ok := _u.mutation.Discordid(); ok {
 		_spec.SetField(discordchannel.FieldDiscordid, field.TypeString, value)
 	}
-	if value, ok := dcuo.mutation.Name(); ok {
+	if value, ok := _u.mutation.Name(); ok {
 		_spec.SetField(discordchannel.FieldName, field.TypeString, value)
 	}
-	if value, ok := dcuo.mutation.GetType(); ok {
+	if value, ok := _u.mutation.GetType(); ok {
 		_spec.SetField(discordchannel.FieldType, field.TypeInt, value)
 	}
-	if value, ok := dcuo.mutation.AddedType(); ok {
+	if value, ok := _u.mutation.AddedType(); ok {
 		_spec.AddField(discordchannel.FieldType, field.TypeInt, value)
 	}
-	if value, ok := dcuo.mutation.Nsfw(); ok {
+	if value, ok := _u.mutation.Nsfw(); ok {
 		_spec.SetField(discordchannel.FieldNsfw, field.TypeBool, value)
 	}
-	if value, ok := dcuo.mutation.Flags(); ok {
+	if value, ok := _u.mutation.Flags(); ok {
 		_spec.SetField(discordchannel.FieldFlags, field.TypeInt, value)
 	}
-	if value, ok := dcuo.mutation.AddedFlags(); ok {
+	if value, ok := _u.mutation.AddedFlags(); ok {
 		_spec.AddField(discordchannel.FieldFlags, field.TypeInt, value)
 	}
-	if dcuo.mutation.FlagsCleared() {
+	if _u.mutation.FlagsCleared() {
 		_spec.ClearField(discordchannel.FieldFlags, field.TypeInt)
 	}
-	if dcuo.mutation.DiscordGuildCleared() {
+	if _u.mutation.DiscordGuildCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: true,
@@ -675,7 +675,7 @@ func (dcuo *DiscordChannelUpdateOne) sqlSave(ctx context.Context) (_node *Discor
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := dcuo.mutation.RemovedDiscordGuildIDs(); len(nodes) > 0 && !dcuo.mutation.DiscordGuildCleared() {
+	if nodes := _u.mutation.RemovedDiscordGuildIDs(); len(nodes) > 0 && !_u.mutation.DiscordGuildCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: true,
@@ -691,7 +691,7 @@ func (dcuo *DiscordChannelUpdateOne) sqlSave(ctx context.Context) (_node *Discor
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := dcuo.mutation.DiscordGuildIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.DiscordGuildIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: true,
@@ -707,7 +707,7 @@ func (dcuo *DiscordChannelUpdateOne) sqlSave(ctx context.Context) (_node *Discor
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if dcuo.mutation.MessagesCleared() {
+	if _u.mutation.MessagesCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -720,7 +720,7 @@ func (dcuo *DiscordChannelUpdateOne) sqlSave(ctx context.Context) (_node *Discor
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := dcuo.mutation.RemovedMessagesIDs(); len(nodes) > 0 && !dcuo.mutation.MessagesCleared() {
+	if nodes := _u.mutation.RemovedMessagesIDs(); len(nodes) > 0 && !_u.mutation.MessagesCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -736,7 +736,7 @@ func (dcuo *DiscordChannelUpdateOne) sqlSave(ctx context.Context) (_node *Discor
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := dcuo.mutation.MessagesIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.MessagesIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -752,10 +752,10 @@ func (dcuo *DiscordChannelUpdateOne) sqlSave(ctx context.Context) (_node *Discor
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	_node = &DiscordChannel{config: dcuo.config}
+	_node = &DiscordChannel{config: _u.config}
 	_spec.Assign = _node.assignValues
 	_spec.ScanValues = _node.scanValues
-	if err = sqlgraph.UpdateNode(ctx, dcuo.driver, _spec); err != nil {
+	if err = sqlgraph.UpdateNode(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{discordchannel.Label}
 		} else if sqlgraph.IsConstraintError(err) {
@@ -763,6 +763,6 @@ func (dcuo *DiscordChannelUpdateOne) sqlSave(ctx context.Context) (_node *Discor
 		}
 		return nil, err
 	}
-	dcuo.mutation.done = true
+	_u.mutation.done = true
 	return _node, nil
 }

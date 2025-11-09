@@ -1,4 +1,3 @@
-// Package services contains the services that the bot uses to interact with external APIs.
 package services
 
 import (
@@ -10,14 +9,12 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
-// ArrService is a service that interacts with the *arr family of APIs.
 type ArrService struct {
 	meta           models.BloopyMeta
 	logger         *zap.Logger
 	clientRegistry *arr.ArrClientRegistry
 }
 
-// NewArrService creates a new ArrService.
 func NewArrService(cfg *config.AppConfig) *ArrService {
 	meta := models.NewBloopyMeta()
 	lgr := log.NewZapLogger().With(

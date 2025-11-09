@@ -19,6 +19,7 @@ import (
 	"github.com/h3mmy/bloopyboi/ent/discordmessage"
 	"github.com/h3mmy/bloopyboi/ent/discordmessagereaction"
 	"github.com/h3mmy/bloopyboi/ent/discorduser"
+	"github.com/h3mmy/bloopyboi/ent/emoji"
 	"github.com/h3mmy/bloopyboi/ent/mediarequest"
 )
 
@@ -76,8 +77,8 @@ var (
 	columnCheck sql.ColumnCheck
 )
 
-// columnChecker checks if the column exists in the given table.
-func checkColumn(table, column string) error {
+// checkColumn checks if the column exists in the given table.
+func checkColumn(t, c string) error {
 	initCheck.Do(func() {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
 			book.Table:                   book.ValidColumn,
@@ -87,10 +88,11 @@ func checkColumn(table, column string) error {
 			discordmessage.Table:         discordmessage.ValidColumn,
 			discordmessagereaction.Table: discordmessagereaction.ValidColumn,
 			discorduser.Table:            discorduser.ValidColumn,
+			emoji.Table:                  emoji.ValidColumn,
 			mediarequest.Table:           mediarequest.ValidColumn,
 		})
 	})
-	return columnCheck(table, column)
+	return columnCheck(t, c)
 }
 
 // Asc applies the given fields in ASC order.

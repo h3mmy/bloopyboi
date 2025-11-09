@@ -18,14 +18,14 @@ var (
 	InspiroBackupURLKey = "backup_image_link"
 )
 
-// InspiroConfig is the configuration for the InspiroClient.
+// Basically a static var for this 'Object'
 type InspiroConfig struct {
 	API_url           string
 	Logger            *zap.Logger
 	Backup_image_link string
 }
 
-// GetInspiroConfig unmarshals the Inspiro configuration from the application configuration.
+// Unmarshal config from file
 func GetInspiroConfig() InspiroConfig {
 	AppConfig := config.GetConfig()
 	inspiroCfg, err := AppConfig.GetFeatureConfig(InspiroFeatureName)
@@ -38,14 +38,13 @@ func GetInspiroConfig() InspiroConfig {
 		Backup_image_link: inspiroCfg.Data[InspiroBackupURLKey]}
 }
 
-// InspiroClient is a client for the Inspiro API.
-// TODO: This should be refactored to use the InspiroService.
+// should add uri validation
 type InspiroClient struct {
 	config InspiroConfig
 	logger *zap.Logger
 }
 
-// NewInspiroClientWithConfig constructs an InspiroClient with the given configuration.
+// 'Constructs' InspiroClient with declared Config
 func NewInspiroClientWithConfig(myConfig InspiroConfig) *InspiroClient {
 	lgr := log.NewZapLogger().With(zapcore.Field{
 		Key:    ServiceLoggerFieldKey,
@@ -58,12 +57,12 @@ func NewInspiroClientWithConfig(myConfig InspiroConfig) *InspiroClient {
 	}
 }
 
-// NewInspiroClient constructs an InspiroClient with the application configuration.
+// Abstracted 'Constructor'
 func NewInspiroClient() *InspiroClient {
 	return NewInspiroClientWithConfig(GetInspiroConfig())
 }
 
-// GetInspiro returns a raw URI as a string without validation.
+// returns raw uri as string without validation
 func (inspiroService *InspiroClient) GetInspiro() string {
 
 	image_link, err := http.Get(inspiroService.config.API_url)

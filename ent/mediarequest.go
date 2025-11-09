@@ -43,8 +43,7 @@ type MediaRequestEdges struct {
 	Book *Book `json:"book,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes       [2]bool
-	namedDiscordUsers map[string][]*DiscordUser
+	loadedTypes [2]bool
 }
 
 // DiscordUsersOrErr returns the DiscordUsers value or an error if the edge
@@ -91,7 +90,7 @@ func (*MediaRequest) scanValues(columns []string) ([]any, error) {
 
 // assignValues assigns the values that were returned from sql.Rows (after scanning)
 // to the MediaRequest fields.
-func (mr *MediaRequest) assignValues(columns []string, values []any) error {
+func (_m *MediaRequest) assignValues(columns []string, values []any) error {
 	if m, n := len(values), len(columns); m < n {
 		return fmt.Errorf("mismatch number of scan values: %d != %d", m, n)
 	}
@@ -101,41 +100,41 @@ func (mr *MediaRequest) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value != nil {
-				mr.ID = *value
+				_m.ID = *value
 			}
 		case mediarequest.FieldCreateTime:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field create_time", values[i])
 			} else if value.Valid {
-				mr.CreateTime = value.Time
+				_m.CreateTime = value.Time
 			}
 		case mediarequest.FieldUpdateTime:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field update_time", values[i])
 			} else if value.Valid {
-				mr.UpdateTime = value.Time
+				_m.UpdateTime = value.Time
 			}
 		case mediarequest.FieldStatus:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field status", values[i])
 			} else if value.Valid {
-				mr.Status = models.MediaRequestStatus(value.String)
+				_m.Status = models.MediaRequestStatus(value.String)
 			}
 		case mediarequest.FieldPriority:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field priority", values[i])
 			} else if value.Valid {
-				mr.Priority = int(value.Int64)
+				_m.Priority = int(value.Int64)
 			}
 		case mediarequest.ForeignKeys[0]:
 			if value, ok := values[i].(*sql.NullScanner); !ok {
 				return fmt.Errorf("unexpected type %T for field book_media_request", values[i])
 			} else if value.Valid {
-				mr.book_media_request = new(uuid.UUID)
-				*mr.book_media_request = *value.S.(*uuid.UUID)
+				_m.book_media_request = new(uuid.UUID)
+				*_m.book_media_request = *value.S.(*uuid.UUID)
 			}
 		default:
-			mr.selectValues.Set(columns[i], values[i])
+			_m.selectValues.Set(columns[i], values[i])
 		}
 	}
 	return nil
@@ -143,80 +142,56 @@ func (mr *MediaRequest) assignValues(columns []string, values []any) error {
 
 // Value returns the ent.Value that was dynamically selected and assigned to the MediaRequest.
 // This includes values selected through modifiers, order, etc.
-func (mr *MediaRequest) Value(name string) (ent.Value, error) {
-	return mr.selectValues.Get(name)
+func (_m *MediaRequest) Value(name string) (ent.Value, error) {
+	return _m.selectValues.Get(name)
 }
 
 // QueryDiscordUsers queries the "discord_users" edge of the MediaRequest entity.
-func (mr *MediaRequest) QueryDiscordUsers() *DiscordUserQuery {
-	return NewMediaRequestClient(mr.config).QueryDiscordUsers(mr)
+func (_m *MediaRequest) QueryDiscordUsers() *DiscordUserQuery {
+	return NewMediaRequestClient(_m.config).QueryDiscordUsers(_m)
 }
 
 // QueryBook queries the "book" edge of the MediaRequest entity.
-func (mr *MediaRequest) QueryBook() *BookQuery {
-	return NewMediaRequestClient(mr.config).QueryBook(mr)
+func (_m *MediaRequest) QueryBook() *BookQuery {
+	return NewMediaRequestClient(_m.config).QueryBook(_m)
 }
 
 // Update returns a builder for updating this MediaRequest.
 // Note that you need to call MediaRequest.Unwrap() before calling this method if this MediaRequest
 // was returned from a transaction, and the transaction was committed or rolled back.
-func (mr *MediaRequest) Update() *MediaRequestUpdateOne {
-	return NewMediaRequestClient(mr.config).UpdateOne(mr)
+func (_m *MediaRequest) Update() *MediaRequestUpdateOne {
+	return NewMediaRequestClient(_m.config).UpdateOne(_m)
 }
 
 // Unwrap unwraps the MediaRequest entity that was returned from a transaction after it was closed,
 // so that all future queries will be executed through the driver which created the transaction.
-func (mr *MediaRequest) Unwrap() *MediaRequest {
-	_tx, ok := mr.config.driver.(*txDriver)
+func (_m *MediaRequest) Unwrap() *MediaRequest {
+	_tx, ok := _m.config.driver.(*txDriver)
 	if !ok {
 		panic("ent: MediaRequest is not a transactional entity")
 	}
-	mr.config.driver = _tx.drv
-	return mr
+	_m.config.driver = _tx.drv
+	return _m
 }
 
 // String implements the fmt.Stringer.
-func (mr *MediaRequest) String() string {
+func (_m *MediaRequest) String() string {
 	var builder strings.Builder
 	builder.WriteString("MediaRequest(")
-	builder.WriteString(fmt.Sprintf("id=%v, ", mr.ID))
+	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
 	builder.WriteString("create_time=")
-	builder.WriteString(mr.CreateTime.Format(time.ANSIC))
+	builder.WriteString(_m.CreateTime.Format(time.ANSIC))
 	builder.WriteString(", ")
 	builder.WriteString("update_time=")
-	builder.WriteString(mr.UpdateTime.Format(time.ANSIC))
+	builder.WriteString(_m.UpdateTime.Format(time.ANSIC))
 	builder.WriteString(", ")
 	builder.WriteString("status=")
-	builder.WriteString(fmt.Sprintf("%v", mr.Status))
+	builder.WriteString(fmt.Sprintf("%v", _m.Status))
 	builder.WriteString(", ")
 	builder.WriteString("priority=")
-	builder.WriteString(fmt.Sprintf("%v", mr.Priority))
+	builder.WriteString(fmt.Sprintf("%v", _m.Priority))
 	builder.WriteByte(')')
 	return builder.String()
-}
-
-// NamedDiscordUsers returns the DiscordUsers named value or an error if the edge was not
-// loaded in eager-loading with this name.
-func (mr *MediaRequest) NamedDiscordUsers(name string) ([]*DiscordUser, error) {
-	if mr.Edges.namedDiscordUsers == nil {
-		return nil, &NotLoadedError{edge: name}
-	}
-	nodes, ok := mr.Edges.namedDiscordUsers[name]
-	if !ok {
-		return nil, &NotLoadedError{edge: name}
-	}
-	return nodes, nil
-}
-
-func (mr *MediaRequest) appendNamedDiscordUsers(name string, edges ...*DiscordUser) {
-	if mr.Edges.namedDiscordUsers == nil {
-		mr.Edges.namedDiscordUsers = make(map[string][]*DiscordUser)
-	}
-	if len(edges) == 0 {
-		mr.Edges.namedDiscordUsers[name] = []*DiscordUser{}
-	} else {
-		mr.Edges.namedDiscordUsers[name] = append(mr.Edges.namedDiscordUsers[name], edges...)
-	}
 }
 
 // MediaRequests is a parsable slice of MediaRequest.

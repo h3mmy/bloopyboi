@@ -153,6 +153,20 @@ var (
 		Columns:    DiscordUsersColumns,
 		PrimaryKey: []*schema.Column{DiscordUsersColumns[0]},
 	}
+	// EmojisColumns holds the columns for the "emojis" table.
+	EmojisColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "emoji_id", Type: field.TypeString, Unique: true},
+		{Name: "name", Type: field.TypeString},
+		{Name: "animated", Type: field.TypeBool, Default: false},
+		{Name: "keywords", Type: field.TypeJSON, Nullable: true},
+	}
+	// EmojisTable holds the schema information for the "emojis" table.
+	EmojisTable = &schema.Table{
+		Name:       "emojis",
+		Columns:    EmojisColumns,
+		PrimaryKey: []*schema.Column{EmojisColumns[0]},
+	}
 	// MediaRequestsColumns holds the columns for the "media_requests" table.
 	MediaRequestsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUUID, Unique: true},
@@ -285,6 +299,7 @@ var (
 		DiscordMessagesTable,
 		DiscordMessageReactionsTable,
 		DiscordUsersTable,
+		EmojisTable,
 		MediaRequestsTable,
 		BookAuthorBooksTable,
 		DiscordGuildMembersTable,

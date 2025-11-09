@@ -9,13 +9,11 @@ import (
 	api "goauthentik.io/api/v3"
 )
 
-// AuthentikClientGenerator is a client generator for Authentik.
 type AuthentikClientGenerator struct {
 	models.ClientGenerator
 }
 
-// generateClient generates an Authentik API client.
-// TODO: This function should not panic and should handle the error more gracefully.
+// Generates Authentik Client
 func (s *AuthentikClientGenerator) generateClient() *api.APIClient {
 
 	apiURL := s.Args["url"].(string)

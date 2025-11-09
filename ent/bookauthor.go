@@ -32,7 +32,6 @@ type BookAuthorEdges struct {
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
 	loadedTypes [1]bool
-	namedBooks  map[string][]*Book
 }
 
 // BooksOrErr returns the Books value or an error if the edge
@@ -62,7 +61,7 @@ func (*BookAuthor) scanValues(columns []string) ([]any, error) {
 
 // assignValues assigns the values that were returned from sql.Rows (after scanning)
 // to the BookAuthor fields.
-func (ba *BookAuthor) assignValues(columns []string, values []any) error {
+func (_m *BookAuthor) assignValues(columns []string, values []any) error {
 	if m, n := len(values), len(columns); m < n {
 		return fmt.Errorf("mismatch number of scan values: %d != %d", m, n)
 	}
@@ -72,16 +71,16 @@ func (ba *BookAuthor) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value != nil {
-				ba.ID = *value
+				_m.ID = *value
 			}
 		case bookauthor.FieldFullName:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field full_name", values[i])
 			} else if value.Valid {
-				ba.FullName = value.String
+				_m.FullName = value.String
 			}
 		default:
-			ba.selectValues.Set(columns[i], values[i])
+			_m.selectValues.Set(columns[i], values[i])
 		}
 	}
 	return nil
@@ -89,66 +88,42 @@ func (ba *BookAuthor) assignValues(columns []string, values []any) error {
 
 // Value returns the ent.Value that was dynamically selected and assigned to the BookAuthor.
 // This includes values selected through modifiers, order, etc.
-func (ba *BookAuthor) Value(name string) (ent.Value, error) {
-	return ba.selectValues.Get(name)
+func (_m *BookAuthor) Value(name string) (ent.Value, error) {
+	return _m.selectValues.Get(name)
 }
 
 // QueryBooks queries the "books" edge of the BookAuthor entity.
-func (ba *BookAuthor) QueryBooks() *BookQuery {
-	return NewBookAuthorClient(ba.config).QueryBooks(ba)
+func (_m *BookAuthor) QueryBooks() *BookQuery {
+	return NewBookAuthorClient(_m.config).QueryBooks(_m)
 }
 
 // Update returns a builder for updating this BookAuthor.
 // Note that you need to call BookAuthor.Unwrap() before calling this method if this BookAuthor
 // was returned from a transaction, and the transaction was committed or rolled back.
-func (ba *BookAuthor) Update() *BookAuthorUpdateOne {
-	return NewBookAuthorClient(ba.config).UpdateOne(ba)
+func (_m *BookAuthor) Update() *BookAuthorUpdateOne {
+	return NewBookAuthorClient(_m.config).UpdateOne(_m)
 }
 
 // Unwrap unwraps the BookAuthor entity that was returned from a transaction after it was closed,
 // so that all future queries will be executed through the driver which created the transaction.
-func (ba *BookAuthor) Unwrap() *BookAuthor {
-	_tx, ok := ba.config.driver.(*txDriver)
+func (_m *BookAuthor) Unwrap() *BookAuthor {
+	_tx, ok := _m.config.driver.(*txDriver)
 	if !ok {
 		panic("ent: BookAuthor is not a transactional entity")
 	}
-	ba.config.driver = _tx.drv
-	return ba
+	_m.config.driver = _tx.drv
+	return _m
 }
 
 // String implements the fmt.Stringer.
-func (ba *BookAuthor) String() string {
+func (_m *BookAuthor) String() string {
 	var builder strings.Builder
 	builder.WriteString("BookAuthor(")
-	builder.WriteString(fmt.Sprintf("id=%v, ", ba.ID))
+	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
 	builder.WriteString("full_name=")
-	builder.WriteString(ba.FullName)
+	builder.WriteString(_m.FullName)
 	builder.WriteByte(')')
 	return builder.String()
-}
-
-// NamedBooks returns the Books named value or an error if the edge was not
-// loaded in eager-loading with this name.
-func (ba *BookAuthor) NamedBooks(name string) ([]*Book, error) {
-	if ba.Edges.namedBooks == nil {
-		return nil, &NotLoadedError{edge: name}
-	}
-	nodes, ok := ba.Edges.namedBooks[name]
-	if !ok {
-		return nil, &NotLoadedError{edge: name}
-	}
-	return nodes, nil
-}
-
-func (ba *BookAuthor) appendNamedBooks(name string, edges ...*Book) {
-	if ba.Edges.namedBooks == nil {
-		ba.Edges.namedBooks = make(map[string][]*Book)
-	}
-	if len(edges) == 0 {
-		ba.Edges.namedBooks[name] = []*Book{}
-	} else {
-		ba.Edges.namedBooks[name] = append(ba.Edges.namedBooks[name], edges...)
-	}
 }
 
 // BookAuthors is a parsable slice of BookAuthor.

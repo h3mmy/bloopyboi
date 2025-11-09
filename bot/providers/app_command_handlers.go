@@ -7,9 +7,13 @@ import (
 	"go.uber.org/zap"
 )
 
-func GetDiscordAppCommands(cfgs []config.DiscordGuildConfig) []models.DiscordAppCommand {
+func GetDiscordAppCommands(
+	cfgs []config.DiscordGuildConfig,
+	discordSvc *services.DiscordService,
+) []models.DiscordAppCommand {
 	handls := make([]models.DiscordAppCommand, 0, 3)
 	handls = append(handls, handlers.NewInspiroCommand(GetInspiroService()))
+	handls = append(handls, handlers.NewAnalyzeEmojiCommand(discordSvc))
 	handls = append(handls, GetGuildAppCommands(cfgs)...)
 	logger.Debug("got discord commands", zap.Int("count", len(handls)))
 	return handls

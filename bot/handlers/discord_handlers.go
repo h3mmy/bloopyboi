@@ -13,6 +13,21 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
+type DiscordHandlers struct {
+	discordSvc *services.DiscordService
+	inspiroSvc *services.InspiroService
+}
+
+func NewDiscordHandlers(
+	discordSvc *services.DiscordService,
+	inspiroSvc *services.InspiroService,
+) *DiscordHandlers {
+	return &DiscordHandlers{
+		discordSvc: discordSvc,
+		inspiroSvc: inspiroSvc,
+	}
+}
+
 var (
 	textResponseMap = map[string]string{
 		"pong":   "Ping!",
@@ -21,8 +36,6 @@ var (
 	}
 )
 
-// MessageChanBlooper is an experimental handler that processes messages and reactions from channels.
-// TODO: This is an experimental handler and should be refactored.
 type MessageChanBlooper struct {
 	msgCreateChan *chan *discordgo.MessageCreate
 	msgReactAChan *chan *discordgo.MessageReactionAdd
@@ -34,7 +47,6 @@ type MessageChanBlooper struct {
 	discordSvc    *services.DiscordService
 }
 
-// NewMessageChanBlooper creates a new MessageChanBlooper.
 func NewMessageChanBlooper(
 	dService *services.DiscordService,
 	insproSvc *services.InspiroService,
@@ -62,7 +74,6 @@ func NewMessageChanBlooper(
 	}
 }
 
-// Start starts the MessageChanBlooper.
 func (mcb *MessageChanBlooper) Start(ctx context.Context) error {
 	for {
 		mcb.logger.Debug("Listening to channels")
@@ -89,7 +100,6 @@ func (mcb *MessageChanBlooper) Start(ctx context.Context) error {
 	}
 }
 
-// processIncomingMessage processes an incoming message.
 func (mcb *MessageChanBlooper) processIncomingMessage(msg *discordgo.MessageCreate) {
 	logger := mcb.logger.With(zapcore.Field{Key: "method", Type: zapcore.StringType, String: "processIncomingMessage"})
 	mcb.logger.Debug(fmt.Sprintf("processing new message with ID %s from user %s", msg.ID, msg.Author.Username))
@@ -111,6 +121,11 @@ func (mcb *MessageChanBlooper) processIncomingMessage(msg *discordgo.MessageCrea
 	}
 
 	// Check for inspiro request
+	if strings.HasPrefix(strings.ToLower(msg.Content), "!analyze-emoji") {
+		h := NewDiscordHandlers(mcb.discordSvc, mcb.inspiroSvc)
+		h.HandleAnalyzeEmojiCmd(mcb.discordSvc.GetSession(), msg)
+	}
+
 	if strings.ToLower(msg.Content) == "inspire" {
 		logger.Debug(
 			fmt.Sprintf(
@@ -155,7 +170,6 @@ func (mcb *MessageChanBlooper) processIncomingMessage(msg *discordgo.MessageCrea
 	}
 }
 
-// processReactionAdd processes a reaction add event.
 func (mcb *MessageChanBlooper) processReactionAdd(msgRAdd *discordgo.MessageReactionAdd) {
 	mcb.logger.Debug(fmt.Sprintf("processing new reaction add on messageID %s with Emoji %v",
 		msgRAdd.MessageID,
@@ -176,7 +190,6 @@ func (mcb *MessageChanBlooper) processReactionAdd(msgRAdd *discordgo.MessageReac
 	}
 }
 
-// processReactionRemove processes a reaction remove event.
 func (mcb *MessageChanBlooper) processReactionRemove(msgRMinus *discordgo.MessageReactionRemove) {
 	mcb.logger.Debug(fmt.Sprintf("processing new reaction add on messageID %s with Emoji %v",
 		msgRMinus.MessageID,

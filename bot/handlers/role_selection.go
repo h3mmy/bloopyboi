@@ -10,10 +10,8 @@ import (
 	"go.uber.org/zap"
 )
 
-// SelectionPrompt is a type alias for config.RoleSelectionPrompt.
 type SelectionPrompt = config.RoleSelectionPrompt
 
-// RoleSelectionHandler is a handler that manages role selection through reactions.
 type RoleSelectionHandler struct {
 	meta        models.BloopyMeta
 	config      *config.RoleSelectionConfig
@@ -24,7 +22,6 @@ type RoleSelectionHandler struct {
 	reconciling sync.RWMutex
 }
 
-// NewRoleSelectionHandler creates a new RoleSelectionHandler.
 func NewRoleSelectionHandler(guildID string, config *config.RoleSelectionConfig) *RoleSelectionHandler {
 	bmeta := models.NewBloopyMeta()
 	logger := log.NewZapLogger().Named("role_selection_handler")
@@ -39,8 +36,6 @@ func NewRoleSelectionHandler(guildID string, config *config.RoleSelectionConfig)
 	}
 }
 
-// ReconcileConfig reconciles the role selection configuration with the Discord guild.
-// TODO: This function is not fully implemented and needs to be more reliable.
 func (r *RoleSelectionHandler) ReconcileConfig(s *discordgo.Session) error {
 	r.reconciling.RLock()
 	chList, err := s.GuildChannels(r.guildID)
@@ -97,7 +92,6 @@ func (r *RoleSelectionHandler) ReconcileConfig(s *discordgo.Session) error {
 	return nil
 }
 
-// HandleReactionAdd handles a reaction add event.
 func (r *RoleSelectionHandler) HandleReactionAdd(s *discordgo.Session, m *discordgo.MessageReactionAdd) {
 	if !r.initialized {
 		err2 := r.ReconcileConfig(s)
@@ -142,7 +136,6 @@ func (r *RoleSelectionHandler) HandleReactionAdd(s *discordgo.Session, m *discor
 
 }
 
-// HandleReactionRemove handles a reaction remove event.
 func (r *RoleSelectionHandler) HandleReactionRemove(s *discordgo.Session, m *discordgo.MessageReactionRemove) {
 	if !r.initialized {
 		err2 := r.ReconcileConfig(s)

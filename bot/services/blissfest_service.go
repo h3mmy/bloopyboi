@@ -13,13 +13,6 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
-// BlissfestService is a service that provides information about the Blissfest event.
-type BlissfestService struct {
-	bloopymeta models.BloopyMeta
-	config     models.BlissfestConfig
-	logger     *zap.Logger
-}
-
 // 2023: "https://www.blissfestfestival.org/wp-content/uploads/2023/04/Bliss23_LineUpIG-2-2048x2048.jpg"
 // 2024: "https://www.blissfestfestival.org/wp-content/uploads/2024/04/Bliss24_IGAnnouncement3-2048x2048.jpg"
 // 2025: "https://www.blissfestfestival.org/wp-content/uploads/2024/04/Bliss24_IGAnnouncement3-2048x2048.jpg"
@@ -39,7 +32,12 @@ var blissfestShowclixEventID = 9297272
 // WP: "https://www.blissfestfestival.org/wp-content/uploads/2022/06/blissfest-musical-festival-logo.png"
 var blissfestLogoURI = "https://blissfest.org/cdn/shop/files/Bliss_Logo_2024sm.jpg?v=1735155150&width=1080"
 
-// NewBlissfestService creates a new BlissfestService.
+type BlissfestService struct {
+	bloopymeta models.BloopyMeta
+	config     models.BlissfestConfig
+	logger     *zap.Logger
+}
+
 func NewBlissfestService(config models.BlissfestConfig) *BlissfestService {
 	lgr := log.NewZapLogger().With(
 		zapcore.Field{Type: zapcore.StringType, Key: ServiceLoggerFieldKey, String: "blissfest_service"},
@@ -52,7 +50,7 @@ func NewBlissfestService(config models.BlissfestConfig) *BlissfestService {
 	}
 }
 
-// GetTimeUntilStart gets the time until the start of the event.
+// Gets time until start of event
 func (bs *BlissfestService) GetTimeUntilStart(fromDate *time.Time) time.Duration {
 	comparingFrom := bs.config.Start
 	if fromDate == nil {
@@ -61,18 +59,15 @@ func (bs *BlissfestService) GetTimeUntilStart(fromDate *time.Time) time.Duration
 	return comparingFrom.Sub(*fromDate)
 }
 
-// GetStartTime returns the start time of the event.
 func (bs *BlissfestService) GetStartTime() *time.Time {
 	return &bs.config.Start
 }
 
-// GetEndTime returns the end time of the event.
 func (bs *BlissfestService) GetEndTime() *time.Time {
 	return &bs.config.End
 }
 
-// GetTimeUntilEnd gets the time until the end of the event.
-// TODO: Use humanize.Time once the pull request is merged.
+// Gets time until start of event
 // pending https://github.com/dustin/go-humanize/pull/92
 // func (bs *BlissfestService) GetHumanTimeUntilStart(fromDate *time.Time) string {
 
@@ -83,7 +78,7 @@ func (bs *BlissfestService) GetEndTime() *time.Time {
 // 	return comparingFrom.Sub(*fromDate)
 // }
 
-// GetTimeUntilEnd gets the time until the end of the event.
+// Gets time until end of event
 func (bs *BlissfestService) GetTimeUntilEnd(fromDate *time.Time) time.Duration {
 	comparingFrom := bs.config.End
 	if fromDate == nil {
@@ -92,19 +87,17 @@ func (bs *BlissfestService) GetTimeUntilEnd(fromDate *time.Time) time.Duration {
 	return comparingFrom.Sub(*fromDate)
 }
 
-// IsInProgress returns true if the event is in progress.
+// Returns true if event inProgress
 func (bs *BlissfestService) IsInProgress() bool {
 	start := bs.config.Start
 	end := bs.config.End
 	return (start.Before(time.Now()) && end.After(time.Now()))
 }
 
-// GetLineupImageURI returns the URI for the lineup image.
 func (bs *BlissfestService) GetLineupImageURI() string {
 	return lineupImageURI
 }
 
-// GetShowclixTicketData returns the ticket data from Showclix.
 func (bs *BlissfestService) GetShowclixTicketData() (*[]models.PriceLevel, error) {
 	resp, err := http.Get(fmt.Sprintf("%s%s/%d/all_levels", models.ShowclixAPIURL, models.ShowclixAPIEventPrefix, blissfestShowclixEventID))
 	if err != nil {
@@ -135,7 +128,6 @@ func (bs *BlissfestService) GetShowclixTicketData() (*[]models.PriceLevel, error
 	return &priceLevelSlice, nil
 }
 
-// GetAdultWeekendPriceLevel returns the price level for an adult weekend ticket.
 func (bs *BlissfestService) GetAdultWeekendPriceLevel() (*models.PriceLevel, error) {
 	priceLevelName := "Adult Weekend (18+)"
 	priceLevels, err := bs.GetShowclixTicketData()
@@ -152,7 +144,6 @@ func (bs *BlissfestService) GetAdultWeekendPriceLevel() (*models.PriceLevel, err
 	return nil, nil
 }
 
-// GetBlissfestLogoURI returns the URI for the Blissfest logo.
 func (bs *BlissfestService) GetBlissfestLogoURI() string {
 	return blissfestLogoURI
 }

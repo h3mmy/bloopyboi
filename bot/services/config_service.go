@@ -10,14 +10,12 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
-// ConfigService is a service that provides the application configuration.
 type ConfigService struct {
 	bloopyMeta   models.BloopyMeta
 	logger       *zap.Logger
 	configLoader config.ConfigLoader
 }
 
-// NewConfigService creates a new ConfigService.
 func NewConfigService(configLoader config.ConfigLoader) *ConfigService {
 	lgr := log.NewZapLogger().With(
 		zapcore.Field{Type: zapcore.StringType, Key: ServiceLoggerFieldKey, String: "config_service"},
@@ -30,7 +28,6 @@ func NewConfigService(configLoader config.ConfigLoader) *ConfigService {
 	}
 }
 
-// GetConfig returns the application configuration.
 func (s *ConfigService) GetConfig() (*config.AppConfig, error) {
 	cfg := s.configLoader.GetConfig()
 	if appCfg, ok := cfg.(*config.AppConfig); ok {

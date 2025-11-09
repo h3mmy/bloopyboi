@@ -29,190 +29,190 @@ type DiscordMessageUpdate struct {
 }
 
 // Where appends a list predicates to the DiscordMessageUpdate builder.
-func (dmu *DiscordMessageUpdate) Where(ps ...predicate.DiscordMessage) *DiscordMessageUpdate {
-	dmu.mutation.Where(ps...)
-	return dmu
+func (_u *DiscordMessageUpdate) Where(ps ...predicate.DiscordMessage) *DiscordMessageUpdate {
+	_u.mutation.Where(ps...)
+	return _u
 }
 
 // SetUpdateTime sets the "update_time" field.
-func (dmu *DiscordMessageUpdate) SetUpdateTime(t time.Time) *DiscordMessageUpdate {
-	dmu.mutation.SetUpdateTime(t)
-	return dmu
+func (_u *DiscordMessageUpdate) SetUpdateTime(v time.Time) *DiscordMessageUpdate {
+	_u.mutation.SetUpdateTime(v)
+	return _u
 }
 
 // SetDiscordid sets the "discordid" field.
-func (dmu *DiscordMessageUpdate) SetDiscordid(s string) *DiscordMessageUpdate {
-	dmu.mutation.SetDiscordid(s)
-	return dmu
+func (_u *DiscordMessageUpdate) SetDiscordid(v string) *DiscordMessageUpdate {
+	_u.mutation.SetDiscordid(v)
+	return _u
 }
 
 // SetNillableDiscordid sets the "discordid" field if the given value is not nil.
-func (dmu *DiscordMessageUpdate) SetNillableDiscordid(s *string) *DiscordMessageUpdate {
-	if s != nil {
-		dmu.SetDiscordid(*s)
+func (_u *DiscordMessageUpdate) SetNillableDiscordid(v *string) *DiscordMessageUpdate {
+	if v != nil {
+		_u.SetDiscordid(*v)
 	}
-	return dmu
+	return _u
 }
 
 // SetContent sets the "content" field.
-func (dmu *DiscordMessageUpdate) SetContent(s string) *DiscordMessageUpdate {
-	dmu.mutation.SetContent(s)
-	return dmu
+func (_u *DiscordMessageUpdate) SetContent(v string) *DiscordMessageUpdate {
+	_u.mutation.SetContent(v)
+	return _u
 }
 
 // SetNillableContent sets the "content" field if the given value is not nil.
-func (dmu *DiscordMessageUpdate) SetNillableContent(s *string) *DiscordMessageUpdate {
-	if s != nil {
-		dmu.SetContent(*s)
+func (_u *DiscordMessageUpdate) SetNillableContent(v *string) *DiscordMessageUpdate {
+	if v != nil {
+		_u.SetContent(*v)
 	}
-	return dmu
+	return _u
 }
 
 // ClearContent clears the value of the "content" field.
-func (dmu *DiscordMessageUpdate) ClearContent() *DiscordMessageUpdate {
-	dmu.mutation.ClearContent()
-	return dmu
+func (_u *DiscordMessageUpdate) ClearContent() *DiscordMessageUpdate {
+	_u.mutation.ClearContent()
+	return _u
 }
 
 // SetRaw sets the "raw" field.
-func (dmu *DiscordMessageUpdate) SetRaw(d discordgo.Message) *DiscordMessageUpdate {
-	dmu.mutation.SetRaw(d)
-	return dmu
+func (_u *DiscordMessageUpdate) SetRaw(v discordgo.Message) *DiscordMessageUpdate {
+	_u.mutation.SetRaw(v)
+	return _u
 }
 
 // SetNillableRaw sets the "raw" field if the given value is not nil.
-func (dmu *DiscordMessageUpdate) SetNillableRaw(d *discordgo.Message) *DiscordMessageUpdate {
-	if d != nil {
-		dmu.SetRaw(*d)
+func (_u *DiscordMessageUpdate) SetNillableRaw(v *discordgo.Message) *DiscordMessageUpdate {
+	if v != nil {
+		_u.SetRaw(*v)
 	}
-	return dmu
+	return _u
 }
 
 // SetAuthorID sets the "author" edge to the DiscordUser entity by ID.
-func (dmu *DiscordMessageUpdate) SetAuthorID(id uuid.UUID) *DiscordMessageUpdate {
-	dmu.mutation.SetAuthorID(id)
-	return dmu
+func (_u *DiscordMessageUpdate) SetAuthorID(id uuid.UUID) *DiscordMessageUpdate {
+	_u.mutation.SetAuthorID(id)
+	return _u
 }
 
 // SetNillableAuthorID sets the "author" edge to the DiscordUser entity by ID if the given value is not nil.
-func (dmu *DiscordMessageUpdate) SetNillableAuthorID(id *uuid.UUID) *DiscordMessageUpdate {
+func (_u *DiscordMessageUpdate) SetNillableAuthorID(id *uuid.UUID) *DiscordMessageUpdate {
 	if id != nil {
-		dmu = dmu.SetAuthorID(*id)
+		_u = _u.SetAuthorID(*id)
 	}
-	return dmu
+	return _u
 }
 
 // SetAuthor sets the "author" edge to the DiscordUser entity.
-func (dmu *DiscordMessageUpdate) SetAuthor(d *DiscordUser) *DiscordMessageUpdate {
-	return dmu.SetAuthorID(d.ID)
+func (_u *DiscordMessageUpdate) SetAuthor(v *DiscordUser) *DiscordMessageUpdate {
+	return _u.SetAuthorID(v.ID)
 }
 
 // AddMessageReactionIDs adds the "message_reactions" edge to the DiscordMessageReaction entity by IDs.
-func (dmu *DiscordMessageUpdate) AddMessageReactionIDs(ids ...uuid.UUID) *DiscordMessageUpdate {
-	dmu.mutation.AddMessageReactionIDs(ids...)
-	return dmu
+func (_u *DiscordMessageUpdate) AddMessageReactionIDs(ids ...uuid.UUID) *DiscordMessageUpdate {
+	_u.mutation.AddMessageReactionIDs(ids...)
+	return _u
 }
 
 // AddMessageReactions adds the "message_reactions" edges to the DiscordMessageReaction entity.
-func (dmu *DiscordMessageUpdate) AddMessageReactions(d ...*DiscordMessageReaction) *DiscordMessageUpdate {
-	ids := make([]uuid.UUID, len(d))
-	for i := range d {
-		ids[i] = d[i].ID
+func (_u *DiscordMessageUpdate) AddMessageReactions(v ...*DiscordMessageReaction) *DiscordMessageUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return dmu.AddMessageReactionIDs(ids...)
+	return _u.AddMessageReactionIDs(ids...)
 }
 
 // SetChannelID sets the "channel" edge to the DiscordChannel entity by ID.
-func (dmu *DiscordMessageUpdate) SetChannelID(id uuid.UUID) *DiscordMessageUpdate {
-	dmu.mutation.SetChannelID(id)
-	return dmu
+func (_u *DiscordMessageUpdate) SetChannelID(id uuid.UUID) *DiscordMessageUpdate {
+	_u.mutation.SetChannelID(id)
+	return _u
 }
 
 // SetNillableChannelID sets the "channel" edge to the DiscordChannel entity by ID if the given value is not nil.
-func (dmu *DiscordMessageUpdate) SetNillableChannelID(id *uuid.UUID) *DiscordMessageUpdate {
+func (_u *DiscordMessageUpdate) SetNillableChannelID(id *uuid.UUID) *DiscordMessageUpdate {
 	if id != nil {
-		dmu = dmu.SetChannelID(*id)
+		_u = _u.SetChannelID(*id)
 	}
-	return dmu
+	return _u
 }
 
 // SetChannel sets the "channel" edge to the DiscordChannel entity.
-func (dmu *DiscordMessageUpdate) SetChannel(d *DiscordChannel) *DiscordMessageUpdate {
-	return dmu.SetChannelID(d.ID)
+func (_u *DiscordMessageUpdate) SetChannel(v *DiscordChannel) *DiscordMessageUpdate {
+	return _u.SetChannelID(v.ID)
 }
 
 // SetGuildID sets the "guild" edge to the DiscordGuild entity by ID.
-func (dmu *DiscordMessageUpdate) SetGuildID(id uuid.UUID) *DiscordMessageUpdate {
-	dmu.mutation.SetGuildID(id)
-	return dmu
+func (_u *DiscordMessageUpdate) SetGuildID(id uuid.UUID) *DiscordMessageUpdate {
+	_u.mutation.SetGuildID(id)
+	return _u
 }
 
 // SetNillableGuildID sets the "guild" edge to the DiscordGuild entity by ID if the given value is not nil.
-func (dmu *DiscordMessageUpdate) SetNillableGuildID(id *uuid.UUID) *DiscordMessageUpdate {
+func (_u *DiscordMessageUpdate) SetNillableGuildID(id *uuid.UUID) *DiscordMessageUpdate {
 	if id != nil {
-		dmu = dmu.SetGuildID(*id)
+		_u = _u.SetGuildID(*id)
 	}
-	return dmu
+	return _u
 }
 
 // SetGuild sets the "guild" edge to the DiscordGuild entity.
-func (dmu *DiscordMessageUpdate) SetGuild(d *DiscordGuild) *DiscordMessageUpdate {
-	return dmu.SetGuildID(d.ID)
+func (_u *DiscordMessageUpdate) SetGuild(v *DiscordGuild) *DiscordMessageUpdate {
+	return _u.SetGuildID(v.ID)
 }
 
 // Mutation returns the DiscordMessageMutation object of the builder.
-func (dmu *DiscordMessageUpdate) Mutation() *DiscordMessageMutation {
-	return dmu.mutation
+func (_u *DiscordMessageUpdate) Mutation() *DiscordMessageMutation {
+	return _u.mutation
 }
 
 // ClearAuthor clears the "author" edge to the DiscordUser entity.
-func (dmu *DiscordMessageUpdate) ClearAuthor() *DiscordMessageUpdate {
-	dmu.mutation.ClearAuthor()
-	return dmu
+func (_u *DiscordMessageUpdate) ClearAuthor() *DiscordMessageUpdate {
+	_u.mutation.ClearAuthor()
+	return _u
 }
 
 // ClearMessageReactions clears all "message_reactions" edges to the DiscordMessageReaction entity.
-func (dmu *DiscordMessageUpdate) ClearMessageReactions() *DiscordMessageUpdate {
-	dmu.mutation.ClearMessageReactions()
-	return dmu
+func (_u *DiscordMessageUpdate) ClearMessageReactions() *DiscordMessageUpdate {
+	_u.mutation.ClearMessageReactions()
+	return _u
 }
 
 // RemoveMessageReactionIDs removes the "message_reactions" edge to DiscordMessageReaction entities by IDs.
-func (dmu *DiscordMessageUpdate) RemoveMessageReactionIDs(ids ...uuid.UUID) *DiscordMessageUpdate {
-	dmu.mutation.RemoveMessageReactionIDs(ids...)
-	return dmu
+func (_u *DiscordMessageUpdate) RemoveMessageReactionIDs(ids ...uuid.UUID) *DiscordMessageUpdate {
+	_u.mutation.RemoveMessageReactionIDs(ids...)
+	return _u
 }
 
 // RemoveMessageReactions removes "message_reactions" edges to DiscordMessageReaction entities.
-func (dmu *DiscordMessageUpdate) RemoveMessageReactions(d ...*DiscordMessageReaction) *DiscordMessageUpdate {
-	ids := make([]uuid.UUID, len(d))
-	for i := range d {
-		ids[i] = d[i].ID
+func (_u *DiscordMessageUpdate) RemoveMessageReactions(v ...*DiscordMessageReaction) *DiscordMessageUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return dmu.RemoveMessageReactionIDs(ids...)
+	return _u.RemoveMessageReactionIDs(ids...)
 }
 
 // ClearChannel clears the "channel" edge to the DiscordChannel entity.
-func (dmu *DiscordMessageUpdate) ClearChannel() *DiscordMessageUpdate {
-	dmu.mutation.ClearChannel()
-	return dmu
+func (_u *DiscordMessageUpdate) ClearChannel() *DiscordMessageUpdate {
+	_u.mutation.ClearChannel()
+	return _u
 }
 
 // ClearGuild clears the "guild" edge to the DiscordGuild entity.
-func (dmu *DiscordMessageUpdate) ClearGuild() *DiscordMessageUpdate {
-	dmu.mutation.ClearGuild()
-	return dmu
+func (_u *DiscordMessageUpdate) ClearGuild() *DiscordMessageUpdate {
+	_u.mutation.ClearGuild()
+	return _u
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
-func (dmu *DiscordMessageUpdate) Save(ctx context.Context) (int, error) {
-	dmu.defaults()
-	return withHooks(ctx, dmu.sqlSave, dmu.mutation, dmu.hooks)
+func (_u *DiscordMessageUpdate) Save(ctx context.Context) (int, error) {
+	_u.defaults()
+	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (dmu *DiscordMessageUpdate) SaveX(ctx context.Context) int {
-	affected, err := dmu.Save(ctx)
+func (_u *DiscordMessageUpdate) SaveX(ctx context.Context) int {
+	affected, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -220,51 +220,51 @@ func (dmu *DiscordMessageUpdate) SaveX(ctx context.Context) int {
 }
 
 // Exec executes the query.
-func (dmu *DiscordMessageUpdate) Exec(ctx context.Context) error {
-	_, err := dmu.Save(ctx)
+func (_u *DiscordMessageUpdate) Exec(ctx context.Context) error {
+	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (dmu *DiscordMessageUpdate) ExecX(ctx context.Context) {
-	if err := dmu.Exec(ctx); err != nil {
+func (_u *DiscordMessageUpdate) ExecX(ctx context.Context) {
+	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (dmu *DiscordMessageUpdate) defaults() {
-	if _, ok := dmu.mutation.UpdateTime(); !ok {
+func (_u *DiscordMessageUpdate) defaults() {
+	if _, ok := _u.mutation.UpdateTime(); !ok {
 		v := discordmessage.UpdateDefaultUpdateTime()
-		dmu.mutation.SetUpdateTime(v)
+		_u.mutation.SetUpdateTime(v)
 	}
 }
 
-func (dmu *DiscordMessageUpdate) sqlSave(ctx context.Context) (n int, err error) {
+func (_u *DiscordMessageUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	_spec := sqlgraph.NewUpdateSpec(discordmessage.Table, discordmessage.Columns, sqlgraph.NewFieldSpec(discordmessage.FieldID, field.TypeUUID))
-	if ps := dmu.mutation.predicates; len(ps) > 0 {
+	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if value, ok := dmu.mutation.UpdateTime(); ok {
+	if value, ok := _u.mutation.UpdateTime(); ok {
 		_spec.SetField(discordmessage.FieldUpdateTime, field.TypeTime, value)
 	}
-	if value, ok := dmu.mutation.Discordid(); ok {
+	if value, ok := _u.mutation.Discordid(); ok {
 		_spec.SetField(discordmessage.FieldDiscordid, field.TypeString, value)
 	}
-	if value, ok := dmu.mutation.Content(); ok {
+	if value, ok := _u.mutation.Content(); ok {
 		_spec.SetField(discordmessage.FieldContent, field.TypeString, value)
 	}
-	if dmu.mutation.ContentCleared() {
+	if _u.mutation.ContentCleared() {
 		_spec.ClearField(discordmessage.FieldContent, field.TypeString)
 	}
-	if value, ok := dmu.mutation.Raw(); ok {
+	if value, ok := _u.mutation.Raw(); ok {
 		_spec.SetField(discordmessage.FieldRaw, field.TypeJSON, value)
 	}
-	if dmu.mutation.AuthorCleared() {
+	if _u.mutation.AuthorCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
@@ -277,7 +277,7 @@ func (dmu *DiscordMessageUpdate) sqlSave(ctx context.Context) (n int, err error)
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := dmu.mutation.AuthorIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.AuthorIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
@@ -293,7 +293,7 @@ func (dmu *DiscordMessageUpdate) sqlSave(ctx context.Context) (n int, err error)
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if dmu.mutation.MessageReactionsCleared() {
+	if _u.mutation.MessageReactionsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -306,7 +306,7 @@ func (dmu *DiscordMessageUpdate) sqlSave(ctx context.Context) (n int, err error)
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := dmu.mutation.RemovedMessageReactionsIDs(); len(nodes) > 0 && !dmu.mutation.MessageReactionsCleared() {
+	if nodes := _u.mutation.RemovedMessageReactionsIDs(); len(nodes) > 0 && !_u.mutation.MessageReactionsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -322,7 +322,7 @@ func (dmu *DiscordMessageUpdate) sqlSave(ctx context.Context) (n int, err error)
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := dmu.mutation.MessageReactionsIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.MessageReactionsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -338,7 +338,7 @@ func (dmu *DiscordMessageUpdate) sqlSave(ctx context.Context) (n int, err error)
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if dmu.mutation.ChannelCleared() {
+	if _u.mutation.ChannelCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
@@ -351,7 +351,7 @@ func (dmu *DiscordMessageUpdate) sqlSave(ctx context.Context) (n int, err error)
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := dmu.mutation.ChannelIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.ChannelIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
@@ -367,7 +367,7 @@ func (dmu *DiscordMessageUpdate) sqlSave(ctx context.Context) (n int, err error)
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if dmu.mutation.GuildCleared() {
+	if _u.mutation.GuildCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
@@ -380,7 +380,7 @@ func (dmu *DiscordMessageUpdate) sqlSave(ctx context.Context) (n int, err error)
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := dmu.mutation.GuildIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.GuildIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
@@ -396,7 +396,7 @@ func (dmu *DiscordMessageUpdate) sqlSave(ctx context.Context) (n int, err error)
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if n, err = sqlgraph.UpdateNodes(ctx, dmu.driver, _spec); err != nil {
+	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{discordmessage.Label}
 		} else if sqlgraph.IsConstraintError(err) {
@@ -404,8 +404,8 @@ func (dmu *DiscordMessageUpdate) sqlSave(ctx context.Context) (n int, err error)
 		}
 		return 0, err
 	}
-	dmu.mutation.done = true
-	return n, nil
+	_u.mutation.done = true
+	return _node, nil
 }
 
 // DiscordMessageUpdateOne is the builder for updating a single DiscordMessage entity.
@@ -417,197 +417,197 @@ type DiscordMessageUpdateOne struct {
 }
 
 // SetUpdateTime sets the "update_time" field.
-func (dmuo *DiscordMessageUpdateOne) SetUpdateTime(t time.Time) *DiscordMessageUpdateOne {
-	dmuo.mutation.SetUpdateTime(t)
-	return dmuo
+func (_u *DiscordMessageUpdateOne) SetUpdateTime(v time.Time) *DiscordMessageUpdateOne {
+	_u.mutation.SetUpdateTime(v)
+	return _u
 }
 
 // SetDiscordid sets the "discordid" field.
-func (dmuo *DiscordMessageUpdateOne) SetDiscordid(s string) *DiscordMessageUpdateOne {
-	dmuo.mutation.SetDiscordid(s)
-	return dmuo
+func (_u *DiscordMessageUpdateOne) SetDiscordid(v string) *DiscordMessageUpdateOne {
+	_u.mutation.SetDiscordid(v)
+	return _u
 }
 
 // SetNillableDiscordid sets the "discordid" field if the given value is not nil.
-func (dmuo *DiscordMessageUpdateOne) SetNillableDiscordid(s *string) *DiscordMessageUpdateOne {
-	if s != nil {
-		dmuo.SetDiscordid(*s)
+func (_u *DiscordMessageUpdateOne) SetNillableDiscordid(v *string) *DiscordMessageUpdateOne {
+	if v != nil {
+		_u.SetDiscordid(*v)
 	}
-	return dmuo
+	return _u
 }
 
 // SetContent sets the "content" field.
-func (dmuo *DiscordMessageUpdateOne) SetContent(s string) *DiscordMessageUpdateOne {
-	dmuo.mutation.SetContent(s)
-	return dmuo
+func (_u *DiscordMessageUpdateOne) SetContent(v string) *DiscordMessageUpdateOne {
+	_u.mutation.SetContent(v)
+	return _u
 }
 
 // SetNillableContent sets the "content" field if the given value is not nil.
-func (dmuo *DiscordMessageUpdateOne) SetNillableContent(s *string) *DiscordMessageUpdateOne {
-	if s != nil {
-		dmuo.SetContent(*s)
+func (_u *DiscordMessageUpdateOne) SetNillableContent(v *string) *DiscordMessageUpdateOne {
+	if v != nil {
+		_u.SetContent(*v)
 	}
-	return dmuo
+	return _u
 }
 
 // ClearContent clears the value of the "content" field.
-func (dmuo *DiscordMessageUpdateOne) ClearContent() *DiscordMessageUpdateOne {
-	dmuo.mutation.ClearContent()
-	return dmuo
+func (_u *DiscordMessageUpdateOne) ClearContent() *DiscordMessageUpdateOne {
+	_u.mutation.ClearContent()
+	return _u
 }
 
 // SetRaw sets the "raw" field.
-func (dmuo *DiscordMessageUpdateOne) SetRaw(d discordgo.Message) *DiscordMessageUpdateOne {
-	dmuo.mutation.SetRaw(d)
-	return dmuo
+func (_u *DiscordMessageUpdateOne) SetRaw(v discordgo.Message) *DiscordMessageUpdateOne {
+	_u.mutation.SetRaw(v)
+	return _u
 }
 
 // SetNillableRaw sets the "raw" field if the given value is not nil.
-func (dmuo *DiscordMessageUpdateOne) SetNillableRaw(d *discordgo.Message) *DiscordMessageUpdateOne {
-	if d != nil {
-		dmuo.SetRaw(*d)
+func (_u *DiscordMessageUpdateOne) SetNillableRaw(v *discordgo.Message) *DiscordMessageUpdateOne {
+	if v != nil {
+		_u.SetRaw(*v)
 	}
-	return dmuo
+	return _u
 }
 
 // SetAuthorID sets the "author" edge to the DiscordUser entity by ID.
-func (dmuo *DiscordMessageUpdateOne) SetAuthorID(id uuid.UUID) *DiscordMessageUpdateOne {
-	dmuo.mutation.SetAuthorID(id)
-	return dmuo
+func (_u *DiscordMessageUpdateOne) SetAuthorID(id uuid.UUID) *DiscordMessageUpdateOne {
+	_u.mutation.SetAuthorID(id)
+	return _u
 }
 
 // SetNillableAuthorID sets the "author" edge to the DiscordUser entity by ID if the given value is not nil.
-func (dmuo *DiscordMessageUpdateOne) SetNillableAuthorID(id *uuid.UUID) *DiscordMessageUpdateOne {
+func (_u *DiscordMessageUpdateOne) SetNillableAuthorID(id *uuid.UUID) *DiscordMessageUpdateOne {
 	if id != nil {
-		dmuo = dmuo.SetAuthorID(*id)
+		_u = _u.SetAuthorID(*id)
 	}
-	return dmuo
+	return _u
 }
 
 // SetAuthor sets the "author" edge to the DiscordUser entity.
-func (dmuo *DiscordMessageUpdateOne) SetAuthor(d *DiscordUser) *DiscordMessageUpdateOne {
-	return dmuo.SetAuthorID(d.ID)
+func (_u *DiscordMessageUpdateOne) SetAuthor(v *DiscordUser) *DiscordMessageUpdateOne {
+	return _u.SetAuthorID(v.ID)
 }
 
 // AddMessageReactionIDs adds the "message_reactions" edge to the DiscordMessageReaction entity by IDs.
-func (dmuo *DiscordMessageUpdateOne) AddMessageReactionIDs(ids ...uuid.UUID) *DiscordMessageUpdateOne {
-	dmuo.mutation.AddMessageReactionIDs(ids...)
-	return dmuo
+func (_u *DiscordMessageUpdateOne) AddMessageReactionIDs(ids ...uuid.UUID) *DiscordMessageUpdateOne {
+	_u.mutation.AddMessageReactionIDs(ids...)
+	return _u
 }
 
 // AddMessageReactions adds the "message_reactions" edges to the DiscordMessageReaction entity.
-func (dmuo *DiscordMessageUpdateOne) AddMessageReactions(d ...*DiscordMessageReaction) *DiscordMessageUpdateOne {
-	ids := make([]uuid.UUID, len(d))
-	for i := range d {
-		ids[i] = d[i].ID
+func (_u *DiscordMessageUpdateOne) AddMessageReactions(v ...*DiscordMessageReaction) *DiscordMessageUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return dmuo.AddMessageReactionIDs(ids...)
+	return _u.AddMessageReactionIDs(ids...)
 }
 
 // SetChannelID sets the "channel" edge to the DiscordChannel entity by ID.
-func (dmuo *DiscordMessageUpdateOne) SetChannelID(id uuid.UUID) *DiscordMessageUpdateOne {
-	dmuo.mutation.SetChannelID(id)
-	return dmuo
+func (_u *DiscordMessageUpdateOne) SetChannelID(id uuid.UUID) *DiscordMessageUpdateOne {
+	_u.mutation.SetChannelID(id)
+	return _u
 }
 
 // SetNillableChannelID sets the "channel" edge to the DiscordChannel entity by ID if the given value is not nil.
-func (dmuo *DiscordMessageUpdateOne) SetNillableChannelID(id *uuid.UUID) *DiscordMessageUpdateOne {
+func (_u *DiscordMessageUpdateOne) SetNillableChannelID(id *uuid.UUID) *DiscordMessageUpdateOne {
 	if id != nil {
-		dmuo = dmuo.SetChannelID(*id)
+		_u = _u.SetChannelID(*id)
 	}
-	return dmuo
+	return _u
 }
 
 // SetChannel sets the "channel" edge to the DiscordChannel entity.
-func (dmuo *DiscordMessageUpdateOne) SetChannel(d *DiscordChannel) *DiscordMessageUpdateOne {
-	return dmuo.SetChannelID(d.ID)
+func (_u *DiscordMessageUpdateOne) SetChannel(v *DiscordChannel) *DiscordMessageUpdateOne {
+	return _u.SetChannelID(v.ID)
 }
 
 // SetGuildID sets the "guild" edge to the DiscordGuild entity by ID.
-func (dmuo *DiscordMessageUpdateOne) SetGuildID(id uuid.UUID) *DiscordMessageUpdateOne {
-	dmuo.mutation.SetGuildID(id)
-	return dmuo
+func (_u *DiscordMessageUpdateOne) SetGuildID(id uuid.UUID) *DiscordMessageUpdateOne {
+	_u.mutation.SetGuildID(id)
+	return _u
 }
 
 // SetNillableGuildID sets the "guild" edge to the DiscordGuild entity by ID if the given value is not nil.
-func (dmuo *DiscordMessageUpdateOne) SetNillableGuildID(id *uuid.UUID) *DiscordMessageUpdateOne {
+func (_u *DiscordMessageUpdateOne) SetNillableGuildID(id *uuid.UUID) *DiscordMessageUpdateOne {
 	if id != nil {
-		dmuo = dmuo.SetGuildID(*id)
+		_u = _u.SetGuildID(*id)
 	}
-	return dmuo
+	return _u
 }
 
 // SetGuild sets the "guild" edge to the DiscordGuild entity.
-func (dmuo *DiscordMessageUpdateOne) SetGuild(d *DiscordGuild) *DiscordMessageUpdateOne {
-	return dmuo.SetGuildID(d.ID)
+func (_u *DiscordMessageUpdateOne) SetGuild(v *DiscordGuild) *DiscordMessageUpdateOne {
+	return _u.SetGuildID(v.ID)
 }
 
 // Mutation returns the DiscordMessageMutation object of the builder.
-func (dmuo *DiscordMessageUpdateOne) Mutation() *DiscordMessageMutation {
-	return dmuo.mutation
+func (_u *DiscordMessageUpdateOne) Mutation() *DiscordMessageMutation {
+	return _u.mutation
 }
 
 // ClearAuthor clears the "author" edge to the DiscordUser entity.
-func (dmuo *DiscordMessageUpdateOne) ClearAuthor() *DiscordMessageUpdateOne {
-	dmuo.mutation.ClearAuthor()
-	return dmuo
+func (_u *DiscordMessageUpdateOne) ClearAuthor() *DiscordMessageUpdateOne {
+	_u.mutation.ClearAuthor()
+	return _u
 }
 
 // ClearMessageReactions clears all "message_reactions" edges to the DiscordMessageReaction entity.
-func (dmuo *DiscordMessageUpdateOne) ClearMessageReactions() *DiscordMessageUpdateOne {
-	dmuo.mutation.ClearMessageReactions()
-	return dmuo
+func (_u *DiscordMessageUpdateOne) ClearMessageReactions() *DiscordMessageUpdateOne {
+	_u.mutation.ClearMessageReactions()
+	return _u
 }
 
 // RemoveMessageReactionIDs removes the "message_reactions" edge to DiscordMessageReaction entities by IDs.
-func (dmuo *DiscordMessageUpdateOne) RemoveMessageReactionIDs(ids ...uuid.UUID) *DiscordMessageUpdateOne {
-	dmuo.mutation.RemoveMessageReactionIDs(ids...)
-	return dmuo
+func (_u *DiscordMessageUpdateOne) RemoveMessageReactionIDs(ids ...uuid.UUID) *DiscordMessageUpdateOne {
+	_u.mutation.RemoveMessageReactionIDs(ids...)
+	return _u
 }
 
 // RemoveMessageReactions removes "message_reactions" edges to DiscordMessageReaction entities.
-func (dmuo *DiscordMessageUpdateOne) RemoveMessageReactions(d ...*DiscordMessageReaction) *DiscordMessageUpdateOne {
-	ids := make([]uuid.UUID, len(d))
-	for i := range d {
-		ids[i] = d[i].ID
+func (_u *DiscordMessageUpdateOne) RemoveMessageReactions(v ...*DiscordMessageReaction) *DiscordMessageUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return dmuo.RemoveMessageReactionIDs(ids...)
+	return _u.RemoveMessageReactionIDs(ids...)
 }
 
 // ClearChannel clears the "channel" edge to the DiscordChannel entity.
-func (dmuo *DiscordMessageUpdateOne) ClearChannel() *DiscordMessageUpdateOne {
-	dmuo.mutation.ClearChannel()
-	return dmuo
+func (_u *DiscordMessageUpdateOne) ClearChannel() *DiscordMessageUpdateOne {
+	_u.mutation.ClearChannel()
+	return _u
 }
 
 // ClearGuild clears the "guild" edge to the DiscordGuild entity.
-func (dmuo *DiscordMessageUpdateOne) ClearGuild() *DiscordMessageUpdateOne {
-	dmuo.mutation.ClearGuild()
-	return dmuo
+func (_u *DiscordMessageUpdateOne) ClearGuild() *DiscordMessageUpdateOne {
+	_u.mutation.ClearGuild()
+	return _u
 }
 
 // Where appends a list predicates to the DiscordMessageUpdate builder.
-func (dmuo *DiscordMessageUpdateOne) Where(ps ...predicate.DiscordMessage) *DiscordMessageUpdateOne {
-	dmuo.mutation.Where(ps...)
-	return dmuo
+func (_u *DiscordMessageUpdateOne) Where(ps ...predicate.DiscordMessage) *DiscordMessageUpdateOne {
+	_u.mutation.Where(ps...)
+	return _u
 }
 
 // Select allows selecting one or more fields (columns) of the returned entity.
 // The default is selecting all fields defined in the entity schema.
-func (dmuo *DiscordMessageUpdateOne) Select(field string, fields ...string) *DiscordMessageUpdateOne {
-	dmuo.fields = append([]string{field}, fields...)
-	return dmuo
+func (_u *DiscordMessageUpdateOne) Select(field string, fields ...string) *DiscordMessageUpdateOne {
+	_u.fields = append([]string{field}, fields...)
+	return _u
 }
 
 // Save executes the query and returns the updated DiscordMessage entity.
-func (dmuo *DiscordMessageUpdateOne) Save(ctx context.Context) (*DiscordMessage, error) {
-	dmuo.defaults()
-	return withHooks(ctx, dmuo.sqlSave, dmuo.mutation, dmuo.hooks)
+func (_u *DiscordMessageUpdateOne) Save(ctx context.Context) (*DiscordMessage, error) {
+	_u.defaults()
+	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (dmuo *DiscordMessageUpdateOne) SaveX(ctx context.Context) *DiscordMessage {
-	node, err := dmuo.Save(ctx)
+func (_u *DiscordMessageUpdateOne) SaveX(ctx context.Context) *DiscordMessage {
+	node, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -615,34 +615,34 @@ func (dmuo *DiscordMessageUpdateOne) SaveX(ctx context.Context) *DiscordMessage 
 }
 
 // Exec executes the query on the entity.
-func (dmuo *DiscordMessageUpdateOne) Exec(ctx context.Context) error {
-	_, err := dmuo.Save(ctx)
+func (_u *DiscordMessageUpdateOne) Exec(ctx context.Context) error {
+	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (dmuo *DiscordMessageUpdateOne) ExecX(ctx context.Context) {
-	if err := dmuo.Exec(ctx); err != nil {
+func (_u *DiscordMessageUpdateOne) ExecX(ctx context.Context) {
+	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (dmuo *DiscordMessageUpdateOne) defaults() {
-	if _, ok := dmuo.mutation.UpdateTime(); !ok {
+func (_u *DiscordMessageUpdateOne) defaults() {
+	if _, ok := _u.mutation.UpdateTime(); !ok {
 		v := discordmessage.UpdateDefaultUpdateTime()
-		dmuo.mutation.SetUpdateTime(v)
+		_u.mutation.SetUpdateTime(v)
 	}
 }
 
-func (dmuo *DiscordMessageUpdateOne) sqlSave(ctx context.Context) (_node *DiscordMessage, err error) {
+func (_u *DiscordMessageUpdateOne) sqlSave(ctx context.Context) (_node *DiscordMessage, err error) {
 	_spec := sqlgraph.NewUpdateSpec(discordmessage.Table, discordmessage.Columns, sqlgraph.NewFieldSpec(discordmessage.FieldID, field.TypeUUID))
-	id, ok := dmuo.mutation.ID()
+	id, ok := _u.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "DiscordMessage.id" for update`)}
 	}
 	_spec.Node.ID.Value = id
-	if fields := dmuo.fields; len(fields) > 0 {
+	if fields := _u.fields; len(fields) > 0 {
 		_spec.Node.Columns = make([]string, 0, len(fields))
 		_spec.Node.Columns = append(_spec.Node.Columns, discordmessage.FieldID)
 		for _, f := range fields {
@@ -654,29 +654,29 @@ func (dmuo *DiscordMessageUpdateOne) sqlSave(ctx context.Context) (_node *Discor
 			}
 		}
 	}
-	if ps := dmuo.mutation.predicates; len(ps) > 0 {
+	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if value, ok := dmuo.mutation.UpdateTime(); ok {
+	if value, ok := _u.mutation.UpdateTime(); ok {
 		_spec.SetField(discordmessage.FieldUpdateTime, field.TypeTime, value)
 	}
-	if value, ok := dmuo.mutation.Discordid(); ok {
+	if value, ok := _u.mutation.Discordid(); ok {
 		_spec.SetField(discordmessage.FieldDiscordid, field.TypeString, value)
 	}
-	if value, ok := dmuo.mutation.Content(); ok {
+	if value, ok := _u.mutation.Content(); ok {
 		_spec.SetField(discordmessage.FieldContent, field.TypeString, value)
 	}
-	if dmuo.mutation.ContentCleared() {
+	if _u.mutation.ContentCleared() {
 		_spec.ClearField(discordmessage.FieldContent, field.TypeString)
 	}
-	if value, ok := dmuo.mutation.Raw(); ok {
+	if value, ok := _u.mutation.Raw(); ok {
 		_spec.SetField(discordmessage.FieldRaw, field.TypeJSON, value)
 	}
-	if dmuo.mutation.AuthorCleared() {
+	if _u.mutation.AuthorCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
@@ -689,7 +689,7 @@ func (dmuo *DiscordMessageUpdateOne) sqlSave(ctx context.Context) (_node *Discor
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := dmuo.mutation.AuthorIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.AuthorIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
@@ -705,7 +705,7 @@ func (dmuo *DiscordMessageUpdateOne) sqlSave(ctx context.Context) (_node *Discor
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if dmuo.mutation.MessageReactionsCleared() {
+	if _u.mutation.MessageReactionsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -718,7 +718,7 @@ func (dmuo *DiscordMessageUpdateOne) sqlSave(ctx context.Context) (_node *Discor
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := dmuo.mutation.RemovedMessageReactionsIDs(); len(nodes) > 0 && !dmuo.mutation.MessageReactionsCleared() {
+	if nodes := _u.mutation.RemovedMessageReactionsIDs(); len(nodes) > 0 && !_u.mutation.MessageReactionsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -734,7 +734,7 @@ func (dmuo *DiscordMessageUpdateOne) sqlSave(ctx context.Context) (_node *Discor
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := dmuo.mutation.MessageReactionsIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.MessageReactionsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -750,7 +750,7 @@ func (dmuo *DiscordMessageUpdateOne) sqlSave(ctx context.Context) (_node *Discor
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if dmuo.mutation.ChannelCleared() {
+	if _u.mutation.ChannelCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
@@ -763,7 +763,7 @@ func (dmuo *DiscordMessageUpdateOne) sqlSave(ctx context.Context) (_node *Discor
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := dmuo.mutation.ChannelIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.ChannelIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
@@ -779,7 +779,7 @@ func (dmuo *DiscordMessageUpdateOne) sqlSave(ctx context.Context) (_node *Discor
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if dmuo.mutation.GuildCleared() {
+	if _u.mutation.GuildCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
@@ -792,7 +792,7 @@ func (dmuo *DiscordMessageUpdateOne) sqlSave(ctx context.Context) (_node *Discor
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := dmuo.mutation.GuildIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.GuildIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
@@ -808,10 +808,10 @@ func (dmuo *DiscordMessageUpdateOne) sqlSave(ctx context.Context) (_node *Discor
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	_node = &DiscordMessage{config: dmuo.config}
+	_node = &DiscordMessage{config: _u.config}
 	_spec.Assign = _node.assignValues
 	_spec.ScanValues = _node.scanValues
-	if err = sqlgraph.UpdateNode(ctx, dmuo.driver, _spec); err != nil {
+	if err = sqlgraph.UpdateNode(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{discordmessage.Label}
 		} else if sqlgraph.IsConstraintError(err) {
@@ -819,6 +819,6 @@ func (dmuo *DiscordMessageUpdateOne) sqlSave(ctx context.Context) (_node *Discor
 		}
 		return nil, err
 	}
-	dmuo.mutation.done = true
+	_u.mutation.done = true
 	return _node, nil
 }

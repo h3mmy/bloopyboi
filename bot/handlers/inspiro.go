@@ -10,7 +10,6 @@ import (
 	"go.uber.org/zap"
 )
 
-// InspiroCommand is a command that summons inspiration.
 type InspiroCommand struct {
 	meta        models.BloopyMeta
 	Name        string
@@ -19,7 +18,6 @@ type InspiroCommand struct {
 	inspiroSvc  *services.InspiroService
 }
 
-// NewInspiroCommand creates a new InspiroCommand.
 func NewInspiroCommand(svc *services.InspiroService) *InspiroCommand {
 	return &InspiroCommand{
 		meta:        models.NewBloopyMeta(),
@@ -30,7 +28,6 @@ func NewInspiroCommand(svc *services.InspiroService) *InspiroCommand {
 	}
 }
 
-// GetAppCommand returns the application command for the Inspiro command.
 func (p *InspiroCommand) GetAppCommand() *discordgo.ApplicationCommand {
 	return &discordgo.ApplicationCommand{
 		Name:        strings.ToLower(p.Name),
@@ -38,7 +35,6 @@ func (p *InspiroCommand) GetAppCommand() *discordgo.ApplicationCommand {
 	}
 }
 
-// GetAppCommandHandler returns the handler for the Inspiro command.
 func (p *InspiroCommand) GetAppCommandHandler() func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	return func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		err := s.InteractionRespond(i.Interaction, p.inspiroSvc.CreateInteractionResponse())
@@ -48,18 +44,15 @@ func (p *InspiroCommand) GetAppCommandHandler() func(s *discordgo.Session, i *di
 	}
 }
 
-// GetMessageComponentHandlers returns the message component handlers for the Inspiro command.
 func (p *InspiroCommand) GetMessageComponentHandlers() map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	return nil
 }
 
-// GetGuildID returns the guild ID for the command.
 func (p *InspiroCommand) GetGuildID() string {
 	// Is global command
 	return ""
 }
 
-// GetAllowedRoles returns the allowed roles for the command.
 func (p *InspiroCommand) GetAllowedRoles() []int64 {
 	return []int64{}
 }

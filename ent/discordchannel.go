@@ -47,9 +47,7 @@ type DiscordChannelEdges struct {
 	Messages []*DiscordMessage `json:"messages,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes       [2]bool
-	namedDiscordGuild map[string][]*DiscordGuild
-	namedMessages     map[string][]*DiscordMessage
+	loadedTypes [2]bool
 }
 
 // DiscordGuildOrErr returns the DiscordGuild value or an error if the edge
@@ -94,7 +92,7 @@ func (*DiscordChannel) scanValues(columns []string) ([]any, error) {
 
 // assignValues assigns the values that were returned from sql.Rows (after scanning)
 // to the DiscordChannel fields.
-func (dc *DiscordChannel) assignValues(columns []string, values []any) error {
+func (_m *DiscordChannel) assignValues(columns []string, values []any) error {
 	if m, n := len(values), len(columns); m < n {
 		return fmt.Errorf("mismatch number of scan values: %d != %d", m, n)
 	}
@@ -104,52 +102,52 @@ func (dc *DiscordChannel) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value != nil {
-				dc.ID = *value
+				_m.ID = *value
 			}
 		case discordchannel.FieldCreateTime:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field create_time", values[i])
 			} else if value.Valid {
-				dc.CreateTime = value.Time
+				_m.CreateTime = value.Time
 			}
 		case discordchannel.FieldUpdateTime:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field update_time", values[i])
 			} else if value.Valid {
-				dc.UpdateTime = value.Time
+				_m.UpdateTime = value.Time
 			}
 		case discordchannel.FieldDiscordid:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field discordid", values[i])
 			} else if value.Valid {
-				dc.Discordid = value.String
+				_m.Discordid = value.String
 			}
 		case discordchannel.FieldName:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field name", values[i])
 			} else if value.Valid {
-				dc.Name = value.String
+				_m.Name = value.String
 			}
 		case discordchannel.FieldType:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field type", values[i])
 			} else if value.Valid {
-				dc.Type = discord.ChannelType(value.Int64)
+				_m.Type = discord.ChannelType(value.Int64)
 			}
 		case discordchannel.FieldNsfw:
 			if value, ok := values[i].(*sql.NullBool); !ok {
 				return fmt.Errorf("unexpected type %T for field nsfw", values[i])
 			} else if value.Valid {
-				dc.Nsfw = value.Bool
+				_m.Nsfw = value.Bool
 			}
 		case discordchannel.FieldFlags:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field flags", values[i])
 			} else if value.Valid {
-				dc.Flags = int(value.Int64)
+				_m.Flags = int(value.Int64)
 			}
 		default:
-			dc.selectValues.Set(columns[i], values[i])
+			_m.selectValues.Set(columns[i], values[i])
 		}
 	}
 	return nil
@@ -157,113 +155,65 @@ func (dc *DiscordChannel) assignValues(columns []string, values []any) error {
 
 // Value returns the ent.Value that was dynamically selected and assigned to the DiscordChannel.
 // This includes values selected through modifiers, order, etc.
-func (dc *DiscordChannel) Value(name string) (ent.Value, error) {
-	return dc.selectValues.Get(name)
+func (_m *DiscordChannel) Value(name string) (ent.Value, error) {
+	return _m.selectValues.Get(name)
 }
 
 // QueryDiscordGuild queries the "discord_guild" edge of the DiscordChannel entity.
-func (dc *DiscordChannel) QueryDiscordGuild() *DiscordGuildQuery {
-	return NewDiscordChannelClient(dc.config).QueryDiscordGuild(dc)
+func (_m *DiscordChannel) QueryDiscordGuild() *DiscordGuildQuery {
+	return NewDiscordChannelClient(_m.config).QueryDiscordGuild(_m)
 }
 
 // QueryMessages queries the "messages" edge of the DiscordChannel entity.
-func (dc *DiscordChannel) QueryMessages() *DiscordMessageQuery {
-	return NewDiscordChannelClient(dc.config).QueryMessages(dc)
+func (_m *DiscordChannel) QueryMessages() *DiscordMessageQuery {
+	return NewDiscordChannelClient(_m.config).QueryMessages(_m)
 }
 
 // Update returns a builder for updating this DiscordChannel.
 // Note that you need to call DiscordChannel.Unwrap() before calling this method if this DiscordChannel
 // was returned from a transaction, and the transaction was committed or rolled back.
-func (dc *DiscordChannel) Update() *DiscordChannelUpdateOne {
-	return NewDiscordChannelClient(dc.config).UpdateOne(dc)
+func (_m *DiscordChannel) Update() *DiscordChannelUpdateOne {
+	return NewDiscordChannelClient(_m.config).UpdateOne(_m)
 }
 
 // Unwrap unwraps the DiscordChannel entity that was returned from a transaction after it was closed,
 // so that all future queries will be executed through the driver which created the transaction.
-func (dc *DiscordChannel) Unwrap() *DiscordChannel {
-	_tx, ok := dc.config.driver.(*txDriver)
+func (_m *DiscordChannel) Unwrap() *DiscordChannel {
+	_tx, ok := _m.config.driver.(*txDriver)
 	if !ok {
 		panic("ent: DiscordChannel is not a transactional entity")
 	}
-	dc.config.driver = _tx.drv
-	return dc
+	_m.config.driver = _tx.drv
+	return _m
 }
 
 // String implements the fmt.Stringer.
-func (dc *DiscordChannel) String() string {
+func (_m *DiscordChannel) String() string {
 	var builder strings.Builder
 	builder.WriteString("DiscordChannel(")
-	builder.WriteString(fmt.Sprintf("id=%v, ", dc.ID))
+	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
 	builder.WriteString("create_time=")
-	builder.WriteString(dc.CreateTime.Format(time.ANSIC))
+	builder.WriteString(_m.CreateTime.Format(time.ANSIC))
 	builder.WriteString(", ")
 	builder.WriteString("update_time=")
-	builder.WriteString(dc.UpdateTime.Format(time.ANSIC))
+	builder.WriteString(_m.UpdateTime.Format(time.ANSIC))
 	builder.WriteString(", ")
 	builder.WriteString("discordid=")
-	builder.WriteString(dc.Discordid)
+	builder.WriteString(_m.Discordid)
 	builder.WriteString(", ")
 	builder.WriteString("name=")
-	builder.WriteString(dc.Name)
+	builder.WriteString(_m.Name)
 	builder.WriteString(", ")
 	builder.WriteString("type=")
-	builder.WriteString(fmt.Sprintf("%v", dc.Type))
+	builder.WriteString(fmt.Sprintf("%v", _m.Type))
 	builder.WriteString(", ")
 	builder.WriteString("nsfw=")
-	builder.WriteString(fmt.Sprintf("%v", dc.Nsfw))
+	builder.WriteString(fmt.Sprintf("%v", _m.Nsfw))
 	builder.WriteString(", ")
 	builder.WriteString("flags=")
-	builder.WriteString(fmt.Sprintf("%v", dc.Flags))
+	builder.WriteString(fmt.Sprintf("%v", _m.Flags))
 	builder.WriteByte(')')
 	return builder.String()
-}
-
-// NamedDiscordGuild returns the DiscordGuild named value or an error if the edge was not
-// loaded in eager-loading with this name.
-func (dc *DiscordChannel) NamedDiscordGuild(name string) ([]*DiscordGuild, error) {
-	if dc.Edges.namedDiscordGuild == nil {
-		return nil, &NotLoadedError{edge: name}
-	}
-	nodes, ok := dc.Edges.namedDiscordGuild[name]
-	if !ok {
-		return nil, &NotLoadedError{edge: name}
-	}
-	return nodes, nil
-}
-
-func (dc *DiscordChannel) appendNamedDiscordGuild(name string, edges ...*DiscordGuild) {
-	if dc.Edges.namedDiscordGuild == nil {
-		dc.Edges.namedDiscordGuild = make(map[string][]*DiscordGuild)
-	}
-	if len(edges) == 0 {
-		dc.Edges.namedDiscordGuild[name] = []*DiscordGuild{}
-	} else {
-		dc.Edges.namedDiscordGuild[name] = append(dc.Edges.namedDiscordGuild[name], edges...)
-	}
-}
-
-// NamedMessages returns the Messages named value or an error if the edge was not
-// loaded in eager-loading with this name.
-func (dc *DiscordChannel) NamedMessages(name string) ([]*DiscordMessage, error) {
-	if dc.Edges.namedMessages == nil {
-		return nil, &NotLoadedError{edge: name}
-	}
-	nodes, ok := dc.Edges.namedMessages[name]
-	if !ok {
-		return nil, &NotLoadedError{edge: name}
-	}
-	return nodes, nil
-}
-
-func (dc *DiscordChannel) appendNamedMessages(name string, edges ...*DiscordMessage) {
-	if dc.Edges.namedMessages == nil {
-		dc.Edges.namedMessages = make(map[string][]*DiscordMessage)
-	}
-	if len(edges) == 0 {
-		dc.Edges.namedMessages[name] = []*DiscordMessage{}
-	} else {
-		dc.Edges.namedMessages[name] = append(dc.Edges.namedMessages[name], edges...)
-	}
 }
 
 // DiscordChannels is a parsable slice of DiscordChannel.

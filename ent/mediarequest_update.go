@@ -27,127 +27,127 @@ type MediaRequestUpdate struct {
 }
 
 // Where appends a list predicates to the MediaRequestUpdate builder.
-func (mru *MediaRequestUpdate) Where(ps ...predicate.MediaRequest) *MediaRequestUpdate {
-	mru.mutation.Where(ps...)
-	return mru
+func (_u *MediaRequestUpdate) Where(ps ...predicate.MediaRequest) *MediaRequestUpdate {
+	_u.mutation.Where(ps...)
+	return _u
 }
 
 // SetUpdateTime sets the "update_time" field.
-func (mru *MediaRequestUpdate) SetUpdateTime(t time.Time) *MediaRequestUpdate {
-	mru.mutation.SetUpdateTime(t)
-	return mru
+func (_u *MediaRequestUpdate) SetUpdateTime(v time.Time) *MediaRequestUpdate {
+	_u.mutation.SetUpdateTime(v)
+	return _u
 }
 
 // SetStatus sets the "status" field.
-func (mru *MediaRequestUpdate) SetStatus(mrs models.MediaRequestStatus) *MediaRequestUpdate {
-	mru.mutation.SetStatus(mrs)
-	return mru
+func (_u *MediaRequestUpdate) SetStatus(v models.MediaRequestStatus) *MediaRequestUpdate {
+	_u.mutation.SetStatus(v)
+	return _u
 }
 
 // SetNillableStatus sets the "status" field if the given value is not nil.
-func (mru *MediaRequestUpdate) SetNillableStatus(mrs *models.MediaRequestStatus) *MediaRequestUpdate {
-	if mrs != nil {
-		mru.SetStatus(*mrs)
+func (_u *MediaRequestUpdate) SetNillableStatus(v *models.MediaRequestStatus) *MediaRequestUpdate {
+	if v != nil {
+		_u.SetStatus(*v)
 	}
-	return mru
+	return _u
 }
 
 // SetPriority sets the "priority" field.
-func (mru *MediaRequestUpdate) SetPriority(i int) *MediaRequestUpdate {
-	mru.mutation.ResetPriority()
-	mru.mutation.SetPriority(i)
-	return mru
+func (_u *MediaRequestUpdate) SetPriority(v int) *MediaRequestUpdate {
+	_u.mutation.ResetPriority()
+	_u.mutation.SetPriority(v)
+	return _u
 }
 
 // SetNillablePriority sets the "priority" field if the given value is not nil.
-func (mru *MediaRequestUpdate) SetNillablePriority(i *int) *MediaRequestUpdate {
-	if i != nil {
-		mru.SetPriority(*i)
+func (_u *MediaRequestUpdate) SetNillablePriority(v *int) *MediaRequestUpdate {
+	if v != nil {
+		_u.SetPriority(*v)
 	}
-	return mru
+	return _u
 }
 
-// AddPriority adds i to the "priority" field.
-func (mru *MediaRequestUpdate) AddPriority(i int) *MediaRequestUpdate {
-	mru.mutation.AddPriority(i)
-	return mru
+// AddPriority adds value to the "priority" field.
+func (_u *MediaRequestUpdate) AddPriority(v int) *MediaRequestUpdate {
+	_u.mutation.AddPriority(v)
+	return _u
 }
 
 // AddDiscordUserIDs adds the "discord_users" edge to the DiscordUser entity by IDs.
-func (mru *MediaRequestUpdate) AddDiscordUserIDs(ids ...uuid.UUID) *MediaRequestUpdate {
-	mru.mutation.AddDiscordUserIDs(ids...)
-	return mru
+func (_u *MediaRequestUpdate) AddDiscordUserIDs(ids ...uuid.UUID) *MediaRequestUpdate {
+	_u.mutation.AddDiscordUserIDs(ids...)
+	return _u
 }
 
 // AddDiscordUsers adds the "discord_users" edges to the DiscordUser entity.
-func (mru *MediaRequestUpdate) AddDiscordUsers(d ...*DiscordUser) *MediaRequestUpdate {
-	ids := make([]uuid.UUID, len(d))
-	for i := range d {
-		ids[i] = d[i].ID
+func (_u *MediaRequestUpdate) AddDiscordUsers(v ...*DiscordUser) *MediaRequestUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return mru.AddDiscordUserIDs(ids...)
+	return _u.AddDiscordUserIDs(ids...)
 }
 
 // SetBookID sets the "book" edge to the Book entity by ID.
-func (mru *MediaRequestUpdate) SetBookID(id uuid.UUID) *MediaRequestUpdate {
-	mru.mutation.SetBookID(id)
-	return mru
+func (_u *MediaRequestUpdate) SetBookID(id uuid.UUID) *MediaRequestUpdate {
+	_u.mutation.SetBookID(id)
+	return _u
 }
 
 // SetNillableBookID sets the "book" edge to the Book entity by ID if the given value is not nil.
-func (mru *MediaRequestUpdate) SetNillableBookID(id *uuid.UUID) *MediaRequestUpdate {
+func (_u *MediaRequestUpdate) SetNillableBookID(id *uuid.UUID) *MediaRequestUpdate {
 	if id != nil {
-		mru = mru.SetBookID(*id)
+		_u = _u.SetBookID(*id)
 	}
-	return mru
+	return _u
 }
 
 // SetBook sets the "book" edge to the Book entity.
-func (mru *MediaRequestUpdate) SetBook(b *Book) *MediaRequestUpdate {
-	return mru.SetBookID(b.ID)
+func (_u *MediaRequestUpdate) SetBook(v *Book) *MediaRequestUpdate {
+	return _u.SetBookID(v.ID)
 }
 
 // Mutation returns the MediaRequestMutation object of the builder.
-func (mru *MediaRequestUpdate) Mutation() *MediaRequestMutation {
-	return mru.mutation
+func (_u *MediaRequestUpdate) Mutation() *MediaRequestMutation {
+	return _u.mutation
 }
 
 // ClearDiscordUsers clears all "discord_users" edges to the DiscordUser entity.
-func (mru *MediaRequestUpdate) ClearDiscordUsers() *MediaRequestUpdate {
-	mru.mutation.ClearDiscordUsers()
-	return mru
+func (_u *MediaRequestUpdate) ClearDiscordUsers() *MediaRequestUpdate {
+	_u.mutation.ClearDiscordUsers()
+	return _u
 }
 
 // RemoveDiscordUserIDs removes the "discord_users" edge to DiscordUser entities by IDs.
-func (mru *MediaRequestUpdate) RemoveDiscordUserIDs(ids ...uuid.UUID) *MediaRequestUpdate {
-	mru.mutation.RemoveDiscordUserIDs(ids...)
-	return mru
+func (_u *MediaRequestUpdate) RemoveDiscordUserIDs(ids ...uuid.UUID) *MediaRequestUpdate {
+	_u.mutation.RemoveDiscordUserIDs(ids...)
+	return _u
 }
 
 // RemoveDiscordUsers removes "discord_users" edges to DiscordUser entities.
-func (mru *MediaRequestUpdate) RemoveDiscordUsers(d ...*DiscordUser) *MediaRequestUpdate {
-	ids := make([]uuid.UUID, len(d))
-	for i := range d {
-		ids[i] = d[i].ID
+func (_u *MediaRequestUpdate) RemoveDiscordUsers(v ...*DiscordUser) *MediaRequestUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return mru.RemoveDiscordUserIDs(ids...)
+	return _u.RemoveDiscordUserIDs(ids...)
 }
 
 // ClearBook clears the "book" edge to the Book entity.
-func (mru *MediaRequestUpdate) ClearBook() *MediaRequestUpdate {
-	mru.mutation.ClearBook()
-	return mru
+func (_u *MediaRequestUpdate) ClearBook() *MediaRequestUpdate {
+	_u.mutation.ClearBook()
+	return _u
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
-func (mru *MediaRequestUpdate) Save(ctx context.Context) (int, error) {
-	mru.defaults()
-	return withHooks(ctx, mru.sqlSave, mru.mutation, mru.hooks)
+func (_u *MediaRequestUpdate) Save(ctx context.Context) (int, error) {
+	_u.defaults()
+	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (mru *MediaRequestUpdate) SaveX(ctx context.Context) int {
-	affected, err := mru.Save(ctx)
+func (_u *MediaRequestUpdate) SaveX(ctx context.Context) int {
+	affected, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -155,29 +155,29 @@ func (mru *MediaRequestUpdate) SaveX(ctx context.Context) int {
 }
 
 // Exec executes the query.
-func (mru *MediaRequestUpdate) Exec(ctx context.Context) error {
-	_, err := mru.Save(ctx)
+func (_u *MediaRequestUpdate) Exec(ctx context.Context) error {
+	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (mru *MediaRequestUpdate) ExecX(ctx context.Context) {
-	if err := mru.Exec(ctx); err != nil {
+func (_u *MediaRequestUpdate) ExecX(ctx context.Context) {
+	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (mru *MediaRequestUpdate) defaults() {
-	if _, ok := mru.mutation.UpdateTime(); !ok {
+func (_u *MediaRequestUpdate) defaults() {
+	if _, ok := _u.mutation.UpdateTime(); !ok {
 		v := mediarequest.UpdateDefaultUpdateTime()
-		mru.mutation.SetUpdateTime(v)
+		_u.mutation.SetUpdateTime(v)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (mru *MediaRequestUpdate) check() error {
-	if v, ok := mru.mutation.Status(); ok {
+func (_u *MediaRequestUpdate) check() error {
+	if v, ok := _u.mutation.Status(); ok {
 		if err := mediarequest.StatusValidator(v); err != nil {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "MediaRequest.status": %w`, err)}
 		}
@@ -185,31 +185,31 @@ func (mru *MediaRequestUpdate) check() error {
 	return nil
 }
 
-func (mru *MediaRequestUpdate) sqlSave(ctx context.Context) (n int, err error) {
-	if err := mru.check(); err != nil {
-		return n, err
+func (_u *MediaRequestUpdate) sqlSave(ctx context.Context) (_node int, err error) {
+	if err := _u.check(); err != nil {
+		return _node, err
 	}
 	_spec := sqlgraph.NewUpdateSpec(mediarequest.Table, mediarequest.Columns, sqlgraph.NewFieldSpec(mediarequest.FieldID, field.TypeUUID))
-	if ps := mru.mutation.predicates; len(ps) > 0 {
+	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if value, ok := mru.mutation.UpdateTime(); ok {
+	if value, ok := _u.mutation.UpdateTime(); ok {
 		_spec.SetField(mediarequest.FieldUpdateTime, field.TypeTime, value)
 	}
-	if value, ok := mru.mutation.Status(); ok {
+	if value, ok := _u.mutation.Status(); ok {
 		_spec.SetField(mediarequest.FieldStatus, field.TypeEnum, value)
 	}
-	if value, ok := mru.mutation.Priority(); ok {
+	if value, ok := _u.mutation.Priority(); ok {
 		_spec.SetField(mediarequest.FieldPriority, field.TypeInt, value)
 	}
-	if value, ok := mru.mutation.AddedPriority(); ok {
+	if value, ok := _u.mutation.AddedPriority(); ok {
 		_spec.AddField(mediarequest.FieldPriority, field.TypeInt, value)
 	}
-	if mru.mutation.DiscordUsersCleared() {
+	if _u.mutation.DiscordUsersCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: true,
@@ -222,7 +222,7 @@ func (mru *MediaRequestUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := mru.mutation.RemovedDiscordUsersIDs(); len(nodes) > 0 && !mru.mutation.DiscordUsersCleared() {
+	if nodes := _u.mutation.RemovedDiscordUsersIDs(); len(nodes) > 0 && !_u.mutation.DiscordUsersCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: true,
@@ -238,7 +238,7 @@ func (mru *MediaRequestUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := mru.mutation.DiscordUsersIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.DiscordUsersIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: true,
@@ -254,7 +254,7 @@ func (mru *MediaRequestUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if mru.mutation.BookCleared() {
+	if _u.mutation.BookCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2O,
 			Inverse: true,
@@ -267,7 +267,7 @@ func (mru *MediaRequestUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := mru.mutation.BookIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.BookIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2O,
 			Inverse: true,
@@ -283,7 +283,7 @@ func (mru *MediaRequestUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if n, err = sqlgraph.UpdateNodes(ctx, mru.driver, _spec); err != nil {
+	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{mediarequest.Label}
 		} else if sqlgraph.IsConstraintError(err) {
@@ -291,8 +291,8 @@ func (mru *MediaRequestUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		return 0, err
 	}
-	mru.mutation.done = true
-	return n, nil
+	_u.mutation.done = true
+	return _node, nil
 }
 
 // MediaRequestUpdateOne is the builder for updating a single MediaRequest entity.
@@ -304,134 +304,134 @@ type MediaRequestUpdateOne struct {
 }
 
 // SetUpdateTime sets the "update_time" field.
-func (mruo *MediaRequestUpdateOne) SetUpdateTime(t time.Time) *MediaRequestUpdateOne {
-	mruo.mutation.SetUpdateTime(t)
-	return mruo
+func (_u *MediaRequestUpdateOne) SetUpdateTime(v time.Time) *MediaRequestUpdateOne {
+	_u.mutation.SetUpdateTime(v)
+	return _u
 }
 
 // SetStatus sets the "status" field.
-func (mruo *MediaRequestUpdateOne) SetStatus(mrs models.MediaRequestStatus) *MediaRequestUpdateOne {
-	mruo.mutation.SetStatus(mrs)
-	return mruo
+func (_u *MediaRequestUpdateOne) SetStatus(v models.MediaRequestStatus) *MediaRequestUpdateOne {
+	_u.mutation.SetStatus(v)
+	return _u
 }
 
 // SetNillableStatus sets the "status" field if the given value is not nil.
-func (mruo *MediaRequestUpdateOne) SetNillableStatus(mrs *models.MediaRequestStatus) *MediaRequestUpdateOne {
-	if mrs != nil {
-		mruo.SetStatus(*mrs)
+func (_u *MediaRequestUpdateOne) SetNillableStatus(v *models.MediaRequestStatus) *MediaRequestUpdateOne {
+	if v != nil {
+		_u.SetStatus(*v)
 	}
-	return mruo
+	return _u
 }
 
 // SetPriority sets the "priority" field.
-func (mruo *MediaRequestUpdateOne) SetPriority(i int) *MediaRequestUpdateOne {
-	mruo.mutation.ResetPriority()
-	mruo.mutation.SetPriority(i)
-	return mruo
+func (_u *MediaRequestUpdateOne) SetPriority(v int) *MediaRequestUpdateOne {
+	_u.mutation.ResetPriority()
+	_u.mutation.SetPriority(v)
+	return _u
 }
 
 // SetNillablePriority sets the "priority" field if the given value is not nil.
-func (mruo *MediaRequestUpdateOne) SetNillablePriority(i *int) *MediaRequestUpdateOne {
-	if i != nil {
-		mruo.SetPriority(*i)
+func (_u *MediaRequestUpdateOne) SetNillablePriority(v *int) *MediaRequestUpdateOne {
+	if v != nil {
+		_u.SetPriority(*v)
 	}
-	return mruo
+	return _u
 }
 
-// AddPriority adds i to the "priority" field.
-func (mruo *MediaRequestUpdateOne) AddPriority(i int) *MediaRequestUpdateOne {
-	mruo.mutation.AddPriority(i)
-	return mruo
+// AddPriority adds value to the "priority" field.
+func (_u *MediaRequestUpdateOne) AddPriority(v int) *MediaRequestUpdateOne {
+	_u.mutation.AddPriority(v)
+	return _u
 }
 
 // AddDiscordUserIDs adds the "discord_users" edge to the DiscordUser entity by IDs.
-func (mruo *MediaRequestUpdateOne) AddDiscordUserIDs(ids ...uuid.UUID) *MediaRequestUpdateOne {
-	mruo.mutation.AddDiscordUserIDs(ids...)
-	return mruo
+func (_u *MediaRequestUpdateOne) AddDiscordUserIDs(ids ...uuid.UUID) *MediaRequestUpdateOne {
+	_u.mutation.AddDiscordUserIDs(ids...)
+	return _u
 }
 
 // AddDiscordUsers adds the "discord_users" edges to the DiscordUser entity.
-func (mruo *MediaRequestUpdateOne) AddDiscordUsers(d ...*DiscordUser) *MediaRequestUpdateOne {
-	ids := make([]uuid.UUID, len(d))
-	for i := range d {
-		ids[i] = d[i].ID
+func (_u *MediaRequestUpdateOne) AddDiscordUsers(v ...*DiscordUser) *MediaRequestUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return mruo.AddDiscordUserIDs(ids...)
+	return _u.AddDiscordUserIDs(ids...)
 }
 
 // SetBookID sets the "book" edge to the Book entity by ID.
-func (mruo *MediaRequestUpdateOne) SetBookID(id uuid.UUID) *MediaRequestUpdateOne {
-	mruo.mutation.SetBookID(id)
-	return mruo
+func (_u *MediaRequestUpdateOne) SetBookID(id uuid.UUID) *MediaRequestUpdateOne {
+	_u.mutation.SetBookID(id)
+	return _u
 }
 
 // SetNillableBookID sets the "book" edge to the Book entity by ID if the given value is not nil.
-func (mruo *MediaRequestUpdateOne) SetNillableBookID(id *uuid.UUID) *MediaRequestUpdateOne {
+func (_u *MediaRequestUpdateOne) SetNillableBookID(id *uuid.UUID) *MediaRequestUpdateOne {
 	if id != nil {
-		mruo = mruo.SetBookID(*id)
+		_u = _u.SetBookID(*id)
 	}
-	return mruo
+	return _u
 }
 
 // SetBook sets the "book" edge to the Book entity.
-func (mruo *MediaRequestUpdateOne) SetBook(b *Book) *MediaRequestUpdateOne {
-	return mruo.SetBookID(b.ID)
+func (_u *MediaRequestUpdateOne) SetBook(v *Book) *MediaRequestUpdateOne {
+	return _u.SetBookID(v.ID)
 }
 
 // Mutation returns the MediaRequestMutation object of the builder.
-func (mruo *MediaRequestUpdateOne) Mutation() *MediaRequestMutation {
-	return mruo.mutation
+func (_u *MediaRequestUpdateOne) Mutation() *MediaRequestMutation {
+	return _u.mutation
 }
 
 // ClearDiscordUsers clears all "discord_users" edges to the DiscordUser entity.
-func (mruo *MediaRequestUpdateOne) ClearDiscordUsers() *MediaRequestUpdateOne {
-	mruo.mutation.ClearDiscordUsers()
-	return mruo
+func (_u *MediaRequestUpdateOne) ClearDiscordUsers() *MediaRequestUpdateOne {
+	_u.mutation.ClearDiscordUsers()
+	return _u
 }
 
 // RemoveDiscordUserIDs removes the "discord_users" edge to DiscordUser entities by IDs.
-func (mruo *MediaRequestUpdateOne) RemoveDiscordUserIDs(ids ...uuid.UUID) *MediaRequestUpdateOne {
-	mruo.mutation.RemoveDiscordUserIDs(ids...)
-	return mruo
+func (_u *MediaRequestUpdateOne) RemoveDiscordUserIDs(ids ...uuid.UUID) *MediaRequestUpdateOne {
+	_u.mutation.RemoveDiscordUserIDs(ids...)
+	return _u
 }
 
 // RemoveDiscordUsers removes "discord_users" edges to DiscordUser entities.
-func (mruo *MediaRequestUpdateOne) RemoveDiscordUsers(d ...*DiscordUser) *MediaRequestUpdateOne {
-	ids := make([]uuid.UUID, len(d))
-	for i := range d {
-		ids[i] = d[i].ID
+func (_u *MediaRequestUpdateOne) RemoveDiscordUsers(v ...*DiscordUser) *MediaRequestUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return mruo.RemoveDiscordUserIDs(ids...)
+	return _u.RemoveDiscordUserIDs(ids...)
 }
 
 // ClearBook clears the "book" edge to the Book entity.
-func (mruo *MediaRequestUpdateOne) ClearBook() *MediaRequestUpdateOne {
-	mruo.mutation.ClearBook()
-	return mruo
+func (_u *MediaRequestUpdateOne) ClearBook() *MediaRequestUpdateOne {
+	_u.mutation.ClearBook()
+	return _u
 }
 
 // Where appends a list predicates to the MediaRequestUpdate builder.
-func (mruo *MediaRequestUpdateOne) Where(ps ...predicate.MediaRequest) *MediaRequestUpdateOne {
-	mruo.mutation.Where(ps...)
-	return mruo
+func (_u *MediaRequestUpdateOne) Where(ps ...predicate.MediaRequest) *MediaRequestUpdateOne {
+	_u.mutation.Where(ps...)
+	return _u
 }
 
 // Select allows selecting one or more fields (columns) of the returned entity.
 // The default is selecting all fields defined in the entity schema.
-func (mruo *MediaRequestUpdateOne) Select(field string, fields ...string) *MediaRequestUpdateOne {
-	mruo.fields = append([]string{field}, fields...)
-	return mruo
+func (_u *MediaRequestUpdateOne) Select(field string, fields ...string) *MediaRequestUpdateOne {
+	_u.fields = append([]string{field}, fields...)
+	return _u
 }
 
 // Save executes the query and returns the updated MediaRequest entity.
-func (mruo *MediaRequestUpdateOne) Save(ctx context.Context) (*MediaRequest, error) {
-	mruo.defaults()
-	return withHooks(ctx, mruo.sqlSave, mruo.mutation, mruo.hooks)
+func (_u *MediaRequestUpdateOne) Save(ctx context.Context) (*MediaRequest, error) {
+	_u.defaults()
+	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (mruo *MediaRequestUpdateOne) SaveX(ctx context.Context) *MediaRequest {
-	node, err := mruo.Save(ctx)
+func (_u *MediaRequestUpdateOne) SaveX(ctx context.Context) *MediaRequest {
+	node, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -439,29 +439,29 @@ func (mruo *MediaRequestUpdateOne) SaveX(ctx context.Context) *MediaRequest {
 }
 
 // Exec executes the query on the entity.
-func (mruo *MediaRequestUpdateOne) Exec(ctx context.Context) error {
-	_, err := mruo.Save(ctx)
+func (_u *MediaRequestUpdateOne) Exec(ctx context.Context) error {
+	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (mruo *MediaRequestUpdateOne) ExecX(ctx context.Context) {
-	if err := mruo.Exec(ctx); err != nil {
+func (_u *MediaRequestUpdateOne) ExecX(ctx context.Context) {
+	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (mruo *MediaRequestUpdateOne) defaults() {
-	if _, ok := mruo.mutation.UpdateTime(); !ok {
+func (_u *MediaRequestUpdateOne) defaults() {
+	if _, ok := _u.mutation.UpdateTime(); !ok {
 		v := mediarequest.UpdateDefaultUpdateTime()
-		mruo.mutation.SetUpdateTime(v)
+		_u.mutation.SetUpdateTime(v)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (mruo *MediaRequestUpdateOne) check() error {
-	if v, ok := mruo.mutation.Status(); ok {
+func (_u *MediaRequestUpdateOne) check() error {
+	if v, ok := _u.mutation.Status(); ok {
 		if err := mediarequest.StatusValidator(v); err != nil {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "MediaRequest.status": %w`, err)}
 		}
@@ -469,17 +469,17 @@ func (mruo *MediaRequestUpdateOne) check() error {
 	return nil
 }
 
-func (mruo *MediaRequestUpdateOne) sqlSave(ctx context.Context) (_node *MediaRequest, err error) {
-	if err := mruo.check(); err != nil {
+func (_u *MediaRequestUpdateOne) sqlSave(ctx context.Context) (_node *MediaRequest, err error) {
+	if err := _u.check(); err != nil {
 		return _node, err
 	}
 	_spec := sqlgraph.NewUpdateSpec(mediarequest.Table, mediarequest.Columns, sqlgraph.NewFieldSpec(mediarequest.FieldID, field.TypeUUID))
-	id, ok := mruo.mutation.ID()
+	id, ok := _u.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "MediaRequest.id" for update`)}
 	}
 	_spec.Node.ID.Value = id
-	if fields := mruo.fields; len(fields) > 0 {
+	if fields := _u.fields; len(fields) > 0 {
 		_spec.Node.Columns = make([]string, 0, len(fields))
 		_spec.Node.Columns = append(_spec.Node.Columns, mediarequest.FieldID)
 		for _, f := range fields {
@@ -491,26 +491,26 @@ func (mruo *MediaRequestUpdateOne) sqlSave(ctx context.Context) (_node *MediaReq
 			}
 		}
 	}
-	if ps := mruo.mutation.predicates; len(ps) > 0 {
+	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if value, ok := mruo.mutation.UpdateTime(); ok {
+	if value, ok := _u.mutation.UpdateTime(); ok {
 		_spec.SetField(mediarequest.FieldUpdateTime, field.TypeTime, value)
 	}
-	if value, ok := mruo.mutation.Status(); ok {
+	if value, ok := _u.mutation.Status(); ok {
 		_spec.SetField(mediarequest.FieldStatus, field.TypeEnum, value)
 	}
-	if value, ok := mruo.mutation.Priority(); ok {
+	if value, ok := _u.mutation.Priority(); ok {
 		_spec.SetField(mediarequest.FieldPriority, field.TypeInt, value)
 	}
-	if value, ok := mruo.mutation.AddedPriority(); ok {
+	if value, ok := _u.mutation.AddedPriority(); ok {
 		_spec.AddField(mediarequest.FieldPriority, field.TypeInt, value)
 	}
-	if mruo.mutation.DiscordUsersCleared() {
+	if _u.mutation.DiscordUsersCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: true,
@@ -523,7 +523,7 @@ func (mruo *MediaRequestUpdateOne) sqlSave(ctx context.Context) (_node *MediaReq
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := mruo.mutation.RemovedDiscordUsersIDs(); len(nodes) > 0 && !mruo.mutation.DiscordUsersCleared() {
+	if nodes := _u.mutation.RemovedDiscordUsersIDs(); len(nodes) > 0 && !_u.mutation.DiscordUsersCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: true,
@@ -539,7 +539,7 @@ func (mruo *MediaRequestUpdateOne) sqlSave(ctx context.Context) (_node *MediaReq
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := mruo.mutation.DiscordUsersIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.DiscordUsersIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: true,
@@ -555,7 +555,7 @@ func (mruo *MediaRequestUpdateOne) sqlSave(ctx context.Context) (_node *MediaReq
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if mruo.mutation.BookCleared() {
+	if _u.mutation.BookCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2O,
 			Inverse: true,
@@ -568,7 +568,7 @@ func (mruo *MediaRequestUpdateOne) sqlSave(ctx context.Context) (_node *MediaReq
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := mruo.mutation.BookIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.BookIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2O,
 			Inverse: true,
@@ -584,10 +584,10 @@ func (mruo *MediaRequestUpdateOne) sqlSave(ctx context.Context) (_node *MediaReq
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	_node = &MediaRequest{config: mruo.config}
+	_node = &MediaRequest{config: _u.config}
 	_spec.Assign = _node.assignValues
 	_spec.ScanValues = _node.scanValues
-	if err = sqlgraph.UpdateNode(ctx, mruo.driver, _spec); err != nil {
+	if err = sqlgraph.UpdateNode(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{mediarequest.Label}
 		} else if sqlgraph.IsConstraintError(err) {
@@ -595,6 +595,6 @@ func (mruo *MediaRequestUpdateOne) sqlSave(ctx context.Context) (_node *MediaReq
 		}
 		return nil, err
 	}
-	mruo.mutation.done = true
+	_u.mutation.done = true
 	return _node, nil
 }

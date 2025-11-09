@@ -7,13 +7,12 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
-// InspiroService is a service that provides inspirational images.
 type InspiroService struct {
 	inspiroClient *InspiroClient
 	logger        *zap.Logger
 }
 
-// NewInspiroService creates a new InspiroService.
+// Creates New InspiroService with specified Service
 func NewInspiroService(inspiro *InspiroClient) *InspiroService {
 	lgr := log.NewZapLogger().With(zapcore.Field{
 		Key:    ServiceLoggerFieldKey,
@@ -26,18 +25,16 @@ func NewInspiroService(inspiro *InspiroClient) *InspiroService {
 	}
 }
 
-// GetInspiroImageURL returns the URL of an inspirational image.
 func (ic *InspiroService) GetInspiroImageURL() string {
 	ic.logger.Debug("Getting Inspiro Image")
 	return ic.inspiroClient.GetInspiro()
 }
 
-// GetClient returns the InspiroClient.
 func (ic *InspiroService) GetClient() *InspiroClient {
 	return ic.inspiroClient
 }
 
-// CreateInsprioEmbed creates a Discord embed for an inspirational image.
+// Creates the discord.Embed object to be used in a message
 func (ic *InspiroService) CreateInsprioEmbed() *discordgo.MessageEmbed {
 	return &discordgo.MessageEmbed{
 		Author: &discordgo.MessageEmbedAuthor{},
@@ -47,7 +44,7 @@ func (ic *InspiroService) CreateInsprioEmbed() *discordgo.MessageEmbed {
 	}
 }
 
-// CreateInteractionResponseData creates a Discord interaction response data for an inspirational image.
+// Creates InteractionResponseData with to be used with custom flags, etc
 func (ic *InspiroService) CreateInteractionResponseData() *discordgo.InteractionResponseData {
 	return &discordgo.InteractionResponseData{
 		Embeds: []*discordgo.MessageEmbed{
@@ -56,7 +53,7 @@ func (ic *InspiroService) CreateInteractionResponseData() *discordgo.Interaction
 	}
 }
 
-// CreateInteractionResponse creates a Discord interaction response for an inspirational image.
+// Creates InteractionResponse with default Type and Flags, etc.
 func (ic *InspiroService) CreateInteractionResponse() *discordgo.InteractionResponse {
 	return &discordgo.InteractionResponse{
 		Type: discordgo.InteractionResponseChannelMessageWithSource,

@@ -7,8 +7,6 @@ import (
 	"errors"
 	"fmt"
 
-	"entgo.io/ent/dialect"
-	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
@@ -22,167 +20,166 @@ type BookCreate struct {
 	config
 	mutation *BookMutation
 	hooks    []Hook
-	conflict []sql.ConflictOption
 }
 
 // SetTitle sets the "title" field.
-func (bc *BookCreate) SetTitle(s string) *BookCreate {
-	bc.mutation.SetTitle(s)
-	return bc
+func (_c *BookCreate) SetTitle(v string) *BookCreate {
+	_c.mutation.SetTitle(v)
+	return _c
 }
 
 // SetDescription sets the "description" field.
-func (bc *BookCreate) SetDescription(s string) *BookCreate {
-	bc.mutation.SetDescription(s)
-	return bc
+func (_c *BookCreate) SetDescription(v string) *BookCreate {
+	_c.mutation.SetDescription(v)
+	return _c
 }
 
 // SetNillableDescription sets the "description" field if the given value is not nil.
-func (bc *BookCreate) SetNillableDescription(s *string) *BookCreate {
-	if s != nil {
-		bc.SetDescription(*s)
+func (_c *BookCreate) SetNillableDescription(v *string) *BookCreate {
+	if v != nil {
+		_c.SetDescription(*v)
 	}
-	return bc
+	return _c
 }
 
 // SetGoodreadsID sets the "goodreads_id" field.
-func (bc *BookCreate) SetGoodreadsID(s string) *BookCreate {
-	bc.mutation.SetGoodreadsID(s)
-	return bc
+func (_c *BookCreate) SetGoodreadsID(v string) *BookCreate {
+	_c.mutation.SetGoodreadsID(v)
+	return _c
 }
 
 // SetNillableGoodreadsID sets the "goodreads_id" field if the given value is not nil.
-func (bc *BookCreate) SetNillableGoodreadsID(s *string) *BookCreate {
-	if s != nil {
-		bc.SetGoodreadsID(*s)
+func (_c *BookCreate) SetNillableGoodreadsID(v *string) *BookCreate {
+	if v != nil {
+		_c.SetGoodreadsID(*v)
 	}
-	return bc
+	return _c
 }
 
 // SetGoogleVolumeID sets the "google_volume_id" field.
-func (bc *BookCreate) SetGoogleVolumeID(s string) *BookCreate {
-	bc.mutation.SetGoogleVolumeID(s)
-	return bc
+func (_c *BookCreate) SetGoogleVolumeID(v string) *BookCreate {
+	_c.mutation.SetGoogleVolumeID(v)
+	return _c
 }
 
 // SetIsbn10 sets the "isbn_10" field.
-func (bc *BookCreate) SetIsbn10(s string) *BookCreate {
-	bc.mutation.SetIsbn10(s)
-	return bc
+func (_c *BookCreate) SetIsbn10(v string) *BookCreate {
+	_c.mutation.SetIsbn10(v)
+	return _c
 }
 
 // SetNillableIsbn10 sets the "isbn_10" field if the given value is not nil.
-func (bc *BookCreate) SetNillableIsbn10(s *string) *BookCreate {
-	if s != nil {
-		bc.SetIsbn10(*s)
+func (_c *BookCreate) SetNillableIsbn10(v *string) *BookCreate {
+	if v != nil {
+		_c.SetIsbn10(*v)
 	}
-	return bc
+	return _c
 }
 
 // SetIsbn13 sets the "isbn_13" field.
-func (bc *BookCreate) SetIsbn13(s string) *BookCreate {
-	bc.mutation.SetIsbn13(s)
-	return bc
+func (_c *BookCreate) SetIsbn13(v string) *BookCreate {
+	_c.mutation.SetIsbn13(v)
+	return _c
 }
 
 // SetNillableIsbn13 sets the "isbn_13" field if the given value is not nil.
-func (bc *BookCreate) SetNillableIsbn13(s *string) *BookCreate {
-	if s != nil {
-		bc.SetIsbn13(*s)
+func (_c *BookCreate) SetNillableIsbn13(v *string) *BookCreate {
+	if v != nil {
+		_c.SetIsbn13(*v)
 	}
-	return bc
+	return _c
 }
 
 // SetPublisher sets the "publisher" field.
-func (bc *BookCreate) SetPublisher(s string) *BookCreate {
-	bc.mutation.SetPublisher(s)
-	return bc
+func (_c *BookCreate) SetPublisher(v string) *BookCreate {
+	_c.mutation.SetPublisher(v)
+	return _c
 }
 
 // SetNillablePublisher sets the "publisher" field if the given value is not nil.
-func (bc *BookCreate) SetNillablePublisher(s *string) *BookCreate {
-	if s != nil {
-		bc.SetPublisher(*s)
+func (_c *BookCreate) SetNillablePublisher(v *string) *BookCreate {
+	if v != nil {
+		_c.SetPublisher(*v)
 	}
-	return bc
+	return _c
 }
 
 // SetImageURL sets the "image_url" field.
-func (bc *BookCreate) SetImageURL(s string) *BookCreate {
-	bc.mutation.SetImageURL(s)
-	return bc
+func (_c *BookCreate) SetImageURL(v string) *BookCreate {
+	_c.mutation.SetImageURL(v)
+	return _c
 }
 
 // SetNillableImageURL sets the "image_url" field if the given value is not nil.
-func (bc *BookCreate) SetNillableImageURL(s *string) *BookCreate {
-	if s != nil {
-		bc.SetImageURL(*s)
+func (_c *BookCreate) SetNillableImageURL(v *string) *BookCreate {
+	if v != nil {
+		_c.SetImageURL(*v)
 	}
-	return bc
+	return _c
 }
 
 // SetID sets the "id" field.
-func (bc *BookCreate) SetID(u uuid.UUID) *BookCreate {
-	bc.mutation.SetID(u)
-	return bc
+func (_c *BookCreate) SetID(v uuid.UUID) *BookCreate {
+	_c.mutation.SetID(v)
+	return _c
 }
 
 // SetNillableID sets the "id" field if the given value is not nil.
-func (bc *BookCreate) SetNillableID(u *uuid.UUID) *BookCreate {
-	if u != nil {
-		bc.SetID(*u)
+func (_c *BookCreate) SetNillableID(v *uuid.UUID) *BookCreate {
+	if v != nil {
+		_c.SetID(*v)
 	}
-	return bc
+	return _c
 }
 
 // AddBookAuthorIDs adds the "book_author" edge to the BookAuthor entity by IDs.
-func (bc *BookCreate) AddBookAuthorIDs(ids ...uuid.UUID) *BookCreate {
-	bc.mutation.AddBookAuthorIDs(ids...)
-	return bc
+func (_c *BookCreate) AddBookAuthorIDs(ids ...uuid.UUID) *BookCreate {
+	_c.mutation.AddBookAuthorIDs(ids...)
+	return _c
 }
 
 // AddBookAuthor adds the "book_author" edges to the BookAuthor entity.
-func (bc *BookCreate) AddBookAuthor(b ...*BookAuthor) *BookCreate {
-	ids := make([]uuid.UUID, len(b))
-	for i := range b {
-		ids[i] = b[i].ID
+func (_c *BookCreate) AddBookAuthor(v ...*BookAuthor) *BookCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return bc.AddBookAuthorIDs(ids...)
+	return _c.AddBookAuthorIDs(ids...)
 }
 
 // SetMediaRequestID sets the "media_request" edge to the MediaRequest entity by ID.
-func (bc *BookCreate) SetMediaRequestID(id uuid.UUID) *BookCreate {
-	bc.mutation.SetMediaRequestID(id)
-	return bc
+func (_c *BookCreate) SetMediaRequestID(id uuid.UUID) *BookCreate {
+	_c.mutation.SetMediaRequestID(id)
+	return _c
 }
 
 // SetNillableMediaRequestID sets the "media_request" edge to the MediaRequest entity by ID if the given value is not nil.
-func (bc *BookCreate) SetNillableMediaRequestID(id *uuid.UUID) *BookCreate {
+func (_c *BookCreate) SetNillableMediaRequestID(id *uuid.UUID) *BookCreate {
 	if id != nil {
-		bc = bc.SetMediaRequestID(*id)
+		_c = _c.SetMediaRequestID(*id)
 	}
-	return bc
+	return _c
 }
 
 // SetMediaRequest sets the "media_request" edge to the MediaRequest entity.
-func (bc *BookCreate) SetMediaRequest(m *MediaRequest) *BookCreate {
-	return bc.SetMediaRequestID(m.ID)
+func (_c *BookCreate) SetMediaRequest(v *MediaRequest) *BookCreate {
+	return _c.SetMediaRequestID(v.ID)
 }
 
 // Mutation returns the BookMutation object of the builder.
-func (bc *BookCreate) Mutation() *BookMutation {
-	return bc.mutation
+func (_c *BookCreate) Mutation() *BookMutation {
+	return _c.mutation
 }
 
 // Save creates the Book in the database.
-func (bc *BookCreate) Save(ctx context.Context) (*Book, error) {
-	bc.defaults()
-	return withHooks(ctx, bc.sqlSave, bc.mutation, bc.hooks)
+func (_c *BookCreate) Save(ctx context.Context) (*Book, error) {
+	_c.defaults()
+	return withHooks(ctx, _c.sqlSave, _c.mutation, _c.hooks)
 }
 
 // SaveX calls Save and panics if Save returns an error.
-func (bc *BookCreate) SaveX(ctx context.Context) *Book {
-	v, err := bc.Save(ctx)
+func (_c *BookCreate) SaveX(ctx context.Context) *Book {
+	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -190,43 +187,43 @@ func (bc *BookCreate) SaveX(ctx context.Context) *Book {
 }
 
 // Exec executes the query.
-func (bc *BookCreate) Exec(ctx context.Context) error {
-	_, err := bc.Save(ctx)
+func (_c *BookCreate) Exec(ctx context.Context) error {
+	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (bc *BookCreate) ExecX(ctx context.Context) {
-	if err := bc.Exec(ctx); err != nil {
+func (_c *BookCreate) ExecX(ctx context.Context) {
+	if err := _c.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (bc *BookCreate) defaults() {
-	if _, ok := bc.mutation.ID(); !ok {
+func (_c *BookCreate) defaults() {
+	if _, ok := _c.mutation.ID(); !ok {
 		v := book.DefaultID()
-		bc.mutation.SetID(v)
+		_c.mutation.SetID(v)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (bc *BookCreate) check() error {
-	if _, ok := bc.mutation.Title(); !ok {
+func (_c *BookCreate) check() error {
+	if _, ok := _c.mutation.Title(); !ok {
 		return &ValidationError{Name: "title", err: errors.New(`ent: missing required field "Book.title"`)}
 	}
-	if _, ok := bc.mutation.GoogleVolumeID(); !ok {
+	if _, ok := _c.mutation.GoogleVolumeID(); !ok {
 		return &ValidationError{Name: "google_volume_id", err: errors.New(`ent: missing required field "Book.google_volume_id"`)}
 	}
 	return nil
 }
 
-func (bc *BookCreate) sqlSave(ctx context.Context) (*Book, error) {
-	if err := bc.check(); err != nil {
+func (_c *BookCreate) sqlSave(ctx context.Context) (*Book, error) {
+	if err := _c.check(); err != nil {
 		return nil, err
 	}
-	_node, _spec := bc.createSpec()
-	if err := sqlgraph.CreateNode(ctx, bc.driver, _spec); err != nil {
+	_node, _spec := _c.createSpec()
+	if err := sqlgraph.CreateNode(ctx, _c.driver, _spec); err != nil {
 		if sqlgraph.IsConstraintError(err) {
 			err = &ConstraintError{msg: err.Error(), wrap: err}
 		}
@@ -239,54 +236,53 @@ func (bc *BookCreate) sqlSave(ctx context.Context) (*Book, error) {
 			return nil, err
 		}
 	}
-	bc.mutation.id = &_node.ID
-	bc.mutation.done = true
+	_c.mutation.id = &_node.ID
+	_c.mutation.done = true
 	return _node, nil
 }
 
-func (bc *BookCreate) createSpec() (*Book, *sqlgraph.CreateSpec) {
+func (_c *BookCreate) createSpec() (*Book, *sqlgraph.CreateSpec) {
 	var (
-		_node = &Book{config: bc.config}
+		_node = &Book{config: _c.config}
 		_spec = sqlgraph.NewCreateSpec(book.Table, sqlgraph.NewFieldSpec(book.FieldID, field.TypeUUID))
 	)
-	_spec.OnConflict = bc.conflict
-	if id, ok := bc.mutation.ID(); ok {
+	if id, ok := _c.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = &id
 	}
-	if value, ok := bc.mutation.Title(); ok {
+	if value, ok := _c.mutation.Title(); ok {
 		_spec.SetField(book.FieldTitle, field.TypeString, value)
 		_node.Title = value
 	}
-	if value, ok := bc.mutation.Description(); ok {
+	if value, ok := _c.mutation.Description(); ok {
 		_spec.SetField(book.FieldDescription, field.TypeString, value)
 		_node.Description = value
 	}
-	if value, ok := bc.mutation.GoodreadsID(); ok {
+	if value, ok := _c.mutation.GoodreadsID(); ok {
 		_spec.SetField(book.FieldGoodreadsID, field.TypeString, value)
 		_node.GoodreadsID = value
 	}
-	if value, ok := bc.mutation.GoogleVolumeID(); ok {
+	if value, ok := _c.mutation.GoogleVolumeID(); ok {
 		_spec.SetField(book.FieldGoogleVolumeID, field.TypeString, value)
 		_node.GoogleVolumeID = value
 	}
-	if value, ok := bc.mutation.Isbn10(); ok {
+	if value, ok := _c.mutation.Isbn10(); ok {
 		_spec.SetField(book.FieldIsbn10, field.TypeString, value)
 		_node.Isbn10 = value
 	}
-	if value, ok := bc.mutation.Isbn13(); ok {
+	if value, ok := _c.mutation.Isbn13(); ok {
 		_spec.SetField(book.FieldIsbn13, field.TypeString, value)
 		_node.Isbn13 = value
 	}
-	if value, ok := bc.mutation.Publisher(); ok {
+	if value, ok := _c.mutation.Publisher(); ok {
 		_spec.SetField(book.FieldPublisher, field.TypeString, value)
 		_node.Publisher = value
 	}
-	if value, ok := bc.mutation.ImageURL(); ok {
+	if value, ok := _c.mutation.ImageURL(); ok {
 		_spec.SetField(book.FieldImageURL, field.TypeString, value)
 		_node.ImageURL = value
 	}
-	if nodes := bc.mutation.BookAuthorIDs(); len(nodes) > 0 {
+	if nodes := _c.mutation.BookAuthorIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: true,
@@ -302,7 +298,7 @@ func (bc *BookCreate) createSpec() (*Book, *sqlgraph.CreateSpec) {
 		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
-	if nodes := bc.mutation.MediaRequestIDs(); len(nodes) > 0 {
+	if nodes := _c.mutation.MediaRequestIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2O,
 			Inverse: false,
@@ -321,446 +317,24 @@ func (bc *BookCreate) createSpec() (*Book, *sqlgraph.CreateSpec) {
 	return _node, _spec
 }
 
-// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
-// of the `INSERT` statement. For example:
-//
-//	client.Book.Create().
-//		SetTitle(v).
-//		OnConflict(
-//			// Update the row with the new values
-//			// the was proposed for insertion.
-//			sql.ResolveWithNewValues(),
-//		).
-//		// Override some of the fields with custom
-//		// update values.
-//		Update(func(u *ent.BookUpsert) {
-//			SetTitle(v+v).
-//		}).
-//		Exec(ctx)
-func (bc *BookCreate) OnConflict(opts ...sql.ConflictOption) *BookUpsertOne {
-	bc.conflict = opts
-	return &BookUpsertOne{
-		create: bc,
-	}
-}
-
-// OnConflictColumns calls `OnConflict` and configures the columns
-// as conflict target. Using this option is equivalent to using:
-//
-//	client.Book.Create().
-//		OnConflict(sql.ConflictColumns(columns...)).
-//		Exec(ctx)
-func (bc *BookCreate) OnConflictColumns(columns ...string) *BookUpsertOne {
-	bc.conflict = append(bc.conflict, sql.ConflictColumns(columns...))
-	return &BookUpsertOne{
-		create: bc,
-	}
-}
-
-type (
-	// BookUpsertOne is the builder for "upsert"-ing
-	//  one Book node.
-	BookUpsertOne struct {
-		create *BookCreate
-	}
-
-	// BookUpsert is the "OnConflict" setter.
-	BookUpsert struct {
-		*sql.UpdateSet
-	}
-)
-
-// SetTitle sets the "title" field.
-func (u *BookUpsert) SetTitle(v string) *BookUpsert {
-	u.Set(book.FieldTitle, v)
-	return u
-}
-
-// UpdateTitle sets the "title" field to the value that was provided on create.
-func (u *BookUpsert) UpdateTitle() *BookUpsert {
-	u.SetExcluded(book.FieldTitle)
-	return u
-}
-
-// SetDescription sets the "description" field.
-func (u *BookUpsert) SetDescription(v string) *BookUpsert {
-	u.Set(book.FieldDescription, v)
-	return u
-}
-
-// UpdateDescription sets the "description" field to the value that was provided on create.
-func (u *BookUpsert) UpdateDescription() *BookUpsert {
-	u.SetExcluded(book.FieldDescription)
-	return u
-}
-
-// ClearDescription clears the value of the "description" field.
-func (u *BookUpsert) ClearDescription() *BookUpsert {
-	u.SetNull(book.FieldDescription)
-	return u
-}
-
-// SetGoodreadsID sets the "goodreads_id" field.
-func (u *BookUpsert) SetGoodreadsID(v string) *BookUpsert {
-	u.Set(book.FieldGoodreadsID, v)
-	return u
-}
-
-// UpdateGoodreadsID sets the "goodreads_id" field to the value that was provided on create.
-func (u *BookUpsert) UpdateGoodreadsID() *BookUpsert {
-	u.SetExcluded(book.FieldGoodreadsID)
-	return u
-}
-
-// ClearGoodreadsID clears the value of the "goodreads_id" field.
-func (u *BookUpsert) ClearGoodreadsID() *BookUpsert {
-	u.SetNull(book.FieldGoodreadsID)
-	return u
-}
-
-// SetGoogleVolumeID sets the "google_volume_id" field.
-func (u *BookUpsert) SetGoogleVolumeID(v string) *BookUpsert {
-	u.Set(book.FieldGoogleVolumeID, v)
-	return u
-}
-
-// UpdateGoogleVolumeID sets the "google_volume_id" field to the value that was provided on create.
-func (u *BookUpsert) UpdateGoogleVolumeID() *BookUpsert {
-	u.SetExcluded(book.FieldGoogleVolumeID)
-	return u
-}
-
-// SetIsbn10 sets the "isbn_10" field.
-func (u *BookUpsert) SetIsbn10(v string) *BookUpsert {
-	u.Set(book.FieldIsbn10, v)
-	return u
-}
-
-// UpdateIsbn10 sets the "isbn_10" field to the value that was provided on create.
-func (u *BookUpsert) UpdateIsbn10() *BookUpsert {
-	u.SetExcluded(book.FieldIsbn10)
-	return u
-}
-
-// ClearIsbn10 clears the value of the "isbn_10" field.
-func (u *BookUpsert) ClearIsbn10() *BookUpsert {
-	u.SetNull(book.FieldIsbn10)
-	return u
-}
-
-// SetIsbn13 sets the "isbn_13" field.
-func (u *BookUpsert) SetIsbn13(v string) *BookUpsert {
-	u.Set(book.FieldIsbn13, v)
-	return u
-}
-
-// UpdateIsbn13 sets the "isbn_13" field to the value that was provided on create.
-func (u *BookUpsert) UpdateIsbn13() *BookUpsert {
-	u.SetExcluded(book.FieldIsbn13)
-	return u
-}
-
-// ClearIsbn13 clears the value of the "isbn_13" field.
-func (u *BookUpsert) ClearIsbn13() *BookUpsert {
-	u.SetNull(book.FieldIsbn13)
-	return u
-}
-
-// SetPublisher sets the "publisher" field.
-func (u *BookUpsert) SetPublisher(v string) *BookUpsert {
-	u.Set(book.FieldPublisher, v)
-	return u
-}
-
-// UpdatePublisher sets the "publisher" field to the value that was provided on create.
-func (u *BookUpsert) UpdatePublisher() *BookUpsert {
-	u.SetExcluded(book.FieldPublisher)
-	return u
-}
-
-// ClearPublisher clears the value of the "publisher" field.
-func (u *BookUpsert) ClearPublisher() *BookUpsert {
-	u.SetNull(book.FieldPublisher)
-	return u
-}
-
-// SetImageURL sets the "image_url" field.
-func (u *BookUpsert) SetImageURL(v string) *BookUpsert {
-	u.Set(book.FieldImageURL, v)
-	return u
-}
-
-// UpdateImageURL sets the "image_url" field to the value that was provided on create.
-func (u *BookUpsert) UpdateImageURL() *BookUpsert {
-	u.SetExcluded(book.FieldImageURL)
-	return u
-}
-
-// ClearImageURL clears the value of the "image_url" field.
-func (u *BookUpsert) ClearImageURL() *BookUpsert {
-	u.SetNull(book.FieldImageURL)
-	return u
-}
-
-// UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
-// Using this option is equivalent to using:
-//
-//	client.Book.Create().
-//		OnConflict(
-//			sql.ResolveWithNewValues(),
-//			sql.ResolveWith(func(u *sql.UpdateSet) {
-//				u.SetIgnore(book.FieldID)
-//			}),
-//		).
-//		Exec(ctx)
-func (u *BookUpsertOne) UpdateNewValues() *BookUpsertOne {
-	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
-	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
-		if _, exists := u.create.mutation.ID(); exists {
-			s.SetIgnore(book.FieldID)
-		}
-	}))
-	return u
-}
-
-// Ignore sets each column to itself in case of conflict.
-// Using this option is equivalent to using:
-//
-//	client.Book.Create().
-//	    OnConflict(sql.ResolveWithIgnore()).
-//	    Exec(ctx)
-func (u *BookUpsertOne) Ignore() *BookUpsertOne {
-	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
-	return u
-}
-
-// DoNothing configures the conflict_action to `DO NOTHING`.
-// Supported only by SQLite and PostgreSQL.
-func (u *BookUpsertOne) DoNothing() *BookUpsertOne {
-	u.create.conflict = append(u.create.conflict, sql.DoNothing())
-	return u
-}
-
-// Update allows overriding fields `UPDATE` values. See the BookCreate.OnConflict
-// documentation for more info.
-func (u *BookUpsertOne) Update(set func(*BookUpsert)) *BookUpsertOne {
-	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
-		set(&BookUpsert{UpdateSet: update})
-	}))
-	return u
-}
-
-// SetTitle sets the "title" field.
-func (u *BookUpsertOne) SetTitle(v string) *BookUpsertOne {
-	return u.Update(func(s *BookUpsert) {
-		s.SetTitle(v)
-	})
-}
-
-// UpdateTitle sets the "title" field to the value that was provided on create.
-func (u *BookUpsertOne) UpdateTitle() *BookUpsertOne {
-	return u.Update(func(s *BookUpsert) {
-		s.UpdateTitle()
-	})
-}
-
-// SetDescription sets the "description" field.
-func (u *BookUpsertOne) SetDescription(v string) *BookUpsertOne {
-	return u.Update(func(s *BookUpsert) {
-		s.SetDescription(v)
-	})
-}
-
-// UpdateDescription sets the "description" field to the value that was provided on create.
-func (u *BookUpsertOne) UpdateDescription() *BookUpsertOne {
-	return u.Update(func(s *BookUpsert) {
-		s.UpdateDescription()
-	})
-}
-
-// ClearDescription clears the value of the "description" field.
-func (u *BookUpsertOne) ClearDescription() *BookUpsertOne {
-	return u.Update(func(s *BookUpsert) {
-		s.ClearDescription()
-	})
-}
-
-// SetGoodreadsID sets the "goodreads_id" field.
-func (u *BookUpsertOne) SetGoodreadsID(v string) *BookUpsertOne {
-	return u.Update(func(s *BookUpsert) {
-		s.SetGoodreadsID(v)
-	})
-}
-
-// UpdateGoodreadsID sets the "goodreads_id" field to the value that was provided on create.
-func (u *BookUpsertOne) UpdateGoodreadsID() *BookUpsertOne {
-	return u.Update(func(s *BookUpsert) {
-		s.UpdateGoodreadsID()
-	})
-}
-
-// ClearGoodreadsID clears the value of the "goodreads_id" field.
-func (u *BookUpsertOne) ClearGoodreadsID() *BookUpsertOne {
-	return u.Update(func(s *BookUpsert) {
-		s.ClearGoodreadsID()
-	})
-}
-
-// SetGoogleVolumeID sets the "google_volume_id" field.
-func (u *BookUpsertOne) SetGoogleVolumeID(v string) *BookUpsertOne {
-	return u.Update(func(s *BookUpsert) {
-		s.SetGoogleVolumeID(v)
-	})
-}
-
-// UpdateGoogleVolumeID sets the "google_volume_id" field to the value that was provided on create.
-func (u *BookUpsertOne) UpdateGoogleVolumeID() *BookUpsertOne {
-	return u.Update(func(s *BookUpsert) {
-		s.UpdateGoogleVolumeID()
-	})
-}
-
-// SetIsbn10 sets the "isbn_10" field.
-func (u *BookUpsertOne) SetIsbn10(v string) *BookUpsertOne {
-	return u.Update(func(s *BookUpsert) {
-		s.SetIsbn10(v)
-	})
-}
-
-// UpdateIsbn10 sets the "isbn_10" field to the value that was provided on create.
-func (u *BookUpsertOne) UpdateIsbn10() *BookUpsertOne {
-	return u.Update(func(s *BookUpsert) {
-		s.UpdateIsbn10()
-	})
-}
-
-// ClearIsbn10 clears the value of the "isbn_10" field.
-func (u *BookUpsertOne) ClearIsbn10() *BookUpsertOne {
-	return u.Update(func(s *BookUpsert) {
-		s.ClearIsbn10()
-	})
-}
-
-// SetIsbn13 sets the "isbn_13" field.
-func (u *BookUpsertOne) SetIsbn13(v string) *BookUpsertOne {
-	return u.Update(func(s *BookUpsert) {
-		s.SetIsbn13(v)
-	})
-}
-
-// UpdateIsbn13 sets the "isbn_13" field to the value that was provided on create.
-func (u *BookUpsertOne) UpdateIsbn13() *BookUpsertOne {
-	return u.Update(func(s *BookUpsert) {
-		s.UpdateIsbn13()
-	})
-}
-
-// ClearIsbn13 clears the value of the "isbn_13" field.
-func (u *BookUpsertOne) ClearIsbn13() *BookUpsertOne {
-	return u.Update(func(s *BookUpsert) {
-		s.ClearIsbn13()
-	})
-}
-
-// SetPublisher sets the "publisher" field.
-func (u *BookUpsertOne) SetPublisher(v string) *BookUpsertOne {
-	return u.Update(func(s *BookUpsert) {
-		s.SetPublisher(v)
-	})
-}
-
-// UpdatePublisher sets the "publisher" field to the value that was provided on create.
-func (u *BookUpsertOne) UpdatePublisher() *BookUpsertOne {
-	return u.Update(func(s *BookUpsert) {
-		s.UpdatePublisher()
-	})
-}
-
-// ClearPublisher clears the value of the "publisher" field.
-func (u *BookUpsertOne) ClearPublisher() *BookUpsertOne {
-	return u.Update(func(s *BookUpsert) {
-		s.ClearPublisher()
-	})
-}
-
-// SetImageURL sets the "image_url" field.
-func (u *BookUpsertOne) SetImageURL(v string) *BookUpsertOne {
-	return u.Update(func(s *BookUpsert) {
-		s.SetImageURL(v)
-	})
-}
-
-// UpdateImageURL sets the "image_url" field to the value that was provided on create.
-func (u *BookUpsertOne) UpdateImageURL() *BookUpsertOne {
-	return u.Update(func(s *BookUpsert) {
-		s.UpdateImageURL()
-	})
-}
-
-// ClearImageURL clears the value of the "image_url" field.
-func (u *BookUpsertOne) ClearImageURL() *BookUpsertOne {
-	return u.Update(func(s *BookUpsert) {
-		s.ClearImageURL()
-	})
-}
-
-// Exec executes the query.
-func (u *BookUpsertOne) Exec(ctx context.Context) error {
-	if len(u.create.conflict) == 0 {
-		return errors.New("ent: missing options for BookCreate.OnConflict")
-	}
-	return u.create.Exec(ctx)
-}
-
-// ExecX is like Exec, but panics if an error occurs.
-func (u *BookUpsertOne) ExecX(ctx context.Context) {
-	if err := u.create.Exec(ctx); err != nil {
-		panic(err)
-	}
-}
-
-// Exec executes the UPSERT query and returns the inserted/updated ID.
-func (u *BookUpsertOne) ID(ctx context.Context) (id uuid.UUID, err error) {
-	if u.create.driver.Dialect() == dialect.MySQL {
-		// In case of "ON CONFLICT", there is no way to get back non-numeric ID
-		// fields from the database since MySQL does not support the RETURNING clause.
-		return id, errors.New("ent: BookUpsertOne.ID is not supported by MySQL driver. Use BookUpsertOne.Exec instead")
-	}
-	node, err := u.create.Save(ctx)
-	if err != nil {
-		return id, err
-	}
-	return node.ID, nil
-}
-
-// IDX is like ID, but panics if an error occurs.
-func (u *BookUpsertOne) IDX(ctx context.Context) uuid.UUID {
-	id, err := u.ID(ctx)
-	if err != nil {
-		panic(err)
-	}
-	return id
-}
-
 // BookCreateBulk is the builder for creating many Book entities in bulk.
 type BookCreateBulk struct {
 	config
 	err      error
 	builders []*BookCreate
-	conflict []sql.ConflictOption
 }
 
 // Save creates the Book entities in the database.
-func (bcb *BookCreateBulk) Save(ctx context.Context) ([]*Book, error) {
-	if bcb.err != nil {
-		return nil, bcb.err
+func (_c *BookCreateBulk) Save(ctx context.Context) ([]*Book, error) {
+	if _c.err != nil {
+		return nil, _c.err
 	}
-	specs := make([]*sqlgraph.CreateSpec, len(bcb.builders))
-	nodes := make([]*Book, len(bcb.builders))
-	mutators := make([]Mutator, len(bcb.builders))
-	for i := range bcb.builders {
+	specs := make([]*sqlgraph.CreateSpec, len(_c.builders))
+	nodes := make([]*Book, len(_c.builders))
+	mutators := make([]Mutator, len(_c.builders))
+	for i := range _c.builders {
 		func(i int, root context.Context) {
-			builder := bcb.builders[i]
+			builder := _c.builders[i]
 			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*BookMutation)
@@ -774,12 +348,11 @@ func (bcb *BookCreateBulk) Save(ctx context.Context) ([]*Book, error) {
 				var err error
 				nodes[i], specs[i] = builder.createSpec()
 				if i < len(mutators)-1 {
-					_, err = mutators[i+1].Mutate(root, bcb.builders[i+1].mutation)
+					_, err = mutators[i+1].Mutate(root, _c.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
-					spec.OnConflict = bcb.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
-					if err = sqlgraph.BatchCreate(ctx, bcb.driver, spec); err != nil {
+					if err = sqlgraph.BatchCreate(ctx, _c.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
 							err = &ConstraintError{msg: err.Error(), wrap: err}
 						}
@@ -799,7 +372,7 @@ func (bcb *BookCreateBulk) Save(ctx context.Context) ([]*Book, error) {
 		}(i, ctx)
 	}
 	if len(mutators) > 0 {
-		if _, err := mutators[0].Mutate(ctx, bcb.builders[0].mutation); err != nil {
+		if _, err := mutators[0].Mutate(ctx, _c.builders[0].mutation); err != nil {
 			return nil, err
 		}
 	}
@@ -807,8 +380,8 @@ func (bcb *BookCreateBulk) Save(ctx context.Context) ([]*Book, error) {
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (bcb *BookCreateBulk) SaveX(ctx context.Context) []*Book {
-	v, err := bcb.Save(ctx)
+func (_c *BookCreateBulk) SaveX(ctx context.Context) []*Book {
+	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -816,282 +389,14 @@ func (bcb *BookCreateBulk) SaveX(ctx context.Context) []*Book {
 }
 
 // Exec executes the query.
-func (bcb *BookCreateBulk) Exec(ctx context.Context) error {
-	_, err := bcb.Save(ctx)
+func (_c *BookCreateBulk) Exec(ctx context.Context) error {
+	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (bcb *BookCreateBulk) ExecX(ctx context.Context) {
-	if err := bcb.Exec(ctx); err != nil {
-		panic(err)
-	}
-}
-
-// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
-// of the `INSERT` statement. For example:
-//
-//	client.Book.CreateBulk(builders...).
-//		OnConflict(
-//			// Update the row with the new values
-//			// the was proposed for insertion.
-//			sql.ResolveWithNewValues(),
-//		).
-//		// Override some of the fields with custom
-//		// update values.
-//		Update(func(u *ent.BookUpsert) {
-//			SetTitle(v+v).
-//		}).
-//		Exec(ctx)
-func (bcb *BookCreateBulk) OnConflict(opts ...sql.ConflictOption) *BookUpsertBulk {
-	bcb.conflict = opts
-	return &BookUpsertBulk{
-		create: bcb,
-	}
-}
-
-// OnConflictColumns calls `OnConflict` and configures the columns
-// as conflict target. Using this option is equivalent to using:
-//
-//	client.Book.Create().
-//		OnConflict(sql.ConflictColumns(columns...)).
-//		Exec(ctx)
-func (bcb *BookCreateBulk) OnConflictColumns(columns ...string) *BookUpsertBulk {
-	bcb.conflict = append(bcb.conflict, sql.ConflictColumns(columns...))
-	return &BookUpsertBulk{
-		create: bcb,
-	}
-}
-
-// BookUpsertBulk is the builder for "upsert"-ing
-// a bulk of Book nodes.
-type BookUpsertBulk struct {
-	create *BookCreateBulk
-}
-
-// UpdateNewValues updates the mutable fields using the new values that
-// were set on create. Using this option is equivalent to using:
-//
-//	client.Book.Create().
-//		OnConflict(
-//			sql.ResolveWithNewValues(),
-//			sql.ResolveWith(func(u *sql.UpdateSet) {
-//				u.SetIgnore(book.FieldID)
-//			}),
-//		).
-//		Exec(ctx)
-func (u *BookUpsertBulk) UpdateNewValues() *BookUpsertBulk {
-	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
-	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
-		for _, b := range u.create.builders {
-			if _, exists := b.mutation.ID(); exists {
-				s.SetIgnore(book.FieldID)
-			}
-		}
-	}))
-	return u
-}
-
-// Ignore sets each column to itself in case of conflict.
-// Using this option is equivalent to using:
-//
-//	client.Book.Create().
-//		OnConflict(sql.ResolveWithIgnore()).
-//		Exec(ctx)
-func (u *BookUpsertBulk) Ignore() *BookUpsertBulk {
-	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
-	return u
-}
-
-// DoNothing configures the conflict_action to `DO NOTHING`.
-// Supported only by SQLite and PostgreSQL.
-func (u *BookUpsertBulk) DoNothing() *BookUpsertBulk {
-	u.create.conflict = append(u.create.conflict, sql.DoNothing())
-	return u
-}
-
-// Update allows overriding fields `UPDATE` values. See the BookCreateBulk.OnConflict
-// documentation for more info.
-func (u *BookUpsertBulk) Update(set func(*BookUpsert)) *BookUpsertBulk {
-	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
-		set(&BookUpsert{UpdateSet: update})
-	}))
-	return u
-}
-
-// SetTitle sets the "title" field.
-func (u *BookUpsertBulk) SetTitle(v string) *BookUpsertBulk {
-	return u.Update(func(s *BookUpsert) {
-		s.SetTitle(v)
-	})
-}
-
-// UpdateTitle sets the "title" field to the value that was provided on create.
-func (u *BookUpsertBulk) UpdateTitle() *BookUpsertBulk {
-	return u.Update(func(s *BookUpsert) {
-		s.UpdateTitle()
-	})
-}
-
-// SetDescription sets the "description" field.
-func (u *BookUpsertBulk) SetDescription(v string) *BookUpsertBulk {
-	return u.Update(func(s *BookUpsert) {
-		s.SetDescription(v)
-	})
-}
-
-// UpdateDescription sets the "description" field to the value that was provided on create.
-func (u *BookUpsertBulk) UpdateDescription() *BookUpsertBulk {
-	return u.Update(func(s *BookUpsert) {
-		s.UpdateDescription()
-	})
-}
-
-// ClearDescription clears the value of the "description" field.
-func (u *BookUpsertBulk) ClearDescription() *BookUpsertBulk {
-	return u.Update(func(s *BookUpsert) {
-		s.ClearDescription()
-	})
-}
-
-// SetGoodreadsID sets the "goodreads_id" field.
-func (u *BookUpsertBulk) SetGoodreadsID(v string) *BookUpsertBulk {
-	return u.Update(func(s *BookUpsert) {
-		s.SetGoodreadsID(v)
-	})
-}
-
-// UpdateGoodreadsID sets the "goodreads_id" field to the value that was provided on create.
-func (u *BookUpsertBulk) UpdateGoodreadsID() *BookUpsertBulk {
-	return u.Update(func(s *BookUpsert) {
-		s.UpdateGoodreadsID()
-	})
-}
-
-// ClearGoodreadsID clears the value of the "goodreads_id" field.
-func (u *BookUpsertBulk) ClearGoodreadsID() *BookUpsertBulk {
-	return u.Update(func(s *BookUpsert) {
-		s.ClearGoodreadsID()
-	})
-}
-
-// SetGoogleVolumeID sets the "google_volume_id" field.
-func (u *BookUpsertBulk) SetGoogleVolumeID(v string) *BookUpsertBulk {
-	return u.Update(func(s *BookUpsert) {
-		s.SetGoogleVolumeID(v)
-	})
-}
-
-// UpdateGoogleVolumeID sets the "google_volume_id" field to the value that was provided on create.
-func (u *BookUpsertBulk) UpdateGoogleVolumeID() *BookUpsertBulk {
-	return u.Update(func(s *BookUpsert) {
-		s.UpdateGoogleVolumeID()
-	})
-}
-
-// SetIsbn10 sets the "isbn_10" field.
-func (u *BookUpsertBulk) SetIsbn10(v string) *BookUpsertBulk {
-	return u.Update(func(s *BookUpsert) {
-		s.SetIsbn10(v)
-	})
-}
-
-// UpdateIsbn10 sets the "isbn_10" field to the value that was provided on create.
-func (u *BookUpsertBulk) UpdateIsbn10() *BookUpsertBulk {
-	return u.Update(func(s *BookUpsert) {
-		s.UpdateIsbn10()
-	})
-}
-
-// ClearIsbn10 clears the value of the "isbn_10" field.
-func (u *BookUpsertBulk) ClearIsbn10() *BookUpsertBulk {
-	return u.Update(func(s *BookUpsert) {
-		s.ClearIsbn10()
-	})
-}
-
-// SetIsbn13 sets the "isbn_13" field.
-func (u *BookUpsertBulk) SetIsbn13(v string) *BookUpsertBulk {
-	return u.Update(func(s *BookUpsert) {
-		s.SetIsbn13(v)
-	})
-}
-
-// UpdateIsbn13 sets the "isbn_13" field to the value that was provided on create.
-func (u *BookUpsertBulk) UpdateIsbn13() *BookUpsertBulk {
-	return u.Update(func(s *BookUpsert) {
-		s.UpdateIsbn13()
-	})
-}
-
-// ClearIsbn13 clears the value of the "isbn_13" field.
-func (u *BookUpsertBulk) ClearIsbn13() *BookUpsertBulk {
-	return u.Update(func(s *BookUpsert) {
-		s.ClearIsbn13()
-	})
-}
-
-// SetPublisher sets the "publisher" field.
-func (u *BookUpsertBulk) SetPublisher(v string) *BookUpsertBulk {
-	return u.Update(func(s *BookUpsert) {
-		s.SetPublisher(v)
-	})
-}
-
-// UpdatePublisher sets the "publisher" field to the value that was provided on create.
-func (u *BookUpsertBulk) UpdatePublisher() *BookUpsertBulk {
-	return u.Update(func(s *BookUpsert) {
-		s.UpdatePublisher()
-	})
-}
-
-// ClearPublisher clears the value of the "publisher" field.
-func (u *BookUpsertBulk) ClearPublisher() *BookUpsertBulk {
-	return u.Update(func(s *BookUpsert) {
-		s.ClearPublisher()
-	})
-}
-
-// SetImageURL sets the "image_url" field.
-func (u *BookUpsertBulk) SetImageURL(v string) *BookUpsertBulk {
-	return u.Update(func(s *BookUpsert) {
-		s.SetImageURL(v)
-	})
-}
-
-// UpdateImageURL sets the "image_url" field to the value that was provided on create.
-func (u *BookUpsertBulk) UpdateImageURL() *BookUpsertBulk {
-	return u.Update(func(s *BookUpsert) {
-		s.UpdateImageURL()
-	})
-}
-
-// ClearImageURL clears the value of the "image_url" field.
-func (u *BookUpsertBulk) ClearImageURL() *BookUpsertBulk {
-	return u.Update(func(s *BookUpsert) {
-		s.ClearImageURL()
-	})
-}
-
-// Exec executes the query.
-func (u *BookUpsertBulk) Exec(ctx context.Context) error {
-	if u.create.err != nil {
-		return u.create.err
-	}
-	for i, b := range u.create.builders {
-		if len(b.conflict) != 0 {
-			return fmt.Errorf("ent: OnConflict was set for builder %d. Set it on the BookCreateBulk instead", i)
-		}
-	}
-	if len(u.create.conflict) == 0 {
-		return errors.New("ent: missing options for BookCreateBulk.OnConflict")
-	}
-	return u.create.Exec(ctx)
-}
-
-// ExecX is like Exec, but panics if an error occurs.
-func (u *BookUpsertBulk) ExecX(ctx context.Context) {
-	if err := u.create.Exec(ctx); err != nil {
+func (_c *BookCreateBulk) ExecX(ctx context.Context) {
+	if err := _c.Exec(ctx); err != nil {
 		panic(err)
 	}
 }

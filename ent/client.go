@@ -23,6 +23,7 @@ import (
 	"github.com/h3mmy/bloopyboi/ent/discordmessage"
 	"github.com/h3mmy/bloopyboi/ent/discordmessagereaction"
 	"github.com/h3mmy/bloopyboi/ent/discorduser"
+	"github.com/h3mmy/bloopyboi/ent/emoji"
 	"github.com/h3mmy/bloopyboi/ent/mediarequest"
 )
 
@@ -45,6 +46,8 @@ type Client struct {
 	DiscordMessageReaction *DiscordMessageReactionClient
 	// DiscordUser is the client for interacting with the DiscordUser builders.
 	DiscordUser *DiscordUserClient
+	// Emoji is the client for interacting with the Emoji builders.
+	Emoji *EmojiClient
 	// MediaRequest is the client for interacting with the MediaRequest builders.
 	MediaRequest *MediaRequestClient
 }
@@ -65,6 +68,7 @@ func (c *Client) init() {
 	c.DiscordMessage = NewDiscordMessageClient(c.config)
 	c.DiscordMessageReaction = NewDiscordMessageReactionClient(c.config)
 	c.DiscordUser = NewDiscordUserClient(c.config)
+	c.Emoji = NewEmojiClient(c.config)
 	c.MediaRequest = NewMediaRequestClient(c.config)
 }
 
@@ -165,6 +169,7 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		DiscordMessage:         NewDiscordMessageClient(cfg),
 		DiscordMessageReaction: NewDiscordMessageReactionClient(cfg),
 		DiscordUser:            NewDiscordUserClient(cfg),
+		Emoji:                  NewEmojiClient(cfg),
 		MediaRequest:           NewMediaRequestClient(cfg),
 	}, nil
 }
@@ -192,6 +197,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		DiscordMessage:         NewDiscordMessageClient(cfg),
 		DiscordMessageReaction: NewDiscordMessageReactionClient(cfg),
 		DiscordUser:            NewDiscordUserClient(cfg),
+		Emoji:                  NewEmojiClient(cfg),
 		MediaRequest:           NewMediaRequestClient(cfg),
 	}, nil
 }
@@ -223,7 +229,7 @@ func (c *Client) Close() error {
 func (c *Client) Use(hooks ...Hook) {
 	for _, n := range []interface{ Use(...Hook) }{
 		c.Book, c.BookAuthor, c.DiscordChannel, c.DiscordGuild, c.DiscordMessage,
-		c.DiscordMessageReaction, c.DiscordUser, c.MediaRequest,
+		c.DiscordMessageReaction, c.DiscordUser, c.Emoji, c.MediaRequest,
 	} {
 		n.Use(hooks...)
 	}
@@ -234,7 +240,7 @@ func (c *Client) Use(hooks ...Hook) {
 func (c *Client) Intercept(interceptors ...Interceptor) {
 	for _, n := range []interface{ Intercept(...Interceptor) }{
 		c.Book, c.BookAuthor, c.DiscordChannel, c.DiscordGuild, c.DiscordMessage,
-		c.DiscordMessageReaction, c.DiscordUser, c.MediaRequest,
+		c.DiscordMessageReaction, c.DiscordUser, c.Emoji, c.MediaRequest,
 	} {
 		n.Intercept(interceptors...)
 	}
@@ -257,6 +263,8 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.DiscordMessageReaction.mutate(ctx, m)
 	case *DiscordUserMutation:
 		return c.DiscordUser.mutate(ctx, m)
+	case *EmojiMutation:
+		return c.Emoji.mutate(ctx, m)
 	case *MediaRequestMutation:
 		return c.MediaRequest.mutate(ctx, m)
 	default:
@@ -319,8 +327,8 @@ func (c *BookClient) Update() *BookUpdate {
 }
 
 // UpdateOne returns an update builder for the given entity.
-func (c *BookClient) UpdateOne(b *Book) *BookUpdateOne {
-	mutation := newBookMutation(c.config, OpUpdateOne, withBook(b))
+func (c *BookClient) UpdateOne(_m *Book) *BookUpdateOne {
+	mutation := newBookMutation(c.config, OpUpdateOne, withBook(_m))
 	return &BookUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
@@ -337,8 +345,8 @@ func (c *BookClient) Delete() *BookDelete {
 }
 
 // DeleteOne returns a builder for deleting the given entity.
-func (c *BookClient) DeleteOne(b *Book) *BookDeleteOne {
-	return c.DeleteOneID(b.ID)
+func (c *BookClient) DeleteOne(_m *Book) *BookDeleteOne {
+	return c.DeleteOneID(_m.ID)
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
@@ -373,32 +381,32 @@ func (c *BookClient) GetX(ctx context.Context, id uuid.UUID) *Book {
 }
 
 // QueryBookAuthor queries the book_author edge of a Book.
-func (c *BookClient) QueryBookAuthor(b *Book) *BookAuthorQuery {
+func (c *BookClient) QueryBookAuthor(_m *Book) *BookAuthorQuery {
 	query := (&BookAuthorClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := b.ID
+		id := _m.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(book.Table, book.FieldID, id),
 			sqlgraph.To(bookauthor.Table, bookauthor.FieldID),
 			sqlgraph.Edge(sqlgraph.M2M, true, book.BookAuthorTable, book.BookAuthorPrimaryKey...),
 		)
-		fromV = sqlgraph.Neighbors(b.driver.Dialect(), step)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
 	}
 	return query
 }
 
 // QueryMediaRequest queries the media_request edge of a Book.
-func (c *BookClient) QueryMediaRequest(b *Book) *MediaRequestQuery {
+func (c *BookClient) QueryMediaRequest(_m *Book) *MediaRequestQuery {
 	query := (&MediaRequestClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := b.ID
+		id := _m.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(book.Table, book.FieldID, id),
 			sqlgraph.To(mediarequest.Table, mediarequest.FieldID),
 			sqlgraph.Edge(sqlgraph.O2O, false, book.MediaRequestTable, book.MediaRequestColumn),
 		)
-		fromV = sqlgraph.Neighbors(b.driver.Dialect(), step)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
 	}
 	return query
@@ -484,8 +492,8 @@ func (c *BookAuthorClient) Update() *BookAuthorUpdate {
 }
 
 // UpdateOne returns an update builder for the given entity.
-func (c *BookAuthorClient) UpdateOne(ba *BookAuthor) *BookAuthorUpdateOne {
-	mutation := newBookAuthorMutation(c.config, OpUpdateOne, withBookAuthor(ba))
+func (c *BookAuthorClient) UpdateOne(_m *BookAuthor) *BookAuthorUpdateOne {
+	mutation := newBookAuthorMutation(c.config, OpUpdateOne, withBookAuthor(_m))
 	return &BookAuthorUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
@@ -502,8 +510,8 @@ func (c *BookAuthorClient) Delete() *BookAuthorDelete {
 }
 
 // DeleteOne returns a builder for deleting the given entity.
-func (c *BookAuthorClient) DeleteOne(ba *BookAuthor) *BookAuthorDeleteOne {
-	return c.DeleteOneID(ba.ID)
+func (c *BookAuthorClient) DeleteOne(_m *BookAuthor) *BookAuthorDeleteOne {
+	return c.DeleteOneID(_m.ID)
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
@@ -538,16 +546,16 @@ func (c *BookAuthorClient) GetX(ctx context.Context, id uuid.UUID) *BookAuthor {
 }
 
 // QueryBooks queries the books edge of a BookAuthor.
-func (c *BookAuthorClient) QueryBooks(ba *BookAuthor) *BookQuery {
+func (c *BookAuthorClient) QueryBooks(_m *BookAuthor) *BookQuery {
 	query := (&BookClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := ba.ID
+		id := _m.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(bookauthor.Table, bookauthor.FieldID, id),
 			sqlgraph.To(book.Table, book.FieldID),
 			sqlgraph.Edge(sqlgraph.M2M, false, bookauthor.BooksTable, bookauthor.BooksPrimaryKey...),
 		)
-		fromV = sqlgraph.Neighbors(ba.driver.Dialect(), step)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
 	}
 	return query
@@ -633,8 +641,8 @@ func (c *DiscordChannelClient) Update() *DiscordChannelUpdate {
 }
 
 // UpdateOne returns an update builder for the given entity.
-func (c *DiscordChannelClient) UpdateOne(dc *DiscordChannel) *DiscordChannelUpdateOne {
-	mutation := newDiscordChannelMutation(c.config, OpUpdateOne, withDiscordChannel(dc))
+func (c *DiscordChannelClient) UpdateOne(_m *DiscordChannel) *DiscordChannelUpdateOne {
+	mutation := newDiscordChannelMutation(c.config, OpUpdateOne, withDiscordChannel(_m))
 	return &DiscordChannelUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
@@ -651,8 +659,8 @@ func (c *DiscordChannelClient) Delete() *DiscordChannelDelete {
 }
 
 // DeleteOne returns a builder for deleting the given entity.
-func (c *DiscordChannelClient) DeleteOne(dc *DiscordChannel) *DiscordChannelDeleteOne {
-	return c.DeleteOneID(dc.ID)
+func (c *DiscordChannelClient) DeleteOne(_m *DiscordChannel) *DiscordChannelDeleteOne {
+	return c.DeleteOneID(_m.ID)
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
@@ -687,32 +695,32 @@ func (c *DiscordChannelClient) GetX(ctx context.Context, id uuid.UUID) *DiscordC
 }
 
 // QueryDiscordGuild queries the discord_guild edge of a DiscordChannel.
-func (c *DiscordChannelClient) QueryDiscordGuild(dc *DiscordChannel) *DiscordGuildQuery {
+func (c *DiscordChannelClient) QueryDiscordGuild(_m *DiscordChannel) *DiscordGuildQuery {
 	query := (&DiscordGuildClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := dc.ID
+		id := _m.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(discordchannel.Table, discordchannel.FieldID, id),
 			sqlgraph.To(discordguild.Table, discordguild.FieldID),
 			sqlgraph.Edge(sqlgraph.M2M, true, discordchannel.DiscordGuildTable, discordchannel.DiscordGuildPrimaryKey...),
 		)
-		fromV = sqlgraph.Neighbors(dc.driver.Dialect(), step)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
 	}
 	return query
 }
 
 // QueryMessages queries the messages edge of a DiscordChannel.
-func (c *DiscordChannelClient) QueryMessages(dc *DiscordChannel) *DiscordMessageQuery {
+func (c *DiscordChannelClient) QueryMessages(_m *DiscordChannel) *DiscordMessageQuery {
 	query := (&DiscordMessageClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := dc.ID
+		id := _m.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(discordchannel.Table, discordchannel.FieldID, id),
 			sqlgraph.To(discordmessage.Table, discordmessage.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, discordchannel.MessagesTable, discordchannel.MessagesColumn),
 		)
-		fromV = sqlgraph.Neighbors(dc.driver.Dialect(), step)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
 	}
 	return query
@@ -798,8 +806,8 @@ func (c *DiscordGuildClient) Update() *DiscordGuildUpdate {
 }
 
 // UpdateOne returns an update builder for the given entity.
-func (c *DiscordGuildClient) UpdateOne(dg *DiscordGuild) *DiscordGuildUpdateOne {
-	mutation := newDiscordGuildMutation(c.config, OpUpdateOne, withDiscordGuild(dg))
+func (c *DiscordGuildClient) UpdateOne(_m *DiscordGuild) *DiscordGuildUpdateOne {
+	mutation := newDiscordGuildMutation(c.config, OpUpdateOne, withDiscordGuild(_m))
 	return &DiscordGuildUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
@@ -816,8 +824,8 @@ func (c *DiscordGuildClient) Delete() *DiscordGuildDelete {
 }
 
 // DeleteOne returns a builder for deleting the given entity.
-func (c *DiscordGuildClient) DeleteOne(dg *DiscordGuild) *DiscordGuildDeleteOne {
-	return c.DeleteOneID(dg.ID)
+func (c *DiscordGuildClient) DeleteOne(_m *DiscordGuild) *DiscordGuildDeleteOne {
+	return c.DeleteOneID(_m.ID)
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
@@ -852,48 +860,48 @@ func (c *DiscordGuildClient) GetX(ctx context.Context, id uuid.UUID) *DiscordGui
 }
 
 // QueryMembers queries the members edge of a DiscordGuild.
-func (c *DiscordGuildClient) QueryMembers(dg *DiscordGuild) *DiscordUserQuery {
+func (c *DiscordGuildClient) QueryMembers(_m *DiscordGuild) *DiscordUserQuery {
 	query := (&DiscordUserClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := dg.ID
+		id := _m.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(discordguild.Table, discordguild.FieldID, id),
 			sqlgraph.To(discorduser.Table, discorduser.FieldID),
 			sqlgraph.Edge(sqlgraph.M2M, false, discordguild.MembersTable, discordguild.MembersPrimaryKey...),
 		)
-		fromV = sqlgraph.Neighbors(dg.driver.Dialect(), step)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
 	}
 	return query
 }
 
 // QueryDiscordMessages queries the discord_messages edge of a DiscordGuild.
-func (c *DiscordGuildClient) QueryDiscordMessages(dg *DiscordGuild) *DiscordMessageQuery {
+func (c *DiscordGuildClient) QueryDiscordMessages(_m *DiscordGuild) *DiscordMessageQuery {
 	query := (&DiscordMessageClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := dg.ID
+		id := _m.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(discordguild.Table, discordguild.FieldID, id),
 			sqlgraph.To(discordmessage.Table, discordmessage.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, discordguild.DiscordMessagesTable, discordguild.DiscordMessagesColumn),
 		)
-		fromV = sqlgraph.Neighbors(dg.driver.Dialect(), step)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
 	}
 	return query
 }
 
 // QueryGuildChannels queries the guild_channels edge of a DiscordGuild.
-func (c *DiscordGuildClient) QueryGuildChannels(dg *DiscordGuild) *DiscordChannelQuery {
+func (c *DiscordGuildClient) QueryGuildChannels(_m *DiscordGuild) *DiscordChannelQuery {
 	query := (&DiscordChannelClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := dg.ID
+		id := _m.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(discordguild.Table, discordguild.FieldID, id),
 			sqlgraph.To(discordchannel.Table, discordchannel.FieldID),
 			sqlgraph.Edge(sqlgraph.M2M, false, discordguild.GuildChannelsTable, discordguild.GuildChannelsPrimaryKey...),
 		)
-		fromV = sqlgraph.Neighbors(dg.driver.Dialect(), step)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
 	}
 	return query
@@ -979,8 +987,8 @@ func (c *DiscordMessageClient) Update() *DiscordMessageUpdate {
 }
 
 // UpdateOne returns an update builder for the given entity.
-func (c *DiscordMessageClient) UpdateOne(dm *DiscordMessage) *DiscordMessageUpdateOne {
-	mutation := newDiscordMessageMutation(c.config, OpUpdateOne, withDiscordMessage(dm))
+func (c *DiscordMessageClient) UpdateOne(_m *DiscordMessage) *DiscordMessageUpdateOne {
+	mutation := newDiscordMessageMutation(c.config, OpUpdateOne, withDiscordMessage(_m))
 	return &DiscordMessageUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
@@ -997,8 +1005,8 @@ func (c *DiscordMessageClient) Delete() *DiscordMessageDelete {
 }
 
 // DeleteOne returns a builder for deleting the given entity.
-func (c *DiscordMessageClient) DeleteOne(dm *DiscordMessage) *DiscordMessageDeleteOne {
-	return c.DeleteOneID(dm.ID)
+func (c *DiscordMessageClient) DeleteOne(_m *DiscordMessage) *DiscordMessageDeleteOne {
+	return c.DeleteOneID(_m.ID)
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
@@ -1033,64 +1041,64 @@ func (c *DiscordMessageClient) GetX(ctx context.Context, id uuid.UUID) *DiscordM
 }
 
 // QueryAuthor queries the author edge of a DiscordMessage.
-func (c *DiscordMessageClient) QueryAuthor(dm *DiscordMessage) *DiscordUserQuery {
+func (c *DiscordMessageClient) QueryAuthor(_m *DiscordMessage) *DiscordUserQuery {
 	query := (&DiscordUserClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := dm.ID
+		id := _m.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(discordmessage.Table, discordmessage.FieldID, id),
 			sqlgraph.To(discorduser.Table, discorduser.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, discordmessage.AuthorTable, discordmessage.AuthorColumn),
 		)
-		fromV = sqlgraph.Neighbors(dm.driver.Dialect(), step)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
 	}
 	return query
 }
 
 // QueryMessageReactions queries the message_reactions edge of a DiscordMessage.
-func (c *DiscordMessageClient) QueryMessageReactions(dm *DiscordMessage) *DiscordMessageReactionQuery {
+func (c *DiscordMessageClient) QueryMessageReactions(_m *DiscordMessage) *DiscordMessageReactionQuery {
 	query := (&DiscordMessageReactionClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := dm.ID
+		id := _m.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(discordmessage.Table, discordmessage.FieldID, id),
 			sqlgraph.To(discordmessagereaction.Table, discordmessagereaction.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, discordmessage.MessageReactionsTable, discordmessage.MessageReactionsColumn),
 		)
-		fromV = sqlgraph.Neighbors(dm.driver.Dialect(), step)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
 	}
 	return query
 }
 
 // QueryChannel queries the channel edge of a DiscordMessage.
-func (c *DiscordMessageClient) QueryChannel(dm *DiscordMessage) *DiscordChannelQuery {
+func (c *DiscordMessageClient) QueryChannel(_m *DiscordMessage) *DiscordChannelQuery {
 	query := (&DiscordChannelClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := dm.ID
+		id := _m.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(discordmessage.Table, discordmessage.FieldID, id),
 			sqlgraph.To(discordchannel.Table, discordchannel.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, discordmessage.ChannelTable, discordmessage.ChannelColumn),
 		)
-		fromV = sqlgraph.Neighbors(dm.driver.Dialect(), step)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
 	}
 	return query
 }
 
 // QueryGuild queries the guild edge of a DiscordMessage.
-func (c *DiscordMessageClient) QueryGuild(dm *DiscordMessage) *DiscordGuildQuery {
+func (c *DiscordMessageClient) QueryGuild(_m *DiscordMessage) *DiscordGuildQuery {
 	query := (&DiscordGuildClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := dm.ID
+		id := _m.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(discordmessage.Table, discordmessage.FieldID, id),
 			sqlgraph.To(discordguild.Table, discordguild.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, discordmessage.GuildTable, discordmessage.GuildColumn),
 		)
-		fromV = sqlgraph.Neighbors(dm.driver.Dialect(), step)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
 	}
 	return query
@@ -1176,8 +1184,8 @@ func (c *DiscordMessageReactionClient) Update() *DiscordMessageReactionUpdate {
 }
 
 // UpdateOne returns an update builder for the given entity.
-func (c *DiscordMessageReactionClient) UpdateOne(dmr *DiscordMessageReaction) *DiscordMessageReactionUpdateOne {
-	mutation := newDiscordMessageReactionMutation(c.config, OpUpdateOne, withDiscordMessageReaction(dmr))
+func (c *DiscordMessageReactionClient) UpdateOne(_m *DiscordMessageReaction) *DiscordMessageReactionUpdateOne {
+	mutation := newDiscordMessageReactionMutation(c.config, OpUpdateOne, withDiscordMessageReaction(_m))
 	return &DiscordMessageReactionUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
@@ -1194,8 +1202,8 @@ func (c *DiscordMessageReactionClient) Delete() *DiscordMessageReactionDelete {
 }
 
 // DeleteOne returns a builder for deleting the given entity.
-func (c *DiscordMessageReactionClient) DeleteOne(dmr *DiscordMessageReaction) *DiscordMessageReactionDeleteOne {
-	return c.DeleteOneID(dmr.ID)
+func (c *DiscordMessageReactionClient) DeleteOne(_m *DiscordMessageReaction) *DiscordMessageReactionDeleteOne {
+	return c.DeleteOneID(_m.ID)
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
@@ -1230,32 +1238,32 @@ func (c *DiscordMessageReactionClient) GetX(ctx context.Context, id uuid.UUID) *
 }
 
 // QueryDiscordMessage queries the discord_message edge of a DiscordMessageReaction.
-func (c *DiscordMessageReactionClient) QueryDiscordMessage(dmr *DiscordMessageReaction) *DiscordMessageQuery {
+func (c *DiscordMessageReactionClient) QueryDiscordMessage(_m *DiscordMessageReaction) *DiscordMessageQuery {
 	query := (&DiscordMessageClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := dmr.ID
+		id := _m.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(discordmessagereaction.Table, discordmessagereaction.FieldID, id),
 			sqlgraph.To(discordmessage.Table, discordmessage.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, discordmessagereaction.DiscordMessageTable, discordmessagereaction.DiscordMessageColumn),
 		)
-		fromV = sqlgraph.Neighbors(dmr.driver.Dialect(), step)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
 	}
 	return query
 }
 
 // QueryAuthor queries the author edge of a DiscordMessageReaction.
-func (c *DiscordMessageReactionClient) QueryAuthor(dmr *DiscordMessageReaction) *DiscordUserQuery {
+func (c *DiscordMessageReactionClient) QueryAuthor(_m *DiscordMessageReaction) *DiscordUserQuery {
 	query := (&DiscordUserClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := dmr.ID
+		id := _m.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(discordmessagereaction.Table, discordmessagereaction.FieldID, id),
 			sqlgraph.To(discorduser.Table, discorduser.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, discordmessagereaction.AuthorTable, discordmessagereaction.AuthorColumn),
 		)
-		fromV = sqlgraph.Neighbors(dmr.driver.Dialect(), step)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
 	}
 	return query
@@ -1341,8 +1349,8 @@ func (c *DiscordUserClient) Update() *DiscordUserUpdate {
 }
 
 // UpdateOne returns an update builder for the given entity.
-func (c *DiscordUserClient) UpdateOne(du *DiscordUser) *DiscordUserUpdateOne {
-	mutation := newDiscordUserMutation(c.config, OpUpdateOne, withDiscordUser(du))
+func (c *DiscordUserClient) UpdateOne(_m *DiscordUser) *DiscordUserUpdateOne {
+	mutation := newDiscordUserMutation(c.config, OpUpdateOne, withDiscordUser(_m))
 	return &DiscordUserUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
@@ -1359,8 +1367,8 @@ func (c *DiscordUserClient) Delete() *DiscordUserDelete {
 }
 
 // DeleteOne returns a builder for deleting the given entity.
-func (c *DiscordUserClient) DeleteOne(du *DiscordUser) *DiscordUserDeleteOne {
-	return c.DeleteOneID(du.ID)
+func (c *DiscordUserClient) DeleteOne(_m *DiscordUser) *DiscordUserDeleteOne {
+	return c.DeleteOneID(_m.ID)
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
@@ -1395,64 +1403,64 @@ func (c *DiscordUserClient) GetX(ctx context.Context, id uuid.UUID) *DiscordUser
 }
 
 // QueryGuilds queries the guilds edge of a DiscordUser.
-func (c *DiscordUserClient) QueryGuilds(du *DiscordUser) *DiscordGuildQuery {
+func (c *DiscordUserClient) QueryGuilds(_m *DiscordUser) *DiscordGuildQuery {
 	query := (&DiscordGuildClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := du.ID
+		id := _m.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(discorduser.Table, discorduser.FieldID, id),
 			sqlgraph.To(discordguild.Table, discordguild.FieldID),
 			sqlgraph.Edge(sqlgraph.M2M, true, discorduser.GuildsTable, discorduser.GuildsPrimaryKey...),
 		)
-		fromV = sqlgraph.Neighbors(du.driver.Dialect(), step)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
 	}
 	return query
 }
 
 // QueryDiscordMessages queries the discord_messages edge of a DiscordUser.
-func (c *DiscordUserClient) QueryDiscordMessages(du *DiscordUser) *DiscordMessageQuery {
+func (c *DiscordUserClient) QueryDiscordMessages(_m *DiscordUser) *DiscordMessageQuery {
 	query := (&DiscordMessageClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := du.ID
+		id := _m.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(discorduser.Table, discorduser.FieldID, id),
 			sqlgraph.To(discordmessage.Table, discordmessage.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, discorduser.DiscordMessagesTable, discorduser.DiscordMessagesColumn),
 		)
-		fromV = sqlgraph.Neighbors(du.driver.Dialect(), step)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
 	}
 	return query
 }
 
 // QueryMediaRequests queries the media_requests edge of a DiscordUser.
-func (c *DiscordUserClient) QueryMediaRequests(du *DiscordUser) *MediaRequestQuery {
+func (c *DiscordUserClient) QueryMediaRequests(_m *DiscordUser) *MediaRequestQuery {
 	query := (&MediaRequestClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := du.ID
+		id := _m.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(discorduser.Table, discorduser.FieldID, id),
 			sqlgraph.To(mediarequest.Table, mediarequest.FieldID),
 			sqlgraph.Edge(sqlgraph.M2M, false, discorduser.MediaRequestsTable, discorduser.MediaRequestsPrimaryKey...),
 		)
-		fromV = sqlgraph.Neighbors(du.driver.Dialect(), step)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
 	}
 	return query
 }
 
 // QueryMessageReactions queries the message_reactions edge of a DiscordUser.
-func (c *DiscordUserClient) QueryMessageReactions(du *DiscordUser) *DiscordMessageReactionQuery {
+func (c *DiscordUserClient) QueryMessageReactions(_m *DiscordUser) *DiscordMessageReactionQuery {
 	query := (&DiscordMessageReactionClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := du.ID
+		id := _m.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(discorduser.Table, discorduser.FieldID, id),
 			sqlgraph.To(discordmessagereaction.Table, discordmessagereaction.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, discorduser.MessageReactionsTable, discorduser.MessageReactionsColumn),
 		)
-		fromV = sqlgraph.Neighbors(du.driver.Dialect(), step)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
 	}
 	return query
@@ -1480,6 +1488,139 @@ func (c *DiscordUserClient) mutate(ctx context.Context, m *DiscordUserMutation) 
 		return (&DiscordUserDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
 		return nil, fmt.Errorf("ent: unknown DiscordUser mutation op: %q", m.Op())
+	}
+}
+
+// EmojiClient is a client for the Emoji schema.
+type EmojiClient struct {
+	config
+}
+
+// NewEmojiClient returns a client for the Emoji from the given config.
+func NewEmojiClient(c config) *EmojiClient {
+	return &EmojiClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `emoji.Hooks(f(g(h())))`.
+func (c *EmojiClient) Use(hooks ...Hook) {
+	c.hooks.Emoji = append(c.hooks.Emoji, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `emoji.Intercept(f(g(h())))`.
+func (c *EmojiClient) Intercept(interceptors ...Interceptor) {
+	c.inters.Emoji = append(c.inters.Emoji, interceptors...)
+}
+
+// Create returns a builder for creating a Emoji entity.
+func (c *EmojiClient) Create() *EmojiCreate {
+	mutation := newEmojiMutation(c.config, OpCreate)
+	return &EmojiCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of Emoji entities.
+func (c *EmojiClient) CreateBulk(builders ...*EmojiCreate) *EmojiCreateBulk {
+	return &EmojiCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *EmojiClient) MapCreateBulk(slice any, setFunc func(*EmojiCreate, int)) *EmojiCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &EmojiCreateBulk{err: fmt.Errorf("calling to EmojiClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*EmojiCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &EmojiCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for Emoji.
+func (c *EmojiClient) Update() *EmojiUpdate {
+	mutation := newEmojiMutation(c.config, OpUpdate)
+	return &EmojiUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *EmojiClient) UpdateOne(_m *Emoji) *EmojiUpdateOne {
+	mutation := newEmojiMutation(c.config, OpUpdateOne, withEmoji(_m))
+	return &EmojiUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *EmojiClient) UpdateOneID(id int) *EmojiUpdateOne {
+	mutation := newEmojiMutation(c.config, OpUpdateOne, withEmojiID(id))
+	return &EmojiUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for Emoji.
+func (c *EmojiClient) Delete() *EmojiDelete {
+	mutation := newEmojiMutation(c.config, OpDelete)
+	return &EmojiDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *EmojiClient) DeleteOne(_m *Emoji) *EmojiDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *EmojiClient) DeleteOneID(id int) *EmojiDeleteOne {
+	builder := c.Delete().Where(emoji.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &EmojiDeleteOne{builder}
+}
+
+// Query returns a query builder for Emoji.
+func (c *EmojiClient) Query() *EmojiQuery {
+	return &EmojiQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeEmoji},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a Emoji entity by its id.
+func (c *EmojiClient) Get(ctx context.Context, id int) (*Emoji, error) {
+	return c.Query().Where(emoji.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *EmojiClient) GetX(ctx context.Context, id int) *Emoji {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// Hooks returns the client hooks.
+func (c *EmojiClient) Hooks() []Hook {
+	return c.hooks.Emoji
+}
+
+// Interceptors returns the client interceptors.
+func (c *EmojiClient) Interceptors() []Interceptor {
+	return c.inters.Emoji
+}
+
+func (c *EmojiClient) mutate(ctx context.Context, m *EmojiMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&EmojiCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&EmojiUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&EmojiUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&EmojiDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown Emoji mutation op: %q", m.Op())
 	}
 }
 
@@ -1538,8 +1679,8 @@ func (c *MediaRequestClient) Update() *MediaRequestUpdate {
 }
 
 // UpdateOne returns an update builder for the given entity.
-func (c *MediaRequestClient) UpdateOne(mr *MediaRequest) *MediaRequestUpdateOne {
-	mutation := newMediaRequestMutation(c.config, OpUpdateOne, withMediaRequest(mr))
+func (c *MediaRequestClient) UpdateOne(_m *MediaRequest) *MediaRequestUpdateOne {
+	mutation := newMediaRequestMutation(c.config, OpUpdateOne, withMediaRequest(_m))
 	return &MediaRequestUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
@@ -1556,8 +1697,8 @@ func (c *MediaRequestClient) Delete() *MediaRequestDelete {
 }
 
 // DeleteOne returns a builder for deleting the given entity.
-func (c *MediaRequestClient) DeleteOne(mr *MediaRequest) *MediaRequestDeleteOne {
-	return c.DeleteOneID(mr.ID)
+func (c *MediaRequestClient) DeleteOne(_m *MediaRequest) *MediaRequestDeleteOne {
+	return c.DeleteOneID(_m.ID)
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
@@ -1592,32 +1733,32 @@ func (c *MediaRequestClient) GetX(ctx context.Context, id uuid.UUID) *MediaReque
 }
 
 // QueryDiscordUsers queries the discord_users edge of a MediaRequest.
-func (c *MediaRequestClient) QueryDiscordUsers(mr *MediaRequest) *DiscordUserQuery {
+func (c *MediaRequestClient) QueryDiscordUsers(_m *MediaRequest) *DiscordUserQuery {
 	query := (&DiscordUserClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := mr.ID
+		id := _m.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(mediarequest.Table, mediarequest.FieldID, id),
 			sqlgraph.To(discorduser.Table, discorduser.FieldID),
 			sqlgraph.Edge(sqlgraph.M2M, true, mediarequest.DiscordUsersTable, mediarequest.DiscordUsersPrimaryKey...),
 		)
-		fromV = sqlgraph.Neighbors(mr.driver.Dialect(), step)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
 	}
 	return query
 }
 
 // QueryBook queries the book edge of a MediaRequest.
-func (c *MediaRequestClient) QueryBook(mr *MediaRequest) *BookQuery {
+func (c *MediaRequestClient) QueryBook(_m *MediaRequest) *BookQuery {
 	query := (&BookClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := mr.ID
+		id := _m.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(mediarequest.Table, mediarequest.FieldID, id),
 			sqlgraph.To(book.Table, book.FieldID),
 			sqlgraph.Edge(sqlgraph.O2O, true, mediarequest.BookTable, mediarequest.BookColumn),
 		)
-		fromV = sqlgraph.Neighbors(mr.driver.Dialect(), step)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
 	}
 	return query
@@ -1652,10 +1793,10 @@ func (c *MediaRequestClient) mutate(ctx context.Context, m *MediaRequestMutation
 type (
 	hooks struct {
 		Book, BookAuthor, DiscordChannel, DiscordGuild, DiscordMessage,
-		DiscordMessageReaction, DiscordUser, MediaRequest []ent.Hook
+		DiscordMessageReaction, DiscordUser, Emoji, MediaRequest []ent.Hook
 	}
 	inters struct {
 		Book, BookAuthor, DiscordChannel, DiscordGuild, DiscordMessage,
-		DiscordMessageReaction, DiscordUser, MediaRequest []ent.Interceptor
+		DiscordMessageReaction, DiscordUser, Emoji, MediaRequest []ent.Interceptor
 	}
 )

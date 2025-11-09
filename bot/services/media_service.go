@@ -14,7 +14,6 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
-// MediaService is a service that interacts with media-related services.
 type MediaService struct {
 	bloopyMeta       models.BloopyMeta
 	logger           *zap.Logger
@@ -25,7 +24,6 @@ type MediaService struct {
 	dbEnabled        bool
 }
 
-// NewMediaService creates a new MediaService.
 func NewMediaService() *MediaService {
 	lgr := log.NewZapLogger().With(
 		zapcore.Field{Type: zapcore.StringType, Key: ServiceLoggerFieldKey, String: "media_service"},
@@ -40,22 +38,18 @@ func NewMediaService() *MediaService {
 	}
 }
 
-// WithBookService sets the BookService for the MediaService.
 func (s *MediaService) WithBookService(bsvc *BookService) {
 	s.bookService = bsvc
 }
 
-// WithOverseerrService sets the OverseerrService for the MediaService.
 func (s *MediaService) WithOverseerrService(osvc *OverseerrService) {
 	s.overseerrService = osvc
 }
 
-// WithArrService sets the ArrService for the MediaService.
 func (s *MediaService) WithArrService(svc *ArrService) {
 	s.arrService = svc
 }
 
-// RefreshDBConnection refreshes the database connection.
 func (s *MediaService) RefreshDBConnection() error {
 	if s.dbEnabled {
 		if err := s.db.Close(); err != nil {
@@ -74,9 +68,9 @@ func (s *MediaService) RefreshDBConnection() error {
 	return err
 }
 
-// GetMediaRequestsForUser gets the media requests for a user.
-// TODO: Create composite request response??
 func (s *MediaService) GetMediaRequestsForUser(ctx context.Context, discordUserId int) ([]*ent.MediaRequest, error) {
+	// TODO: Create composite request response??
+
 	if s.dbEnabled {
 		requests, err := s.db.MediaRequest.
 			Query().

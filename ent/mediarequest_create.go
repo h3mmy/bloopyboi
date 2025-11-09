@@ -8,8 +8,6 @@ import (
 	"fmt"
 	"time"
 
-	"entgo.io/ent/dialect"
-	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
@@ -24,119 +22,118 @@ type MediaRequestCreate struct {
 	config
 	mutation *MediaRequestMutation
 	hooks    []Hook
-	conflict []sql.ConflictOption
 }
 
 // SetCreateTime sets the "create_time" field.
-func (mrc *MediaRequestCreate) SetCreateTime(t time.Time) *MediaRequestCreate {
-	mrc.mutation.SetCreateTime(t)
-	return mrc
+func (_c *MediaRequestCreate) SetCreateTime(v time.Time) *MediaRequestCreate {
+	_c.mutation.SetCreateTime(v)
+	return _c
 }
 
 // SetNillableCreateTime sets the "create_time" field if the given value is not nil.
-func (mrc *MediaRequestCreate) SetNillableCreateTime(t *time.Time) *MediaRequestCreate {
-	if t != nil {
-		mrc.SetCreateTime(*t)
+func (_c *MediaRequestCreate) SetNillableCreateTime(v *time.Time) *MediaRequestCreate {
+	if v != nil {
+		_c.SetCreateTime(*v)
 	}
-	return mrc
+	return _c
 }
 
 // SetUpdateTime sets the "update_time" field.
-func (mrc *MediaRequestCreate) SetUpdateTime(t time.Time) *MediaRequestCreate {
-	mrc.mutation.SetUpdateTime(t)
-	return mrc
+func (_c *MediaRequestCreate) SetUpdateTime(v time.Time) *MediaRequestCreate {
+	_c.mutation.SetUpdateTime(v)
+	return _c
 }
 
 // SetNillableUpdateTime sets the "update_time" field if the given value is not nil.
-func (mrc *MediaRequestCreate) SetNillableUpdateTime(t *time.Time) *MediaRequestCreate {
-	if t != nil {
-		mrc.SetUpdateTime(*t)
+func (_c *MediaRequestCreate) SetNillableUpdateTime(v *time.Time) *MediaRequestCreate {
+	if v != nil {
+		_c.SetUpdateTime(*v)
 	}
-	return mrc
+	return _c
 }
 
 // SetStatus sets the "status" field.
-func (mrc *MediaRequestCreate) SetStatus(mrs models.MediaRequestStatus) *MediaRequestCreate {
-	mrc.mutation.SetStatus(mrs)
-	return mrc
+func (_c *MediaRequestCreate) SetStatus(v models.MediaRequestStatus) *MediaRequestCreate {
+	_c.mutation.SetStatus(v)
+	return _c
 }
 
 // SetPriority sets the "priority" field.
-func (mrc *MediaRequestCreate) SetPriority(i int) *MediaRequestCreate {
-	mrc.mutation.SetPriority(i)
-	return mrc
+func (_c *MediaRequestCreate) SetPriority(v int) *MediaRequestCreate {
+	_c.mutation.SetPriority(v)
+	return _c
 }
 
 // SetNillablePriority sets the "priority" field if the given value is not nil.
-func (mrc *MediaRequestCreate) SetNillablePriority(i *int) *MediaRequestCreate {
-	if i != nil {
-		mrc.SetPriority(*i)
+func (_c *MediaRequestCreate) SetNillablePriority(v *int) *MediaRequestCreate {
+	if v != nil {
+		_c.SetPriority(*v)
 	}
-	return mrc
+	return _c
 }
 
 // SetID sets the "id" field.
-func (mrc *MediaRequestCreate) SetID(u uuid.UUID) *MediaRequestCreate {
-	mrc.mutation.SetID(u)
-	return mrc
+func (_c *MediaRequestCreate) SetID(v uuid.UUID) *MediaRequestCreate {
+	_c.mutation.SetID(v)
+	return _c
 }
 
 // SetNillableID sets the "id" field if the given value is not nil.
-func (mrc *MediaRequestCreate) SetNillableID(u *uuid.UUID) *MediaRequestCreate {
-	if u != nil {
-		mrc.SetID(*u)
+func (_c *MediaRequestCreate) SetNillableID(v *uuid.UUID) *MediaRequestCreate {
+	if v != nil {
+		_c.SetID(*v)
 	}
-	return mrc
+	return _c
 }
 
 // AddDiscordUserIDs adds the "discord_users" edge to the DiscordUser entity by IDs.
-func (mrc *MediaRequestCreate) AddDiscordUserIDs(ids ...uuid.UUID) *MediaRequestCreate {
-	mrc.mutation.AddDiscordUserIDs(ids...)
-	return mrc
+func (_c *MediaRequestCreate) AddDiscordUserIDs(ids ...uuid.UUID) *MediaRequestCreate {
+	_c.mutation.AddDiscordUserIDs(ids...)
+	return _c
 }
 
 // AddDiscordUsers adds the "discord_users" edges to the DiscordUser entity.
-func (mrc *MediaRequestCreate) AddDiscordUsers(d ...*DiscordUser) *MediaRequestCreate {
-	ids := make([]uuid.UUID, len(d))
-	for i := range d {
-		ids[i] = d[i].ID
+func (_c *MediaRequestCreate) AddDiscordUsers(v ...*DiscordUser) *MediaRequestCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return mrc.AddDiscordUserIDs(ids...)
+	return _c.AddDiscordUserIDs(ids...)
 }
 
 // SetBookID sets the "book" edge to the Book entity by ID.
-func (mrc *MediaRequestCreate) SetBookID(id uuid.UUID) *MediaRequestCreate {
-	mrc.mutation.SetBookID(id)
-	return mrc
+func (_c *MediaRequestCreate) SetBookID(id uuid.UUID) *MediaRequestCreate {
+	_c.mutation.SetBookID(id)
+	return _c
 }
 
 // SetNillableBookID sets the "book" edge to the Book entity by ID if the given value is not nil.
-func (mrc *MediaRequestCreate) SetNillableBookID(id *uuid.UUID) *MediaRequestCreate {
+func (_c *MediaRequestCreate) SetNillableBookID(id *uuid.UUID) *MediaRequestCreate {
 	if id != nil {
-		mrc = mrc.SetBookID(*id)
+		_c = _c.SetBookID(*id)
 	}
-	return mrc
+	return _c
 }
 
 // SetBook sets the "book" edge to the Book entity.
-func (mrc *MediaRequestCreate) SetBook(b *Book) *MediaRequestCreate {
-	return mrc.SetBookID(b.ID)
+func (_c *MediaRequestCreate) SetBook(v *Book) *MediaRequestCreate {
+	return _c.SetBookID(v.ID)
 }
 
 // Mutation returns the MediaRequestMutation object of the builder.
-func (mrc *MediaRequestCreate) Mutation() *MediaRequestMutation {
-	return mrc.mutation
+func (_c *MediaRequestCreate) Mutation() *MediaRequestMutation {
+	return _c.mutation
 }
 
 // Save creates the MediaRequest in the database.
-func (mrc *MediaRequestCreate) Save(ctx context.Context) (*MediaRequest, error) {
-	mrc.defaults()
-	return withHooks(ctx, mrc.sqlSave, mrc.mutation, mrc.hooks)
+func (_c *MediaRequestCreate) Save(ctx context.Context) (*MediaRequest, error) {
+	_c.defaults()
+	return withHooks(ctx, _c.sqlSave, _c.mutation, _c.hooks)
 }
 
 // SaveX calls Save and panics if Save returns an error.
-func (mrc *MediaRequestCreate) SaveX(ctx context.Context) *MediaRequest {
-	v, err := mrc.Save(ctx)
+func (_c *MediaRequestCreate) SaveX(ctx context.Context) *MediaRequest {
+	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -144,66 +141,66 @@ func (mrc *MediaRequestCreate) SaveX(ctx context.Context) *MediaRequest {
 }
 
 // Exec executes the query.
-func (mrc *MediaRequestCreate) Exec(ctx context.Context) error {
-	_, err := mrc.Save(ctx)
+func (_c *MediaRequestCreate) Exec(ctx context.Context) error {
+	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (mrc *MediaRequestCreate) ExecX(ctx context.Context) {
-	if err := mrc.Exec(ctx); err != nil {
+func (_c *MediaRequestCreate) ExecX(ctx context.Context) {
+	if err := _c.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (mrc *MediaRequestCreate) defaults() {
-	if _, ok := mrc.mutation.CreateTime(); !ok {
+func (_c *MediaRequestCreate) defaults() {
+	if _, ok := _c.mutation.CreateTime(); !ok {
 		v := mediarequest.DefaultCreateTime()
-		mrc.mutation.SetCreateTime(v)
+		_c.mutation.SetCreateTime(v)
 	}
-	if _, ok := mrc.mutation.UpdateTime(); !ok {
+	if _, ok := _c.mutation.UpdateTime(); !ok {
 		v := mediarequest.DefaultUpdateTime()
-		mrc.mutation.SetUpdateTime(v)
+		_c.mutation.SetUpdateTime(v)
 	}
-	if _, ok := mrc.mutation.Priority(); !ok {
+	if _, ok := _c.mutation.Priority(); !ok {
 		v := mediarequest.DefaultPriority
-		mrc.mutation.SetPriority(v)
+		_c.mutation.SetPriority(v)
 	}
-	if _, ok := mrc.mutation.ID(); !ok {
+	if _, ok := _c.mutation.ID(); !ok {
 		v := mediarequest.DefaultID()
-		mrc.mutation.SetID(v)
+		_c.mutation.SetID(v)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (mrc *MediaRequestCreate) check() error {
-	if _, ok := mrc.mutation.CreateTime(); !ok {
+func (_c *MediaRequestCreate) check() error {
+	if _, ok := _c.mutation.CreateTime(); !ok {
 		return &ValidationError{Name: "create_time", err: errors.New(`ent: missing required field "MediaRequest.create_time"`)}
 	}
-	if _, ok := mrc.mutation.UpdateTime(); !ok {
+	if _, ok := _c.mutation.UpdateTime(); !ok {
 		return &ValidationError{Name: "update_time", err: errors.New(`ent: missing required field "MediaRequest.update_time"`)}
 	}
-	if _, ok := mrc.mutation.Status(); !ok {
+	if _, ok := _c.mutation.Status(); !ok {
 		return &ValidationError{Name: "status", err: errors.New(`ent: missing required field "MediaRequest.status"`)}
 	}
-	if v, ok := mrc.mutation.Status(); ok {
+	if v, ok := _c.mutation.Status(); ok {
 		if err := mediarequest.StatusValidator(v); err != nil {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`ent: validator failed for field "MediaRequest.status": %w`, err)}
 		}
 	}
-	if _, ok := mrc.mutation.Priority(); !ok {
+	if _, ok := _c.mutation.Priority(); !ok {
 		return &ValidationError{Name: "priority", err: errors.New(`ent: missing required field "MediaRequest.priority"`)}
 	}
 	return nil
 }
 
-func (mrc *MediaRequestCreate) sqlSave(ctx context.Context) (*MediaRequest, error) {
-	if err := mrc.check(); err != nil {
+func (_c *MediaRequestCreate) sqlSave(ctx context.Context) (*MediaRequest, error) {
+	if err := _c.check(); err != nil {
 		return nil, err
 	}
-	_node, _spec := mrc.createSpec()
-	if err := sqlgraph.CreateNode(ctx, mrc.driver, _spec); err != nil {
+	_node, _spec := _c.createSpec()
+	if err := sqlgraph.CreateNode(ctx, _c.driver, _spec); err != nil {
 		if sqlgraph.IsConstraintError(err) {
 			err = &ConstraintError{msg: err.Error(), wrap: err}
 		}
@@ -216,38 +213,37 @@ func (mrc *MediaRequestCreate) sqlSave(ctx context.Context) (*MediaRequest, erro
 			return nil, err
 		}
 	}
-	mrc.mutation.id = &_node.ID
-	mrc.mutation.done = true
+	_c.mutation.id = &_node.ID
+	_c.mutation.done = true
 	return _node, nil
 }
 
-func (mrc *MediaRequestCreate) createSpec() (*MediaRequest, *sqlgraph.CreateSpec) {
+func (_c *MediaRequestCreate) createSpec() (*MediaRequest, *sqlgraph.CreateSpec) {
 	var (
-		_node = &MediaRequest{config: mrc.config}
+		_node = &MediaRequest{config: _c.config}
 		_spec = sqlgraph.NewCreateSpec(mediarequest.Table, sqlgraph.NewFieldSpec(mediarequest.FieldID, field.TypeUUID))
 	)
-	_spec.OnConflict = mrc.conflict
-	if id, ok := mrc.mutation.ID(); ok {
+	if id, ok := _c.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = &id
 	}
-	if value, ok := mrc.mutation.CreateTime(); ok {
+	if value, ok := _c.mutation.CreateTime(); ok {
 		_spec.SetField(mediarequest.FieldCreateTime, field.TypeTime, value)
 		_node.CreateTime = value
 	}
-	if value, ok := mrc.mutation.UpdateTime(); ok {
+	if value, ok := _c.mutation.UpdateTime(); ok {
 		_spec.SetField(mediarequest.FieldUpdateTime, field.TypeTime, value)
 		_node.UpdateTime = value
 	}
-	if value, ok := mrc.mutation.Status(); ok {
+	if value, ok := _c.mutation.Status(); ok {
 		_spec.SetField(mediarequest.FieldStatus, field.TypeEnum, value)
 		_node.Status = value
 	}
-	if value, ok := mrc.mutation.Priority(); ok {
+	if value, ok := _c.mutation.Priority(); ok {
 		_spec.SetField(mediarequest.FieldPriority, field.TypeInt, value)
 		_node.Priority = value
 	}
-	if nodes := mrc.mutation.DiscordUsersIDs(); len(nodes) > 0 {
+	if nodes := _c.mutation.DiscordUsersIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: true,
@@ -263,7 +259,7 @@ func (mrc *MediaRequestCreate) createSpec() (*MediaRequest, *sqlgraph.CreateSpec
 		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
-	if nodes := mrc.mutation.BookIDs(); len(nodes) > 0 {
+	if nodes := _c.mutation.BookIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2O,
 			Inverse: true,
@@ -283,254 +279,24 @@ func (mrc *MediaRequestCreate) createSpec() (*MediaRequest, *sqlgraph.CreateSpec
 	return _node, _spec
 }
 
-// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
-// of the `INSERT` statement. For example:
-//
-//	client.MediaRequest.Create().
-//		SetCreateTime(v).
-//		OnConflict(
-//			// Update the row with the new values
-//			// the was proposed for insertion.
-//			sql.ResolveWithNewValues(),
-//		).
-//		// Override some of the fields with custom
-//		// update values.
-//		Update(func(u *ent.MediaRequestUpsert) {
-//			SetCreateTime(v+v).
-//		}).
-//		Exec(ctx)
-func (mrc *MediaRequestCreate) OnConflict(opts ...sql.ConflictOption) *MediaRequestUpsertOne {
-	mrc.conflict = opts
-	return &MediaRequestUpsertOne{
-		create: mrc,
-	}
-}
-
-// OnConflictColumns calls `OnConflict` and configures the columns
-// as conflict target. Using this option is equivalent to using:
-//
-//	client.MediaRequest.Create().
-//		OnConflict(sql.ConflictColumns(columns...)).
-//		Exec(ctx)
-func (mrc *MediaRequestCreate) OnConflictColumns(columns ...string) *MediaRequestUpsertOne {
-	mrc.conflict = append(mrc.conflict, sql.ConflictColumns(columns...))
-	return &MediaRequestUpsertOne{
-		create: mrc,
-	}
-}
-
-type (
-	// MediaRequestUpsertOne is the builder for "upsert"-ing
-	//  one MediaRequest node.
-	MediaRequestUpsertOne struct {
-		create *MediaRequestCreate
-	}
-
-	// MediaRequestUpsert is the "OnConflict" setter.
-	MediaRequestUpsert struct {
-		*sql.UpdateSet
-	}
-)
-
-// SetUpdateTime sets the "update_time" field.
-func (u *MediaRequestUpsert) SetUpdateTime(v time.Time) *MediaRequestUpsert {
-	u.Set(mediarequest.FieldUpdateTime, v)
-	return u
-}
-
-// UpdateUpdateTime sets the "update_time" field to the value that was provided on create.
-func (u *MediaRequestUpsert) UpdateUpdateTime() *MediaRequestUpsert {
-	u.SetExcluded(mediarequest.FieldUpdateTime)
-	return u
-}
-
-// SetStatus sets the "status" field.
-func (u *MediaRequestUpsert) SetStatus(v models.MediaRequestStatus) *MediaRequestUpsert {
-	u.Set(mediarequest.FieldStatus, v)
-	return u
-}
-
-// UpdateStatus sets the "status" field to the value that was provided on create.
-func (u *MediaRequestUpsert) UpdateStatus() *MediaRequestUpsert {
-	u.SetExcluded(mediarequest.FieldStatus)
-	return u
-}
-
-// SetPriority sets the "priority" field.
-func (u *MediaRequestUpsert) SetPriority(v int) *MediaRequestUpsert {
-	u.Set(mediarequest.FieldPriority, v)
-	return u
-}
-
-// UpdatePriority sets the "priority" field to the value that was provided on create.
-func (u *MediaRequestUpsert) UpdatePriority() *MediaRequestUpsert {
-	u.SetExcluded(mediarequest.FieldPriority)
-	return u
-}
-
-// AddPriority adds v to the "priority" field.
-func (u *MediaRequestUpsert) AddPriority(v int) *MediaRequestUpsert {
-	u.Add(mediarequest.FieldPriority, v)
-	return u
-}
-
-// UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
-// Using this option is equivalent to using:
-//
-//	client.MediaRequest.Create().
-//		OnConflict(
-//			sql.ResolveWithNewValues(),
-//			sql.ResolveWith(func(u *sql.UpdateSet) {
-//				u.SetIgnore(mediarequest.FieldID)
-//			}),
-//		).
-//		Exec(ctx)
-func (u *MediaRequestUpsertOne) UpdateNewValues() *MediaRequestUpsertOne {
-	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
-	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
-		if _, exists := u.create.mutation.ID(); exists {
-			s.SetIgnore(mediarequest.FieldID)
-		}
-		if _, exists := u.create.mutation.CreateTime(); exists {
-			s.SetIgnore(mediarequest.FieldCreateTime)
-		}
-	}))
-	return u
-}
-
-// Ignore sets each column to itself in case of conflict.
-// Using this option is equivalent to using:
-//
-//	client.MediaRequest.Create().
-//	    OnConflict(sql.ResolveWithIgnore()).
-//	    Exec(ctx)
-func (u *MediaRequestUpsertOne) Ignore() *MediaRequestUpsertOne {
-	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
-	return u
-}
-
-// DoNothing configures the conflict_action to `DO NOTHING`.
-// Supported only by SQLite and PostgreSQL.
-func (u *MediaRequestUpsertOne) DoNothing() *MediaRequestUpsertOne {
-	u.create.conflict = append(u.create.conflict, sql.DoNothing())
-	return u
-}
-
-// Update allows overriding fields `UPDATE` values. See the MediaRequestCreate.OnConflict
-// documentation for more info.
-func (u *MediaRequestUpsertOne) Update(set func(*MediaRequestUpsert)) *MediaRequestUpsertOne {
-	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
-		set(&MediaRequestUpsert{UpdateSet: update})
-	}))
-	return u
-}
-
-// SetUpdateTime sets the "update_time" field.
-func (u *MediaRequestUpsertOne) SetUpdateTime(v time.Time) *MediaRequestUpsertOne {
-	return u.Update(func(s *MediaRequestUpsert) {
-		s.SetUpdateTime(v)
-	})
-}
-
-// UpdateUpdateTime sets the "update_time" field to the value that was provided on create.
-func (u *MediaRequestUpsertOne) UpdateUpdateTime() *MediaRequestUpsertOne {
-	return u.Update(func(s *MediaRequestUpsert) {
-		s.UpdateUpdateTime()
-	})
-}
-
-// SetStatus sets the "status" field.
-func (u *MediaRequestUpsertOne) SetStatus(v models.MediaRequestStatus) *MediaRequestUpsertOne {
-	return u.Update(func(s *MediaRequestUpsert) {
-		s.SetStatus(v)
-	})
-}
-
-// UpdateStatus sets the "status" field to the value that was provided on create.
-func (u *MediaRequestUpsertOne) UpdateStatus() *MediaRequestUpsertOne {
-	return u.Update(func(s *MediaRequestUpsert) {
-		s.UpdateStatus()
-	})
-}
-
-// SetPriority sets the "priority" field.
-func (u *MediaRequestUpsertOne) SetPriority(v int) *MediaRequestUpsertOne {
-	return u.Update(func(s *MediaRequestUpsert) {
-		s.SetPriority(v)
-	})
-}
-
-// AddPriority adds v to the "priority" field.
-func (u *MediaRequestUpsertOne) AddPriority(v int) *MediaRequestUpsertOne {
-	return u.Update(func(s *MediaRequestUpsert) {
-		s.AddPriority(v)
-	})
-}
-
-// UpdatePriority sets the "priority" field to the value that was provided on create.
-func (u *MediaRequestUpsertOne) UpdatePriority() *MediaRequestUpsertOne {
-	return u.Update(func(s *MediaRequestUpsert) {
-		s.UpdatePriority()
-	})
-}
-
-// Exec executes the query.
-func (u *MediaRequestUpsertOne) Exec(ctx context.Context) error {
-	if len(u.create.conflict) == 0 {
-		return errors.New("ent: missing options for MediaRequestCreate.OnConflict")
-	}
-	return u.create.Exec(ctx)
-}
-
-// ExecX is like Exec, but panics if an error occurs.
-func (u *MediaRequestUpsertOne) ExecX(ctx context.Context) {
-	if err := u.create.Exec(ctx); err != nil {
-		panic(err)
-	}
-}
-
-// Exec executes the UPSERT query and returns the inserted/updated ID.
-func (u *MediaRequestUpsertOne) ID(ctx context.Context) (id uuid.UUID, err error) {
-	if u.create.driver.Dialect() == dialect.MySQL {
-		// In case of "ON CONFLICT", there is no way to get back non-numeric ID
-		// fields from the database since MySQL does not support the RETURNING clause.
-		return id, errors.New("ent: MediaRequestUpsertOne.ID is not supported by MySQL driver. Use MediaRequestUpsertOne.Exec instead")
-	}
-	node, err := u.create.Save(ctx)
-	if err != nil {
-		return id, err
-	}
-	return node.ID, nil
-}
-
-// IDX is like ID, but panics if an error occurs.
-func (u *MediaRequestUpsertOne) IDX(ctx context.Context) uuid.UUID {
-	id, err := u.ID(ctx)
-	if err != nil {
-		panic(err)
-	}
-	return id
-}
-
 // MediaRequestCreateBulk is the builder for creating many MediaRequest entities in bulk.
 type MediaRequestCreateBulk struct {
 	config
 	err      error
 	builders []*MediaRequestCreate
-	conflict []sql.ConflictOption
 }
 
 // Save creates the MediaRequest entities in the database.
-func (mrcb *MediaRequestCreateBulk) Save(ctx context.Context) ([]*MediaRequest, error) {
-	if mrcb.err != nil {
-		return nil, mrcb.err
+func (_c *MediaRequestCreateBulk) Save(ctx context.Context) ([]*MediaRequest, error) {
+	if _c.err != nil {
+		return nil, _c.err
 	}
-	specs := make([]*sqlgraph.CreateSpec, len(mrcb.builders))
-	nodes := make([]*MediaRequest, len(mrcb.builders))
-	mutators := make([]Mutator, len(mrcb.builders))
-	for i := range mrcb.builders {
+	specs := make([]*sqlgraph.CreateSpec, len(_c.builders))
+	nodes := make([]*MediaRequest, len(_c.builders))
+	mutators := make([]Mutator, len(_c.builders))
+	for i := range _c.builders {
 		func(i int, root context.Context) {
-			builder := mrcb.builders[i]
+			builder := _c.builders[i]
 			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*MediaRequestMutation)
@@ -544,12 +310,11 @@ func (mrcb *MediaRequestCreateBulk) Save(ctx context.Context) ([]*MediaRequest, 
 				var err error
 				nodes[i], specs[i] = builder.createSpec()
 				if i < len(mutators)-1 {
-					_, err = mutators[i+1].Mutate(root, mrcb.builders[i+1].mutation)
+					_, err = mutators[i+1].Mutate(root, _c.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
-					spec.OnConflict = mrcb.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
-					if err = sqlgraph.BatchCreate(ctx, mrcb.driver, spec); err != nil {
+					if err = sqlgraph.BatchCreate(ctx, _c.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
 							err = &ConstraintError{msg: err.Error(), wrap: err}
 						}
@@ -569,7 +334,7 @@ func (mrcb *MediaRequestCreateBulk) Save(ctx context.Context) ([]*MediaRequest, 
 		}(i, ctx)
 	}
 	if len(mutators) > 0 {
-		if _, err := mutators[0].Mutate(ctx, mrcb.builders[0].mutation); err != nil {
+		if _, err := mutators[0].Mutate(ctx, _c.builders[0].mutation); err != nil {
 			return nil, err
 		}
 	}
@@ -577,8 +342,8 @@ func (mrcb *MediaRequestCreateBulk) Save(ctx context.Context) ([]*MediaRequest, 
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (mrcb *MediaRequestCreateBulk) SaveX(ctx context.Context) []*MediaRequest {
-	v, err := mrcb.Save(ctx)
+func (_c *MediaRequestCreateBulk) SaveX(ctx context.Context) []*MediaRequest {
+	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -586,180 +351,14 @@ func (mrcb *MediaRequestCreateBulk) SaveX(ctx context.Context) []*MediaRequest {
 }
 
 // Exec executes the query.
-func (mrcb *MediaRequestCreateBulk) Exec(ctx context.Context) error {
-	_, err := mrcb.Save(ctx)
+func (_c *MediaRequestCreateBulk) Exec(ctx context.Context) error {
+	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (mrcb *MediaRequestCreateBulk) ExecX(ctx context.Context) {
-	if err := mrcb.Exec(ctx); err != nil {
-		panic(err)
-	}
-}
-
-// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
-// of the `INSERT` statement. For example:
-//
-//	client.MediaRequest.CreateBulk(builders...).
-//		OnConflict(
-//			// Update the row with the new values
-//			// the was proposed for insertion.
-//			sql.ResolveWithNewValues(),
-//		).
-//		// Override some of the fields with custom
-//		// update values.
-//		Update(func(u *ent.MediaRequestUpsert) {
-//			SetCreateTime(v+v).
-//		}).
-//		Exec(ctx)
-func (mrcb *MediaRequestCreateBulk) OnConflict(opts ...sql.ConflictOption) *MediaRequestUpsertBulk {
-	mrcb.conflict = opts
-	return &MediaRequestUpsertBulk{
-		create: mrcb,
-	}
-}
-
-// OnConflictColumns calls `OnConflict` and configures the columns
-// as conflict target. Using this option is equivalent to using:
-//
-//	client.MediaRequest.Create().
-//		OnConflict(sql.ConflictColumns(columns...)).
-//		Exec(ctx)
-func (mrcb *MediaRequestCreateBulk) OnConflictColumns(columns ...string) *MediaRequestUpsertBulk {
-	mrcb.conflict = append(mrcb.conflict, sql.ConflictColumns(columns...))
-	return &MediaRequestUpsertBulk{
-		create: mrcb,
-	}
-}
-
-// MediaRequestUpsertBulk is the builder for "upsert"-ing
-// a bulk of MediaRequest nodes.
-type MediaRequestUpsertBulk struct {
-	create *MediaRequestCreateBulk
-}
-
-// UpdateNewValues updates the mutable fields using the new values that
-// were set on create. Using this option is equivalent to using:
-//
-//	client.MediaRequest.Create().
-//		OnConflict(
-//			sql.ResolveWithNewValues(),
-//			sql.ResolveWith(func(u *sql.UpdateSet) {
-//				u.SetIgnore(mediarequest.FieldID)
-//			}),
-//		).
-//		Exec(ctx)
-func (u *MediaRequestUpsertBulk) UpdateNewValues() *MediaRequestUpsertBulk {
-	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
-	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
-		for _, b := range u.create.builders {
-			if _, exists := b.mutation.ID(); exists {
-				s.SetIgnore(mediarequest.FieldID)
-			}
-			if _, exists := b.mutation.CreateTime(); exists {
-				s.SetIgnore(mediarequest.FieldCreateTime)
-			}
-		}
-	}))
-	return u
-}
-
-// Ignore sets each column to itself in case of conflict.
-// Using this option is equivalent to using:
-//
-//	client.MediaRequest.Create().
-//		OnConflict(sql.ResolveWithIgnore()).
-//		Exec(ctx)
-func (u *MediaRequestUpsertBulk) Ignore() *MediaRequestUpsertBulk {
-	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
-	return u
-}
-
-// DoNothing configures the conflict_action to `DO NOTHING`.
-// Supported only by SQLite and PostgreSQL.
-func (u *MediaRequestUpsertBulk) DoNothing() *MediaRequestUpsertBulk {
-	u.create.conflict = append(u.create.conflict, sql.DoNothing())
-	return u
-}
-
-// Update allows overriding fields `UPDATE` values. See the MediaRequestCreateBulk.OnConflict
-// documentation for more info.
-func (u *MediaRequestUpsertBulk) Update(set func(*MediaRequestUpsert)) *MediaRequestUpsertBulk {
-	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
-		set(&MediaRequestUpsert{UpdateSet: update})
-	}))
-	return u
-}
-
-// SetUpdateTime sets the "update_time" field.
-func (u *MediaRequestUpsertBulk) SetUpdateTime(v time.Time) *MediaRequestUpsertBulk {
-	return u.Update(func(s *MediaRequestUpsert) {
-		s.SetUpdateTime(v)
-	})
-}
-
-// UpdateUpdateTime sets the "update_time" field to the value that was provided on create.
-func (u *MediaRequestUpsertBulk) UpdateUpdateTime() *MediaRequestUpsertBulk {
-	return u.Update(func(s *MediaRequestUpsert) {
-		s.UpdateUpdateTime()
-	})
-}
-
-// SetStatus sets the "status" field.
-func (u *MediaRequestUpsertBulk) SetStatus(v models.MediaRequestStatus) *MediaRequestUpsertBulk {
-	return u.Update(func(s *MediaRequestUpsert) {
-		s.SetStatus(v)
-	})
-}
-
-// UpdateStatus sets the "status" field to the value that was provided on create.
-func (u *MediaRequestUpsertBulk) UpdateStatus() *MediaRequestUpsertBulk {
-	return u.Update(func(s *MediaRequestUpsert) {
-		s.UpdateStatus()
-	})
-}
-
-// SetPriority sets the "priority" field.
-func (u *MediaRequestUpsertBulk) SetPriority(v int) *MediaRequestUpsertBulk {
-	return u.Update(func(s *MediaRequestUpsert) {
-		s.SetPriority(v)
-	})
-}
-
-// AddPriority adds v to the "priority" field.
-func (u *MediaRequestUpsertBulk) AddPriority(v int) *MediaRequestUpsertBulk {
-	return u.Update(func(s *MediaRequestUpsert) {
-		s.AddPriority(v)
-	})
-}
-
-// UpdatePriority sets the "priority" field to the value that was provided on create.
-func (u *MediaRequestUpsertBulk) UpdatePriority() *MediaRequestUpsertBulk {
-	return u.Update(func(s *MediaRequestUpsert) {
-		s.UpdatePriority()
-	})
-}
-
-// Exec executes the query.
-func (u *MediaRequestUpsertBulk) Exec(ctx context.Context) error {
-	if u.create.err != nil {
-		return u.create.err
-	}
-	for i, b := range u.create.builders {
-		if len(b.conflict) != 0 {
-			return fmt.Errorf("ent: OnConflict was set for builder %d. Set it on the MediaRequestCreateBulk instead", i)
-		}
-	}
-	if len(u.create.conflict) == 0 {
-		return errors.New("ent: missing options for MediaRequestCreateBulk.OnConflict")
-	}
-	return u.create.Exec(ctx)
-}
-
-// ExecX is like Exec, but panics if an error occurs.
-func (u *MediaRequestUpsertBulk) ExecX(ctx context.Context) {
-	if err := u.create.Exec(ctx); err != nil {
+func (_c *MediaRequestCreateBulk) ExecX(ctx context.Context) {
+	if err := _c.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
