@@ -49,11 +49,22 @@ func (r *RoleSelectionHandler) ReconcileConfig(s *discordgo.Session) error {
 		r.logger.Error("error getting channel", zap.String("channelID", r.config.Channel.ID), zap.Error(err))
 		return err
 	}
+	if roleChannel == nil {
+		r.logger.Error("role channel does not exist", zap.String("channelID", r.config.Channel.ID))
+		return nil
+	}
 
-	messages, err := s.ChannelMessages(roleChannel.ID, 100, "", "", "")
+	limit := len(r.config.Prompts) * 2
+	if limit > 100 {
+		limit = 100
+	}
+	messages, err := s.ChannelMessages(roleChannel.ID, limit, "", "", "")
 	if err != nil {
 		r.logger.Error("error getting messages for channel", zap.String("channelID", roleChannel.ID), zap.Error(err))
 		return err
+	}
+	if len(messages) > len(r.config.Prompts)*2 {
+		r.logger.Warn("more messages in channel than configured prompts", zap.Int("messageCount", len(messages)), zap.Int("promptCount", len(r.config.Prompts)))
 	}
 
 	for _, p := range r.config.Prompts {
@@ -116,6 +127,7 @@ func (r *RoleSelectionHandler) ReconcileConfig(s *discordgo.Session) error {
 }
 
 // handleReaction is a helper function to handle both reaction add and remove events.
+// It returns the role ID, the member, and an error if one occurred.
 func (r *RoleSelectionHandler) handleReaction(s *discordgo.Session, guildID, channelID, messageID, userID, emojiID string) (string, *discordgo.Member, error) {
 	r.reconciling.RLock()
 	if !r.initialized {
@@ -135,6 +147,7 @@ func (r *RoleSelectionHandler) handleReaction(s *discordgo.Session, guildID, cha
 	pr, ok := r.prompts[messageID]
 	r.reconciling.RUnlock()
 	if !ok {
+		r.logger.Debug("message is not a registered prompt", zap.String("messageID", messageID))
 		return "", nil, nil // Not a message we're watching
 	}
 
