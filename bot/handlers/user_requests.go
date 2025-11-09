@@ -11,6 +11,8 @@ import (
 	"go.uber.org/zap"
 )
 
+// UserRequestCommand is a command that allows users to see their media requests.
+// TODO: This is an experimental command and should be refactored.
 type UserRequestCommand struct {
 	meta        models.BloopyMeta
 	Name        string
@@ -21,6 +23,7 @@ type UserRequestCommand struct {
 	roles       []int64
 }
 
+// NewUserRequestCommand creates a new UserRequestCommand.
 func NewUserRequestCommand(bookSvc *services.BookService) *UserRequestCommand {
 	return &UserRequestCommand{
 		meta:        models.NewBloopyMeta(),
@@ -33,24 +36,29 @@ func NewUserRequestCommand(bookSvc *services.BookService) *UserRequestCommand {
 	}
 }
 
+// WithGuild sets the guild ID for the command.
 func (c *UserRequestCommand) WithGuild(guildId string) *UserRequestCommand {
 	c.guildId = guildId
 	return c
 }
 
+// WithRoles sets the allowed roles for the command.
 func (c *UserRequestCommand) WithRoles(roles ...int64) *UserRequestCommand {
 	c.roles = roles
 	return c
 }
 
+// GetGuildID returns the guild ID for the command.
 func (c *UserRequestCommand) GetGuildID() string {
 	return c.guildId
 }
 
+// GetAllowedRoles returns the allowed roles for the command.
 func (c *UserRequestCommand) GetAllowedRoles() []int64 {
 	return c.roles
 }
 
+// GetAppCommand returns the application command for the UserRequest command.
 func (c *UserRequestCommand) GetAppCommand() *discordgo.ApplicationCommand {
 	return &discordgo.ApplicationCommand{
 		Name:        c.Name,
@@ -72,6 +80,7 @@ func (c *UserRequestCommand) GetAppCommand() *discordgo.ApplicationCommand {
 	}
 }
 
+// GetAppCommandHandler returns the handler for the UserRequest command.
 func (c *UserRequestCommand) GetAppCommandHandler() func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	return func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		c.logger.Info("handling user request command")
@@ -131,6 +140,7 @@ func (c *UserRequestCommand) GetAppCommandHandler() func(s *discordgo.Session, i
 	}
 }
 
+// GetMessageComponentHandlers returns the message component handlers for the UserRequest command.
 func (c *UserRequestCommand) GetMessageComponentHandlers() map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	return nil
 }

@@ -6,11 +6,14 @@ import (
 )
 
 const (
+	// ServiceLoggerFieldKey is the key for the service name in the logger.
 	ServiceLoggerFieldKey = "service_name"
-	DefaultUUID           = ""
+	// DefaultUUID is the default UUID for a bloopyboi instance.
+	DefaultUUID = ""
 )
 
-// GetTLSTransport Get a TLS transport instance, that skips verification if configured via environment variables.
+// GetTLSTransport returns a TLS transport that can be configured to skip verification.
+// TODO: This should not panic.
 func GetTLSTransport(insecure bool) http.RoundTripper {
 	tlsTransport, err := httptransport.TLSTransport(httptransport.TLSClientOptions{
 		InsecureSkipVerify: insecure,
