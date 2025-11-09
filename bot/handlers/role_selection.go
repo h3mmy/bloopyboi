@@ -127,7 +127,7 @@ func (r *RoleSelectionHandler) ReconcileConfig(s *discordgo.Session) error {
 }
 
 // handleReaction is a helper function to handle both reaction add and remove events.
-// It returns the role ID, the member, and an error if one occurred.
+// It returns the role ID associated with the reaction, the member that performed the reaction op, and an error if one occurred.
 func (r *RoleSelectionHandler) handleReaction(s *discordgo.Session, guildID, channelID, messageID, userID, emojiID string) (string, *discordgo.Member, error) {
 	r.reconciling.RLock()
 	if !r.initialized {
