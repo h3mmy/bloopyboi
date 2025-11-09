@@ -25,6 +25,7 @@ type BloopyBoi struct {
 	Status          *health.AvailabilityStatus
 	ServiceRegistry models.ServiceRegistry
 	Running         bool
+	ImageAnalyzer   models.ImageAnalyzer
 }
 
 func New() *BloopyBoi {
@@ -33,9 +34,8 @@ func New() *BloopyBoi {
 
 func (bot *BloopyBoi) WithLogger(logger *zap.Logger) *BloopyBoi {
 	logger.Debug("Adding Logger to boi")
-	return &BloopyBoi{
-		log: logger,
-	}
+	bot.log = logger
+	return bot
 }
 
 func (bot *BloopyBoi) Run(ctx context.Context) error {

@@ -31,11 +31,12 @@ type DiscordService struct {
 	// The interaction handlers registered with this service, keyed by the command name
 	interactionHandlerRegistry map[string]func(*discordgo.Session, *discordgo.InteractionCreate)
 	// The commands registered with discord that will need to be de-registered on shutdown
-	commandRegistry map[string]*discordgo.ApplicationCommand
-	db              *ent.Client
-	dbEnabled       bool
-	config          *config.DiscordConfig
-	intents         discordgo.Intent
+	commandRegistry  map[string]*discordgo.ApplicationCommand
+	db               *ent.Client
+	dbEnabled        bool
+	config           *config.DiscordConfig
+	intents          discordgo.Intent
+	imageAnalyzerSvc ImageAnalyzerService
 }
 
 func NewDiscordService() *DiscordService {
@@ -61,6 +62,11 @@ func NewDiscordService() *DiscordService {
 func (d *DiscordService) WithSession(session *discordgo.Session) *DiscordService {
 	d.discordSession = session
 	d.discordSession.Identify.Intents = d.intents
+	return d
+}
+
+func (d *DiscordService) WithImageAnalyzer(analyzerSvc ImageAnalyzerService) *DiscordService {
+	d.imageAnalyzerSvc = d.imageAnalyzerSvc
 	return d
 }
 
@@ -514,6 +520,49 @@ func (d *DiscordService) GetSavedGuild(ctx context.Context, discordGuildId strin
 		}
 	}
 	return discordGuild, nil
+}
+
+func (d *DiscordService) IngestGuildEmojis(ctx context.Context, guildID string) error {
+	// if d.imageAnalyzerSvc == nil {
+	// 	return errors.New("image analyzer is not available")
+	// }
+
+	emojis, err := d.discordSession.GuildEmojis(guildID)
+	if err != nil {
+		return fmt.Errorf("could not get emojis for guild %s: %w", guildID, err)
+	}
+
+	for _, emoji := range emojis {
+		imageURL := fmt.Sprintf("https://cdn.discordapp.com/emojis/%s.png", emoji.ID)
+		if emoji.Animated {
+			imageURL = fmt.Sprintf("https://cdn.discordapp.com/emojis/%s.gif", emoji.ID)
+		}
+
+		analysis, err := d.imageAnalyzerSvc.AnalyzeImageFromURL(ctx, imageURL)
+		if err != nil {
+			d.logger.Error("failed to analyze emoji image", zap.String("emoji_id", emoji.ID), zap.Error(err))
+			continue
+		}
+
+		d.logger.Info("analyzed emoji", zap.String("emoji_id", emoji.ID), zap.Strings("keywords", analysis.Keywords))
+
+		// TODO: Save to database once ent schema is generated
+		// if d.dbEnabled {
+		// 	err := d.db.Emoji.Create().
+		// 		SetEmojiID(emoji.ID).
+		// 		SetName(emoji.Name).
+		// 		SetAnimated(emoji.Animated).
+		// 		SetKeywords(analysis.Keywords).
+		// 		OnConflict(sql.ConflictColumns("emoji_id")).
+		// 		UpdateNewValues().
+		// 		Exec(ctx)
+		// 	if err != nil {
+		// 		d.logger.Error("failed to save emoji to db", zap.String("emoji_id", emoji.ID), zap.Error(err))
+		// 	}
+		// }
+	}
+
+	return nil
 }
 
 // func (d *DiscordService) syncGuildUsers(guildId string) error {
