@@ -8,7 +8,7 @@ toolchain go1.24.1
 
 require (
 	github.com/adrg/strutil v0.3.1
-	github.com/bwmarrin/discordgo v0.28.1
+	github.com/bwmarrin/discordgo v0.29.0
 	github.com/cdfmlr/ellipsis v0.0.1
 	github.com/devopsarr/overseerr-go v1.0.0
 	github.com/dustin/go-humanize v1.0.1
