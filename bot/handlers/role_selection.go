@@ -40,46 +40,40 @@ func NewRoleSelectionHandler(guildID string, config *config.RoleSelectionConfig)
 }
 
 // ReconcileConfig reconciles the role selection configuration with the Discord guild.
-// TODO: This function is not fully implemented and needs to be more reliable.
 func (r *RoleSelectionHandler) ReconcileConfig(s *discordgo.Session) error {
-	r.reconciling.RLock()
-	chList, err := s.GuildChannels(r.guildID)
+	r.reconciling.Lock()
+	defer r.reconciling.Unlock()
+
+	roleChannel, err := s.Channel(r.config.Channel.ID)
 	if err != nil {
-		r.logger.Error("error getting channels for guild", zap.String("guildID", r.guildID), zap.Error(err))
-		r.reconciling.RUnlock()
+		r.logger.Error("error getting channel", zap.String("channelID", r.config.Channel.ID), zap.Error(err))
 		return err
 	}
-	roleChExists := false
-	var roleChannel *discordgo.Channel
-	for _, ch := range chList {
-		if ch.ID == r.config.Channel.ID {
-			r.logger.Debug("role channel exists!", zap.String("channel", ch.Name))
-			roleChExists = true
-			roleChannel = ch
+
+	messages, err := s.ChannelMessages(roleChannel.ID, 100, "", "", "")
+	if err != nil {
+		r.logger.Error("error getting messages for channel", zap.String("channelID", roleChannel.ID), zap.Error(err))
+		return err
+	}
+
+	for _, p := range r.config.Prompts {
+		var messageExists bool
+		var existingMessage *discordgo.Message
+		for _, m := range messages {
+			if m.Content == p.Message {
+				messageExists = true
+				existingMessage = m
+				break
+			}
 		}
-	}
-	r.reconciling.RUnlock()
-	if !roleChExists {
-		r.logger.Debug("channel does not yet exist. Wat?!")
-		// create channel
-	}
-	messagesCreated := 0
-	// TODO: Do this more reliably instead of relying on counts
-	if roleChannel.MessageCount == 0 && len(r.prompts) < len(r.config.Prompts) {
-		r.logger.Debug("locking for message creation")
-		r.reconciling.Lock()
-		defer func() {
-			r.logger.Debug("unlocking msg creation")
-			r.reconciling.Unlock()
-		}()
-		for _, p := range r.config.Prompts {
+
+		if !messageExists {
 			msg, err := s.ChannelMessageSend(roleChannel.ID, p.Message)
 			if err != nil {
 				r.logger.Error("error creating channel message", zap.String("channelName", roleChannel.Name), zap.String("channelId", roleChannel.ID), zap.Error(err))
 				continue
 			}
 			r.prompts[msg.ID] = p
-			messagesCreated++
 			for _, op := range p.Options {
 				err := s.MessageReactionAdd(msg.ChannelID, msg.ID, op.EmojiID)
 				if err != nil {
@@ -92,97 +86,115 @@ func (r *RoleSelectionHandler) ReconcileConfig(s *discordgo.Session) error {
 					continue
 				}
 			}
+		} else {
+			r.prompts[existingMessage.ID] = p
+			for _, op := range p.Options {
+				var reactionExists bool
+				for _, reaction := range existingMessage.Reactions {
+					if reaction.Emoji.ID == op.EmojiID {
+						reactionExists = true
+						break
+					}
+				}
+				if !reactionExists {
+					err := s.MessageReactionAdd(existingMessage.ChannelID, existingMessage.ID, op.EmojiID)
+					if err != nil {
+						r.logger.Error("error adding reaction",
+							zap.String("channelName", roleChannel.Name),
+							zap.String("channelId", roleChannel.ID),
+							zap.String("emojiID", op.EmojiID),
+							zap.String("option", op.Description),
+							zap.Error(err))
+						continue
+					}
+				}
+			}
 		}
 	}
+	r.initialized = true
 	return nil
+}
+
+// handleReaction is a helper function to handle both reaction add and remove events.
+func (r *RoleSelectionHandler) handleReaction(s *discordgo.Session, guildID, channelID, messageID, userID, emojiID string) (string, *discordgo.Member, error) {
+	r.reconciling.RLock()
+	if !r.initialized {
+		r.reconciling.RUnlock()
+		if err := r.ReconcileConfig(s); err != nil {
+			r.logger.Error("failed to reconcile config", zap.Error(err))
+			return "", nil, err
+		}
+		r.reconciling.RLock()
+	}
+
+	if channelID != r.config.Channel.ID {
+		r.reconciling.RUnlock()
+		return "", nil, nil // Not the channel we're watching
+	}
+
+	pr, ok := r.prompts[messageID]
+	r.reconciling.RUnlock()
+	if !ok {
+		return "", nil, nil // Not a message we're watching
+	}
+
+	var focusRoleID string
+	for _, op := range pr.Options {
+		if op.EmojiID == emojiID {
+			focusRoleID = op.RoleID
+			break
+		}
+	}
+
+	if focusRoleID == "" {
+		return "", nil, nil // Not an emoji we're watching
+	}
+
+	user, err := s.GuildMember(guildID, userID)
+	if err != nil {
+		r.logger.Error("error fetching guild member", zap.Error(err))
+		return "", nil, err
+	}
+
+	return focusRoleID, user, nil
 }
 
 // HandleReactionAdd handles a reaction add event.
 func (r *RoleSelectionHandler) HandleReactionAdd(s *discordgo.Session, m *discordgo.MessageReactionAdd) {
-	if !r.initialized {
-		err2 := r.ReconcileConfig(s)
-		if err2 != nil {
-			r.logger.Error("failed to reconcile config", zap.Error(err2))
-		} else {
-			r.initialized = true
-		}
-	}
-	// Ignore reactions in non-target channel
-	if m.ChannelID != r.config.Channel.ID {
+	focusRoleID, user, err := r.handleReaction(s, m.GuildID, m.ChannelID, m.MessageID, m.UserID, m.Emoji.ID)
+	if err != nil || focusRoleID == "" {
 		return
 	}
-	if pr, ok := r.prompts[m.MessageID]; !ok {
-		r.logger.Debug("message is not registered prompt", zap.String("message", m.MessageID))
-	} else {
-		var focusRoleId string
-		for _, op := range pr.Options {
-			if op.EmojiID == m.Emoji.ID {
-				focusRoleId = op.RoleID
-			}
-		}
-		if focusRoleId == "" {
-			// unrelated emoji?
-			return
-		}
-		user, err := s.GuildMember(m.GuildID, m.UserID)
-		if err != nil {
-			r.logger.Error("error fetching guild member", zap.Error(err))
-		}
-		for _, roleID := range user.Roles {
-			if roleID == focusRoleId {
-				// user has role
-				return
-			}
-		}
-		err = s.GuildMemberRoleAdd(m.GuildID, m.UserID, focusRoleId)
-		if err != nil {
-			r.logger.Error("failed to add role", zap.String("roleId", focusRoleId), zap.String("user", user.User.Username), zap.Error(err))
+
+	for _, roleID := range user.Roles {
+		if roleID == focusRoleID {
+			return // User already has the role
 		}
 	}
 
+	if err := s.GuildMemberRoleAdd(m.GuildID, m.UserID, focusRoleID); err != nil {
+		r.logger.Error("failed to add role", zap.String("roleId", focusRoleID), zap.String("user", user.User.Username), zap.Error(err))
+	}
 }
 
 // HandleReactionRemove handles a reaction remove event.
 func (r *RoleSelectionHandler) HandleReactionRemove(s *discordgo.Session, m *discordgo.MessageReactionRemove) {
-	if !r.initialized {
-		err2 := r.ReconcileConfig(s)
-		if err2 != nil {
-			r.logger.Error("failed to reconcile config", zap.Error(err2))
-		} else {
-			r.initialized = true
-		}
-	}
-	// Ignore reactions in non-target channel
-	if m.ChannelID != r.config.Channel.ID {
+	focusRoleID, user, err := r.handleReaction(s, m.GuildID, m.ChannelID, m.MessageID, m.UserID, m.Emoji.ID)
+	if err != nil || focusRoleID == "" {
 		return
 	}
-	if pr, ok := r.prompts[m.MessageID]; !ok {
-		r.logger.Debug("message is not registered prompt", zap.String("message", m.MessageID))
-	} else {
-		var focusRoleId string
-		for _, op := range pr.Options {
-			if op.EmojiID == m.Emoji.ID {
-				focusRoleId = op.RoleID
-			}
-		}
-		if focusRoleId == "" {
-			// unrelated emoji?
-			return
-		}
-		user, err := s.GuildMember(m.GuildID, m.UserID)
-		if err != nil {
-			r.logger.Error("error fetching guild member", zap.Error(err))
-		}
-		for _, roleID := range user.Roles {
-			if roleID == focusRoleId {
-				// user has role
-				return
-			}
-		}
-		err = s.GuildMemberRoleRemove(m.GuildID, m.UserID, focusRoleId)
-		if err != nil {
-			r.logger.Error("failed to remove role", zap.String("roleId", focusRoleId), zap.String("user", user.User.Username), zap.Error(err))
+
+	var hasRole bool
+	for _, roleID := range user.Roles {
+		if roleID == focusRoleID {
+			hasRole = true
+			break
 		}
 	}
 
+	if hasRole {
+		if err := s.GuildMemberRoleRemove(m.GuildID, m.UserID, focusRoleID); err != nil {
+			r.logger.Error("failed to remove role", zap.String("roleId", focusRoleID), zap.String("user", user.User.Username), zap.Error(err))
+		}
+	}
 }
