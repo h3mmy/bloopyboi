@@ -19,20 +19,24 @@ type DiscordGuildConfig struct {
 // RoleSelectionConfig is intended to configure role selection prompts
 // Eventually, this should be stateful and customizable, but UI needs to happen first
 type RoleSelectionConfig struct {
-	Channel struct {
-		Name string `mapstructure:"name"`
-		ID   string `mapstructure:"id"`
-	}
+	Channel RoleSelectionChannel  `mapstructure:"channel"`
 	Prompts []RoleSelectionPrompt `mapstructure:"prompts"`
 }
 
+type RoleSelectionChannel struct {
+	Name string `mapstructure:"name"`
+	ID   string `mapstructure:"id"`
+}
+
 type RoleSelectionPrompt struct {
-	Message string `mapstructure:"message"`
-	Options []struct {
-		EmojiID     string `mapstructure:"emojiID"`
-		Description string `mapstructure:"description"`
-		RoleID      string `mapstructure:"roleId"`
-	}
+	Message string                `mapstructure:"message"`
+	Options []RoleSelectionOption `mapstructure:"options"`
+}
+
+type RoleSelectionOption struct {
+	EmojiID     string `mapstructure:"emojiID"`
+	Description string `mapstructure:"description"`
+	RoleID      string `mapstructure:"roleId"`
 }
 
 // Config for dedicated announcement channel. If empty, no announcement will be sent.

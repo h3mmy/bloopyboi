@@ -10,6 +10,17 @@ import (
 	"go.uber.org/zap"
 )
 
+// DiscordSession is an interface for `discordgo.Session` to allow mocking.
+type DiscordSession interface {
+	GuildChannels(guildID string, options ...discordgo.RequestOption) (st []*discordgo.Channel, err error)
+	ChannelMessages(channelID string, limit int, beforeID, afterID, aroundID string, options ...discordgo.RequestOption) (st []*discordgo.Message, err error)
+	ChannelMessageSend(channelID string, content string, options ...discordgo.RequestOption) (*discordgo.Message, error)
+	MessageReactionAdd(channelID, messageID, emojiID string, options ...discordgo.RequestOption) error
+	GuildMember(guildID, userID string, options ...discordgo.RequestOption) (m *discordgo.Member, err error)
+	GuildMemberRoleAdd(guildID, userID, roleID string, options ...discordgo.RequestOption) (err error)
+	GuildMemberRoleRemove(guildID, userID, roleID string, options ...discordgo.RequestOption) error
+}
+
 type SelectionPrompt = config.RoleSelectionPrompt
 
 // RoleSelectionHandler is responsible for managing role selection through reactions.
@@ -39,9 +50,9 @@ func NewRoleSelectionHandler(guildID string, config *config.RoleSelectionConfig)
 }
 
 // ReconcileConfig ensures that the role selection channel and messages are in the desired state.
-func (r *RoleSelectionHandler) ReconcileConfig(s *discordgo.Session) error {
+func (r *RoleSelectionHandler) ReconcileConfig(s DiscordSession) error {
 	r.reconciling.RLock()
-	chList, err := s.GuildChannels(r.guildID)
+	chList, err := s.GuildChannels(r.guildID, nil)
 	if err != nil {
 		r.logger.Error("error getting channels for guild", zap.String("guildID", r.guildID), zap.Error(err))
 		r.reconciling.RUnlock()
@@ -67,7 +78,7 @@ func (r *RoleSelectionHandler) ReconcileConfig(s *discordgo.Session) error {
 	r.reconciling.Lock()
 	defer r.reconciling.Unlock()
 
-	messages, err := s.ChannelMessages(roleChannel.ID, 100, "", "", "")
+	messages, err := s.ChannelMessages(roleChannel.ID, 100, "", "", "", nil)
 	if err != nil {
 		r.logger.Error("error getting messages for channel", zap.String("channelID", roleChannel.ID), zap.Error(err))
 		return err
@@ -94,7 +105,7 @@ func (r *RoleSelectionHandler) ReconcileConfig(s *discordgo.Session) error {
 			}
 			r.prompts[msg.ID] = p
 			for _, op := range p.Options {
-				err := s.MessageReactionAdd(msg.ChannelID, msg.ID, op.EmojiID)
+				err := s.MessageReactionAdd(msg.ChannelID, msg.ID, op.EmojiID, nil)
 				if err != nil {
 					r.logger.Error("error adding reaction",
 						zap.String("channelName", roleChannel.Name),
@@ -110,7 +121,7 @@ func (r *RoleSelectionHandler) ReconcileConfig(s *discordgo.Session) error {
 }
 
 // HandleReactionAdd is called when a user adds a reaction to a message.
-func (r *RoleSelectionHandler) HandleReactionAdd(s *discordgo.Session, m *discordgo.MessageReactionAdd) {
+func (r *RoleSelectionHandler) HandleReactionAdd(s DiscordSession, m *discordgo.MessageReactionAdd) {
 	if !r.initialized {
 		err2 := r.ReconcileConfig(s)
 		if err2 != nil {
@@ -136,9 +147,12 @@ func (r *RoleSelectionHandler) HandleReactionAdd(s *discordgo.Session, m *discor
 			// unrelated emoji?
 			return
 		}
-		user, err := s.GuildMember(m.GuildID, m.UserID)
+		user, err := s.GuildMember(m.GuildID, m.UserID, nil)
 		if err != nil {
 			r.logger.Error("error fetching guild member", zap.Error(err))
+		}
+		if user == nil {
+			return
 		}
 		for _, roleID := range user.Roles {
 			if roleID == focusRoleId {
@@ -155,7 +169,7 @@ func (r *RoleSelectionHandler) HandleReactionAdd(s *discordgo.Session, m *discor
 }
 
 // HandleReactionRemove is called when a user removes a reaction from a message.
-func (r *RoleSelectionHandler) HandleReactionRemove(s *discordgo.Session, m *discordgo.MessageReactionRemove) {
+func (r *RoleSelectionHandler) HandleReactionRemove(s DiscordSession, m *discordgo.MessageReactionRemove) {
 	if !r.initialized {
 		err2 := r.ReconcileConfig(s)
 		if err2 != nil {
@@ -181,7 +195,7 @@ func (r *RoleSelectionHandler) HandleReactionRemove(s *discordgo.Session, m *dis
 			// unrelated emoji?
 			return
 		}
-		user, err := s.GuildMember(m.GuildID, m.UserID)
+		user, err := s.GuildMember(m.GuildID, m.UserID, nil)
 		if err != nil {
 			r.logger.Error("error fetching guild member", zap.Error(err))
 		}

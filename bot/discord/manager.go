@@ -101,8 +101,12 @@ func (d *DiscordManager) Start(ctx context.Context) error {
 		if gcfg.RoleSelectionConfig != nil {
 			d.log.Debug("importing role selection config")
 			roleSelector := handlers.NewRoleSelectionHandler(gcfg.GuildId, gcfg.RoleSelectionConfig)
-			d.discordSvc.AddHandler(roleSelector.HandleReactionAdd)
-			d.discordSvc.AddHandler(roleSelector.HandleReactionRemove)
+			d.discordSvc.AddHandler(func(s *discordgo.Session, m *discordgo.MessageReactionAdd) {
+				roleSelector.HandleReactionAdd(s, m)
+			})
+			d.discordSvc.AddHandler(func(s *discordgo.Session, m *discordgo.MessageReactionRemove) {
+				roleSelector.HandleReactionRemove(s, m)
+			})
 		}
 	}
 
