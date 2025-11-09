@@ -58,13 +58,12 @@ func NewInspiroClientWithConfig(myConfig InspiroConfig) *InspiroClient {
 	}
 }
 
-// NewInspiroClient constructs an InspiroClient with the default configuration.
+// NewInspiroClient constructs an InspiroClient with the application configuration.
 func NewInspiroClient() *InspiroClient {
 	return NewInspiroClientWithConfig(GetInspiroConfig())
 }
 
 // GetInspiro returns a raw URI as a string without validation.
-// TODO: This should be refactored to return an error instead of a string.
 func (inspiroService *InspiroClient) GetInspiro() string {
 
 	image_link, err := http.Get(inspiroService.config.API_url)

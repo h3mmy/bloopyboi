@@ -1,4 +1,3 @@
-// Package handlers contains the command handlers for the bot.
 package handlers
 
 import (
@@ -143,7 +142,7 @@ func (p *BlissfestCommand) GetAppCommandHandler() func(s *discordgo.Session, i *
 				Content: fmt.Sprintf("blissfest start %s", humanize.Time(*bsvc.GetStartTime())),
 			}
 		}
-		p.logger.Debug("finished constructing response", zap.Bool("getLineUp", getLineUp))
+		p.logger.Debug("finished constructing response", zap.Bool("getLineup", getLineUp))
 
 		err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 			Type: discordgo.InteractionResponseChannelMessageWithSource,

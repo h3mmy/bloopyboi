@@ -35,9 +35,7 @@ const (
 	botLogFieldKey = "bot"
 )
 
-// main is the entry point of the application.
-// It sets up the signal handling, logger, bot, gateway, and health checks.
-// It also starts the bot and gateway in separate goroutines.
+// Where the magic happens
 func main() {
 	// Set up a context that is canceled when the application receives a signal.
 	ctx := signals.SetupSignalHandler()
@@ -111,7 +109,7 @@ func main() {
 	// Start the HTTP server.
 	log.Fatalln(http.ListenAndServe(":3000", nil))
 
-	// Wait for the bot to finish.
+	// Wait here until CTRL-C or other term signal is received.
 	fmt.Println("Bot is now running. Press CTRL-C to exit.")
 
 	// Wait for the errgroup to finish.

@@ -58,3 +58,7 @@ To contribute to the project, please follow these steps:
 3. Make your changes and commit them with a descriptive commit message.
 4. Push your changes to your fork.
 5. Open a pull request.
+
+### Contribution Guidelines
+
+Please review the [Code of Conduct](CODE_OF_CONDUCT.md) and [Contribution Guidelines](CONTRIBUTING.md) before contributing. All contributions must be signed off on to certify that you have the right to submit them.
