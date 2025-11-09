@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/bwmarrin/discordgo"
+	"github.com/h3mmy/bloopyboi/bot/services"
 	"github.com/h3mmy/bloopyboi/internal/models"
 )
 
