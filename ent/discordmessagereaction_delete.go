@@ -20,56 +20,56 @@ type DiscordMessageReactionDelete struct {
 }
 
 // Where appends a list predicates to the DiscordMessageReactionDelete builder.
-func (dmrd *DiscordMessageReactionDelete) Where(ps ...predicate.DiscordMessageReaction) *DiscordMessageReactionDelete {
-	dmrd.mutation.Where(ps...)
-	return dmrd
+func (_d *DiscordMessageReactionDelete) Where(ps ...predicate.DiscordMessageReaction) *DiscordMessageReactionDelete {
+	_d.mutation.Where(ps...)
+	return _d
 }
 
 // Exec executes the deletion query and returns how many vertices were deleted.
-func (dmrd *DiscordMessageReactionDelete) Exec(ctx context.Context) (int, error) {
-	return withHooks(ctx, dmrd.sqlExec, dmrd.mutation, dmrd.hooks)
+func (_d *DiscordMessageReactionDelete) Exec(ctx context.Context) (int, error) {
+	return withHooks(ctx, _d.sqlExec, _d.mutation, _d.hooks)
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (dmrd *DiscordMessageReactionDelete) ExecX(ctx context.Context) int {
-	n, err := dmrd.Exec(ctx)
+func (_d *DiscordMessageReactionDelete) ExecX(ctx context.Context) int {
+	n, err := _d.Exec(ctx)
 	if err != nil {
 		panic(err)
 	}
 	return n
 }
 
-func (dmrd *DiscordMessageReactionDelete) sqlExec(ctx context.Context) (int, error) {
+func (_d *DiscordMessageReactionDelete) sqlExec(ctx context.Context) (int, error) {
 	_spec := sqlgraph.NewDeleteSpec(discordmessagereaction.Table, sqlgraph.NewFieldSpec(discordmessagereaction.FieldID, field.TypeUUID))
-	if ps := dmrd.mutation.predicates; len(ps) > 0 {
+	if ps := _d.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	affected, err := sqlgraph.DeleteNodes(ctx, dmrd.driver, _spec)
+	affected, err := sqlgraph.DeleteNodes(ctx, _d.driver, _spec)
 	if err != nil && sqlgraph.IsConstraintError(err) {
 		err = &ConstraintError{msg: err.Error(), wrap: err}
 	}
-	dmrd.mutation.done = true
+	_d.mutation.done = true
 	return affected, err
 }
 
 // DiscordMessageReactionDeleteOne is the builder for deleting a single DiscordMessageReaction entity.
 type DiscordMessageReactionDeleteOne struct {
-	dmrd *DiscordMessageReactionDelete
+	_d *DiscordMessageReactionDelete
 }
 
 // Where appends a list predicates to the DiscordMessageReactionDelete builder.
-func (dmrdo *DiscordMessageReactionDeleteOne) Where(ps ...predicate.DiscordMessageReaction) *DiscordMessageReactionDeleteOne {
-	dmrdo.dmrd.mutation.Where(ps...)
-	return dmrdo
+func (_d *DiscordMessageReactionDeleteOne) Where(ps ...predicate.DiscordMessageReaction) *DiscordMessageReactionDeleteOne {
+	_d._d.mutation.Where(ps...)
+	return _d
 }
 
 // Exec executes the deletion query.
-func (dmrdo *DiscordMessageReactionDeleteOne) Exec(ctx context.Context) error {
-	n, err := dmrdo.dmrd.Exec(ctx)
+func (_d *DiscordMessageReactionDeleteOne) Exec(ctx context.Context) error {
+	n, err := _d._d.Exec(ctx)
 	switch {
 	case err != nil:
 		return err
@@ -81,8 +81,8 @@ func (dmrdo *DiscordMessageReactionDeleteOne) Exec(ctx context.Context) error {
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (dmrdo *DiscordMessageReactionDeleteOne) ExecX(ctx context.Context) {
-	if err := dmrdo.Exec(ctx); err != nil {
+func (_d *DiscordMessageReactionDeleteOne) ExecX(ctx context.Context) {
+	if err := _d.Exec(ctx); err != nil {
 		panic(err)
 	}
 }

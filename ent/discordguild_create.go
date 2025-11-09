@@ -27,146 +27,146 @@ type DiscordGuildCreate struct {
 }
 
 // SetDiscordid sets the "discordid" field.
-func (dgc *DiscordGuildCreate) SetDiscordid(s string) *DiscordGuildCreate {
-	dgc.mutation.SetDiscordid(s)
-	return dgc
+func (_c *DiscordGuildCreate) SetDiscordid(v string) *DiscordGuildCreate {
+	_c.mutation.SetDiscordid(v)
+	return _c
 }
 
 // SetName sets the "name" field.
-func (dgc *DiscordGuildCreate) SetName(s string) *DiscordGuildCreate {
-	dgc.mutation.SetName(s)
-	return dgc
+func (_c *DiscordGuildCreate) SetName(v string) *DiscordGuildCreate {
+	_c.mutation.SetName(v)
+	return _c
 }
 
 // SetDescription sets the "description" field.
-func (dgc *DiscordGuildCreate) SetDescription(s string) *DiscordGuildCreate {
-	dgc.mutation.SetDescription(s)
-	return dgc
+func (_c *DiscordGuildCreate) SetDescription(v string) *DiscordGuildCreate {
+	_c.mutation.SetDescription(v)
+	return _c
 }
 
 // SetNillableDescription sets the "description" field if the given value is not nil.
-func (dgc *DiscordGuildCreate) SetNillableDescription(s *string) *DiscordGuildCreate {
-	if s != nil {
-		dgc.SetDescription(*s)
+func (_c *DiscordGuildCreate) SetNillableDescription(v *string) *DiscordGuildCreate {
+	if v != nil {
+		_c.SetDescription(*v)
 	}
-	return dgc
+	return _c
 }
 
 // SetRulesChannelID sets the "rules_channel_id" field.
-func (dgc *DiscordGuildCreate) SetRulesChannelID(s string) *DiscordGuildCreate {
-	dgc.mutation.SetRulesChannelID(s)
-	return dgc
+func (_c *DiscordGuildCreate) SetRulesChannelID(v string) *DiscordGuildCreate {
+	_c.mutation.SetRulesChannelID(v)
+	return _c
 }
 
 // SetNillableRulesChannelID sets the "rules_channel_id" field if the given value is not nil.
-func (dgc *DiscordGuildCreate) SetNillableRulesChannelID(s *string) *DiscordGuildCreate {
-	if s != nil {
-		dgc.SetRulesChannelID(*s)
+func (_c *DiscordGuildCreate) SetNillableRulesChannelID(v *string) *DiscordGuildCreate {
+	if v != nil {
+		_c.SetRulesChannelID(*v)
 	}
-	return dgc
+	return _c
 }
 
 // SetPublicUpdatesChannelID sets the "public_updates_channel_id" field.
-func (dgc *DiscordGuildCreate) SetPublicUpdatesChannelID(s string) *DiscordGuildCreate {
-	dgc.mutation.SetPublicUpdatesChannelID(s)
-	return dgc
+func (_c *DiscordGuildCreate) SetPublicUpdatesChannelID(v string) *DiscordGuildCreate {
+	_c.mutation.SetPublicUpdatesChannelID(v)
+	return _c
 }
 
 // SetNillablePublicUpdatesChannelID sets the "public_updates_channel_id" field if the given value is not nil.
-func (dgc *DiscordGuildCreate) SetNillablePublicUpdatesChannelID(s *string) *DiscordGuildCreate {
-	if s != nil {
-		dgc.SetPublicUpdatesChannelID(*s)
+func (_c *DiscordGuildCreate) SetNillablePublicUpdatesChannelID(v *string) *DiscordGuildCreate {
+	if v != nil {
+		_c.SetPublicUpdatesChannelID(*v)
 	}
-	return dgc
+	return _c
 }
 
 // SetNsfwLevel sets the "nsfw_level" field.
-func (dgc *DiscordGuildCreate) SetNsfwLevel(i int) *DiscordGuildCreate {
-	dgc.mutation.SetNsfwLevel(i)
-	return dgc
+func (_c *DiscordGuildCreate) SetNsfwLevel(v int) *DiscordGuildCreate {
+	_c.mutation.SetNsfwLevel(v)
+	return _c
 }
 
 // SetNillableNsfwLevel sets the "nsfw_level" field if the given value is not nil.
-func (dgc *DiscordGuildCreate) SetNillableNsfwLevel(i *int) *DiscordGuildCreate {
-	if i != nil {
-		dgc.SetNsfwLevel(*i)
+func (_c *DiscordGuildCreate) SetNillableNsfwLevel(v *int) *DiscordGuildCreate {
+	if v != nil {
+		_c.SetNsfwLevel(*v)
 	}
-	return dgc
+	return _c
 }
 
 // SetID sets the "id" field.
-func (dgc *DiscordGuildCreate) SetID(u uuid.UUID) *DiscordGuildCreate {
-	dgc.mutation.SetID(u)
-	return dgc
+func (_c *DiscordGuildCreate) SetID(v uuid.UUID) *DiscordGuildCreate {
+	_c.mutation.SetID(v)
+	return _c
 }
 
 // SetNillableID sets the "id" field if the given value is not nil.
-func (dgc *DiscordGuildCreate) SetNillableID(u *uuid.UUID) *DiscordGuildCreate {
-	if u != nil {
-		dgc.SetID(*u)
+func (_c *DiscordGuildCreate) SetNillableID(v *uuid.UUID) *DiscordGuildCreate {
+	if v != nil {
+		_c.SetID(*v)
 	}
-	return dgc
+	return _c
 }
 
 // AddMemberIDs adds the "members" edge to the DiscordUser entity by IDs.
-func (dgc *DiscordGuildCreate) AddMemberIDs(ids ...uuid.UUID) *DiscordGuildCreate {
-	dgc.mutation.AddMemberIDs(ids...)
-	return dgc
+func (_c *DiscordGuildCreate) AddMemberIDs(ids ...uuid.UUID) *DiscordGuildCreate {
+	_c.mutation.AddMemberIDs(ids...)
+	return _c
 }
 
 // AddMembers adds the "members" edges to the DiscordUser entity.
-func (dgc *DiscordGuildCreate) AddMembers(d ...*DiscordUser) *DiscordGuildCreate {
-	ids := make([]uuid.UUID, len(d))
-	for i := range d {
-		ids[i] = d[i].ID
+func (_c *DiscordGuildCreate) AddMembers(v ...*DiscordUser) *DiscordGuildCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return dgc.AddMemberIDs(ids...)
+	return _c.AddMemberIDs(ids...)
 }
 
 // AddDiscordMessageIDs adds the "discord_messages" edge to the DiscordMessage entity by IDs.
-func (dgc *DiscordGuildCreate) AddDiscordMessageIDs(ids ...uuid.UUID) *DiscordGuildCreate {
-	dgc.mutation.AddDiscordMessageIDs(ids...)
-	return dgc
+func (_c *DiscordGuildCreate) AddDiscordMessageIDs(ids ...uuid.UUID) *DiscordGuildCreate {
+	_c.mutation.AddDiscordMessageIDs(ids...)
+	return _c
 }
 
 // AddDiscordMessages adds the "discord_messages" edges to the DiscordMessage entity.
-func (dgc *DiscordGuildCreate) AddDiscordMessages(d ...*DiscordMessage) *DiscordGuildCreate {
-	ids := make([]uuid.UUID, len(d))
-	for i := range d {
-		ids[i] = d[i].ID
+func (_c *DiscordGuildCreate) AddDiscordMessages(v ...*DiscordMessage) *DiscordGuildCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return dgc.AddDiscordMessageIDs(ids...)
+	return _c.AddDiscordMessageIDs(ids...)
 }
 
 // AddGuildChannelIDs adds the "guild_channels" edge to the DiscordChannel entity by IDs.
-func (dgc *DiscordGuildCreate) AddGuildChannelIDs(ids ...uuid.UUID) *DiscordGuildCreate {
-	dgc.mutation.AddGuildChannelIDs(ids...)
-	return dgc
+func (_c *DiscordGuildCreate) AddGuildChannelIDs(ids ...uuid.UUID) *DiscordGuildCreate {
+	_c.mutation.AddGuildChannelIDs(ids...)
+	return _c
 }
 
 // AddGuildChannels adds the "guild_channels" edges to the DiscordChannel entity.
-func (dgc *DiscordGuildCreate) AddGuildChannels(d ...*DiscordChannel) *DiscordGuildCreate {
-	ids := make([]uuid.UUID, len(d))
-	for i := range d {
-		ids[i] = d[i].ID
+func (_c *DiscordGuildCreate) AddGuildChannels(v ...*DiscordChannel) *DiscordGuildCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return dgc.AddGuildChannelIDs(ids...)
+	return _c.AddGuildChannelIDs(ids...)
 }
 
 // Mutation returns the DiscordGuildMutation object of the builder.
-func (dgc *DiscordGuildCreate) Mutation() *DiscordGuildMutation {
-	return dgc.mutation
+func (_c *DiscordGuildCreate) Mutation() *DiscordGuildMutation {
+	return _c.mutation
 }
 
 // Save creates the DiscordGuild in the database.
-func (dgc *DiscordGuildCreate) Save(ctx context.Context) (*DiscordGuild, error) {
-	dgc.defaults()
-	return withHooks(ctx, dgc.sqlSave, dgc.mutation, dgc.hooks)
+func (_c *DiscordGuildCreate) Save(ctx context.Context) (*DiscordGuild, error) {
+	_c.defaults()
+	return withHooks(ctx, _c.sqlSave, _c.mutation, _c.hooks)
 }
 
 // SaveX calls Save and panics if Save returns an error.
-func (dgc *DiscordGuildCreate) SaveX(ctx context.Context) *DiscordGuild {
-	v, err := dgc.Save(ctx)
+func (_c *DiscordGuildCreate) SaveX(ctx context.Context) *DiscordGuild {
+	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -174,43 +174,43 @@ func (dgc *DiscordGuildCreate) SaveX(ctx context.Context) *DiscordGuild {
 }
 
 // Exec executes the query.
-func (dgc *DiscordGuildCreate) Exec(ctx context.Context) error {
-	_, err := dgc.Save(ctx)
+func (_c *DiscordGuildCreate) Exec(ctx context.Context) error {
+	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (dgc *DiscordGuildCreate) ExecX(ctx context.Context) {
-	if err := dgc.Exec(ctx); err != nil {
+func (_c *DiscordGuildCreate) ExecX(ctx context.Context) {
+	if err := _c.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (dgc *DiscordGuildCreate) defaults() {
-	if _, ok := dgc.mutation.ID(); !ok {
+func (_c *DiscordGuildCreate) defaults() {
+	if _, ok := _c.mutation.ID(); !ok {
 		v := discordguild.DefaultID()
-		dgc.mutation.SetID(v)
+		_c.mutation.SetID(v)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (dgc *DiscordGuildCreate) check() error {
-	if _, ok := dgc.mutation.Discordid(); !ok {
+func (_c *DiscordGuildCreate) check() error {
+	if _, ok := _c.mutation.Discordid(); !ok {
 		return &ValidationError{Name: "discordid", err: errors.New(`ent: missing required field "DiscordGuild.discordid"`)}
 	}
-	if _, ok := dgc.mutation.Name(); !ok {
+	if _, ok := _c.mutation.Name(); !ok {
 		return &ValidationError{Name: "name", err: errors.New(`ent: missing required field "DiscordGuild.name"`)}
 	}
 	return nil
 }
 
-func (dgc *DiscordGuildCreate) sqlSave(ctx context.Context) (*DiscordGuild, error) {
-	if err := dgc.check(); err != nil {
+func (_c *DiscordGuildCreate) sqlSave(ctx context.Context) (*DiscordGuild, error) {
+	if err := _c.check(); err != nil {
 		return nil, err
 	}
-	_node, _spec := dgc.createSpec()
-	if err := sqlgraph.CreateNode(ctx, dgc.driver, _spec); err != nil {
+	_node, _spec := _c.createSpec()
+	if err := sqlgraph.CreateNode(ctx, _c.driver, _spec); err != nil {
 		if sqlgraph.IsConstraintError(err) {
 			err = &ConstraintError{msg: err.Error(), wrap: err}
 		}
@@ -223,46 +223,46 @@ func (dgc *DiscordGuildCreate) sqlSave(ctx context.Context) (*DiscordGuild, erro
 			return nil, err
 		}
 	}
-	dgc.mutation.id = &_node.ID
-	dgc.mutation.done = true
+	_c.mutation.id = &_node.ID
+	_c.mutation.done = true
 	return _node, nil
 }
 
-func (dgc *DiscordGuildCreate) createSpec() (*DiscordGuild, *sqlgraph.CreateSpec) {
+func (_c *DiscordGuildCreate) createSpec() (*DiscordGuild, *sqlgraph.CreateSpec) {
 	var (
-		_node = &DiscordGuild{config: dgc.config}
+		_node = &DiscordGuild{config: _c.config}
 		_spec = sqlgraph.NewCreateSpec(discordguild.Table, sqlgraph.NewFieldSpec(discordguild.FieldID, field.TypeUUID))
 	)
-	_spec.OnConflict = dgc.conflict
-	if id, ok := dgc.mutation.ID(); ok {
+	_spec.OnConflict = _c.conflict
+	if id, ok := _c.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = &id
 	}
-	if value, ok := dgc.mutation.Discordid(); ok {
+	if value, ok := _c.mutation.Discordid(); ok {
 		_spec.SetField(discordguild.FieldDiscordid, field.TypeString, value)
 		_node.Discordid = value
 	}
-	if value, ok := dgc.mutation.Name(); ok {
+	if value, ok := _c.mutation.Name(); ok {
 		_spec.SetField(discordguild.FieldName, field.TypeString, value)
 		_node.Name = value
 	}
-	if value, ok := dgc.mutation.Description(); ok {
+	if value, ok := _c.mutation.Description(); ok {
 		_spec.SetField(discordguild.FieldDescription, field.TypeString, value)
 		_node.Description = value
 	}
-	if value, ok := dgc.mutation.RulesChannelID(); ok {
+	if value, ok := _c.mutation.RulesChannelID(); ok {
 		_spec.SetField(discordguild.FieldRulesChannelID, field.TypeString, value)
 		_node.RulesChannelID = value
 	}
-	if value, ok := dgc.mutation.PublicUpdatesChannelID(); ok {
+	if value, ok := _c.mutation.PublicUpdatesChannelID(); ok {
 		_spec.SetField(discordguild.FieldPublicUpdatesChannelID, field.TypeString, value)
 		_node.PublicUpdatesChannelID = value
 	}
-	if value, ok := dgc.mutation.NsfwLevel(); ok {
+	if value, ok := _c.mutation.NsfwLevel(); ok {
 		_spec.SetField(discordguild.FieldNsfwLevel, field.TypeInt, value)
 		_node.NsfwLevel = value
 	}
-	if nodes := dgc.mutation.MembersIDs(); len(nodes) > 0 {
+	if nodes := _c.mutation.MembersIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: false,
@@ -278,7 +278,7 @@ func (dgc *DiscordGuildCreate) createSpec() (*DiscordGuild, *sqlgraph.CreateSpec
 		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
-	if nodes := dgc.mutation.DiscordMessagesIDs(); len(nodes) > 0 {
+	if nodes := _c.mutation.DiscordMessagesIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -294,7 +294,7 @@ func (dgc *DiscordGuildCreate) createSpec() (*DiscordGuild, *sqlgraph.CreateSpec
 		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
-	if nodes := dgc.mutation.GuildChannelsIDs(); len(nodes) > 0 {
+	if nodes := _c.mutation.GuildChannelsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: false,
@@ -329,10 +329,10 @@ func (dgc *DiscordGuildCreate) createSpec() (*DiscordGuild, *sqlgraph.CreateSpec
 //			SetDiscordid(v+v).
 //		}).
 //		Exec(ctx)
-func (dgc *DiscordGuildCreate) OnConflict(opts ...sql.ConflictOption) *DiscordGuildUpsertOne {
-	dgc.conflict = opts
+func (_c *DiscordGuildCreate) OnConflict(opts ...sql.ConflictOption) *DiscordGuildUpsertOne {
+	_c.conflict = opts
 	return &DiscordGuildUpsertOne{
-		create: dgc,
+		create: _c,
 	}
 }
 
@@ -342,10 +342,10 @@ func (dgc *DiscordGuildCreate) OnConflict(opts ...sql.ConflictOption) *DiscordGu
 //	client.DiscordGuild.Create().
 //		OnConflict(sql.ConflictColumns(columns...)).
 //		Exec(ctx)
-func (dgc *DiscordGuildCreate) OnConflictColumns(columns ...string) *DiscordGuildUpsertOne {
-	dgc.conflict = append(dgc.conflict, sql.ConflictColumns(columns...))
+func (_c *DiscordGuildCreate) OnConflictColumns(columns ...string) *DiscordGuildUpsertOne {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
 	return &DiscordGuildUpsertOne{
-		create: dgc,
+		create: _c,
 	}
 }
 
@@ -678,16 +678,16 @@ type DiscordGuildCreateBulk struct {
 }
 
 // Save creates the DiscordGuild entities in the database.
-func (dgcb *DiscordGuildCreateBulk) Save(ctx context.Context) ([]*DiscordGuild, error) {
-	if dgcb.err != nil {
-		return nil, dgcb.err
+func (_c *DiscordGuildCreateBulk) Save(ctx context.Context) ([]*DiscordGuild, error) {
+	if _c.err != nil {
+		return nil, _c.err
 	}
-	specs := make([]*sqlgraph.CreateSpec, len(dgcb.builders))
-	nodes := make([]*DiscordGuild, len(dgcb.builders))
-	mutators := make([]Mutator, len(dgcb.builders))
-	for i := range dgcb.builders {
+	specs := make([]*sqlgraph.CreateSpec, len(_c.builders))
+	nodes := make([]*DiscordGuild, len(_c.builders))
+	mutators := make([]Mutator, len(_c.builders))
+	for i := range _c.builders {
 		func(i int, root context.Context) {
-			builder := dgcb.builders[i]
+			builder := _c.builders[i]
 			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*DiscordGuildMutation)
@@ -701,12 +701,12 @@ func (dgcb *DiscordGuildCreateBulk) Save(ctx context.Context) ([]*DiscordGuild, 
 				var err error
 				nodes[i], specs[i] = builder.createSpec()
 				if i < len(mutators)-1 {
-					_, err = mutators[i+1].Mutate(root, dgcb.builders[i+1].mutation)
+					_, err = mutators[i+1].Mutate(root, _c.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
-					spec.OnConflict = dgcb.conflict
+					spec.OnConflict = _c.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
-					if err = sqlgraph.BatchCreate(ctx, dgcb.driver, spec); err != nil {
+					if err = sqlgraph.BatchCreate(ctx, _c.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
 							err = &ConstraintError{msg: err.Error(), wrap: err}
 						}
@@ -726,7 +726,7 @@ func (dgcb *DiscordGuildCreateBulk) Save(ctx context.Context) ([]*DiscordGuild, 
 		}(i, ctx)
 	}
 	if len(mutators) > 0 {
-		if _, err := mutators[0].Mutate(ctx, dgcb.builders[0].mutation); err != nil {
+		if _, err := mutators[0].Mutate(ctx, _c.builders[0].mutation); err != nil {
 			return nil, err
 		}
 	}
@@ -734,8 +734,8 @@ func (dgcb *DiscordGuildCreateBulk) Save(ctx context.Context) ([]*DiscordGuild, 
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (dgcb *DiscordGuildCreateBulk) SaveX(ctx context.Context) []*DiscordGuild {
-	v, err := dgcb.Save(ctx)
+func (_c *DiscordGuildCreateBulk) SaveX(ctx context.Context) []*DiscordGuild {
+	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -743,14 +743,14 @@ func (dgcb *DiscordGuildCreateBulk) SaveX(ctx context.Context) []*DiscordGuild {
 }
 
 // Exec executes the query.
-func (dgcb *DiscordGuildCreateBulk) Exec(ctx context.Context) error {
-	_, err := dgcb.Save(ctx)
+func (_c *DiscordGuildCreateBulk) Exec(ctx context.Context) error {
+	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (dgcb *DiscordGuildCreateBulk) ExecX(ctx context.Context) {
-	if err := dgcb.Exec(ctx); err != nil {
+func (_c *DiscordGuildCreateBulk) ExecX(ctx context.Context) {
+	if err := _c.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
@@ -770,10 +770,10 @@ func (dgcb *DiscordGuildCreateBulk) ExecX(ctx context.Context) {
 //			SetDiscordid(v+v).
 //		}).
 //		Exec(ctx)
-func (dgcb *DiscordGuildCreateBulk) OnConflict(opts ...sql.ConflictOption) *DiscordGuildUpsertBulk {
-	dgcb.conflict = opts
+func (_c *DiscordGuildCreateBulk) OnConflict(opts ...sql.ConflictOption) *DiscordGuildUpsertBulk {
+	_c.conflict = opts
 	return &DiscordGuildUpsertBulk{
-		create: dgcb,
+		create: _c,
 	}
 }
 
@@ -783,10 +783,10 @@ func (dgcb *DiscordGuildCreateBulk) OnConflict(opts ...sql.ConflictOption) *Disc
 //	client.DiscordGuild.Create().
 //		OnConflict(sql.ConflictColumns(columns...)).
 //		Exec(ctx)
-func (dgcb *DiscordGuildCreateBulk) OnConflictColumns(columns ...string) *DiscordGuildUpsertBulk {
-	dgcb.conflict = append(dgcb.conflict, sql.ConflictColumns(columns...))
+func (_c *DiscordGuildCreateBulk) OnConflictColumns(columns ...string) *DiscordGuildUpsertBulk {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
 	return &DiscordGuildUpsertBulk{
-		create: dgcb,
+		create: _c,
 	}
 }
 
