@@ -65,10 +65,34 @@ func (r *RoleSelectionHandler) ReconcileConfig(s *discordgo.Session) error {
 		return err
 	}
 	// TODO: add logic for prompt removal when removed from configuration
-	if len(messages) > len(r.config.Prompts)*2 {
-		r.logger.Warn("more messages in channel than configured prompts",
+	if len(messages) > len(r.config.Prompts) {
+		r.logger.Debug("more messages in channel than configured prompts, checking for removals",
 			zap.Int("messageCount", len(messages)),
 			zap.Int("promptCount", len(r.config.Prompts)))
+		// Create a map of prompt titles from the config for efficient lookup
+		configPrompts := make(map[string]struct{})
+		for _, p := range r.config.Prompts {
+			configPrompts[p.Message] = struct{}{}
+		}
+
+		// Iterate through existing messages to find any that should be removed
+		for _, m := range messages {
+			if len(m.Embeds) > 0 {
+				if _, ok := configPrompts[m.Embeds[0].Title]; !ok {
+					// This message embed is not in the current config, so it should be deleted
+					r.logger.Info("deleting message for removed prompt",
+						zap.String("messageID", m.ID),
+						zap.String("embedTitle", m.Embeds[0].Title))
+					err := s.ChannelMessageDelete(roleChannel.ID, m.ID)
+					if err != nil {
+						r.logger.Error("failed to delete message for removed prompt",
+							zap.String("messageID", m.ID),
+							zap.String("embedTitle", m.Embeds[0].Title),
+							zap.Error(err))
+					}
+				}
+			}
+		}
 	}
 
 	for _, p := range r.config.Prompts {
@@ -82,13 +106,13 @@ func (r *RoleSelectionHandler) ReconcileConfig(s *discordgo.Session) error {
 			if len(m.Embeds) > 0 && m.Embeds[0].Title == parsedFromConfig.Title {
 				messageExists = true
 				if len(m.Embeds[0].Fields) == len(parsedFromConfig.Fields) {
+					messageFieldsMatch = true
 					for i, f := range m.Embeds[0].Fields {
-						if f != parsedFromConfig.Fields[i] {
+						if f.Name != parsedFromConfig.Fields[i].Name || f.Value != parsedFromConfig.Fields[i].Value {
 							messageFieldsMatch = false
 							break
 						}
 					}
-					messageFieldsMatch = true
 				} else {
 					messageFieldsMatch = false
 				}
@@ -98,7 +122,15 @@ func (r *RoleSelectionHandler) ReconcileConfig(s *discordgo.Session) error {
 		}
 
 		if messageExists && !messageFieldsMatch {
-			// TODO: Add logic to update the existing message
+			r.logger.Debug("message exists but fields do not match, updating", zap.String("messageID", existingMessage.ID))
+			_, err := s.ChannelMessageEditEmbeds(existingMessage.ChannelID, existingMessage.ID, []*discordgo.MessageEmbed{parsedFromConfig})
+			if err != nil {
+				r.logger.Error("failed to update message embed",
+					zap.String("messageID", existingMessage.ID),
+					zap.Error(err))
+				continue
+			}
+			r.logger.Info("successfully updated message embed", zap.String("messageID", existingMessage.ID))
 		}
 
 		if !messageExists {
