@@ -82,13 +82,13 @@ func (r *RoleSelectionHandler) ReconcileConfig(s *discordgo.Session) error {
 			if len(m.Embeds) > 0 && m.Embeds[0].Title == parsedFromConfig.Title {
 				messageExists = true
 				if len(m.Embeds[0].Fields) == len(parsedFromConfig.Fields) {
+					messageFieldsMatch = true
 					for i, f := range m.Embeds[0].Fields {
-						if f != parsedFromConfig.Fields[i] {
+						if f.Name != parsedFromConfig.Fields[i].Name || f.Value != parsedFromConfig.Fields[i].Value {
 							messageFieldsMatch = false
 							break
 						}
 					}
-					messageFieldsMatch = true
 				} else {
 					messageFieldsMatch = false
 				}
@@ -99,6 +99,7 @@ func (r *RoleSelectionHandler) ReconcileConfig(s *discordgo.Session) error {
 
 		if messageExists && !messageFieldsMatch {
 			// TODO: Add logic to update the existing message
+			r.logger.Debug("message exists but fields do not match, skipping update", zap.String("messageID", existingMessage.ID))
 		}
 
 		if !messageExists {
