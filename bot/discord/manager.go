@@ -96,6 +96,10 @@ func (d *DiscordManager) Start(ctx context.Context) error {
 		}
 	}
 
+	d.log.Info("Initializing Experimental Handler")
+	msgSendChan := make(chan *models.DiscordMessageSendRequest, 20)
+	expHandler := getBloopyChanHandler(d.discordSvc, &msgSendChan)
+
 	d.log.Debug("rotating through guild configs")
 	for _, gcfg := range d.discordCfg.GuildConfigs {
 		d.log.Debug("processing guild config", zap.Any("guildConfig", gcfg))
@@ -106,10 +110,6 @@ func (d *DiscordManager) Start(ctx context.Context) error {
 			d.discordSvc.AddHandler(roleSelector.HandleReactionRemove)
 		}
 	}
-
-	d.log.Info("Initializing Experimental Handler")
-	msgSendChan := make(chan *models.DiscordMessageSendRequest, 20)
-	expHandler := getBloopyChanHandler(d.discordSvc, &msgSendChan)
 
 	ctx, cancelFn := context.WithCancel(ctx)
 	defer cancelFn()
