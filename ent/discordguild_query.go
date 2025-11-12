@@ -9,7 +9,6 @@ import (
 	"math"
 
 	"entgo.io/ent"
-	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
@@ -24,17 +23,13 @@ import (
 // DiscordGuildQuery is the builder for querying DiscordGuild entities.
 type DiscordGuildQuery struct {
 	config
-	ctx                      *QueryContext
-	order                    []discordguild.OrderOption
-	inters                   []Interceptor
-	predicates               []predicate.DiscordGuild
-	withMembers              *DiscordUserQuery
-	withDiscordMessages      *DiscordMessageQuery
-	withGuildChannels        *DiscordChannelQuery
-	modifiers                []func(*sql.Selector)
-	withNamedMembers         map[string]*DiscordUserQuery
-	withNamedDiscordMessages map[string]*DiscordMessageQuery
-	withNamedGuildChannels   map[string]*DiscordChannelQuery
+	ctx                 *QueryContext
+	order               []discordguild.OrderOption
+	inters              []Interceptor
+	predicates          []predicate.DiscordGuild
+	withMembers         *DiscordUserQuery
+	withDiscordMessages *DiscordMessageQuery
+	withGuildChannels   *DiscordChannelQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -464,9 +459,6 @@ func (_q *DiscordGuildQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]
 		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
 	}
-	if len(_q.modifiers) > 0 {
-		_spec.Modifiers = _q.modifiers
-	}
 	for i := range hooks {
 		hooks[i](ctx, _spec)
 	}
@@ -494,27 +486,6 @@ func (_q *DiscordGuildQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]
 		if err := _q.loadGuildChannels(ctx, query, nodes,
 			func(n *DiscordGuild) { n.Edges.GuildChannels = []*DiscordChannel{} },
 			func(n *DiscordGuild, e *DiscordChannel) { n.Edges.GuildChannels = append(n.Edges.GuildChannels, e) }); err != nil {
-			return nil, err
-		}
-	}
-	for name, query := range _q.withNamedMembers {
-		if err := _q.loadMembers(ctx, query, nodes,
-			func(n *DiscordGuild) { n.appendNamedMembers(name) },
-			func(n *DiscordGuild, e *DiscordUser) { n.appendNamedMembers(name, e) }); err != nil {
-			return nil, err
-		}
-	}
-	for name, query := range _q.withNamedDiscordMessages {
-		if err := _q.loadDiscordMessages(ctx, query, nodes,
-			func(n *DiscordGuild) { n.appendNamedDiscordMessages(name) },
-			func(n *DiscordGuild, e *DiscordMessage) { n.appendNamedDiscordMessages(name, e) }); err != nil {
-			return nil, err
-		}
-	}
-	for name, query := range _q.withNamedGuildChannels {
-		if err := _q.loadGuildChannels(ctx, query, nodes,
-			func(n *DiscordGuild) { n.appendNamedGuildChannels(name) },
-			func(n *DiscordGuild, e *DiscordChannel) { n.appendNamedGuildChannels(name, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -677,9 +648,6 @@ func (_q *DiscordGuildQuery) loadGuildChannels(ctx context.Context, query *Disco
 
 func (_q *DiscordGuildQuery) sqlCount(ctx context.Context) (int, error) {
 	_spec := _q.querySpec()
-	if len(_q.modifiers) > 0 {
-		_spec.Modifiers = _q.modifiers
-	}
 	_spec.Node.Columns = _q.ctx.Fields
 	if len(_q.ctx.Fields) > 0 {
 		_spec.Unique = _q.ctx.Unique != nil && *_q.ctx.Unique
@@ -742,9 +710,6 @@ func (_q *DiscordGuildQuery) sqlQuery(ctx context.Context) *sql.Selector {
 	if _q.ctx.Unique != nil && *_q.ctx.Unique {
 		selector.Distinct()
 	}
-	for _, m := range _q.modifiers {
-		m(selector)
-	}
 	for _, p := range _q.predicates {
 		p(selector)
 	}
@@ -760,74 +725,6 @@ func (_q *DiscordGuildQuery) sqlQuery(ctx context.Context) *sql.Selector {
 		selector.Limit(*limit)
 	}
 	return selector
-}
-
-// ForUpdate locks the selected rows against concurrent updates, and prevent them from being
-// updated, deleted or "selected ... for update" by other sessions, until the transaction is
-// either committed or rolled-back.
-func (_q *DiscordGuildQuery) ForUpdate(opts ...sql.LockOption) *DiscordGuildQuery {
-	if _q.driver.Dialect() == dialect.Postgres {
-		_q.Unique(false)
-	}
-	_q.modifiers = append(_q.modifiers, func(s *sql.Selector) {
-		s.ForUpdate(opts...)
-	})
-	return _q
-}
-
-// ForShare behaves similarly to ForUpdate, except that it acquires a shared mode lock
-// on any rows that are read. Other sessions can read the rows, but cannot modify them
-// until your transaction commits.
-func (_q *DiscordGuildQuery) ForShare(opts ...sql.LockOption) *DiscordGuildQuery {
-	if _q.driver.Dialect() == dialect.Postgres {
-		_q.Unique(false)
-	}
-	_q.modifiers = append(_q.modifiers, func(s *sql.Selector) {
-		s.ForShare(opts...)
-	})
-	return _q
-}
-
-// WithNamedMembers tells the query-builder to eager-load the nodes that are connected to the "members"
-// edge with the given name. The optional arguments are used to configure the query builder of the edge.
-func (_q *DiscordGuildQuery) WithNamedMembers(name string, opts ...func(*DiscordUserQuery)) *DiscordGuildQuery {
-	query := (&DiscordUserClient{config: _q.config}).Query()
-	for _, opt := range opts {
-		opt(query)
-	}
-	if _q.withNamedMembers == nil {
-		_q.withNamedMembers = make(map[string]*DiscordUserQuery)
-	}
-	_q.withNamedMembers[name] = query
-	return _q
-}
-
-// WithNamedDiscordMessages tells the query-builder to eager-load the nodes that are connected to the "discord_messages"
-// edge with the given name. The optional arguments are used to configure the query builder of the edge.
-func (_q *DiscordGuildQuery) WithNamedDiscordMessages(name string, opts ...func(*DiscordMessageQuery)) *DiscordGuildQuery {
-	query := (&DiscordMessageClient{config: _q.config}).Query()
-	for _, opt := range opts {
-		opt(query)
-	}
-	if _q.withNamedDiscordMessages == nil {
-		_q.withNamedDiscordMessages = make(map[string]*DiscordMessageQuery)
-	}
-	_q.withNamedDiscordMessages[name] = query
-	return _q
-}
-
-// WithNamedGuildChannels tells the query-builder to eager-load the nodes that are connected to the "guild_channels"
-// edge with the given name. The optional arguments are used to configure the query builder of the edge.
-func (_q *DiscordGuildQuery) WithNamedGuildChannels(name string, opts ...func(*DiscordChannelQuery)) *DiscordGuildQuery {
-	query := (&DiscordChannelClient{config: _q.config}).Query()
-	for _, opt := range opts {
-		opt(query)
-	}
-	if _q.withNamedGuildChannels == nil {
-		_q.withNamedGuildChannels = make(map[string]*DiscordChannelQuery)
-	}
-	_q.withNamedGuildChannels[name] = query
-	return _q
 }
 
 // DiscordGuildGroupBy is the group-by builder for DiscordGuild entities.

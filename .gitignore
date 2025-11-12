@@ -26,4 +26,3 @@ charts/*/charts
 
 *.log
 sample_response_showclix.json5
-*.private

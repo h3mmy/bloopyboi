@@ -39,9 +39,3 @@ Local Testing (Manual)
 `docker build . -t bloopyboi_dev`
 
 `docker run -v ~/projects/bloopyboii/config.yaml:/config.yaml bloopyboi_dev`
-
-## AI notes
-
-This is part of a very limited set of repositories where I will try some AI agent experiments. Anyone who knows me, knows that I have a large amount of distrust for the current landscape. I've been working with ML for many years and understand capabilities and limits. Any code that makes use of AI agents still needs to abide by the code of conduct and have the human author sign-off. Since LLM use has proliferated to the detriment of everything, I will personally scrutinize every PR extra. I intend to summarize my observations in a different document in the future.
-
-So far, the only worthwhile tool I've found within free usage is Google's Jules. Tasks mostly have to be limited to fixing linting errors and very simple bugs. It's not good with much else. Copilot with Anthropic Claude used up the monthly limit of tokens on simply fixing six linting errors (which it failed to complete as well)

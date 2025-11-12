@@ -43,11 +43,7 @@ type DiscordUserEdges struct {
 	MessageReactions []*DiscordMessageReaction `json:"message_reactions,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes           [4]bool
-	namedGuilds           map[string][]*DiscordGuild
-	namedDiscordMessages  map[string][]*DiscordMessage
-	namedMediaRequests    map[string][]*MediaRequest
-	namedMessageReactions map[string][]*DiscordMessageReaction
+	loadedTypes [4]bool
 }
 
 // GuildsOrErr returns the Guilds value or an error if the edge
@@ -209,102 +205,6 @@ func (_m *DiscordUser) String() string {
 	builder.WriteString(_m.Discriminator)
 	builder.WriteByte(')')
 	return builder.String()
-}
-
-// NamedGuilds returns the Guilds named value or an error if the edge was not
-// loaded in eager-loading with this name.
-func (_m *DiscordUser) NamedGuilds(name string) ([]*DiscordGuild, error) {
-	if _m.Edges.namedGuilds == nil {
-		return nil, &NotLoadedError{edge: name}
-	}
-	nodes, ok := _m.Edges.namedGuilds[name]
-	if !ok {
-		return nil, &NotLoadedError{edge: name}
-	}
-	return nodes, nil
-}
-
-func (_m *DiscordUser) appendNamedGuilds(name string, edges ...*DiscordGuild) {
-	if _m.Edges.namedGuilds == nil {
-		_m.Edges.namedGuilds = make(map[string][]*DiscordGuild)
-	}
-	if len(edges) == 0 {
-		_m.Edges.namedGuilds[name] = []*DiscordGuild{}
-	} else {
-		_m.Edges.namedGuilds[name] = append(_m.Edges.namedGuilds[name], edges...)
-	}
-}
-
-// NamedDiscordMessages returns the DiscordMessages named value or an error if the edge was not
-// loaded in eager-loading with this name.
-func (_m *DiscordUser) NamedDiscordMessages(name string) ([]*DiscordMessage, error) {
-	if _m.Edges.namedDiscordMessages == nil {
-		return nil, &NotLoadedError{edge: name}
-	}
-	nodes, ok := _m.Edges.namedDiscordMessages[name]
-	if !ok {
-		return nil, &NotLoadedError{edge: name}
-	}
-	return nodes, nil
-}
-
-func (_m *DiscordUser) appendNamedDiscordMessages(name string, edges ...*DiscordMessage) {
-	if _m.Edges.namedDiscordMessages == nil {
-		_m.Edges.namedDiscordMessages = make(map[string][]*DiscordMessage)
-	}
-	if len(edges) == 0 {
-		_m.Edges.namedDiscordMessages[name] = []*DiscordMessage{}
-	} else {
-		_m.Edges.namedDiscordMessages[name] = append(_m.Edges.namedDiscordMessages[name], edges...)
-	}
-}
-
-// NamedMediaRequests returns the MediaRequests named value or an error if the edge was not
-// loaded in eager-loading with this name.
-func (_m *DiscordUser) NamedMediaRequests(name string) ([]*MediaRequest, error) {
-	if _m.Edges.namedMediaRequests == nil {
-		return nil, &NotLoadedError{edge: name}
-	}
-	nodes, ok := _m.Edges.namedMediaRequests[name]
-	if !ok {
-		return nil, &NotLoadedError{edge: name}
-	}
-	return nodes, nil
-}
-
-func (_m *DiscordUser) appendNamedMediaRequests(name string, edges ...*MediaRequest) {
-	if _m.Edges.namedMediaRequests == nil {
-		_m.Edges.namedMediaRequests = make(map[string][]*MediaRequest)
-	}
-	if len(edges) == 0 {
-		_m.Edges.namedMediaRequests[name] = []*MediaRequest{}
-	} else {
-		_m.Edges.namedMediaRequests[name] = append(_m.Edges.namedMediaRequests[name], edges...)
-	}
-}
-
-// NamedMessageReactions returns the MessageReactions named value or an error if the edge was not
-// loaded in eager-loading with this name.
-func (_m *DiscordUser) NamedMessageReactions(name string) ([]*DiscordMessageReaction, error) {
-	if _m.Edges.namedMessageReactions == nil {
-		return nil, &NotLoadedError{edge: name}
-	}
-	nodes, ok := _m.Edges.namedMessageReactions[name]
-	if !ok {
-		return nil, &NotLoadedError{edge: name}
-	}
-	return nodes, nil
-}
-
-func (_m *DiscordUser) appendNamedMessageReactions(name string, edges ...*DiscordMessageReaction) {
-	if _m.Edges.namedMessageReactions == nil {
-		_m.Edges.namedMessageReactions = make(map[string][]*DiscordMessageReaction)
-	}
-	if len(edges) == 0 {
-		_m.Edges.namedMessageReactions[name] = []*DiscordMessageReaction{}
-	} else {
-		_m.Edges.namedMessageReactions[name] = append(_m.Edges.namedMessageReactions[name], edges...)
-	}
 }
 
 // DiscordUsers is a parsable slice of DiscordUser.

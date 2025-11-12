@@ -132,7 +132,7 @@ prepare_release:
 
 release_job:
   stage: release
-  image: registry.gitlab.com/gitlab-org/release-cli:latest@sha256:3f52d526f48e8d10625c722fa6d6423ee82aadeae1b1aa91f07b62551d96dacf
+  image: registry.gitlab.com/gitlab-org/release-cli:latest@sha256:696013aea0f2a20482800ce3a77341f840d7c7ec17bd78bd555e0bd6c00e4f11
   needs:
     - job: prepare_release
       artifacts: true

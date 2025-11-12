@@ -7,8 +7,6 @@ import (
 	"errors"
 	"fmt"
 
-	"entgo.io/ent/dialect"
-	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
@@ -21,7 +19,6 @@ type BookAuthorCreate struct {
 	config
 	mutation *BookAuthorMutation
 	hooks    []Hook
-	conflict []sql.ConflictOption
 }
 
 // SetFullName sets the "full_name" field.
@@ -136,7 +133,6 @@ func (_c *BookAuthorCreate) createSpec() (*BookAuthor, *sqlgraph.CreateSpec) {
 		_node = &BookAuthor{config: _c.config}
 		_spec = sqlgraph.NewCreateSpec(bookauthor.Table, sqlgraph.NewFieldSpec(bookauthor.FieldID, field.TypeUUID))
 	)
-	_spec.OnConflict = _c.conflict
 	if id, ok := _c.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = &id
@@ -164,173 +160,11 @@ func (_c *BookAuthorCreate) createSpec() (*BookAuthor, *sqlgraph.CreateSpec) {
 	return _node, _spec
 }
 
-// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
-// of the `INSERT` statement. For example:
-//
-//	client.BookAuthor.Create().
-//		SetFullName(v).
-//		OnConflict(
-//			// Update the row with the new values
-//			// the was proposed for insertion.
-//			sql.ResolveWithNewValues(),
-//		).
-//		// Override some of the fields with custom
-//		// update values.
-//		Update(func(u *ent.BookAuthorUpsert) {
-//			SetFullName(v+v).
-//		}).
-//		Exec(ctx)
-func (_c *BookAuthorCreate) OnConflict(opts ...sql.ConflictOption) *BookAuthorUpsertOne {
-	_c.conflict = opts
-	return &BookAuthorUpsertOne{
-		create: _c,
-	}
-}
-
-// OnConflictColumns calls `OnConflict` and configures the columns
-// as conflict target. Using this option is equivalent to using:
-//
-//	client.BookAuthor.Create().
-//		OnConflict(sql.ConflictColumns(columns...)).
-//		Exec(ctx)
-func (_c *BookAuthorCreate) OnConflictColumns(columns ...string) *BookAuthorUpsertOne {
-	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
-	return &BookAuthorUpsertOne{
-		create: _c,
-	}
-}
-
-type (
-	// BookAuthorUpsertOne is the builder for "upsert"-ing
-	//  one BookAuthor node.
-	BookAuthorUpsertOne struct {
-		create *BookAuthorCreate
-	}
-
-	// BookAuthorUpsert is the "OnConflict" setter.
-	BookAuthorUpsert struct {
-		*sql.UpdateSet
-	}
-)
-
-// SetFullName sets the "full_name" field.
-func (u *BookAuthorUpsert) SetFullName(v string) *BookAuthorUpsert {
-	u.Set(bookauthor.FieldFullName, v)
-	return u
-}
-
-// UpdateFullName sets the "full_name" field to the value that was provided on create.
-func (u *BookAuthorUpsert) UpdateFullName() *BookAuthorUpsert {
-	u.SetExcluded(bookauthor.FieldFullName)
-	return u
-}
-
-// UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
-// Using this option is equivalent to using:
-//
-//	client.BookAuthor.Create().
-//		OnConflict(
-//			sql.ResolveWithNewValues(),
-//			sql.ResolveWith(func(u *sql.UpdateSet) {
-//				u.SetIgnore(bookauthor.FieldID)
-//			}),
-//		).
-//		Exec(ctx)
-func (u *BookAuthorUpsertOne) UpdateNewValues() *BookAuthorUpsertOne {
-	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
-	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
-		if _, exists := u.create.mutation.ID(); exists {
-			s.SetIgnore(bookauthor.FieldID)
-		}
-	}))
-	return u
-}
-
-// Ignore sets each column to itself in case of conflict.
-// Using this option is equivalent to using:
-//
-//	client.BookAuthor.Create().
-//	    OnConflict(sql.ResolveWithIgnore()).
-//	    Exec(ctx)
-func (u *BookAuthorUpsertOne) Ignore() *BookAuthorUpsertOne {
-	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
-	return u
-}
-
-// DoNothing configures the conflict_action to `DO NOTHING`.
-// Supported only by SQLite and PostgreSQL.
-func (u *BookAuthorUpsertOne) DoNothing() *BookAuthorUpsertOne {
-	u.create.conflict = append(u.create.conflict, sql.DoNothing())
-	return u
-}
-
-// Update allows overriding fields `UPDATE` values. See the BookAuthorCreate.OnConflict
-// documentation for more info.
-func (u *BookAuthorUpsertOne) Update(set func(*BookAuthorUpsert)) *BookAuthorUpsertOne {
-	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
-		set(&BookAuthorUpsert{UpdateSet: update})
-	}))
-	return u
-}
-
-// SetFullName sets the "full_name" field.
-func (u *BookAuthorUpsertOne) SetFullName(v string) *BookAuthorUpsertOne {
-	return u.Update(func(s *BookAuthorUpsert) {
-		s.SetFullName(v)
-	})
-}
-
-// UpdateFullName sets the "full_name" field to the value that was provided on create.
-func (u *BookAuthorUpsertOne) UpdateFullName() *BookAuthorUpsertOne {
-	return u.Update(func(s *BookAuthorUpsert) {
-		s.UpdateFullName()
-	})
-}
-
-// Exec executes the query.
-func (u *BookAuthorUpsertOne) Exec(ctx context.Context) error {
-	if len(u.create.conflict) == 0 {
-		return errors.New("ent: missing options for BookAuthorCreate.OnConflict")
-	}
-	return u.create.Exec(ctx)
-}
-
-// ExecX is like Exec, but panics if an error occurs.
-func (u *BookAuthorUpsertOne) ExecX(ctx context.Context) {
-	if err := u.create.Exec(ctx); err != nil {
-		panic(err)
-	}
-}
-
-// Exec executes the UPSERT query and returns the inserted/updated ID.
-func (u *BookAuthorUpsertOne) ID(ctx context.Context) (id uuid.UUID, err error) {
-	if u.create.driver.Dialect() == dialect.MySQL {
-		// In case of "ON CONFLICT", there is no way to get back non-numeric ID
-		// fields from the database since MySQL does not support the RETURNING clause.
-		return id, errors.New("ent: BookAuthorUpsertOne.ID is not supported by MySQL driver. Use BookAuthorUpsertOne.Exec instead")
-	}
-	node, err := u.create.Save(ctx)
-	if err != nil {
-		return id, err
-	}
-	return node.ID, nil
-}
-
-// IDX is like ID, but panics if an error occurs.
-func (u *BookAuthorUpsertOne) IDX(ctx context.Context) uuid.UUID {
-	id, err := u.ID(ctx)
-	if err != nil {
-		panic(err)
-	}
-	return id
-}
-
 // BookAuthorCreateBulk is the builder for creating many BookAuthor entities in bulk.
 type BookAuthorCreateBulk struct {
 	config
 	err      error
 	builders []*BookAuthorCreate
-	conflict []sql.ConflictOption
 }
 
 // Save creates the BookAuthor entities in the database.
@@ -360,7 +194,6 @@ func (_c *BookAuthorCreateBulk) Save(ctx context.Context) ([]*BookAuthor, error)
 					_, err = mutators[i+1].Mutate(root, _c.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
-					spec.OnConflict = _c.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
 					if err = sqlgraph.BatchCreate(ctx, _c.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
@@ -407,134 +240,6 @@ func (_c *BookAuthorCreateBulk) Exec(ctx context.Context) error {
 // ExecX is like Exec, but panics if an error occurs.
 func (_c *BookAuthorCreateBulk) ExecX(ctx context.Context) {
 	if err := _c.Exec(ctx); err != nil {
-		panic(err)
-	}
-}
-
-// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
-// of the `INSERT` statement. For example:
-//
-//	client.BookAuthor.CreateBulk(builders...).
-//		OnConflict(
-//			// Update the row with the new values
-//			// the was proposed for insertion.
-//			sql.ResolveWithNewValues(),
-//		).
-//		// Override some of the fields with custom
-//		// update values.
-//		Update(func(u *ent.BookAuthorUpsert) {
-//			SetFullName(v+v).
-//		}).
-//		Exec(ctx)
-func (_c *BookAuthorCreateBulk) OnConflict(opts ...sql.ConflictOption) *BookAuthorUpsertBulk {
-	_c.conflict = opts
-	return &BookAuthorUpsertBulk{
-		create: _c,
-	}
-}
-
-// OnConflictColumns calls `OnConflict` and configures the columns
-// as conflict target. Using this option is equivalent to using:
-//
-//	client.BookAuthor.Create().
-//		OnConflict(sql.ConflictColumns(columns...)).
-//		Exec(ctx)
-func (_c *BookAuthorCreateBulk) OnConflictColumns(columns ...string) *BookAuthorUpsertBulk {
-	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
-	return &BookAuthorUpsertBulk{
-		create: _c,
-	}
-}
-
-// BookAuthorUpsertBulk is the builder for "upsert"-ing
-// a bulk of BookAuthor nodes.
-type BookAuthorUpsertBulk struct {
-	create *BookAuthorCreateBulk
-}
-
-// UpdateNewValues updates the mutable fields using the new values that
-// were set on create. Using this option is equivalent to using:
-//
-//	client.BookAuthor.Create().
-//		OnConflict(
-//			sql.ResolveWithNewValues(),
-//			sql.ResolveWith(func(u *sql.UpdateSet) {
-//				u.SetIgnore(bookauthor.FieldID)
-//			}),
-//		).
-//		Exec(ctx)
-func (u *BookAuthorUpsertBulk) UpdateNewValues() *BookAuthorUpsertBulk {
-	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
-	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
-		for _, b := range u.create.builders {
-			if _, exists := b.mutation.ID(); exists {
-				s.SetIgnore(bookauthor.FieldID)
-			}
-		}
-	}))
-	return u
-}
-
-// Ignore sets each column to itself in case of conflict.
-// Using this option is equivalent to using:
-//
-//	client.BookAuthor.Create().
-//		OnConflict(sql.ResolveWithIgnore()).
-//		Exec(ctx)
-func (u *BookAuthorUpsertBulk) Ignore() *BookAuthorUpsertBulk {
-	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
-	return u
-}
-
-// DoNothing configures the conflict_action to `DO NOTHING`.
-// Supported only by SQLite and PostgreSQL.
-func (u *BookAuthorUpsertBulk) DoNothing() *BookAuthorUpsertBulk {
-	u.create.conflict = append(u.create.conflict, sql.DoNothing())
-	return u
-}
-
-// Update allows overriding fields `UPDATE` values. See the BookAuthorCreateBulk.OnConflict
-// documentation for more info.
-func (u *BookAuthorUpsertBulk) Update(set func(*BookAuthorUpsert)) *BookAuthorUpsertBulk {
-	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
-		set(&BookAuthorUpsert{UpdateSet: update})
-	}))
-	return u
-}
-
-// SetFullName sets the "full_name" field.
-func (u *BookAuthorUpsertBulk) SetFullName(v string) *BookAuthorUpsertBulk {
-	return u.Update(func(s *BookAuthorUpsert) {
-		s.SetFullName(v)
-	})
-}
-
-// UpdateFullName sets the "full_name" field to the value that was provided on create.
-func (u *BookAuthorUpsertBulk) UpdateFullName() *BookAuthorUpsertBulk {
-	return u.Update(func(s *BookAuthorUpsert) {
-		s.UpdateFullName()
-	})
-}
-
-// Exec executes the query.
-func (u *BookAuthorUpsertBulk) Exec(ctx context.Context) error {
-	if u.create.err != nil {
-		return u.create.err
-	}
-	for i, b := range u.create.builders {
-		if len(b.conflict) != 0 {
-			return fmt.Errorf("ent: OnConflict was set for builder %d. Set it on the BookAuthorCreateBulk instead", i)
-		}
-	}
-	if len(u.create.conflict) == 0 {
-		return errors.New("ent: missing options for BookAuthorCreateBulk.OnConflict")
-	}
-	return u.create.Exec(ctx)
-}
-
-// ExecX is like Exec, but panics if an error occurs.
-func (u *BookAuthorUpsertBulk) ExecX(ctx context.Context) {
-	if err := u.create.Exec(ctx); err != nil {
 		panic(err)
 	}
 }

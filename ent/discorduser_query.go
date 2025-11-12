@@ -9,7 +9,6 @@ import (
 	"math"
 
 	"entgo.io/ent"
-	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
@@ -25,19 +24,14 @@ import (
 // DiscordUserQuery is the builder for querying DiscordUser entities.
 type DiscordUserQuery struct {
 	config
-	ctx                       *QueryContext
-	order                     []discorduser.OrderOption
-	inters                    []Interceptor
-	predicates                []predicate.DiscordUser
-	withGuilds                *DiscordGuildQuery
-	withDiscordMessages       *DiscordMessageQuery
-	withMediaRequests         *MediaRequestQuery
-	withMessageReactions      *DiscordMessageReactionQuery
-	modifiers                 []func(*sql.Selector)
-	withNamedGuilds           map[string]*DiscordGuildQuery
-	withNamedDiscordMessages  map[string]*DiscordMessageQuery
-	withNamedMediaRequests    map[string]*MediaRequestQuery
-	withNamedMessageReactions map[string]*DiscordMessageReactionQuery
+	ctx                  *QueryContext
+	order                []discorduser.OrderOption
+	inters               []Interceptor
+	predicates           []predicate.DiscordUser
+	withGuilds           *DiscordGuildQuery
+	withDiscordMessages  *DiscordMessageQuery
+	withMediaRequests    *MediaRequestQuery
+	withMessageReactions *DiscordMessageReactionQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -502,9 +496,6 @@ func (_q *DiscordUserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*
 		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
 	}
-	if len(_q.modifiers) > 0 {
-		_spec.Modifiers = _q.modifiers
-	}
 	for i := range hooks {
 		hooks[i](ctx, _spec)
 	}
@@ -541,34 +532,6 @@ func (_q *DiscordUserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*
 			func(n *DiscordUser, e *DiscordMessageReaction) {
 				n.Edges.MessageReactions = append(n.Edges.MessageReactions, e)
 			}); err != nil {
-			return nil, err
-		}
-	}
-	for name, query := range _q.withNamedGuilds {
-		if err := _q.loadGuilds(ctx, query, nodes,
-			func(n *DiscordUser) { n.appendNamedGuilds(name) },
-			func(n *DiscordUser, e *DiscordGuild) { n.appendNamedGuilds(name, e) }); err != nil {
-			return nil, err
-		}
-	}
-	for name, query := range _q.withNamedDiscordMessages {
-		if err := _q.loadDiscordMessages(ctx, query, nodes,
-			func(n *DiscordUser) { n.appendNamedDiscordMessages(name) },
-			func(n *DiscordUser, e *DiscordMessage) { n.appendNamedDiscordMessages(name, e) }); err != nil {
-			return nil, err
-		}
-	}
-	for name, query := range _q.withNamedMediaRequests {
-		if err := _q.loadMediaRequests(ctx, query, nodes,
-			func(n *DiscordUser) { n.appendNamedMediaRequests(name) },
-			func(n *DiscordUser, e *MediaRequest) { n.appendNamedMediaRequests(name, e) }); err != nil {
-			return nil, err
-		}
-	}
-	for name, query := range _q.withNamedMessageReactions {
-		if err := _q.loadMessageReactions(ctx, query, nodes,
-			func(n *DiscordUser) { n.appendNamedMessageReactions(name) },
-			func(n *DiscordUser, e *DiscordMessageReaction) { n.appendNamedMessageReactions(name, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -762,9 +725,6 @@ func (_q *DiscordUserQuery) loadMessageReactions(ctx context.Context, query *Dis
 
 func (_q *DiscordUserQuery) sqlCount(ctx context.Context) (int, error) {
 	_spec := _q.querySpec()
-	if len(_q.modifiers) > 0 {
-		_spec.Modifiers = _q.modifiers
-	}
 	_spec.Node.Columns = _q.ctx.Fields
 	if len(_q.ctx.Fields) > 0 {
 		_spec.Unique = _q.ctx.Unique != nil && *_q.ctx.Unique
@@ -827,9 +787,6 @@ func (_q *DiscordUserQuery) sqlQuery(ctx context.Context) *sql.Selector {
 	if _q.ctx.Unique != nil && *_q.ctx.Unique {
 		selector.Distinct()
 	}
-	for _, m := range _q.modifiers {
-		m(selector)
-	}
 	for _, p := range _q.predicates {
 		p(selector)
 	}
@@ -845,88 +802,6 @@ func (_q *DiscordUserQuery) sqlQuery(ctx context.Context) *sql.Selector {
 		selector.Limit(*limit)
 	}
 	return selector
-}
-
-// ForUpdate locks the selected rows against concurrent updates, and prevent them from being
-// updated, deleted or "selected ... for update" by other sessions, until the transaction is
-// either committed or rolled-back.
-func (_q *DiscordUserQuery) ForUpdate(opts ...sql.LockOption) *DiscordUserQuery {
-	if _q.driver.Dialect() == dialect.Postgres {
-		_q.Unique(false)
-	}
-	_q.modifiers = append(_q.modifiers, func(s *sql.Selector) {
-		s.ForUpdate(opts...)
-	})
-	return _q
-}
-
-// ForShare behaves similarly to ForUpdate, except that it acquires a shared mode lock
-// on any rows that are read. Other sessions can read the rows, but cannot modify them
-// until your transaction commits.
-func (_q *DiscordUserQuery) ForShare(opts ...sql.LockOption) *DiscordUserQuery {
-	if _q.driver.Dialect() == dialect.Postgres {
-		_q.Unique(false)
-	}
-	_q.modifiers = append(_q.modifiers, func(s *sql.Selector) {
-		s.ForShare(opts...)
-	})
-	return _q
-}
-
-// WithNamedGuilds tells the query-builder to eager-load the nodes that are connected to the "guilds"
-// edge with the given name. The optional arguments are used to configure the query builder of the edge.
-func (_q *DiscordUserQuery) WithNamedGuilds(name string, opts ...func(*DiscordGuildQuery)) *DiscordUserQuery {
-	query := (&DiscordGuildClient{config: _q.config}).Query()
-	for _, opt := range opts {
-		opt(query)
-	}
-	if _q.withNamedGuilds == nil {
-		_q.withNamedGuilds = make(map[string]*DiscordGuildQuery)
-	}
-	_q.withNamedGuilds[name] = query
-	return _q
-}
-
-// WithNamedDiscordMessages tells the query-builder to eager-load the nodes that are connected to the "discord_messages"
-// edge with the given name. The optional arguments are used to configure the query builder of the edge.
-func (_q *DiscordUserQuery) WithNamedDiscordMessages(name string, opts ...func(*DiscordMessageQuery)) *DiscordUserQuery {
-	query := (&DiscordMessageClient{config: _q.config}).Query()
-	for _, opt := range opts {
-		opt(query)
-	}
-	if _q.withNamedDiscordMessages == nil {
-		_q.withNamedDiscordMessages = make(map[string]*DiscordMessageQuery)
-	}
-	_q.withNamedDiscordMessages[name] = query
-	return _q
-}
-
-// WithNamedMediaRequests tells the query-builder to eager-load the nodes that are connected to the "media_requests"
-// edge with the given name. The optional arguments are used to configure the query builder of the edge.
-func (_q *DiscordUserQuery) WithNamedMediaRequests(name string, opts ...func(*MediaRequestQuery)) *DiscordUserQuery {
-	query := (&MediaRequestClient{config: _q.config}).Query()
-	for _, opt := range opts {
-		opt(query)
-	}
-	if _q.withNamedMediaRequests == nil {
-		_q.withNamedMediaRequests = make(map[string]*MediaRequestQuery)
-	}
-	_q.withNamedMediaRequests[name] = query
-	return _q
-}
-
-// WithNamedMessageReactions tells the query-builder to eager-load the nodes that are connected to the "message_reactions"
-// edge with the given name. The optional arguments are used to configure the query builder of the edge.
-func (_q *DiscordUserQuery) WithNamedMessageReactions(name string, opts ...func(*DiscordMessageReactionQuery)) *DiscordUserQuery {
-	query := (&DiscordMessageReactionClient{config: _q.config}).Query()
-	for _, opt := range opts {
-		opt(query)
-	}
-	if _q.withNamedMessageReactions == nil {
-		_q.withNamedMessageReactions = make(map[string]*DiscordMessageReactionQuery)
-	}
-	_q.withNamedMessageReactions[name] = query
-	return _q
 }
 
 // DiscordUserGroupBy is the group-by builder for DiscordUser entities.

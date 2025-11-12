@@ -48,8 +48,7 @@ type BookEdges struct {
 	MediaRequest *MediaRequest `json:"media_request,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes     [2]bool
-	namedBookAuthor map[string][]*BookAuthor
+	loadedTypes [2]bool
 }
 
 // BookAuthorOrErr returns the BookAuthor value or an error if the edge
@@ -221,30 +220,6 @@ func (_m *Book) String() string {
 	builder.WriteString(_m.ImageURL)
 	builder.WriteByte(')')
 	return builder.String()
-}
-
-// NamedBookAuthor returns the BookAuthor named value or an error if the edge was not
-// loaded in eager-loading with this name.
-func (_m *Book) NamedBookAuthor(name string) ([]*BookAuthor, error) {
-	if _m.Edges.namedBookAuthor == nil {
-		return nil, &NotLoadedError{edge: name}
-	}
-	nodes, ok := _m.Edges.namedBookAuthor[name]
-	if !ok {
-		return nil, &NotLoadedError{edge: name}
-	}
-	return nodes, nil
-}
-
-func (_m *Book) appendNamedBookAuthor(name string, edges ...*BookAuthor) {
-	if _m.Edges.namedBookAuthor == nil {
-		_m.Edges.namedBookAuthor = make(map[string][]*BookAuthor)
-	}
-	if len(edges) == 0 {
-		_m.Edges.namedBookAuthor[name] = []*BookAuthor{}
-	} else {
-		_m.Edges.namedBookAuthor[name] = append(_m.Edges.namedBookAuthor[name], edges...)
-	}
 }
 
 // Books is a parsable slice of Book.

@@ -8,8 +8,6 @@ import (
 	"fmt"
 	"time"
 
-	"entgo.io/ent/dialect"
-	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/bwmarrin/discordgo"
@@ -24,7 +22,6 @@ type DiscordMessageReactionCreate struct {
 	config
 	mutation *DiscordMessageReactionMutation
 	hooks    []Hook
-	conflict []sql.ConflictOption
 }
 
 // SetCreateTime sets the "create_time" field.
@@ -224,7 +221,6 @@ func (_c *DiscordMessageReactionCreate) createSpec() (*DiscordMessageReaction, *
 		_node = &DiscordMessageReaction{config: _c.config}
 		_spec = sqlgraph.NewCreateSpec(discordmessagereaction.Table, sqlgraph.NewFieldSpec(discordmessagereaction.FieldID, field.TypeUUID))
 	)
-	_spec.OnConflict = _c.conflict
 	if id, ok := _c.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = &id
@@ -286,254 +282,11 @@ func (_c *DiscordMessageReactionCreate) createSpec() (*DiscordMessageReaction, *
 	return _node, _spec
 }
 
-// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
-// of the `INSERT` statement. For example:
-//
-//	client.DiscordMessageReaction.Create().
-//		SetCreateTime(v).
-//		OnConflict(
-//			// Update the row with the new values
-//			// the was proposed for insertion.
-//			sql.ResolveWithNewValues(),
-//		).
-//		// Override some of the fields with custom
-//		// update values.
-//		Update(func(u *ent.DiscordMessageReactionUpsert) {
-//			SetCreateTime(v+v).
-//		}).
-//		Exec(ctx)
-func (_c *DiscordMessageReactionCreate) OnConflict(opts ...sql.ConflictOption) *DiscordMessageReactionUpsertOne {
-	_c.conflict = opts
-	return &DiscordMessageReactionUpsertOne{
-		create: _c,
-	}
-}
-
-// OnConflictColumns calls `OnConflict` and configures the columns
-// as conflict target. Using this option is equivalent to using:
-//
-//	client.DiscordMessageReaction.Create().
-//		OnConflict(sql.ConflictColumns(columns...)).
-//		Exec(ctx)
-func (_c *DiscordMessageReactionCreate) OnConflictColumns(columns ...string) *DiscordMessageReactionUpsertOne {
-	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
-	return &DiscordMessageReactionUpsertOne{
-		create: _c,
-	}
-}
-
-type (
-	// DiscordMessageReactionUpsertOne is the builder for "upsert"-ing
-	//  one DiscordMessageReaction node.
-	DiscordMessageReactionUpsertOne struct {
-		create *DiscordMessageReactionCreate
-	}
-
-	// DiscordMessageReactionUpsert is the "OnConflict" setter.
-	DiscordMessageReactionUpsert struct {
-		*sql.UpdateSet
-	}
-)
-
-// SetUpdateTime sets the "update_time" field.
-func (u *DiscordMessageReactionUpsert) SetUpdateTime(v time.Time) *DiscordMessageReactionUpsert {
-	u.Set(discordmessagereaction.FieldUpdateTime, v)
-	return u
-}
-
-// UpdateUpdateTime sets the "update_time" field to the value that was provided on create.
-func (u *DiscordMessageReactionUpsert) UpdateUpdateTime() *DiscordMessageReactionUpsert {
-	u.SetExcluded(discordmessagereaction.FieldUpdateTime)
-	return u
-}
-
-// SetEmojiAPIName sets the "emoji_api_name" field.
-func (u *DiscordMessageReactionUpsert) SetEmojiAPIName(v string) *DiscordMessageReactionUpsert {
-	u.Set(discordmessagereaction.FieldEmojiAPIName, v)
-	return u
-}
-
-// UpdateEmojiAPIName sets the "emoji_api_name" field to the value that was provided on create.
-func (u *DiscordMessageReactionUpsert) UpdateEmojiAPIName() *DiscordMessageReactionUpsert {
-	u.SetExcluded(discordmessagereaction.FieldEmojiAPIName)
-	return u
-}
-
-// SetRemoved sets the "removed" field.
-func (u *DiscordMessageReactionUpsert) SetRemoved(v bool) *DiscordMessageReactionUpsert {
-	u.Set(discordmessagereaction.FieldRemoved, v)
-	return u
-}
-
-// UpdateRemoved sets the "removed" field to the value that was provided on create.
-func (u *DiscordMessageReactionUpsert) UpdateRemoved() *DiscordMessageReactionUpsert {
-	u.SetExcluded(discordmessagereaction.FieldRemoved)
-	return u
-}
-
-// SetRaw sets the "raw" field.
-func (u *DiscordMessageReactionUpsert) SetRaw(v discordgo.MessageReaction) *DiscordMessageReactionUpsert {
-	u.Set(discordmessagereaction.FieldRaw, v)
-	return u
-}
-
-// UpdateRaw sets the "raw" field to the value that was provided on create.
-func (u *DiscordMessageReactionUpsert) UpdateRaw() *DiscordMessageReactionUpsert {
-	u.SetExcluded(discordmessagereaction.FieldRaw)
-	return u
-}
-
-// UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
-// Using this option is equivalent to using:
-//
-//	client.DiscordMessageReaction.Create().
-//		OnConflict(
-//			sql.ResolveWithNewValues(),
-//			sql.ResolveWith(func(u *sql.UpdateSet) {
-//				u.SetIgnore(discordmessagereaction.FieldID)
-//			}),
-//		).
-//		Exec(ctx)
-func (u *DiscordMessageReactionUpsertOne) UpdateNewValues() *DiscordMessageReactionUpsertOne {
-	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
-	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
-		if _, exists := u.create.mutation.ID(); exists {
-			s.SetIgnore(discordmessagereaction.FieldID)
-		}
-		if _, exists := u.create.mutation.CreateTime(); exists {
-			s.SetIgnore(discordmessagereaction.FieldCreateTime)
-		}
-	}))
-	return u
-}
-
-// Ignore sets each column to itself in case of conflict.
-// Using this option is equivalent to using:
-//
-//	client.DiscordMessageReaction.Create().
-//	    OnConflict(sql.ResolveWithIgnore()).
-//	    Exec(ctx)
-func (u *DiscordMessageReactionUpsertOne) Ignore() *DiscordMessageReactionUpsertOne {
-	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
-	return u
-}
-
-// DoNothing configures the conflict_action to `DO NOTHING`.
-// Supported only by SQLite and PostgreSQL.
-func (u *DiscordMessageReactionUpsertOne) DoNothing() *DiscordMessageReactionUpsertOne {
-	u.create.conflict = append(u.create.conflict, sql.DoNothing())
-	return u
-}
-
-// Update allows overriding fields `UPDATE` values. See the DiscordMessageReactionCreate.OnConflict
-// documentation for more info.
-func (u *DiscordMessageReactionUpsertOne) Update(set func(*DiscordMessageReactionUpsert)) *DiscordMessageReactionUpsertOne {
-	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
-		set(&DiscordMessageReactionUpsert{UpdateSet: update})
-	}))
-	return u
-}
-
-// SetUpdateTime sets the "update_time" field.
-func (u *DiscordMessageReactionUpsertOne) SetUpdateTime(v time.Time) *DiscordMessageReactionUpsertOne {
-	return u.Update(func(s *DiscordMessageReactionUpsert) {
-		s.SetUpdateTime(v)
-	})
-}
-
-// UpdateUpdateTime sets the "update_time" field to the value that was provided on create.
-func (u *DiscordMessageReactionUpsertOne) UpdateUpdateTime() *DiscordMessageReactionUpsertOne {
-	return u.Update(func(s *DiscordMessageReactionUpsert) {
-		s.UpdateUpdateTime()
-	})
-}
-
-// SetEmojiAPIName sets the "emoji_api_name" field.
-func (u *DiscordMessageReactionUpsertOne) SetEmojiAPIName(v string) *DiscordMessageReactionUpsertOne {
-	return u.Update(func(s *DiscordMessageReactionUpsert) {
-		s.SetEmojiAPIName(v)
-	})
-}
-
-// UpdateEmojiAPIName sets the "emoji_api_name" field to the value that was provided on create.
-func (u *DiscordMessageReactionUpsertOne) UpdateEmojiAPIName() *DiscordMessageReactionUpsertOne {
-	return u.Update(func(s *DiscordMessageReactionUpsert) {
-		s.UpdateEmojiAPIName()
-	})
-}
-
-// SetRemoved sets the "removed" field.
-func (u *DiscordMessageReactionUpsertOne) SetRemoved(v bool) *DiscordMessageReactionUpsertOne {
-	return u.Update(func(s *DiscordMessageReactionUpsert) {
-		s.SetRemoved(v)
-	})
-}
-
-// UpdateRemoved sets the "removed" field to the value that was provided on create.
-func (u *DiscordMessageReactionUpsertOne) UpdateRemoved() *DiscordMessageReactionUpsertOne {
-	return u.Update(func(s *DiscordMessageReactionUpsert) {
-		s.UpdateRemoved()
-	})
-}
-
-// SetRaw sets the "raw" field.
-func (u *DiscordMessageReactionUpsertOne) SetRaw(v discordgo.MessageReaction) *DiscordMessageReactionUpsertOne {
-	return u.Update(func(s *DiscordMessageReactionUpsert) {
-		s.SetRaw(v)
-	})
-}
-
-// UpdateRaw sets the "raw" field to the value that was provided on create.
-func (u *DiscordMessageReactionUpsertOne) UpdateRaw() *DiscordMessageReactionUpsertOne {
-	return u.Update(func(s *DiscordMessageReactionUpsert) {
-		s.UpdateRaw()
-	})
-}
-
-// Exec executes the query.
-func (u *DiscordMessageReactionUpsertOne) Exec(ctx context.Context) error {
-	if len(u.create.conflict) == 0 {
-		return errors.New("ent: missing options for DiscordMessageReactionCreate.OnConflict")
-	}
-	return u.create.Exec(ctx)
-}
-
-// ExecX is like Exec, but panics if an error occurs.
-func (u *DiscordMessageReactionUpsertOne) ExecX(ctx context.Context) {
-	if err := u.create.Exec(ctx); err != nil {
-		panic(err)
-	}
-}
-
-// Exec executes the UPSERT query and returns the inserted/updated ID.
-func (u *DiscordMessageReactionUpsertOne) ID(ctx context.Context) (id uuid.UUID, err error) {
-	if u.create.driver.Dialect() == dialect.MySQL {
-		// In case of "ON CONFLICT", there is no way to get back non-numeric ID
-		// fields from the database since MySQL does not support the RETURNING clause.
-		return id, errors.New("ent: DiscordMessageReactionUpsertOne.ID is not supported by MySQL driver. Use DiscordMessageReactionUpsertOne.Exec instead")
-	}
-	node, err := u.create.Save(ctx)
-	if err != nil {
-		return id, err
-	}
-	return node.ID, nil
-}
-
-// IDX is like ID, but panics if an error occurs.
-func (u *DiscordMessageReactionUpsertOne) IDX(ctx context.Context) uuid.UUID {
-	id, err := u.ID(ctx)
-	if err != nil {
-		panic(err)
-	}
-	return id
-}
-
 // DiscordMessageReactionCreateBulk is the builder for creating many DiscordMessageReaction entities in bulk.
 type DiscordMessageReactionCreateBulk struct {
 	config
 	err      error
 	builders []*DiscordMessageReactionCreate
-	conflict []sql.ConflictOption
 }
 
 // Save creates the DiscordMessageReaction entities in the database.
@@ -563,7 +316,6 @@ func (_c *DiscordMessageReactionCreateBulk) Save(ctx context.Context) ([]*Discor
 					_, err = mutators[i+1].Mutate(root, _c.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
-					spec.OnConflict = _c.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
 					if err = sqlgraph.BatchCreate(ctx, _c.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
@@ -610,179 +362,6 @@ func (_c *DiscordMessageReactionCreateBulk) Exec(ctx context.Context) error {
 // ExecX is like Exec, but panics if an error occurs.
 func (_c *DiscordMessageReactionCreateBulk) ExecX(ctx context.Context) {
 	if err := _c.Exec(ctx); err != nil {
-		panic(err)
-	}
-}
-
-// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
-// of the `INSERT` statement. For example:
-//
-//	client.DiscordMessageReaction.CreateBulk(builders...).
-//		OnConflict(
-//			// Update the row with the new values
-//			// the was proposed for insertion.
-//			sql.ResolveWithNewValues(),
-//		).
-//		// Override some of the fields with custom
-//		// update values.
-//		Update(func(u *ent.DiscordMessageReactionUpsert) {
-//			SetCreateTime(v+v).
-//		}).
-//		Exec(ctx)
-func (_c *DiscordMessageReactionCreateBulk) OnConflict(opts ...sql.ConflictOption) *DiscordMessageReactionUpsertBulk {
-	_c.conflict = opts
-	return &DiscordMessageReactionUpsertBulk{
-		create: _c,
-	}
-}
-
-// OnConflictColumns calls `OnConflict` and configures the columns
-// as conflict target. Using this option is equivalent to using:
-//
-//	client.DiscordMessageReaction.Create().
-//		OnConflict(sql.ConflictColumns(columns...)).
-//		Exec(ctx)
-func (_c *DiscordMessageReactionCreateBulk) OnConflictColumns(columns ...string) *DiscordMessageReactionUpsertBulk {
-	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
-	return &DiscordMessageReactionUpsertBulk{
-		create: _c,
-	}
-}
-
-// DiscordMessageReactionUpsertBulk is the builder for "upsert"-ing
-// a bulk of DiscordMessageReaction nodes.
-type DiscordMessageReactionUpsertBulk struct {
-	create *DiscordMessageReactionCreateBulk
-}
-
-// UpdateNewValues updates the mutable fields using the new values that
-// were set on create. Using this option is equivalent to using:
-//
-//	client.DiscordMessageReaction.Create().
-//		OnConflict(
-//			sql.ResolveWithNewValues(),
-//			sql.ResolveWith(func(u *sql.UpdateSet) {
-//				u.SetIgnore(discordmessagereaction.FieldID)
-//			}),
-//		).
-//		Exec(ctx)
-func (u *DiscordMessageReactionUpsertBulk) UpdateNewValues() *DiscordMessageReactionUpsertBulk {
-	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
-	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
-		for _, b := range u.create.builders {
-			if _, exists := b.mutation.ID(); exists {
-				s.SetIgnore(discordmessagereaction.FieldID)
-			}
-			if _, exists := b.mutation.CreateTime(); exists {
-				s.SetIgnore(discordmessagereaction.FieldCreateTime)
-			}
-		}
-	}))
-	return u
-}
-
-// Ignore sets each column to itself in case of conflict.
-// Using this option is equivalent to using:
-//
-//	client.DiscordMessageReaction.Create().
-//		OnConflict(sql.ResolveWithIgnore()).
-//		Exec(ctx)
-func (u *DiscordMessageReactionUpsertBulk) Ignore() *DiscordMessageReactionUpsertBulk {
-	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
-	return u
-}
-
-// DoNothing configures the conflict_action to `DO NOTHING`.
-// Supported only by SQLite and PostgreSQL.
-func (u *DiscordMessageReactionUpsertBulk) DoNothing() *DiscordMessageReactionUpsertBulk {
-	u.create.conflict = append(u.create.conflict, sql.DoNothing())
-	return u
-}
-
-// Update allows overriding fields `UPDATE` values. See the DiscordMessageReactionCreateBulk.OnConflict
-// documentation for more info.
-func (u *DiscordMessageReactionUpsertBulk) Update(set func(*DiscordMessageReactionUpsert)) *DiscordMessageReactionUpsertBulk {
-	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
-		set(&DiscordMessageReactionUpsert{UpdateSet: update})
-	}))
-	return u
-}
-
-// SetUpdateTime sets the "update_time" field.
-func (u *DiscordMessageReactionUpsertBulk) SetUpdateTime(v time.Time) *DiscordMessageReactionUpsertBulk {
-	return u.Update(func(s *DiscordMessageReactionUpsert) {
-		s.SetUpdateTime(v)
-	})
-}
-
-// UpdateUpdateTime sets the "update_time" field to the value that was provided on create.
-func (u *DiscordMessageReactionUpsertBulk) UpdateUpdateTime() *DiscordMessageReactionUpsertBulk {
-	return u.Update(func(s *DiscordMessageReactionUpsert) {
-		s.UpdateUpdateTime()
-	})
-}
-
-// SetEmojiAPIName sets the "emoji_api_name" field.
-func (u *DiscordMessageReactionUpsertBulk) SetEmojiAPIName(v string) *DiscordMessageReactionUpsertBulk {
-	return u.Update(func(s *DiscordMessageReactionUpsert) {
-		s.SetEmojiAPIName(v)
-	})
-}
-
-// UpdateEmojiAPIName sets the "emoji_api_name" field to the value that was provided on create.
-func (u *DiscordMessageReactionUpsertBulk) UpdateEmojiAPIName() *DiscordMessageReactionUpsertBulk {
-	return u.Update(func(s *DiscordMessageReactionUpsert) {
-		s.UpdateEmojiAPIName()
-	})
-}
-
-// SetRemoved sets the "removed" field.
-func (u *DiscordMessageReactionUpsertBulk) SetRemoved(v bool) *DiscordMessageReactionUpsertBulk {
-	return u.Update(func(s *DiscordMessageReactionUpsert) {
-		s.SetRemoved(v)
-	})
-}
-
-// UpdateRemoved sets the "removed" field to the value that was provided on create.
-func (u *DiscordMessageReactionUpsertBulk) UpdateRemoved() *DiscordMessageReactionUpsertBulk {
-	return u.Update(func(s *DiscordMessageReactionUpsert) {
-		s.UpdateRemoved()
-	})
-}
-
-// SetRaw sets the "raw" field.
-func (u *DiscordMessageReactionUpsertBulk) SetRaw(v discordgo.MessageReaction) *DiscordMessageReactionUpsertBulk {
-	return u.Update(func(s *DiscordMessageReactionUpsert) {
-		s.SetRaw(v)
-	})
-}
-
-// UpdateRaw sets the "raw" field to the value that was provided on create.
-func (u *DiscordMessageReactionUpsertBulk) UpdateRaw() *DiscordMessageReactionUpsertBulk {
-	return u.Update(func(s *DiscordMessageReactionUpsert) {
-		s.UpdateRaw()
-	})
-}
-
-// Exec executes the query.
-func (u *DiscordMessageReactionUpsertBulk) Exec(ctx context.Context) error {
-	if u.create.err != nil {
-		return u.create.err
-	}
-	for i, b := range u.create.builders {
-		if len(b.conflict) != 0 {
-			return fmt.Errorf("ent: OnConflict was set for builder %d. Set it on the DiscordMessageReactionCreateBulk instead", i)
-		}
-	}
-	if len(u.create.conflict) == 0 {
-		return errors.New("ent: missing options for DiscordMessageReactionCreateBulk.OnConflict")
-	}
-	return u.create.Exec(ctx)
-}
-
-// ExecX is like Exec, but panics if an error occurs.
-func (u *DiscordMessageReactionUpsertBulk) ExecX(ctx context.Context) {
-	if err := u.create.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
