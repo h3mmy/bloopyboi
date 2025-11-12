@@ -43,7 +43,8 @@ type MediaRequestEdges struct {
 	Book *Book `json:"book,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [2]bool
+	loadedTypes       [2]bool
+	namedDiscordUsers map[string][]*DiscordUser
 }
 
 // DiscordUsersOrErr returns the DiscordUsers value or an error if the edge
@@ -192,6 +193,30 @@ func (_m *MediaRequest) String() string {
 	builder.WriteString(fmt.Sprintf("%v", _m.Priority))
 	builder.WriteByte(')')
 	return builder.String()
+}
+
+// NamedDiscordUsers returns the DiscordUsers named value or an error if the edge was not
+// loaded in eager-loading with this name.
+func (_m *MediaRequest) NamedDiscordUsers(name string) ([]*DiscordUser, error) {
+	if _m.Edges.namedDiscordUsers == nil {
+		return nil, &NotLoadedError{edge: name}
+	}
+	nodes, ok := _m.Edges.namedDiscordUsers[name]
+	if !ok {
+		return nil, &NotLoadedError{edge: name}
+	}
+	return nodes, nil
+}
+
+func (_m *MediaRequest) appendNamedDiscordUsers(name string, edges ...*DiscordUser) {
+	if _m.Edges.namedDiscordUsers == nil {
+		_m.Edges.namedDiscordUsers = make(map[string][]*DiscordUser)
+	}
+	if len(edges) == 0 {
+		_m.Edges.namedDiscordUsers[name] = []*DiscordUser{}
+	} else {
+		_m.Edges.namedDiscordUsers[name] = append(_m.Edges.namedDiscordUsers[name], edges...)
+	}
 }
 
 // MediaRequests is a parsable slice of MediaRequest.

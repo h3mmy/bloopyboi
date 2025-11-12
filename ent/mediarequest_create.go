@@ -8,6 +8,8 @@ import (
 	"fmt"
 	"time"
 
+	"entgo.io/ent/dialect"
+	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
@@ -22,6 +24,7 @@ type MediaRequestCreate struct {
 	config
 	mutation *MediaRequestMutation
 	hooks    []Hook
+	conflict []sql.ConflictOption
 }
 
 // SetCreateTime sets the "create_time" field.
@@ -223,6 +226,7 @@ func (_c *MediaRequestCreate) createSpec() (*MediaRequest, *sqlgraph.CreateSpec)
 		_node = &MediaRequest{config: _c.config}
 		_spec = sqlgraph.NewCreateSpec(mediarequest.Table, sqlgraph.NewFieldSpec(mediarequest.FieldID, field.TypeUUID))
 	)
+	_spec.OnConflict = _c.conflict
 	if id, ok := _c.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = &id
@@ -279,11 +283,241 @@ func (_c *MediaRequestCreate) createSpec() (*MediaRequest, *sqlgraph.CreateSpec)
 	return _node, _spec
 }
 
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.MediaRequest.Create().
+//		SetCreateTime(v).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.MediaRequestUpsert) {
+//			SetCreateTime(v+v).
+//		}).
+//		Exec(ctx)
+func (_c *MediaRequestCreate) OnConflict(opts ...sql.ConflictOption) *MediaRequestUpsertOne {
+	_c.conflict = opts
+	return &MediaRequestUpsertOne{
+		create: _c,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.MediaRequest.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (_c *MediaRequestCreate) OnConflictColumns(columns ...string) *MediaRequestUpsertOne {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
+	return &MediaRequestUpsertOne{
+		create: _c,
+	}
+}
+
+type (
+	// MediaRequestUpsertOne is the builder for "upsert"-ing
+	//  one MediaRequest node.
+	MediaRequestUpsertOne struct {
+		create *MediaRequestCreate
+	}
+
+	// MediaRequestUpsert is the "OnConflict" setter.
+	MediaRequestUpsert struct {
+		*sql.UpdateSet
+	}
+)
+
+// SetUpdateTime sets the "update_time" field.
+func (u *MediaRequestUpsert) SetUpdateTime(v time.Time) *MediaRequestUpsert {
+	u.Set(mediarequest.FieldUpdateTime, v)
+	return u
+}
+
+// UpdateUpdateTime sets the "update_time" field to the value that was provided on create.
+func (u *MediaRequestUpsert) UpdateUpdateTime() *MediaRequestUpsert {
+	u.SetExcluded(mediarequest.FieldUpdateTime)
+	return u
+}
+
+// SetStatus sets the "status" field.
+func (u *MediaRequestUpsert) SetStatus(v models.MediaRequestStatus) *MediaRequestUpsert {
+	u.Set(mediarequest.FieldStatus, v)
+	return u
+}
+
+// UpdateStatus sets the "status" field to the value that was provided on create.
+func (u *MediaRequestUpsert) UpdateStatus() *MediaRequestUpsert {
+	u.SetExcluded(mediarequest.FieldStatus)
+	return u
+}
+
+// SetPriority sets the "priority" field.
+func (u *MediaRequestUpsert) SetPriority(v int) *MediaRequestUpsert {
+	u.Set(mediarequest.FieldPriority, v)
+	return u
+}
+
+// UpdatePriority sets the "priority" field to the value that was provided on create.
+func (u *MediaRequestUpsert) UpdatePriority() *MediaRequestUpsert {
+	u.SetExcluded(mediarequest.FieldPriority)
+	return u
+}
+
+// AddPriority adds v to the "priority" field.
+func (u *MediaRequestUpsert) AddPriority(v int) *MediaRequestUpsert {
+	u.Add(mediarequest.FieldPriority, v)
+	return u
+}
+
+// UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
+// Using this option is equivalent to using:
+//
+//	client.MediaRequest.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(mediarequest.FieldID)
+//			}),
+//		).
+//		Exec(ctx)
+func (u *MediaRequestUpsertOne) UpdateNewValues() *MediaRequestUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		if _, exists := u.create.mutation.ID(); exists {
+			s.SetIgnore(mediarequest.FieldID)
+		}
+		if _, exists := u.create.mutation.CreateTime(); exists {
+			s.SetIgnore(mediarequest.FieldCreateTime)
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.MediaRequest.Create().
+//	    OnConflict(sql.ResolveWithIgnore()).
+//	    Exec(ctx)
+func (u *MediaRequestUpsertOne) Ignore() *MediaRequestUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *MediaRequestUpsertOne) DoNothing() *MediaRequestUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the MediaRequestCreate.OnConflict
+// documentation for more info.
+func (u *MediaRequestUpsertOne) Update(set func(*MediaRequestUpsert)) *MediaRequestUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&MediaRequestUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetUpdateTime sets the "update_time" field.
+func (u *MediaRequestUpsertOne) SetUpdateTime(v time.Time) *MediaRequestUpsertOne {
+	return u.Update(func(s *MediaRequestUpsert) {
+		s.SetUpdateTime(v)
+	})
+}
+
+// UpdateUpdateTime sets the "update_time" field to the value that was provided on create.
+func (u *MediaRequestUpsertOne) UpdateUpdateTime() *MediaRequestUpsertOne {
+	return u.Update(func(s *MediaRequestUpsert) {
+		s.UpdateUpdateTime()
+	})
+}
+
+// SetStatus sets the "status" field.
+func (u *MediaRequestUpsertOne) SetStatus(v models.MediaRequestStatus) *MediaRequestUpsertOne {
+	return u.Update(func(s *MediaRequestUpsert) {
+		s.SetStatus(v)
+	})
+}
+
+// UpdateStatus sets the "status" field to the value that was provided on create.
+func (u *MediaRequestUpsertOne) UpdateStatus() *MediaRequestUpsertOne {
+	return u.Update(func(s *MediaRequestUpsert) {
+		s.UpdateStatus()
+	})
+}
+
+// SetPriority sets the "priority" field.
+func (u *MediaRequestUpsertOne) SetPriority(v int) *MediaRequestUpsertOne {
+	return u.Update(func(s *MediaRequestUpsert) {
+		s.SetPriority(v)
+	})
+}
+
+// AddPriority adds v to the "priority" field.
+func (u *MediaRequestUpsertOne) AddPriority(v int) *MediaRequestUpsertOne {
+	return u.Update(func(s *MediaRequestUpsert) {
+		s.AddPriority(v)
+	})
+}
+
+// UpdatePriority sets the "priority" field to the value that was provided on create.
+func (u *MediaRequestUpsertOne) UpdatePriority() *MediaRequestUpsertOne {
+	return u.Update(func(s *MediaRequestUpsert) {
+		s.UpdatePriority()
+	})
+}
+
+// Exec executes the query.
+func (u *MediaRequestUpsertOne) Exec(ctx context.Context) error {
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for MediaRequestCreate.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *MediaRequestUpsertOne) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// Exec executes the UPSERT query and returns the inserted/updated ID.
+func (u *MediaRequestUpsertOne) ID(ctx context.Context) (id uuid.UUID, err error) {
+	if u.create.driver.Dialect() == dialect.MySQL {
+		// In case of "ON CONFLICT", there is no way to get back non-numeric ID
+		// fields from the database since MySQL does not support the RETURNING clause.
+		return id, errors.New("ent: MediaRequestUpsertOne.ID is not supported by MySQL driver. Use MediaRequestUpsertOne.Exec instead")
+	}
+	node, err := u.create.Save(ctx)
+	if err != nil {
+		return id, err
+	}
+	return node.ID, nil
+}
+
+// IDX is like ID, but panics if an error occurs.
+func (u *MediaRequestUpsertOne) IDX(ctx context.Context) uuid.UUID {
+	id, err := u.ID(ctx)
+	if err != nil {
+		panic(err)
+	}
+	return id
+}
+
 // MediaRequestCreateBulk is the builder for creating many MediaRequest entities in bulk.
 type MediaRequestCreateBulk struct {
 	config
 	err      error
 	builders []*MediaRequestCreate
+	conflict []sql.ConflictOption
 }
 
 // Save creates the MediaRequest entities in the database.
@@ -313,6 +547,7 @@ func (_c *MediaRequestCreateBulk) Save(ctx context.Context) ([]*MediaRequest, er
 					_, err = mutators[i+1].Mutate(root, _c.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
+					spec.OnConflict = _c.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
 					if err = sqlgraph.BatchCreate(ctx, _c.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
@@ -359,6 +594,172 @@ func (_c *MediaRequestCreateBulk) Exec(ctx context.Context) error {
 // ExecX is like Exec, but panics if an error occurs.
 func (_c *MediaRequestCreateBulk) ExecX(ctx context.Context) {
 	if err := _c.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.MediaRequest.CreateBulk(builders...).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.MediaRequestUpsert) {
+//			SetCreateTime(v+v).
+//		}).
+//		Exec(ctx)
+func (_c *MediaRequestCreateBulk) OnConflict(opts ...sql.ConflictOption) *MediaRequestUpsertBulk {
+	_c.conflict = opts
+	return &MediaRequestUpsertBulk{
+		create: _c,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.MediaRequest.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (_c *MediaRequestCreateBulk) OnConflictColumns(columns ...string) *MediaRequestUpsertBulk {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
+	return &MediaRequestUpsertBulk{
+		create: _c,
+	}
+}
+
+// MediaRequestUpsertBulk is the builder for "upsert"-ing
+// a bulk of MediaRequest nodes.
+type MediaRequestUpsertBulk struct {
+	create *MediaRequestCreateBulk
+}
+
+// UpdateNewValues updates the mutable fields using the new values that
+// were set on create. Using this option is equivalent to using:
+//
+//	client.MediaRequest.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(mediarequest.FieldID)
+//			}),
+//		).
+//		Exec(ctx)
+func (u *MediaRequestUpsertBulk) UpdateNewValues() *MediaRequestUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		for _, b := range u.create.builders {
+			if _, exists := b.mutation.ID(); exists {
+				s.SetIgnore(mediarequest.FieldID)
+			}
+			if _, exists := b.mutation.CreateTime(); exists {
+				s.SetIgnore(mediarequest.FieldCreateTime)
+			}
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.MediaRequest.Create().
+//		OnConflict(sql.ResolveWithIgnore()).
+//		Exec(ctx)
+func (u *MediaRequestUpsertBulk) Ignore() *MediaRequestUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *MediaRequestUpsertBulk) DoNothing() *MediaRequestUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the MediaRequestCreateBulk.OnConflict
+// documentation for more info.
+func (u *MediaRequestUpsertBulk) Update(set func(*MediaRequestUpsert)) *MediaRequestUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&MediaRequestUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetUpdateTime sets the "update_time" field.
+func (u *MediaRequestUpsertBulk) SetUpdateTime(v time.Time) *MediaRequestUpsertBulk {
+	return u.Update(func(s *MediaRequestUpsert) {
+		s.SetUpdateTime(v)
+	})
+}
+
+// UpdateUpdateTime sets the "update_time" field to the value that was provided on create.
+func (u *MediaRequestUpsertBulk) UpdateUpdateTime() *MediaRequestUpsertBulk {
+	return u.Update(func(s *MediaRequestUpsert) {
+		s.UpdateUpdateTime()
+	})
+}
+
+// SetStatus sets the "status" field.
+func (u *MediaRequestUpsertBulk) SetStatus(v models.MediaRequestStatus) *MediaRequestUpsertBulk {
+	return u.Update(func(s *MediaRequestUpsert) {
+		s.SetStatus(v)
+	})
+}
+
+// UpdateStatus sets the "status" field to the value that was provided on create.
+func (u *MediaRequestUpsertBulk) UpdateStatus() *MediaRequestUpsertBulk {
+	return u.Update(func(s *MediaRequestUpsert) {
+		s.UpdateStatus()
+	})
+}
+
+// SetPriority sets the "priority" field.
+func (u *MediaRequestUpsertBulk) SetPriority(v int) *MediaRequestUpsertBulk {
+	return u.Update(func(s *MediaRequestUpsert) {
+		s.SetPriority(v)
+	})
+}
+
+// AddPriority adds v to the "priority" field.
+func (u *MediaRequestUpsertBulk) AddPriority(v int) *MediaRequestUpsertBulk {
+	return u.Update(func(s *MediaRequestUpsert) {
+		s.AddPriority(v)
+	})
+}
+
+// UpdatePriority sets the "priority" field to the value that was provided on create.
+func (u *MediaRequestUpsertBulk) UpdatePriority() *MediaRequestUpsertBulk {
+	return u.Update(func(s *MediaRequestUpsert) {
+		s.UpdatePriority()
+	})
+}
+
+// Exec executes the query.
+func (u *MediaRequestUpsertBulk) Exec(ctx context.Context) error {
+	if u.create.err != nil {
+		return u.create.err
+	}
+	for i, b := range u.create.builders {
+		if len(b.conflict) != 0 {
+			return fmt.Errorf("ent: OnConflict was set for builder %d. Set it on the MediaRequestCreateBulk instead", i)
+		}
+	}
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for MediaRequestCreateBulk.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *MediaRequestUpsertBulk) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
 		panic(err)
 	}
 }

@@ -9,6 +9,7 @@ import (
 	"math"
 
 	"entgo.io/ent"
+	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
@@ -22,13 +23,15 @@ import (
 // MediaRequestQuery is the builder for querying MediaRequest entities.
 type MediaRequestQuery struct {
 	config
-	ctx              *QueryContext
-	order            []mediarequest.OrderOption
-	inters           []Interceptor
-	predicates       []predicate.MediaRequest
-	withDiscordUsers *DiscordUserQuery
-	withBook         *BookQuery
-	withFKs          bool
+	ctx                   *QueryContext
+	order                 []mediarequest.OrderOption
+	inters                []Interceptor
+	predicates            []predicate.MediaRequest
+	withDiscordUsers      *DiscordUserQuery
+	withBook              *BookQuery
+	withFKs               bool
+	modifiers             []func(*sql.Selector)
+	withNamedDiscordUsers map[string]*DiscordUserQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -430,6 +433,9 @@ func (_q *MediaRequestQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]
 		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
 	}
+	if len(_q.modifiers) > 0 {
+		_spec.Modifiers = _q.modifiers
+	}
 	for i := range hooks {
 		hooks[i](ctx, _spec)
 	}
@@ -449,6 +455,13 @@ func (_q *MediaRequestQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]
 	if query := _q.withBook; query != nil {
 		if err := _q.loadBook(ctx, query, nodes, nil,
 			func(n *MediaRequest, e *Book) { n.Edges.Book = e }); err != nil {
+			return nil, err
+		}
+	}
+	for name, query := range _q.withNamedDiscordUsers {
+		if err := _q.loadDiscordUsers(ctx, query, nodes,
+			func(n *MediaRequest) { n.appendNamedDiscordUsers(name) },
+			func(n *MediaRequest, e *DiscordUser) { n.appendNamedDiscordUsers(name, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -551,6 +564,9 @@ func (_q *MediaRequestQuery) loadBook(ctx context.Context, query *BookQuery, nod
 
 func (_q *MediaRequestQuery) sqlCount(ctx context.Context) (int, error) {
 	_spec := _q.querySpec()
+	if len(_q.modifiers) > 0 {
+		_spec.Modifiers = _q.modifiers
+	}
 	_spec.Node.Columns = _q.ctx.Fields
 	if len(_q.ctx.Fields) > 0 {
 		_spec.Unique = _q.ctx.Unique != nil && *_q.ctx.Unique
@@ -613,6 +629,9 @@ func (_q *MediaRequestQuery) sqlQuery(ctx context.Context) *sql.Selector {
 	if _q.ctx.Unique != nil && *_q.ctx.Unique {
 		selector.Distinct()
 	}
+	for _, m := range _q.modifiers {
+		m(selector)
+	}
 	for _, p := range _q.predicates {
 		p(selector)
 	}
@@ -628,6 +647,46 @@ func (_q *MediaRequestQuery) sqlQuery(ctx context.Context) *sql.Selector {
 		selector.Limit(*limit)
 	}
 	return selector
+}
+
+// ForUpdate locks the selected rows against concurrent updates, and prevent them from being
+// updated, deleted or "selected ... for update" by other sessions, until the transaction is
+// either committed or rolled-back.
+func (_q *MediaRequestQuery) ForUpdate(opts ...sql.LockOption) *MediaRequestQuery {
+	if _q.driver.Dialect() == dialect.Postgres {
+		_q.Unique(false)
+	}
+	_q.modifiers = append(_q.modifiers, func(s *sql.Selector) {
+		s.ForUpdate(opts...)
+	})
+	return _q
+}
+
+// ForShare behaves similarly to ForUpdate, except that it acquires a shared mode lock
+// on any rows that are read. Other sessions can read the rows, but cannot modify them
+// until your transaction commits.
+func (_q *MediaRequestQuery) ForShare(opts ...sql.LockOption) *MediaRequestQuery {
+	if _q.driver.Dialect() == dialect.Postgres {
+		_q.Unique(false)
+	}
+	_q.modifiers = append(_q.modifiers, func(s *sql.Selector) {
+		s.ForShare(opts...)
+	})
+	return _q
+}
+
+// WithNamedDiscordUsers tells the query-builder to eager-load the nodes that are connected to the "discord_users"
+// edge with the given name. The optional arguments are used to configure the query builder of the edge.
+func (_q *MediaRequestQuery) WithNamedDiscordUsers(name string, opts ...func(*DiscordUserQuery)) *MediaRequestQuery {
+	query := (&DiscordUserClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	if _q.withNamedDiscordUsers == nil {
+		_q.withNamedDiscordUsers = make(map[string]*DiscordUserQuery)
+	}
+	_q.withNamedDiscordUsers[name] = query
+	return _q
 }
 
 // MediaRequestGroupBy is the group-by builder for MediaRequest entities.

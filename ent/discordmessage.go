@@ -54,7 +54,8 @@ type DiscordMessageEdges struct {
 	Guild *DiscordGuild `json:"guild,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [4]bool
+	loadedTypes           [4]bool
+	namedMessageReactions map[string][]*DiscordMessageReaction
 }
 
 // AuthorOrErr returns the Author value or an error if the edge
@@ -264,6 +265,30 @@ func (_m *DiscordMessage) String() string {
 	builder.WriteString(fmt.Sprintf("%v", _m.Raw))
 	builder.WriteByte(')')
 	return builder.String()
+}
+
+// NamedMessageReactions returns the MessageReactions named value or an error if the edge was not
+// loaded in eager-loading with this name.
+func (_m *DiscordMessage) NamedMessageReactions(name string) ([]*DiscordMessageReaction, error) {
+	if _m.Edges.namedMessageReactions == nil {
+		return nil, &NotLoadedError{edge: name}
+	}
+	nodes, ok := _m.Edges.namedMessageReactions[name]
+	if !ok {
+		return nil, &NotLoadedError{edge: name}
+	}
+	return nodes, nil
+}
+
+func (_m *DiscordMessage) appendNamedMessageReactions(name string, edges ...*DiscordMessageReaction) {
+	if _m.Edges.namedMessageReactions == nil {
+		_m.Edges.namedMessageReactions = make(map[string][]*DiscordMessageReaction)
+	}
+	if len(edges) == 0 {
+		_m.Edges.namedMessageReactions[name] = []*DiscordMessageReaction{}
+	} else {
+		_m.Edges.namedMessageReactions[name] = append(_m.Edges.namedMessageReactions[name], edges...)
+	}
 }
 
 // DiscordMessages is a parsable slice of DiscordMessage.

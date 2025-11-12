@@ -32,6 +32,7 @@ type BookAuthorEdges struct {
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
 	loadedTypes [1]bool
+	namedBooks  map[string][]*Book
 }
 
 // BooksOrErr returns the Books value or an error if the edge
@@ -124,6 +125,30 @@ func (_m *BookAuthor) String() string {
 	builder.WriteString(_m.FullName)
 	builder.WriteByte(')')
 	return builder.String()
+}
+
+// NamedBooks returns the Books named value or an error if the edge was not
+// loaded in eager-loading with this name.
+func (_m *BookAuthor) NamedBooks(name string) ([]*Book, error) {
+	if _m.Edges.namedBooks == nil {
+		return nil, &NotLoadedError{edge: name}
+	}
+	nodes, ok := _m.Edges.namedBooks[name]
+	if !ok {
+		return nil, &NotLoadedError{edge: name}
+	}
+	return nodes, nil
+}
+
+func (_m *BookAuthor) appendNamedBooks(name string, edges ...*Book) {
+	if _m.Edges.namedBooks == nil {
+		_m.Edges.namedBooks = make(map[string][]*Book)
+	}
+	if len(edges) == 0 {
+		_m.Edges.namedBooks[name] = []*Book{}
+	} else {
+		_m.Edges.namedBooks[name] = append(_m.Edges.namedBooks[name], edges...)
+	}
 }
 
 // BookAuthors is a parsable slice of BookAuthor.

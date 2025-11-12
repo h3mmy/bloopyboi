@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 
+	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/h3mmy/bloopyboi/ent/emoji"
@@ -17,6 +18,7 @@ type EmojiCreate struct {
 	config
 	mutation *EmojiMutation
 	hooks    []Hook
+	conflict []sql.ConflictOption
 }
 
 // SetEmojiID sets the "emoji_id" field.
@@ -134,6 +136,7 @@ func (_c *EmojiCreate) createSpec() (*Emoji, *sqlgraph.CreateSpec) {
 		_node = &Emoji{config: _c.config}
 		_spec = sqlgraph.NewCreateSpec(emoji.Table, sqlgraph.NewFieldSpec(emoji.FieldID, field.TypeInt))
 	)
+	_spec.OnConflict = _c.conflict
 	if value, ok := _c.mutation.EmojiID(); ok {
 		_spec.SetField(emoji.FieldEmojiID, field.TypeString, value)
 		_node.EmojiID = value
@@ -153,11 +156,251 @@ func (_c *EmojiCreate) createSpec() (*Emoji, *sqlgraph.CreateSpec) {
 	return _node, _spec
 }
 
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.Emoji.Create().
+//		SetEmojiID(v).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.EmojiUpsert) {
+//			SetEmojiID(v+v).
+//		}).
+//		Exec(ctx)
+func (_c *EmojiCreate) OnConflict(opts ...sql.ConflictOption) *EmojiUpsertOne {
+	_c.conflict = opts
+	return &EmojiUpsertOne{
+		create: _c,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.Emoji.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (_c *EmojiCreate) OnConflictColumns(columns ...string) *EmojiUpsertOne {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
+	return &EmojiUpsertOne{
+		create: _c,
+	}
+}
+
+type (
+	// EmojiUpsertOne is the builder for "upsert"-ing
+	//  one Emoji node.
+	EmojiUpsertOne struct {
+		create *EmojiCreate
+	}
+
+	// EmojiUpsert is the "OnConflict" setter.
+	EmojiUpsert struct {
+		*sql.UpdateSet
+	}
+)
+
+// SetEmojiID sets the "emoji_id" field.
+func (u *EmojiUpsert) SetEmojiID(v string) *EmojiUpsert {
+	u.Set(emoji.FieldEmojiID, v)
+	return u
+}
+
+// UpdateEmojiID sets the "emoji_id" field to the value that was provided on create.
+func (u *EmojiUpsert) UpdateEmojiID() *EmojiUpsert {
+	u.SetExcluded(emoji.FieldEmojiID)
+	return u
+}
+
+// SetName sets the "name" field.
+func (u *EmojiUpsert) SetName(v string) *EmojiUpsert {
+	u.Set(emoji.FieldName, v)
+	return u
+}
+
+// UpdateName sets the "name" field to the value that was provided on create.
+func (u *EmojiUpsert) UpdateName() *EmojiUpsert {
+	u.SetExcluded(emoji.FieldName)
+	return u
+}
+
+// SetAnimated sets the "animated" field.
+func (u *EmojiUpsert) SetAnimated(v bool) *EmojiUpsert {
+	u.Set(emoji.FieldAnimated, v)
+	return u
+}
+
+// UpdateAnimated sets the "animated" field to the value that was provided on create.
+func (u *EmojiUpsert) UpdateAnimated() *EmojiUpsert {
+	u.SetExcluded(emoji.FieldAnimated)
+	return u
+}
+
+// SetKeywords sets the "keywords" field.
+func (u *EmojiUpsert) SetKeywords(v []string) *EmojiUpsert {
+	u.Set(emoji.FieldKeywords, v)
+	return u
+}
+
+// UpdateKeywords sets the "keywords" field to the value that was provided on create.
+func (u *EmojiUpsert) UpdateKeywords() *EmojiUpsert {
+	u.SetExcluded(emoji.FieldKeywords)
+	return u
+}
+
+// ClearKeywords clears the value of the "keywords" field.
+func (u *EmojiUpsert) ClearKeywords() *EmojiUpsert {
+	u.SetNull(emoji.FieldKeywords)
+	return u
+}
+
+// UpdateNewValues updates the mutable fields using the new values that were set on create.
+// Using this option is equivalent to using:
+//
+//	client.Emoji.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//		).
+//		Exec(ctx)
+func (u *EmojiUpsertOne) UpdateNewValues() *EmojiUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.Emoji.Create().
+//	    OnConflict(sql.ResolveWithIgnore()).
+//	    Exec(ctx)
+func (u *EmojiUpsertOne) Ignore() *EmojiUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *EmojiUpsertOne) DoNothing() *EmojiUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the EmojiCreate.OnConflict
+// documentation for more info.
+func (u *EmojiUpsertOne) Update(set func(*EmojiUpsert)) *EmojiUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&EmojiUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetEmojiID sets the "emoji_id" field.
+func (u *EmojiUpsertOne) SetEmojiID(v string) *EmojiUpsertOne {
+	return u.Update(func(s *EmojiUpsert) {
+		s.SetEmojiID(v)
+	})
+}
+
+// UpdateEmojiID sets the "emoji_id" field to the value that was provided on create.
+func (u *EmojiUpsertOne) UpdateEmojiID() *EmojiUpsertOne {
+	return u.Update(func(s *EmojiUpsert) {
+		s.UpdateEmojiID()
+	})
+}
+
+// SetName sets the "name" field.
+func (u *EmojiUpsertOne) SetName(v string) *EmojiUpsertOne {
+	return u.Update(func(s *EmojiUpsert) {
+		s.SetName(v)
+	})
+}
+
+// UpdateName sets the "name" field to the value that was provided on create.
+func (u *EmojiUpsertOne) UpdateName() *EmojiUpsertOne {
+	return u.Update(func(s *EmojiUpsert) {
+		s.UpdateName()
+	})
+}
+
+// SetAnimated sets the "animated" field.
+func (u *EmojiUpsertOne) SetAnimated(v bool) *EmojiUpsertOne {
+	return u.Update(func(s *EmojiUpsert) {
+		s.SetAnimated(v)
+	})
+}
+
+// UpdateAnimated sets the "animated" field to the value that was provided on create.
+func (u *EmojiUpsertOne) UpdateAnimated() *EmojiUpsertOne {
+	return u.Update(func(s *EmojiUpsert) {
+		s.UpdateAnimated()
+	})
+}
+
+// SetKeywords sets the "keywords" field.
+func (u *EmojiUpsertOne) SetKeywords(v []string) *EmojiUpsertOne {
+	return u.Update(func(s *EmojiUpsert) {
+		s.SetKeywords(v)
+	})
+}
+
+// UpdateKeywords sets the "keywords" field to the value that was provided on create.
+func (u *EmojiUpsertOne) UpdateKeywords() *EmojiUpsertOne {
+	return u.Update(func(s *EmojiUpsert) {
+		s.UpdateKeywords()
+	})
+}
+
+// ClearKeywords clears the value of the "keywords" field.
+func (u *EmojiUpsertOne) ClearKeywords() *EmojiUpsertOne {
+	return u.Update(func(s *EmojiUpsert) {
+		s.ClearKeywords()
+	})
+}
+
+// Exec executes the query.
+func (u *EmojiUpsertOne) Exec(ctx context.Context) error {
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for EmojiCreate.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *EmojiUpsertOne) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// Exec executes the UPSERT query and returns the inserted/updated ID.
+func (u *EmojiUpsertOne) ID(ctx context.Context) (id int, err error) {
+	node, err := u.create.Save(ctx)
+	if err != nil {
+		return id, err
+	}
+	return node.ID, nil
+}
+
+// IDX is like ID, but panics if an error occurs.
+func (u *EmojiUpsertOne) IDX(ctx context.Context) int {
+	id, err := u.ID(ctx)
+	if err != nil {
+		panic(err)
+	}
+	return id
+}
+
 // EmojiCreateBulk is the builder for creating many Emoji entities in bulk.
 type EmojiCreateBulk struct {
 	config
 	err      error
 	builders []*EmojiCreate
+	conflict []sql.ConflictOption
 }
 
 // Save creates the Emoji entities in the database.
@@ -187,6 +430,7 @@ func (_c *EmojiCreateBulk) Save(ctx context.Context) ([]*Emoji, error) {
 					_, err = mutators[i+1].Mutate(root, _c.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
+					spec.OnConflict = _c.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
 					if err = sqlgraph.BatchCreate(ctx, _c.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
@@ -237,6 +481,173 @@ func (_c *EmojiCreateBulk) Exec(ctx context.Context) error {
 // ExecX is like Exec, but panics if an error occurs.
 func (_c *EmojiCreateBulk) ExecX(ctx context.Context) {
 	if err := _c.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.Emoji.CreateBulk(builders...).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.EmojiUpsert) {
+//			SetEmojiID(v+v).
+//		}).
+//		Exec(ctx)
+func (_c *EmojiCreateBulk) OnConflict(opts ...sql.ConflictOption) *EmojiUpsertBulk {
+	_c.conflict = opts
+	return &EmojiUpsertBulk{
+		create: _c,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.Emoji.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (_c *EmojiCreateBulk) OnConflictColumns(columns ...string) *EmojiUpsertBulk {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
+	return &EmojiUpsertBulk{
+		create: _c,
+	}
+}
+
+// EmojiUpsertBulk is the builder for "upsert"-ing
+// a bulk of Emoji nodes.
+type EmojiUpsertBulk struct {
+	create *EmojiCreateBulk
+}
+
+// UpdateNewValues updates the mutable fields using the new values that
+// were set on create. Using this option is equivalent to using:
+//
+//	client.Emoji.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//		).
+//		Exec(ctx)
+func (u *EmojiUpsertBulk) UpdateNewValues() *EmojiUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.Emoji.Create().
+//		OnConflict(sql.ResolveWithIgnore()).
+//		Exec(ctx)
+func (u *EmojiUpsertBulk) Ignore() *EmojiUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *EmojiUpsertBulk) DoNothing() *EmojiUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the EmojiCreateBulk.OnConflict
+// documentation for more info.
+func (u *EmojiUpsertBulk) Update(set func(*EmojiUpsert)) *EmojiUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&EmojiUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetEmojiID sets the "emoji_id" field.
+func (u *EmojiUpsertBulk) SetEmojiID(v string) *EmojiUpsertBulk {
+	return u.Update(func(s *EmojiUpsert) {
+		s.SetEmojiID(v)
+	})
+}
+
+// UpdateEmojiID sets the "emoji_id" field to the value that was provided on create.
+func (u *EmojiUpsertBulk) UpdateEmojiID() *EmojiUpsertBulk {
+	return u.Update(func(s *EmojiUpsert) {
+		s.UpdateEmojiID()
+	})
+}
+
+// SetName sets the "name" field.
+func (u *EmojiUpsertBulk) SetName(v string) *EmojiUpsertBulk {
+	return u.Update(func(s *EmojiUpsert) {
+		s.SetName(v)
+	})
+}
+
+// UpdateName sets the "name" field to the value that was provided on create.
+func (u *EmojiUpsertBulk) UpdateName() *EmojiUpsertBulk {
+	return u.Update(func(s *EmojiUpsert) {
+		s.UpdateName()
+	})
+}
+
+// SetAnimated sets the "animated" field.
+func (u *EmojiUpsertBulk) SetAnimated(v bool) *EmojiUpsertBulk {
+	return u.Update(func(s *EmojiUpsert) {
+		s.SetAnimated(v)
+	})
+}
+
+// UpdateAnimated sets the "animated" field to the value that was provided on create.
+func (u *EmojiUpsertBulk) UpdateAnimated() *EmojiUpsertBulk {
+	return u.Update(func(s *EmojiUpsert) {
+		s.UpdateAnimated()
+	})
+}
+
+// SetKeywords sets the "keywords" field.
+func (u *EmojiUpsertBulk) SetKeywords(v []string) *EmojiUpsertBulk {
+	return u.Update(func(s *EmojiUpsert) {
+		s.SetKeywords(v)
+	})
+}
+
+// UpdateKeywords sets the "keywords" field to the value that was provided on create.
+func (u *EmojiUpsertBulk) UpdateKeywords() *EmojiUpsertBulk {
+	return u.Update(func(s *EmojiUpsert) {
+		s.UpdateKeywords()
+	})
+}
+
+// ClearKeywords clears the value of the "keywords" field.
+func (u *EmojiUpsertBulk) ClearKeywords() *EmojiUpsertBulk {
+	return u.Update(func(s *EmojiUpsert) {
+		s.ClearKeywords()
+	})
+}
+
+// Exec executes the query.
+func (u *EmojiUpsertBulk) Exec(ctx context.Context) error {
+	if u.create.err != nil {
+		return u.create.err
+	}
+	for i, b := range u.create.builders {
+		if len(b.conflict) != 0 {
+			return fmt.Errorf("ent: OnConflict was set for builder %d. Set it on the EmojiCreateBulk instead", i)
+		}
+	}
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for EmojiCreateBulk.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *EmojiUpsertBulk) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
