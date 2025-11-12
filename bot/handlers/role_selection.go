@@ -11,18 +11,6 @@ import (
 	"go.uber.org/zap"
 )
 
-// DiscordSession is an interface for the discordgo.Session.
-type DiscordSession interface {
-	Channel(channelID string) (*discordgo.Channel, error)
-	ChannelMessages(channelID string, limit int, beforeID, afterID, aroundID string) ([]*discordgo.Message, error)
-	ChannelMessageSendComplex(channelID string, data *discordgo.MessageSend) (*discordgo.Message, error)
-	ChannelMessageEditEmbeds(channelID, messageID string, embeds []*discordgo.MessageEmbed) (*discordgo.Message, error)
-	ChannelMessageDelete(channelID, messageID string) error
-	MessageReactionAdd(channelID, messageID, emojiID string) error
-	GuildMemberRoleAdd(guildID, userID, roleID string) error
-	GuildMemberRoleRemove(guildID, userID, roleID string) error
-	GuildMember(guildID, userID string) (*discordgo.Member, error)
-}
 
 // SelectionPrompt is a type alias for config.RoleSelectionPrompt.
 type SelectionPrompt = config.RoleSelectionPrompt
@@ -54,7 +42,7 @@ func NewRoleSelectionHandler(guildID string, config *config.RoleSelectionConfig)
 }
 
 // ReconcileConfig reconciles the role selection configuration with the Discord guild.
-func (r *RoleSelectionHandler) ReconcileConfig(s DiscordSession) error {
+func (r *RoleSelectionHandler) ReconcileConfig(s *discordgo.Session) error {
 	r.reconciling.Lock()
 	defer r.reconciling.Unlock()
 
@@ -201,7 +189,7 @@ func (r *RoleSelectionHandler) ReconcileConfig(s DiscordSession) error {
 
 // handleReaction is a helper function to handle both reaction add and remove events.
 // It returns the role ID associated with the reaction, the member that performed the reaction op, and an error if one occurred.
-func (r *RoleSelectionHandler) handleReaction(s DiscordSession, mReaction *discordgo.MessageReaction, member *discordgo.Member) (string, *discordgo.Member, error) {
+func (r *RoleSelectionHandler) handleReaction(s *discordgo.Session, mReaction *discordgo.MessageReaction, member *discordgo.Member) (string, *discordgo.Member, error) {
 	r.reconciling.RLock()
 	if !r.initialized {
 		r.reconciling.RUnlock()
@@ -252,7 +240,7 @@ func (r *RoleSelectionHandler) handleReaction(s DiscordSession, mReaction *disco
 }
 
 // HandleReactionAdd handles a reaction add event.
-func (r *RoleSelectionHandler) HandleReactionAdd(s DiscordSession, m *discordgo.MessageReactionAdd) {
+func (r *RoleSelectionHandler) HandleReactionAdd(s *discordgo.Session, m *discordgo.MessageReactionAdd) {
 	r.logger.Debug("processing ReactionAdd", zap.Any("message", m))
 	focusRoleID, user, err := r.handleReaction(s, m.MessageReaction, m.Member)
 	if err != nil {
@@ -280,7 +268,7 @@ func (r *RoleSelectionHandler) HandleReactionAdd(s DiscordSession, m *discordgo.
 }
 
 // HandleReactionRemove handles a reaction remove event.
-func (r *RoleSelectionHandler) HandleReactionRemove(s DiscordSession, m *discordgo.MessageReactionRemove) {
+func (r *RoleSelectionHandler) HandleReactionRemove(s *discordgo.Session, m *discordgo.MessageReactionRemove) {
 	r.logger.Debug("processing ReactionRemove", zap.Any("message", m))
 	focusRoleID, user, err := r.handleReaction(s, m.MessageReaction, nil)
 	if err != nil {
