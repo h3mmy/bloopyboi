@@ -23,16 +23,16 @@ type AnalyzeEmojiCommand struct {
 	guildId string
 	logger      *zap.Logger
 	roles       []int64
-	discordSvc  *services.DiscordService
+	imageAnalyzingSvc  *services.ImageAnalyzerService
 }
 
-func NewAnalyzeEmojiCommand(discordSvc *services.DiscordService) *AnalyzeEmojiCommand {
+func NewAnalyzeEmojiCommand(imageAnalyzerSvc *services.ImageAnalyzerService) *AnalyzeEmojiCommand {
 	return &AnalyzeEmojiCommand{
 		meta:       models.NewBloopyMeta(),
 		logger:     log.NewZapLogger().Named("analyze_emoji_command"),
 		Name: AnalyzeEmojiCommandName,
 		Description: "Analyze an emoji using an ML model",
-		discordSvc: discordSvc,
+		imageAnalyzingSvc: imageAnalyzerSvc,
 	}
 }
 
@@ -82,7 +82,7 @@ func (c *AnalyzeEmojiCommand) GetAppCommandHandler() func(s *discordgo.Session, 
 				emojiID := parts[1]
 				emojiURL := fmt.Sprintf("https://cdn.discordapp.com/emojis/%s.png", emojiID)
 
-				analysis, err := c.discordSvc.GetImageAnalyzerService().AnalyzeImageFromURL(context.Background(), emojiURL)
+				analysis, err := c.imageAnalyzingSvc.AnalyzeImageFromURL(context.Background(), emojiURL)
 				if err != nil {
 					s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 						Type: discordgo.InteractionResponseChannelMessageWithSource,

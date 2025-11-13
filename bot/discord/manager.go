@@ -83,7 +83,7 @@ func (d *DiscordManager) Start(ctx context.Context) error {
 	// d.discordSvc.GetSession().LogLevel = discordgo.LogDebug
 
 	d.log.Info("Registering App Commands")
-	for _, v := range providers.GetDiscordAppCommands(d.discordCfg.GuildConfigs, d.discordSvc) {
+	for _, v := range providers.GetDiscordAppCommands(d.discordCfg.GuildConfigs) {
 		d.log.Debug("Registering command", zap.Any("command", v.GetAppCommand()))
 		_, err := d.discordSvc.RegisterAppCommand(v)
 		if err != nil {

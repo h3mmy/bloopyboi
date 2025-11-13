@@ -10,12 +10,17 @@ import (
 
 func GetDiscordAppCommands(
 	cfgs []config.DiscordGuildConfig,
-	discordSvc *services.DiscordService,
 ) []models.DiscordAppCommand {
+	imageAnalyzer := NewImageAnalyzer(GoogleVision)
+
+
 	handls := make([]models.DiscordAppCommand, 0, 3)
 	handls = append(handls, handlers.NewInspiroCommand(GetInspiroService()))
-	handls = append(handls, handlers.NewAnalyzeEmojiCommand(discordSvc))
 	handls = append(handls, GetGuildAppCommands(cfgs)...)
+	if imageAnalyzer != nil {
+		imageAnalysisSvc := services.NewImageAnalyzerService(imageAnalyzer)
+		handls = append(handls, handlers.NewAnalyzeEmojiCommand(imageAnalysisSvc))
+	}
 	logger.Debug("got discord commands", zap.Int("count", len(handls)))
 	return handls
 }
