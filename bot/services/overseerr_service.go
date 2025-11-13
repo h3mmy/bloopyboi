@@ -8,12 +8,14 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
+// OverseerrService is a service that interacts with the Overseerr API.
 type OverseerrService struct {
 	bloopyMeta      models.BloopyMeta
 	logger          *zap.Logger
 	overseerrClient *overseerr_go.APIClient
 }
 
+// NewOverseerrService creates a new OverseerrService.
 func NewOverseerrService(clientgen *OverseerrClientGenerator) *OverseerrService {
 	lgr := log.NewZapLogger().With(
 		zapcore.Field{Type: zapcore.StringType, Key: ServiceLoggerFieldKey, String: "overseerr_service"},

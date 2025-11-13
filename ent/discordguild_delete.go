@@ -20,56 +20,56 @@ type DiscordGuildDelete struct {
 }
 
 // Where appends a list predicates to the DiscordGuildDelete builder.
-func (dgd *DiscordGuildDelete) Where(ps ...predicate.DiscordGuild) *DiscordGuildDelete {
-	dgd.mutation.Where(ps...)
-	return dgd
+func (_d *DiscordGuildDelete) Where(ps ...predicate.DiscordGuild) *DiscordGuildDelete {
+	_d.mutation.Where(ps...)
+	return _d
 }
 
 // Exec executes the deletion query and returns how many vertices were deleted.
-func (dgd *DiscordGuildDelete) Exec(ctx context.Context) (int, error) {
-	return withHooks(ctx, dgd.sqlExec, dgd.mutation, dgd.hooks)
+func (_d *DiscordGuildDelete) Exec(ctx context.Context) (int, error) {
+	return withHooks(ctx, _d.sqlExec, _d.mutation, _d.hooks)
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (dgd *DiscordGuildDelete) ExecX(ctx context.Context) int {
-	n, err := dgd.Exec(ctx)
+func (_d *DiscordGuildDelete) ExecX(ctx context.Context) int {
+	n, err := _d.Exec(ctx)
 	if err != nil {
 		panic(err)
 	}
 	return n
 }
 
-func (dgd *DiscordGuildDelete) sqlExec(ctx context.Context) (int, error) {
+func (_d *DiscordGuildDelete) sqlExec(ctx context.Context) (int, error) {
 	_spec := sqlgraph.NewDeleteSpec(discordguild.Table, sqlgraph.NewFieldSpec(discordguild.FieldID, field.TypeUUID))
-	if ps := dgd.mutation.predicates; len(ps) > 0 {
+	if ps := _d.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	affected, err := sqlgraph.DeleteNodes(ctx, dgd.driver, _spec)
+	affected, err := sqlgraph.DeleteNodes(ctx, _d.driver, _spec)
 	if err != nil && sqlgraph.IsConstraintError(err) {
 		err = &ConstraintError{msg: err.Error(), wrap: err}
 	}
-	dgd.mutation.done = true
+	_d.mutation.done = true
 	return affected, err
 }
 
 // DiscordGuildDeleteOne is the builder for deleting a single DiscordGuild entity.
 type DiscordGuildDeleteOne struct {
-	dgd *DiscordGuildDelete
+	_d *DiscordGuildDelete
 }
 
 // Where appends a list predicates to the DiscordGuildDelete builder.
-func (dgdo *DiscordGuildDeleteOne) Where(ps ...predicate.DiscordGuild) *DiscordGuildDeleteOne {
-	dgdo.dgd.mutation.Where(ps...)
-	return dgdo
+func (_d *DiscordGuildDeleteOne) Where(ps ...predicate.DiscordGuild) *DiscordGuildDeleteOne {
+	_d._d.mutation.Where(ps...)
+	return _d
 }
 
 // Exec executes the deletion query.
-func (dgdo *DiscordGuildDeleteOne) Exec(ctx context.Context) error {
-	n, err := dgdo.dgd.Exec(ctx)
+func (_d *DiscordGuildDeleteOne) Exec(ctx context.Context) error {
+	n, err := _d._d.Exec(ctx)
 	switch {
 	case err != nil:
 		return err
@@ -81,8 +81,8 @@ func (dgdo *DiscordGuildDeleteOne) Exec(ctx context.Context) error {
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (dgdo *DiscordGuildDeleteOne) ExecX(ctx context.Context) {
-	if err := dgdo.Exec(ctx); err != nil {
+func (_d *DiscordGuildDeleteOne) ExecX(ctx context.Context) {
+	if err := _d.Exec(ctx); err != nil {
 		panic(err)
 	}
 }

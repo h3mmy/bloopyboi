@@ -4,10 +4,7 @@
   },
   "json.schemas": [
     {
-      "fileMatch": [
-        "./github/renovate.json",
-        "./gitlab/renovate.json5"
-      ],
+      "fileMatch": ["./github/renovate.json", "./gitlab/renovate.json5"],
       "url": "https://docs.renovatebot.com/renovate-schema.json"
     }
   ],
@@ -47,5 +44,17 @@
   "go.lintTool": "golangci-lint",
   "go.lintFlags": ["--fast", "-c .github/lint/golangci.yaml"],
   "editor.formatOnSave": true,
-  "go.vetOnSave": "off"
+  "go.vetOnSave": "off",
+  "github.copilot.enable": {
+    "*": false
+  },
+  "github.copilot.editor.enableAutoCompletions": false,
+  "github.copilot.nextEditSuggestions.enabled": false,
+  "geminicodeassist.enableTelemetry": false,
+  "gitlab.duoCodeSuggestions.enabled": false,
+  "gitlab.duoChat.enabled": false,
+  "gitlab.duoAgentPlatform.enabled": false,
+  "gitlab.duo.enabledWithoutGitlabProject": false,
+  "gitlab.keybindingHints.enabled": false,
+  "gitlab.duoCodeSuggestions.openTabsContext": false
 }

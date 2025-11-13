@@ -39,7 +39,7 @@ func (DiscordChannel) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.From("discord_guild", DiscordGuild.Type).
 			Ref("guild_channels"),
-			edge.To("messages", DiscordMessage.Type),
+		edge.To("messages", DiscordMessage.Type),
 	}
 }
 

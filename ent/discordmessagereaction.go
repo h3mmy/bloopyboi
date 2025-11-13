@@ -101,7 +101,7 @@ func (*DiscordMessageReaction) scanValues(columns []string) ([]any, error) {
 
 // assignValues assigns the values that were returned from sql.Rows (after scanning)
 // to the DiscordMessageReaction fields.
-func (dmr *DiscordMessageReaction) assignValues(columns []string, values []any) error {
+func (_m *DiscordMessageReaction) assignValues(columns []string, values []any) error {
 	if m, n := len(values), len(columns); m < n {
 		return fmt.Errorf("mismatch number of scan values: %d != %d", m, n)
 	}
@@ -111,37 +111,37 @@ func (dmr *DiscordMessageReaction) assignValues(columns []string, values []any) 
 			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value != nil {
-				dmr.ID = *value
+				_m.ID = *value
 			}
 		case discordmessagereaction.FieldCreateTime:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field create_time", values[i])
 			} else if value.Valid {
-				dmr.CreateTime = value.Time
+				_m.CreateTime = value.Time
 			}
 		case discordmessagereaction.FieldUpdateTime:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field update_time", values[i])
 			} else if value.Valid {
-				dmr.UpdateTime = value.Time
+				_m.UpdateTime = value.Time
 			}
 		case discordmessagereaction.FieldEmojiAPIName:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field emoji_api_name", values[i])
 			} else if value.Valid {
-				dmr.EmojiAPIName = value.String
+				_m.EmojiAPIName = value.String
 			}
 		case discordmessagereaction.FieldRemoved:
 			if value, ok := values[i].(*sql.NullBool); !ok {
 				return fmt.Errorf("unexpected type %T for field removed", values[i])
 			} else if value.Valid {
-				dmr.Removed = value.Bool
+				_m.Removed = value.Bool
 			}
 		case discordmessagereaction.FieldRaw:
 			if value, ok := values[i].(*[]byte); !ok {
 				return fmt.Errorf("unexpected type %T for field raw", values[i])
 			} else if value != nil && len(*value) > 0 {
-				if err := json.Unmarshal(*value, &dmr.Raw); err != nil {
+				if err := json.Unmarshal(*value, &_m.Raw); err != nil {
 					return fmt.Errorf("unmarshal field raw: %w", err)
 				}
 			}
@@ -149,18 +149,18 @@ func (dmr *DiscordMessageReaction) assignValues(columns []string, values []any) 
 			if value, ok := values[i].(*sql.NullScanner); !ok {
 				return fmt.Errorf("unexpected type %T for field discord_message_message_reactions", values[i])
 			} else if value.Valid {
-				dmr.discord_message_message_reactions = new(uuid.UUID)
-				*dmr.discord_message_message_reactions = *value.S.(*uuid.UUID)
+				_m.discord_message_message_reactions = new(uuid.UUID)
+				*_m.discord_message_message_reactions = *value.S.(*uuid.UUID)
 			}
 		case discordmessagereaction.ForeignKeys[1]:
 			if value, ok := values[i].(*sql.NullScanner); !ok {
 				return fmt.Errorf("unexpected type %T for field discord_user_message_reactions", values[i])
 			} else if value.Valid {
-				dmr.discord_user_message_reactions = new(uuid.UUID)
-				*dmr.discord_user_message_reactions = *value.S.(*uuid.UUID)
+				_m.discord_user_message_reactions = new(uuid.UUID)
+				*_m.discord_user_message_reactions = *value.S.(*uuid.UUID)
 			}
 		default:
-			dmr.selectValues.Set(columns[i], values[i])
+			_m.selectValues.Set(columns[i], values[i])
 		}
 	}
 	return nil
@@ -168,57 +168,57 @@ func (dmr *DiscordMessageReaction) assignValues(columns []string, values []any) 
 
 // Value returns the ent.Value that was dynamically selected and assigned to the DiscordMessageReaction.
 // This includes values selected through modifiers, order, etc.
-func (dmr *DiscordMessageReaction) Value(name string) (ent.Value, error) {
-	return dmr.selectValues.Get(name)
+func (_m *DiscordMessageReaction) Value(name string) (ent.Value, error) {
+	return _m.selectValues.Get(name)
 }
 
 // QueryDiscordMessage queries the "discord_message" edge of the DiscordMessageReaction entity.
-func (dmr *DiscordMessageReaction) QueryDiscordMessage() *DiscordMessageQuery {
-	return NewDiscordMessageReactionClient(dmr.config).QueryDiscordMessage(dmr)
+func (_m *DiscordMessageReaction) QueryDiscordMessage() *DiscordMessageQuery {
+	return NewDiscordMessageReactionClient(_m.config).QueryDiscordMessage(_m)
 }
 
 // QueryAuthor queries the "author" edge of the DiscordMessageReaction entity.
-func (dmr *DiscordMessageReaction) QueryAuthor() *DiscordUserQuery {
-	return NewDiscordMessageReactionClient(dmr.config).QueryAuthor(dmr)
+func (_m *DiscordMessageReaction) QueryAuthor() *DiscordUserQuery {
+	return NewDiscordMessageReactionClient(_m.config).QueryAuthor(_m)
 }
 
 // Update returns a builder for updating this DiscordMessageReaction.
 // Note that you need to call DiscordMessageReaction.Unwrap() before calling this method if this DiscordMessageReaction
 // was returned from a transaction, and the transaction was committed or rolled back.
-func (dmr *DiscordMessageReaction) Update() *DiscordMessageReactionUpdateOne {
-	return NewDiscordMessageReactionClient(dmr.config).UpdateOne(dmr)
+func (_m *DiscordMessageReaction) Update() *DiscordMessageReactionUpdateOne {
+	return NewDiscordMessageReactionClient(_m.config).UpdateOne(_m)
 }
 
 // Unwrap unwraps the DiscordMessageReaction entity that was returned from a transaction after it was closed,
 // so that all future queries will be executed through the driver which created the transaction.
-func (dmr *DiscordMessageReaction) Unwrap() *DiscordMessageReaction {
-	_tx, ok := dmr.config.driver.(*txDriver)
+func (_m *DiscordMessageReaction) Unwrap() *DiscordMessageReaction {
+	_tx, ok := _m.config.driver.(*txDriver)
 	if !ok {
 		panic("ent: DiscordMessageReaction is not a transactional entity")
 	}
-	dmr.config.driver = _tx.drv
-	return dmr
+	_m.config.driver = _tx.drv
+	return _m
 }
 
 // String implements the fmt.Stringer.
-func (dmr *DiscordMessageReaction) String() string {
+func (_m *DiscordMessageReaction) String() string {
 	var builder strings.Builder
 	builder.WriteString("DiscordMessageReaction(")
-	builder.WriteString(fmt.Sprintf("id=%v, ", dmr.ID))
+	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
 	builder.WriteString("create_time=")
-	builder.WriteString(dmr.CreateTime.Format(time.ANSIC))
+	builder.WriteString(_m.CreateTime.Format(time.ANSIC))
 	builder.WriteString(", ")
 	builder.WriteString("update_time=")
-	builder.WriteString(dmr.UpdateTime.Format(time.ANSIC))
+	builder.WriteString(_m.UpdateTime.Format(time.ANSIC))
 	builder.WriteString(", ")
 	builder.WriteString("emoji_api_name=")
-	builder.WriteString(dmr.EmojiAPIName)
+	builder.WriteString(_m.EmojiAPIName)
 	builder.WriteString(", ")
 	builder.WriteString("removed=")
-	builder.WriteString(fmt.Sprintf("%v", dmr.Removed))
+	builder.WriteString(fmt.Sprintf("%v", _m.Removed))
 	builder.WriteString(", ")
 	builder.WriteString("raw=")
-	builder.WriteString(fmt.Sprintf("%v", dmr.Raw))
+	builder.WriteString(fmt.Sprintf("%v", _m.Raw))
 	builder.WriteByte(')')
 	return builder.String()
 }

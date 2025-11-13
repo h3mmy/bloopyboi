@@ -28,137 +28,137 @@ type DiscordChannelCreate struct {
 }
 
 // SetCreateTime sets the "create_time" field.
-func (dcc *DiscordChannelCreate) SetCreateTime(t time.Time) *DiscordChannelCreate {
-	dcc.mutation.SetCreateTime(t)
-	return dcc
+func (_c *DiscordChannelCreate) SetCreateTime(v time.Time) *DiscordChannelCreate {
+	_c.mutation.SetCreateTime(v)
+	return _c
 }
 
 // SetNillableCreateTime sets the "create_time" field if the given value is not nil.
-func (dcc *DiscordChannelCreate) SetNillableCreateTime(t *time.Time) *DiscordChannelCreate {
-	if t != nil {
-		dcc.SetCreateTime(*t)
+func (_c *DiscordChannelCreate) SetNillableCreateTime(v *time.Time) *DiscordChannelCreate {
+	if v != nil {
+		_c.SetCreateTime(*v)
 	}
-	return dcc
+	return _c
 }
 
 // SetUpdateTime sets the "update_time" field.
-func (dcc *DiscordChannelCreate) SetUpdateTime(t time.Time) *DiscordChannelCreate {
-	dcc.mutation.SetUpdateTime(t)
-	return dcc
+func (_c *DiscordChannelCreate) SetUpdateTime(v time.Time) *DiscordChannelCreate {
+	_c.mutation.SetUpdateTime(v)
+	return _c
 }
 
 // SetNillableUpdateTime sets the "update_time" field if the given value is not nil.
-func (dcc *DiscordChannelCreate) SetNillableUpdateTime(t *time.Time) *DiscordChannelCreate {
-	if t != nil {
-		dcc.SetUpdateTime(*t)
+func (_c *DiscordChannelCreate) SetNillableUpdateTime(v *time.Time) *DiscordChannelCreate {
+	if v != nil {
+		_c.SetUpdateTime(*v)
 	}
-	return dcc
+	return _c
 }
 
 // SetDiscordid sets the "discordid" field.
-func (dcc *DiscordChannelCreate) SetDiscordid(s string) *DiscordChannelCreate {
-	dcc.mutation.SetDiscordid(s)
-	return dcc
+func (_c *DiscordChannelCreate) SetDiscordid(v string) *DiscordChannelCreate {
+	_c.mutation.SetDiscordid(v)
+	return _c
 }
 
 // SetName sets the "name" field.
-func (dcc *DiscordChannelCreate) SetName(s string) *DiscordChannelCreate {
-	dcc.mutation.SetName(s)
-	return dcc
+func (_c *DiscordChannelCreate) SetName(v string) *DiscordChannelCreate {
+	_c.mutation.SetName(v)
+	return _c
 }
 
 // SetType sets the "type" field.
-func (dcc *DiscordChannelCreate) SetType(dt discord.ChannelType) *DiscordChannelCreate {
-	dcc.mutation.SetType(dt)
-	return dcc
+func (_c *DiscordChannelCreate) SetType(v discord.ChannelType) *DiscordChannelCreate {
+	_c.mutation.SetType(v)
+	return _c
 }
 
 // SetNsfw sets the "nsfw" field.
-func (dcc *DiscordChannelCreate) SetNsfw(b bool) *DiscordChannelCreate {
-	dcc.mutation.SetNsfw(b)
-	return dcc
+func (_c *DiscordChannelCreate) SetNsfw(v bool) *DiscordChannelCreate {
+	_c.mutation.SetNsfw(v)
+	return _c
 }
 
 // SetNillableNsfw sets the "nsfw" field if the given value is not nil.
-func (dcc *DiscordChannelCreate) SetNillableNsfw(b *bool) *DiscordChannelCreate {
-	if b != nil {
-		dcc.SetNsfw(*b)
+func (_c *DiscordChannelCreate) SetNillableNsfw(v *bool) *DiscordChannelCreate {
+	if v != nil {
+		_c.SetNsfw(*v)
 	}
-	return dcc
+	return _c
 }
 
 // SetFlags sets the "flags" field.
-func (dcc *DiscordChannelCreate) SetFlags(i int) *DiscordChannelCreate {
-	dcc.mutation.SetFlags(i)
-	return dcc
+func (_c *DiscordChannelCreate) SetFlags(v int) *DiscordChannelCreate {
+	_c.mutation.SetFlags(v)
+	return _c
 }
 
 // SetNillableFlags sets the "flags" field if the given value is not nil.
-func (dcc *DiscordChannelCreate) SetNillableFlags(i *int) *DiscordChannelCreate {
-	if i != nil {
-		dcc.SetFlags(*i)
+func (_c *DiscordChannelCreate) SetNillableFlags(v *int) *DiscordChannelCreate {
+	if v != nil {
+		_c.SetFlags(*v)
 	}
-	return dcc
+	return _c
 }
 
 // SetID sets the "id" field.
-func (dcc *DiscordChannelCreate) SetID(u uuid.UUID) *DiscordChannelCreate {
-	dcc.mutation.SetID(u)
-	return dcc
+func (_c *DiscordChannelCreate) SetID(v uuid.UUID) *DiscordChannelCreate {
+	_c.mutation.SetID(v)
+	return _c
 }
 
 // SetNillableID sets the "id" field if the given value is not nil.
-func (dcc *DiscordChannelCreate) SetNillableID(u *uuid.UUID) *DiscordChannelCreate {
-	if u != nil {
-		dcc.SetID(*u)
+func (_c *DiscordChannelCreate) SetNillableID(v *uuid.UUID) *DiscordChannelCreate {
+	if v != nil {
+		_c.SetID(*v)
 	}
-	return dcc
+	return _c
 }
 
 // AddDiscordGuildIDs adds the "discord_guild" edge to the DiscordGuild entity by IDs.
-func (dcc *DiscordChannelCreate) AddDiscordGuildIDs(ids ...uuid.UUID) *DiscordChannelCreate {
-	dcc.mutation.AddDiscordGuildIDs(ids...)
-	return dcc
+func (_c *DiscordChannelCreate) AddDiscordGuildIDs(ids ...uuid.UUID) *DiscordChannelCreate {
+	_c.mutation.AddDiscordGuildIDs(ids...)
+	return _c
 }
 
 // AddDiscordGuild adds the "discord_guild" edges to the DiscordGuild entity.
-func (dcc *DiscordChannelCreate) AddDiscordGuild(d ...*DiscordGuild) *DiscordChannelCreate {
-	ids := make([]uuid.UUID, len(d))
-	for i := range d {
-		ids[i] = d[i].ID
+func (_c *DiscordChannelCreate) AddDiscordGuild(v ...*DiscordGuild) *DiscordChannelCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return dcc.AddDiscordGuildIDs(ids...)
+	return _c.AddDiscordGuildIDs(ids...)
 }
 
 // AddMessageIDs adds the "messages" edge to the DiscordMessage entity by IDs.
-func (dcc *DiscordChannelCreate) AddMessageIDs(ids ...uuid.UUID) *DiscordChannelCreate {
-	dcc.mutation.AddMessageIDs(ids...)
-	return dcc
+func (_c *DiscordChannelCreate) AddMessageIDs(ids ...uuid.UUID) *DiscordChannelCreate {
+	_c.mutation.AddMessageIDs(ids...)
+	return _c
 }
 
 // AddMessages adds the "messages" edges to the DiscordMessage entity.
-func (dcc *DiscordChannelCreate) AddMessages(d ...*DiscordMessage) *DiscordChannelCreate {
-	ids := make([]uuid.UUID, len(d))
-	for i := range d {
-		ids[i] = d[i].ID
+func (_c *DiscordChannelCreate) AddMessages(v ...*DiscordMessage) *DiscordChannelCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return dcc.AddMessageIDs(ids...)
+	return _c.AddMessageIDs(ids...)
 }
 
 // Mutation returns the DiscordChannelMutation object of the builder.
-func (dcc *DiscordChannelCreate) Mutation() *DiscordChannelMutation {
-	return dcc.mutation
+func (_c *DiscordChannelCreate) Mutation() *DiscordChannelMutation {
+	return _c.mutation
 }
 
 // Save creates the DiscordChannel in the database.
-func (dcc *DiscordChannelCreate) Save(ctx context.Context) (*DiscordChannel, error) {
-	dcc.defaults()
-	return withHooks(ctx, dcc.sqlSave, dcc.mutation, dcc.hooks)
+func (_c *DiscordChannelCreate) Save(ctx context.Context) (*DiscordChannel, error) {
+	_c.defaults()
+	return withHooks(ctx, _c.sqlSave, _c.mutation, _c.hooks)
 }
 
 // SaveX calls Save and panics if Save returns an error.
-func (dcc *DiscordChannelCreate) SaveX(ctx context.Context) *DiscordChannel {
-	v, err := dcc.Save(ctx)
+func (_c *DiscordChannelCreate) SaveX(ctx context.Context) *DiscordChannel {
+	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -166,67 +166,67 @@ func (dcc *DiscordChannelCreate) SaveX(ctx context.Context) *DiscordChannel {
 }
 
 // Exec executes the query.
-func (dcc *DiscordChannelCreate) Exec(ctx context.Context) error {
-	_, err := dcc.Save(ctx)
+func (_c *DiscordChannelCreate) Exec(ctx context.Context) error {
+	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (dcc *DiscordChannelCreate) ExecX(ctx context.Context) {
-	if err := dcc.Exec(ctx); err != nil {
+func (_c *DiscordChannelCreate) ExecX(ctx context.Context) {
+	if err := _c.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (dcc *DiscordChannelCreate) defaults() {
-	if _, ok := dcc.mutation.CreateTime(); !ok {
+func (_c *DiscordChannelCreate) defaults() {
+	if _, ok := _c.mutation.CreateTime(); !ok {
 		v := discordchannel.DefaultCreateTime()
-		dcc.mutation.SetCreateTime(v)
+		_c.mutation.SetCreateTime(v)
 	}
-	if _, ok := dcc.mutation.UpdateTime(); !ok {
+	if _, ok := _c.mutation.UpdateTime(); !ok {
 		v := discordchannel.DefaultUpdateTime()
-		dcc.mutation.SetUpdateTime(v)
+		_c.mutation.SetUpdateTime(v)
 	}
-	if _, ok := dcc.mutation.Nsfw(); !ok {
+	if _, ok := _c.mutation.Nsfw(); !ok {
 		v := discordchannel.DefaultNsfw
-		dcc.mutation.SetNsfw(v)
+		_c.mutation.SetNsfw(v)
 	}
-	if _, ok := dcc.mutation.ID(); !ok {
+	if _, ok := _c.mutation.ID(); !ok {
 		v := discordchannel.DefaultID()
-		dcc.mutation.SetID(v)
+		_c.mutation.SetID(v)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (dcc *DiscordChannelCreate) check() error {
-	if _, ok := dcc.mutation.CreateTime(); !ok {
+func (_c *DiscordChannelCreate) check() error {
+	if _, ok := _c.mutation.CreateTime(); !ok {
 		return &ValidationError{Name: "create_time", err: errors.New(`ent: missing required field "DiscordChannel.create_time"`)}
 	}
-	if _, ok := dcc.mutation.UpdateTime(); !ok {
+	if _, ok := _c.mutation.UpdateTime(); !ok {
 		return &ValidationError{Name: "update_time", err: errors.New(`ent: missing required field "DiscordChannel.update_time"`)}
 	}
-	if _, ok := dcc.mutation.Discordid(); !ok {
+	if _, ok := _c.mutation.Discordid(); !ok {
 		return &ValidationError{Name: "discordid", err: errors.New(`ent: missing required field "DiscordChannel.discordid"`)}
 	}
-	if _, ok := dcc.mutation.Name(); !ok {
+	if _, ok := _c.mutation.Name(); !ok {
 		return &ValidationError{Name: "name", err: errors.New(`ent: missing required field "DiscordChannel.name"`)}
 	}
-	if _, ok := dcc.mutation.GetType(); !ok {
+	if _, ok := _c.mutation.GetType(); !ok {
 		return &ValidationError{Name: "type", err: errors.New(`ent: missing required field "DiscordChannel.type"`)}
 	}
-	if _, ok := dcc.mutation.Nsfw(); !ok {
+	if _, ok := _c.mutation.Nsfw(); !ok {
 		return &ValidationError{Name: "nsfw", err: errors.New(`ent: missing required field "DiscordChannel.nsfw"`)}
 	}
 	return nil
 }
 
-func (dcc *DiscordChannelCreate) sqlSave(ctx context.Context) (*DiscordChannel, error) {
-	if err := dcc.check(); err != nil {
+func (_c *DiscordChannelCreate) sqlSave(ctx context.Context) (*DiscordChannel, error) {
+	if err := _c.check(); err != nil {
 		return nil, err
 	}
-	_node, _spec := dcc.createSpec()
-	if err := sqlgraph.CreateNode(ctx, dcc.driver, _spec); err != nil {
+	_node, _spec := _c.createSpec()
+	if err := sqlgraph.CreateNode(ctx, _c.driver, _spec); err != nil {
 		if sqlgraph.IsConstraintError(err) {
 			err = &ConstraintError{msg: err.Error(), wrap: err}
 		}
@@ -239,50 +239,50 @@ func (dcc *DiscordChannelCreate) sqlSave(ctx context.Context) (*DiscordChannel, 
 			return nil, err
 		}
 	}
-	dcc.mutation.id = &_node.ID
-	dcc.mutation.done = true
+	_c.mutation.id = &_node.ID
+	_c.mutation.done = true
 	return _node, nil
 }
 
-func (dcc *DiscordChannelCreate) createSpec() (*DiscordChannel, *sqlgraph.CreateSpec) {
+func (_c *DiscordChannelCreate) createSpec() (*DiscordChannel, *sqlgraph.CreateSpec) {
 	var (
-		_node = &DiscordChannel{config: dcc.config}
+		_node = &DiscordChannel{config: _c.config}
 		_spec = sqlgraph.NewCreateSpec(discordchannel.Table, sqlgraph.NewFieldSpec(discordchannel.FieldID, field.TypeUUID))
 	)
-	_spec.OnConflict = dcc.conflict
-	if id, ok := dcc.mutation.ID(); ok {
+	_spec.OnConflict = _c.conflict
+	if id, ok := _c.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = &id
 	}
-	if value, ok := dcc.mutation.CreateTime(); ok {
+	if value, ok := _c.mutation.CreateTime(); ok {
 		_spec.SetField(discordchannel.FieldCreateTime, field.TypeTime, value)
 		_node.CreateTime = value
 	}
-	if value, ok := dcc.mutation.UpdateTime(); ok {
+	if value, ok := _c.mutation.UpdateTime(); ok {
 		_spec.SetField(discordchannel.FieldUpdateTime, field.TypeTime, value)
 		_node.UpdateTime = value
 	}
-	if value, ok := dcc.mutation.Discordid(); ok {
+	if value, ok := _c.mutation.Discordid(); ok {
 		_spec.SetField(discordchannel.FieldDiscordid, field.TypeString, value)
 		_node.Discordid = value
 	}
-	if value, ok := dcc.mutation.Name(); ok {
+	if value, ok := _c.mutation.Name(); ok {
 		_spec.SetField(discordchannel.FieldName, field.TypeString, value)
 		_node.Name = value
 	}
-	if value, ok := dcc.mutation.GetType(); ok {
+	if value, ok := _c.mutation.GetType(); ok {
 		_spec.SetField(discordchannel.FieldType, field.TypeInt, value)
 		_node.Type = value
 	}
-	if value, ok := dcc.mutation.Nsfw(); ok {
+	if value, ok := _c.mutation.Nsfw(); ok {
 		_spec.SetField(discordchannel.FieldNsfw, field.TypeBool, value)
 		_node.Nsfw = value
 	}
-	if value, ok := dcc.mutation.Flags(); ok {
+	if value, ok := _c.mutation.Flags(); ok {
 		_spec.SetField(discordchannel.FieldFlags, field.TypeInt, value)
 		_node.Flags = value
 	}
-	if nodes := dcc.mutation.DiscordGuildIDs(); len(nodes) > 0 {
+	if nodes := _c.mutation.DiscordGuildIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: true,
@@ -298,7 +298,7 @@ func (dcc *DiscordChannelCreate) createSpec() (*DiscordChannel, *sqlgraph.Create
 		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
-	if nodes := dcc.mutation.MessagesIDs(); len(nodes) > 0 {
+	if nodes := _c.mutation.MessagesIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -333,10 +333,10 @@ func (dcc *DiscordChannelCreate) createSpec() (*DiscordChannel, *sqlgraph.Create
 //			SetCreateTime(v+v).
 //		}).
 //		Exec(ctx)
-func (dcc *DiscordChannelCreate) OnConflict(opts ...sql.ConflictOption) *DiscordChannelUpsertOne {
-	dcc.conflict = opts
+func (_c *DiscordChannelCreate) OnConflict(opts ...sql.ConflictOption) *DiscordChannelUpsertOne {
+	_c.conflict = opts
 	return &DiscordChannelUpsertOne{
-		create: dcc,
+		create: _c,
 	}
 }
 
@@ -346,10 +346,10 @@ func (dcc *DiscordChannelCreate) OnConflict(opts ...sql.ConflictOption) *Discord
 //	client.DiscordChannel.Create().
 //		OnConflict(sql.ConflictColumns(columns...)).
 //		Exec(ctx)
-func (dcc *DiscordChannelCreate) OnConflictColumns(columns ...string) *DiscordChannelUpsertOne {
-	dcc.conflict = append(dcc.conflict, sql.ConflictColumns(columns...))
+func (_c *DiscordChannelCreate) OnConflictColumns(columns ...string) *DiscordChannelUpsertOne {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
 	return &DiscordChannelUpsertOne{
-		create: dcc,
+		create: _c,
 	}
 }
 
@@ -659,16 +659,16 @@ type DiscordChannelCreateBulk struct {
 }
 
 // Save creates the DiscordChannel entities in the database.
-func (dccb *DiscordChannelCreateBulk) Save(ctx context.Context) ([]*DiscordChannel, error) {
-	if dccb.err != nil {
-		return nil, dccb.err
+func (_c *DiscordChannelCreateBulk) Save(ctx context.Context) ([]*DiscordChannel, error) {
+	if _c.err != nil {
+		return nil, _c.err
 	}
-	specs := make([]*sqlgraph.CreateSpec, len(dccb.builders))
-	nodes := make([]*DiscordChannel, len(dccb.builders))
-	mutators := make([]Mutator, len(dccb.builders))
-	for i := range dccb.builders {
+	specs := make([]*sqlgraph.CreateSpec, len(_c.builders))
+	nodes := make([]*DiscordChannel, len(_c.builders))
+	mutators := make([]Mutator, len(_c.builders))
+	for i := range _c.builders {
 		func(i int, root context.Context) {
-			builder := dccb.builders[i]
+			builder := _c.builders[i]
 			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*DiscordChannelMutation)
@@ -682,12 +682,12 @@ func (dccb *DiscordChannelCreateBulk) Save(ctx context.Context) ([]*DiscordChann
 				var err error
 				nodes[i], specs[i] = builder.createSpec()
 				if i < len(mutators)-1 {
-					_, err = mutators[i+1].Mutate(root, dccb.builders[i+1].mutation)
+					_, err = mutators[i+1].Mutate(root, _c.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
-					spec.OnConflict = dccb.conflict
+					spec.OnConflict = _c.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
-					if err = sqlgraph.BatchCreate(ctx, dccb.driver, spec); err != nil {
+					if err = sqlgraph.BatchCreate(ctx, _c.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
 							err = &ConstraintError{msg: err.Error(), wrap: err}
 						}
@@ -707,7 +707,7 @@ func (dccb *DiscordChannelCreateBulk) Save(ctx context.Context) ([]*DiscordChann
 		}(i, ctx)
 	}
 	if len(mutators) > 0 {
-		if _, err := mutators[0].Mutate(ctx, dccb.builders[0].mutation); err != nil {
+		if _, err := mutators[0].Mutate(ctx, _c.builders[0].mutation); err != nil {
 			return nil, err
 		}
 	}
@@ -715,8 +715,8 @@ func (dccb *DiscordChannelCreateBulk) Save(ctx context.Context) ([]*DiscordChann
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (dccb *DiscordChannelCreateBulk) SaveX(ctx context.Context) []*DiscordChannel {
-	v, err := dccb.Save(ctx)
+func (_c *DiscordChannelCreateBulk) SaveX(ctx context.Context) []*DiscordChannel {
+	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -724,14 +724,14 @@ func (dccb *DiscordChannelCreateBulk) SaveX(ctx context.Context) []*DiscordChann
 }
 
 // Exec executes the query.
-func (dccb *DiscordChannelCreateBulk) Exec(ctx context.Context) error {
-	_, err := dccb.Save(ctx)
+func (_c *DiscordChannelCreateBulk) Exec(ctx context.Context) error {
+	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (dccb *DiscordChannelCreateBulk) ExecX(ctx context.Context) {
-	if err := dccb.Exec(ctx); err != nil {
+func (_c *DiscordChannelCreateBulk) ExecX(ctx context.Context) {
+	if err := _c.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
@@ -751,10 +751,10 @@ func (dccb *DiscordChannelCreateBulk) ExecX(ctx context.Context) {
 //			SetCreateTime(v+v).
 //		}).
 //		Exec(ctx)
-func (dccb *DiscordChannelCreateBulk) OnConflict(opts ...sql.ConflictOption) *DiscordChannelUpsertBulk {
-	dccb.conflict = opts
+func (_c *DiscordChannelCreateBulk) OnConflict(opts ...sql.ConflictOption) *DiscordChannelUpsertBulk {
+	_c.conflict = opts
 	return &DiscordChannelUpsertBulk{
-		create: dccb,
+		create: _c,
 	}
 }
 
@@ -764,10 +764,10 @@ func (dccb *DiscordChannelCreateBulk) OnConflict(opts ...sql.ConflictOption) *Di
 //	client.DiscordChannel.Create().
 //		OnConflict(sql.ConflictColumns(columns...)).
 //		Exec(ctx)
-func (dccb *DiscordChannelCreateBulk) OnConflictColumns(columns ...string) *DiscordChannelUpsertBulk {
-	dccb.conflict = append(dccb.conflict, sql.ConflictColumns(columns...))
+func (_c *DiscordChannelCreateBulk) OnConflictColumns(columns ...string) *DiscordChannelUpsertBulk {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
 	return &DiscordChannelUpsertBulk{
-		create: dccb,
+		create: _c,
 	}
 }
 

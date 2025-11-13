@@ -37,11 +37,16 @@ func DirectedMessageReceive(s *discordgo.Session, m *discordgo.MessageCreate) {
 			var err error
 			if nsfwContext {
 				switch rand.Intn(5) {
-				case 0: err = s.MessageReactionAdd(m.ChannelID, m.ID, "imwetrn:1236826185783316552")
-				case 1: err = s.MessageReactionAdd(m.ChannelID, m.ID, "animeass:1236826184663175188")
-				case 2: err = s.MessageReactionAdd(m.ChannelID, m.ID, "peepeekun:1236821722460848139")
-				case 3: err = s.MessageReactionAdd(m.ChannelID, m.ID, "rikkaSpank:1236824309083803790")
-				case 4: err = s.MessageReactionAdd(m.ChannelID, m.ID, "frog_booty:1180327466775105617")
+				case 0:
+					err = s.MessageReactionAdd(m.ChannelID, m.ID, "imwetrn:1236826185783316552")
+				case 1:
+					err = s.MessageReactionAdd(m.ChannelID, m.ID, "animeass:1236826184663175188")
+				case 2:
+					err = s.MessageReactionAdd(m.ChannelID, m.ID, "peepeekun:1236821722460848139")
+				case 3:
+					err = s.MessageReactionAdd(m.ChannelID, m.ID, "rikkaSpank:1236824309083803790")
+				case 4:
+					err = s.MessageReactionAdd(m.ChannelID, m.ID, "frog_booty:1180327466775105617")
 				}
 
 			}

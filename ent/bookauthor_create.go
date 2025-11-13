@@ -25,54 +25,54 @@ type BookAuthorCreate struct {
 }
 
 // SetFullName sets the "full_name" field.
-func (bac *BookAuthorCreate) SetFullName(s string) *BookAuthorCreate {
-	bac.mutation.SetFullName(s)
-	return bac
+func (_c *BookAuthorCreate) SetFullName(v string) *BookAuthorCreate {
+	_c.mutation.SetFullName(v)
+	return _c
 }
 
 // SetID sets the "id" field.
-func (bac *BookAuthorCreate) SetID(u uuid.UUID) *BookAuthorCreate {
-	bac.mutation.SetID(u)
-	return bac
+func (_c *BookAuthorCreate) SetID(v uuid.UUID) *BookAuthorCreate {
+	_c.mutation.SetID(v)
+	return _c
 }
 
 // SetNillableID sets the "id" field if the given value is not nil.
-func (bac *BookAuthorCreate) SetNillableID(u *uuid.UUID) *BookAuthorCreate {
-	if u != nil {
-		bac.SetID(*u)
+func (_c *BookAuthorCreate) SetNillableID(v *uuid.UUID) *BookAuthorCreate {
+	if v != nil {
+		_c.SetID(*v)
 	}
-	return bac
+	return _c
 }
 
 // AddBookIDs adds the "books" edge to the Book entity by IDs.
-func (bac *BookAuthorCreate) AddBookIDs(ids ...uuid.UUID) *BookAuthorCreate {
-	bac.mutation.AddBookIDs(ids...)
-	return bac
+func (_c *BookAuthorCreate) AddBookIDs(ids ...uuid.UUID) *BookAuthorCreate {
+	_c.mutation.AddBookIDs(ids...)
+	return _c
 }
 
 // AddBooks adds the "books" edges to the Book entity.
-func (bac *BookAuthorCreate) AddBooks(b ...*Book) *BookAuthorCreate {
-	ids := make([]uuid.UUID, len(b))
-	for i := range b {
-		ids[i] = b[i].ID
+func (_c *BookAuthorCreate) AddBooks(v ...*Book) *BookAuthorCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return bac.AddBookIDs(ids...)
+	return _c.AddBookIDs(ids...)
 }
 
 // Mutation returns the BookAuthorMutation object of the builder.
-func (bac *BookAuthorCreate) Mutation() *BookAuthorMutation {
-	return bac.mutation
+func (_c *BookAuthorCreate) Mutation() *BookAuthorMutation {
+	return _c.mutation
 }
 
 // Save creates the BookAuthor in the database.
-func (bac *BookAuthorCreate) Save(ctx context.Context) (*BookAuthor, error) {
-	bac.defaults()
-	return withHooks(ctx, bac.sqlSave, bac.mutation, bac.hooks)
+func (_c *BookAuthorCreate) Save(ctx context.Context) (*BookAuthor, error) {
+	_c.defaults()
+	return withHooks(ctx, _c.sqlSave, _c.mutation, _c.hooks)
 }
 
 // SaveX calls Save and panics if Save returns an error.
-func (bac *BookAuthorCreate) SaveX(ctx context.Context) *BookAuthor {
-	v, err := bac.Save(ctx)
+func (_c *BookAuthorCreate) SaveX(ctx context.Context) *BookAuthor {
+	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -80,40 +80,40 @@ func (bac *BookAuthorCreate) SaveX(ctx context.Context) *BookAuthor {
 }
 
 // Exec executes the query.
-func (bac *BookAuthorCreate) Exec(ctx context.Context) error {
-	_, err := bac.Save(ctx)
+func (_c *BookAuthorCreate) Exec(ctx context.Context) error {
+	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (bac *BookAuthorCreate) ExecX(ctx context.Context) {
-	if err := bac.Exec(ctx); err != nil {
+func (_c *BookAuthorCreate) ExecX(ctx context.Context) {
+	if err := _c.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (bac *BookAuthorCreate) defaults() {
-	if _, ok := bac.mutation.ID(); !ok {
+func (_c *BookAuthorCreate) defaults() {
+	if _, ok := _c.mutation.ID(); !ok {
 		v := bookauthor.DefaultID()
-		bac.mutation.SetID(v)
+		_c.mutation.SetID(v)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (bac *BookAuthorCreate) check() error {
-	if _, ok := bac.mutation.FullName(); !ok {
+func (_c *BookAuthorCreate) check() error {
+	if _, ok := _c.mutation.FullName(); !ok {
 		return &ValidationError{Name: "full_name", err: errors.New(`ent: missing required field "BookAuthor.full_name"`)}
 	}
 	return nil
 }
 
-func (bac *BookAuthorCreate) sqlSave(ctx context.Context) (*BookAuthor, error) {
-	if err := bac.check(); err != nil {
+func (_c *BookAuthorCreate) sqlSave(ctx context.Context) (*BookAuthor, error) {
+	if err := _c.check(); err != nil {
 		return nil, err
 	}
-	_node, _spec := bac.createSpec()
-	if err := sqlgraph.CreateNode(ctx, bac.driver, _spec); err != nil {
+	_node, _spec := _c.createSpec()
+	if err := sqlgraph.CreateNode(ctx, _c.driver, _spec); err != nil {
 		if sqlgraph.IsConstraintError(err) {
 			err = &ConstraintError{msg: err.Error(), wrap: err}
 		}
@@ -126,26 +126,26 @@ func (bac *BookAuthorCreate) sqlSave(ctx context.Context) (*BookAuthor, error) {
 			return nil, err
 		}
 	}
-	bac.mutation.id = &_node.ID
-	bac.mutation.done = true
+	_c.mutation.id = &_node.ID
+	_c.mutation.done = true
 	return _node, nil
 }
 
-func (bac *BookAuthorCreate) createSpec() (*BookAuthor, *sqlgraph.CreateSpec) {
+func (_c *BookAuthorCreate) createSpec() (*BookAuthor, *sqlgraph.CreateSpec) {
 	var (
-		_node = &BookAuthor{config: bac.config}
+		_node = &BookAuthor{config: _c.config}
 		_spec = sqlgraph.NewCreateSpec(bookauthor.Table, sqlgraph.NewFieldSpec(bookauthor.FieldID, field.TypeUUID))
 	)
-	_spec.OnConflict = bac.conflict
-	if id, ok := bac.mutation.ID(); ok {
+	_spec.OnConflict = _c.conflict
+	if id, ok := _c.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = &id
 	}
-	if value, ok := bac.mutation.FullName(); ok {
+	if value, ok := _c.mutation.FullName(); ok {
 		_spec.SetField(bookauthor.FieldFullName, field.TypeString, value)
 		_node.FullName = value
 	}
-	if nodes := bac.mutation.BooksIDs(); len(nodes) > 0 {
+	if nodes := _c.mutation.BooksIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: false,
@@ -180,10 +180,10 @@ func (bac *BookAuthorCreate) createSpec() (*BookAuthor, *sqlgraph.CreateSpec) {
 //			SetFullName(v+v).
 //		}).
 //		Exec(ctx)
-func (bac *BookAuthorCreate) OnConflict(opts ...sql.ConflictOption) *BookAuthorUpsertOne {
-	bac.conflict = opts
+func (_c *BookAuthorCreate) OnConflict(opts ...sql.ConflictOption) *BookAuthorUpsertOne {
+	_c.conflict = opts
 	return &BookAuthorUpsertOne{
-		create: bac,
+		create: _c,
 	}
 }
 
@@ -193,10 +193,10 @@ func (bac *BookAuthorCreate) OnConflict(opts ...sql.ConflictOption) *BookAuthorU
 //	client.BookAuthor.Create().
 //		OnConflict(sql.ConflictColumns(columns...)).
 //		Exec(ctx)
-func (bac *BookAuthorCreate) OnConflictColumns(columns ...string) *BookAuthorUpsertOne {
-	bac.conflict = append(bac.conflict, sql.ConflictColumns(columns...))
+func (_c *BookAuthorCreate) OnConflictColumns(columns ...string) *BookAuthorUpsertOne {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
 	return &BookAuthorUpsertOne{
-		create: bac,
+		create: _c,
 	}
 }
 
@@ -334,16 +334,16 @@ type BookAuthorCreateBulk struct {
 }
 
 // Save creates the BookAuthor entities in the database.
-func (bacb *BookAuthorCreateBulk) Save(ctx context.Context) ([]*BookAuthor, error) {
-	if bacb.err != nil {
-		return nil, bacb.err
+func (_c *BookAuthorCreateBulk) Save(ctx context.Context) ([]*BookAuthor, error) {
+	if _c.err != nil {
+		return nil, _c.err
 	}
-	specs := make([]*sqlgraph.CreateSpec, len(bacb.builders))
-	nodes := make([]*BookAuthor, len(bacb.builders))
-	mutators := make([]Mutator, len(bacb.builders))
-	for i := range bacb.builders {
+	specs := make([]*sqlgraph.CreateSpec, len(_c.builders))
+	nodes := make([]*BookAuthor, len(_c.builders))
+	mutators := make([]Mutator, len(_c.builders))
+	for i := range _c.builders {
 		func(i int, root context.Context) {
-			builder := bacb.builders[i]
+			builder := _c.builders[i]
 			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*BookAuthorMutation)
@@ -357,12 +357,12 @@ func (bacb *BookAuthorCreateBulk) Save(ctx context.Context) ([]*BookAuthor, erro
 				var err error
 				nodes[i], specs[i] = builder.createSpec()
 				if i < len(mutators)-1 {
-					_, err = mutators[i+1].Mutate(root, bacb.builders[i+1].mutation)
+					_, err = mutators[i+1].Mutate(root, _c.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
-					spec.OnConflict = bacb.conflict
+					spec.OnConflict = _c.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
-					if err = sqlgraph.BatchCreate(ctx, bacb.driver, spec); err != nil {
+					if err = sqlgraph.BatchCreate(ctx, _c.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
 							err = &ConstraintError{msg: err.Error(), wrap: err}
 						}
@@ -382,7 +382,7 @@ func (bacb *BookAuthorCreateBulk) Save(ctx context.Context) ([]*BookAuthor, erro
 		}(i, ctx)
 	}
 	if len(mutators) > 0 {
-		if _, err := mutators[0].Mutate(ctx, bacb.builders[0].mutation); err != nil {
+		if _, err := mutators[0].Mutate(ctx, _c.builders[0].mutation); err != nil {
 			return nil, err
 		}
 	}
@@ -390,8 +390,8 @@ func (bacb *BookAuthorCreateBulk) Save(ctx context.Context) ([]*BookAuthor, erro
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (bacb *BookAuthorCreateBulk) SaveX(ctx context.Context) []*BookAuthor {
-	v, err := bacb.Save(ctx)
+func (_c *BookAuthorCreateBulk) SaveX(ctx context.Context) []*BookAuthor {
+	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -399,14 +399,14 @@ func (bacb *BookAuthorCreateBulk) SaveX(ctx context.Context) []*BookAuthor {
 }
 
 // Exec executes the query.
-func (bacb *BookAuthorCreateBulk) Exec(ctx context.Context) error {
-	_, err := bacb.Save(ctx)
+func (_c *BookAuthorCreateBulk) Exec(ctx context.Context) error {
+	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (bacb *BookAuthorCreateBulk) ExecX(ctx context.Context) {
-	if err := bacb.Exec(ctx); err != nil {
+func (_c *BookAuthorCreateBulk) ExecX(ctx context.Context) {
+	if err := _c.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
@@ -426,10 +426,10 @@ func (bacb *BookAuthorCreateBulk) ExecX(ctx context.Context) {
 //			SetFullName(v+v).
 //		}).
 //		Exec(ctx)
-func (bacb *BookAuthorCreateBulk) OnConflict(opts ...sql.ConflictOption) *BookAuthorUpsertBulk {
-	bacb.conflict = opts
+func (_c *BookAuthorCreateBulk) OnConflict(opts ...sql.ConflictOption) *BookAuthorUpsertBulk {
+	_c.conflict = opts
 	return &BookAuthorUpsertBulk{
-		create: bacb,
+		create: _c,
 	}
 }
 
@@ -439,10 +439,10 @@ func (bacb *BookAuthorCreateBulk) OnConflict(opts ...sql.ConflictOption) *BookAu
 //	client.BookAuthor.Create().
 //		OnConflict(sql.ConflictColumns(columns...)).
 //		Exec(ctx)
-func (bacb *BookAuthorCreateBulk) OnConflictColumns(columns ...string) *BookAuthorUpsertBulk {
-	bacb.conflict = append(bacb.conflict, sql.ConflictColumns(columns...))
+func (_c *BookAuthorCreateBulk) OnConflictColumns(columns ...string) *BookAuthorUpsertBulk {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
 	return &BookAuthorUpsertBulk{
-		create: bacb,
+		create: _c,
 	}
 }
 

@@ -8,14 +8,13 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"github.com/bwmarrin/discordgo"
 	"github.com/google/uuid"
-	"github.com/h3mmy/bloopyboi/pkg/database"
-	"github.com/h3mmy/bloopyboi/internal/models"
 	"github.com/h3mmy/bloopyboi/ent"
 	"github.com/h3mmy/bloopyboi/ent/book"
 	"github.com/h3mmy/bloopyboi/ent/bookauthor"
 	"github.com/h3mmy/bloopyboi/ent/discorduser"
 	"github.com/h3mmy/bloopyboi/ent/mediarequest"
-	pmodels "github.com/h3mmy/bloopyboi/internal/models"
+	"github.com/h3mmy/bloopyboi/internal/models"
+	"github.com/h3mmy/bloopyboi/pkg/database"
 	log "github.com/h3mmy/bloopyboi/pkg/logs"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -23,6 +22,7 @@ import (
 	"google.golang.org/api/option"
 )
 
+// BookService is a service that interacts with the Google Books API and the local database.
 type BookService struct {
 	bloopyMeta models.BloopyMeta
 	logger     *zap.Logger
@@ -31,6 +31,7 @@ type BookService struct {
 	dbEnabled  bool
 }
 
+// NewBookService creates a new BookService.
 func NewBookService(ctx context.Context, options ...option.ClientOption) (*BookService, error) {
 	meta := models.NewBloopyMeta()
 	lgr := log.NewZapLogger().
@@ -60,6 +61,7 @@ func NewBookService(ctx context.Context, options ...option.ClientOption) (*BookS
 	}, nil
 }
 
+// IsReady returns true if the service is ready.
 func (b *BookService) IsReady() bool {
 	if b.svc == nil {
 		return false
@@ -67,10 +69,12 @@ func (b *BookService) IsReady() bool {
 	return b.bloopyMeta.Id != uuid.Nil
 }
 
+// IsDatabaseEnabled returns true if the database is enabled.
 func (b *BookService) IsDatabaseEnabled() bool {
 	return b.dbEnabled
 }
 
+// Shutdown shuts down the service.
 func (b *BookService) Shutdown() {
 	b.logger.Info("shutting down")
 	if b.db != nil {
@@ -82,6 +86,7 @@ func (b *BookService) Shutdown() {
 	}
 }
 
+// RefreshDatabaseConnection refreshes the database connection.
 func (b *BookService) RefreshDatabaseConnection() {
 	b.logger.Debug("refreshing DB Client")
 	dbClient, err := database.Open()
@@ -94,6 +99,7 @@ func (b *BookService) RefreshDatabaseConnection() {
 	}
 }
 
+// SearchBook searches for a book.
 func (b *BookService) SearchBook(ctx context.Context, req *models.BookSearchRequest) (*books.Volumes, error) {
 	b.logger.Debug(fmt.Sprintf("context: %v", ctx))
 	// Google's full text string can have special keywords
@@ -117,8 +123,9 @@ func (b *BookService) SearchBook(ctx context.Context, req *models.BookSearchRequ
 	return volume, nil
 }
 
+// buildSearchString builds a search string for the Google Books API.
 func (b *BookService) buildSearchString(req *models.BookSearchRequest) string {
-	var q string = ""
+	var q = ""
 	if req.Title != "" {
 		q += "intitle:" + req.Title
 	}
@@ -137,6 +144,7 @@ func (b *BookService) buildSearchString(req *models.BookSearchRequest) string {
 	return q
 }
 
+// GetVolume gets a volume from the Google Books API.
 func (b *BookService) GetVolume(volumeId string) (*books.Volume, error) {
 	volume, err := b.svc.Volumes.Get(volumeId).Context(context.TODO()).Do()
 	if err != nil {
@@ -145,6 +153,7 @@ func (b *BookService) GetVolume(volumeId string) (*books.Volume, error) {
 	return volume, err
 }
 
+// SubmitBookRequest submits a book request.
 func (b *BookService) SubmitBookRequest(ctx context.Context, discUser *discordgo.User, volumeId string) (*ent.MediaRequest, error) {
 	volume, err := b.GetVolume(volumeId)
 	if err != nil {
@@ -210,7 +219,7 @@ func (b *BookService) SubmitBookRequest(ctx context.Context, discUser *discordgo
 					SetID(uuid.New()).
 					SetBookID(bookid).
 					AddDiscordUserIDs(discordUserId).
-					SetStatus(pmodels.MediaRequestStatusRequested).
+					SetStatus(models.MediaRequestStatusRequested).
 					Exec(ctx)
 			})
 			if err != nil {
@@ -267,6 +276,7 @@ func (b *BookService) SubmitBookRequest(ctx context.Context, discUser *discordgo
 	return mediareq, nil
 }
 
+// SaveBook saves a book to the database.
 func (b *BookService) SaveBook(ctx context.Context, volume *books.Volume) (uuid.UUID, error) {
 	// Check for existing volume first
 	bookid, err := b.db.Book.Query().
@@ -327,6 +337,7 @@ func (b *BookService) GetAllBookRequestsForUser(ctx context.Context, userId stri
 	return nil, nil
 }
 
+// BuildBookRequestStatusAsEmbed builds an embed for a book request.
 func (b *BookService) BuildBookRequestStatusAsEmbed(ctx context.Context, req *ent.MediaRequest) *discordgo.MessageEmbed {
 	book := req.Edges.Book
 	authors, err := book.QueryBookAuthor().Select(bookauthor.FieldFullName).Strings(ctx)
