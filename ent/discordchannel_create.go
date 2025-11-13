@@ -8,6 +8,8 @@ import (
 	"fmt"
 	"time"
 
+	"entgo.io/ent/dialect"
+	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
@@ -22,6 +24,7 @@ type DiscordChannelCreate struct {
 	config
 	mutation *DiscordChannelMutation
 	hooks    []Hook
+	conflict []sql.ConflictOption
 }
 
 // SetCreateTime sets the "create_time" field.
@@ -246,6 +249,7 @@ func (_c *DiscordChannelCreate) createSpec() (*DiscordChannel, *sqlgraph.CreateS
 		_node = &DiscordChannel{config: _c.config}
 		_spec = sqlgraph.NewCreateSpec(discordchannel.Table, sqlgraph.NewFieldSpec(discordchannel.FieldID, field.TypeUUID))
 	)
+	_spec.OnConflict = _c.conflict
 	if id, ok := _c.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = &id
@@ -313,11 +317,345 @@ func (_c *DiscordChannelCreate) createSpec() (*DiscordChannel, *sqlgraph.CreateS
 	return _node, _spec
 }
 
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.DiscordChannel.Create().
+//		SetCreateTime(v).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.DiscordChannelUpsert) {
+//			SetCreateTime(v+v).
+//		}).
+//		Exec(ctx)
+func (_c *DiscordChannelCreate) OnConflict(opts ...sql.ConflictOption) *DiscordChannelUpsertOne {
+	_c.conflict = opts
+	return &DiscordChannelUpsertOne{
+		create: _c,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.DiscordChannel.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (_c *DiscordChannelCreate) OnConflictColumns(columns ...string) *DiscordChannelUpsertOne {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
+	return &DiscordChannelUpsertOne{
+		create: _c,
+	}
+}
+
+type (
+	// DiscordChannelUpsertOne is the builder for "upsert"-ing
+	//  one DiscordChannel node.
+	DiscordChannelUpsertOne struct {
+		create *DiscordChannelCreate
+	}
+
+	// DiscordChannelUpsert is the "OnConflict" setter.
+	DiscordChannelUpsert struct {
+		*sql.UpdateSet
+	}
+)
+
+// SetUpdateTime sets the "update_time" field.
+func (u *DiscordChannelUpsert) SetUpdateTime(v time.Time) *DiscordChannelUpsert {
+	u.Set(discordchannel.FieldUpdateTime, v)
+	return u
+}
+
+// UpdateUpdateTime sets the "update_time" field to the value that was provided on create.
+func (u *DiscordChannelUpsert) UpdateUpdateTime() *DiscordChannelUpsert {
+	u.SetExcluded(discordchannel.FieldUpdateTime)
+	return u
+}
+
+// SetDiscordid sets the "discordid" field.
+func (u *DiscordChannelUpsert) SetDiscordid(v string) *DiscordChannelUpsert {
+	u.Set(discordchannel.FieldDiscordid, v)
+	return u
+}
+
+// UpdateDiscordid sets the "discordid" field to the value that was provided on create.
+func (u *DiscordChannelUpsert) UpdateDiscordid() *DiscordChannelUpsert {
+	u.SetExcluded(discordchannel.FieldDiscordid)
+	return u
+}
+
+// SetName sets the "name" field.
+func (u *DiscordChannelUpsert) SetName(v string) *DiscordChannelUpsert {
+	u.Set(discordchannel.FieldName, v)
+	return u
+}
+
+// UpdateName sets the "name" field to the value that was provided on create.
+func (u *DiscordChannelUpsert) UpdateName() *DiscordChannelUpsert {
+	u.SetExcluded(discordchannel.FieldName)
+	return u
+}
+
+// SetType sets the "type" field.
+func (u *DiscordChannelUpsert) SetType(v discord.ChannelType) *DiscordChannelUpsert {
+	u.Set(discordchannel.FieldType, v)
+	return u
+}
+
+// UpdateType sets the "type" field to the value that was provided on create.
+func (u *DiscordChannelUpsert) UpdateType() *DiscordChannelUpsert {
+	u.SetExcluded(discordchannel.FieldType)
+	return u
+}
+
+// AddType adds v to the "type" field.
+func (u *DiscordChannelUpsert) AddType(v discord.ChannelType) *DiscordChannelUpsert {
+	u.Add(discordchannel.FieldType, v)
+	return u
+}
+
+// SetNsfw sets the "nsfw" field.
+func (u *DiscordChannelUpsert) SetNsfw(v bool) *DiscordChannelUpsert {
+	u.Set(discordchannel.FieldNsfw, v)
+	return u
+}
+
+// UpdateNsfw sets the "nsfw" field to the value that was provided on create.
+func (u *DiscordChannelUpsert) UpdateNsfw() *DiscordChannelUpsert {
+	u.SetExcluded(discordchannel.FieldNsfw)
+	return u
+}
+
+// SetFlags sets the "flags" field.
+func (u *DiscordChannelUpsert) SetFlags(v int) *DiscordChannelUpsert {
+	u.Set(discordchannel.FieldFlags, v)
+	return u
+}
+
+// UpdateFlags sets the "flags" field to the value that was provided on create.
+func (u *DiscordChannelUpsert) UpdateFlags() *DiscordChannelUpsert {
+	u.SetExcluded(discordchannel.FieldFlags)
+	return u
+}
+
+// AddFlags adds v to the "flags" field.
+func (u *DiscordChannelUpsert) AddFlags(v int) *DiscordChannelUpsert {
+	u.Add(discordchannel.FieldFlags, v)
+	return u
+}
+
+// ClearFlags clears the value of the "flags" field.
+func (u *DiscordChannelUpsert) ClearFlags() *DiscordChannelUpsert {
+	u.SetNull(discordchannel.FieldFlags)
+	return u
+}
+
+// UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
+// Using this option is equivalent to using:
+//
+//	client.DiscordChannel.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(discordchannel.FieldID)
+//			}),
+//		).
+//		Exec(ctx)
+func (u *DiscordChannelUpsertOne) UpdateNewValues() *DiscordChannelUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		if _, exists := u.create.mutation.ID(); exists {
+			s.SetIgnore(discordchannel.FieldID)
+		}
+		if _, exists := u.create.mutation.CreateTime(); exists {
+			s.SetIgnore(discordchannel.FieldCreateTime)
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.DiscordChannel.Create().
+//	    OnConflict(sql.ResolveWithIgnore()).
+//	    Exec(ctx)
+func (u *DiscordChannelUpsertOne) Ignore() *DiscordChannelUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *DiscordChannelUpsertOne) DoNothing() *DiscordChannelUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the DiscordChannelCreate.OnConflict
+// documentation for more info.
+func (u *DiscordChannelUpsertOne) Update(set func(*DiscordChannelUpsert)) *DiscordChannelUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&DiscordChannelUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetUpdateTime sets the "update_time" field.
+func (u *DiscordChannelUpsertOne) SetUpdateTime(v time.Time) *DiscordChannelUpsertOne {
+	return u.Update(func(s *DiscordChannelUpsert) {
+		s.SetUpdateTime(v)
+	})
+}
+
+// UpdateUpdateTime sets the "update_time" field to the value that was provided on create.
+func (u *DiscordChannelUpsertOne) UpdateUpdateTime() *DiscordChannelUpsertOne {
+	return u.Update(func(s *DiscordChannelUpsert) {
+		s.UpdateUpdateTime()
+	})
+}
+
+// SetDiscordid sets the "discordid" field.
+func (u *DiscordChannelUpsertOne) SetDiscordid(v string) *DiscordChannelUpsertOne {
+	return u.Update(func(s *DiscordChannelUpsert) {
+		s.SetDiscordid(v)
+	})
+}
+
+// UpdateDiscordid sets the "discordid" field to the value that was provided on create.
+func (u *DiscordChannelUpsertOne) UpdateDiscordid() *DiscordChannelUpsertOne {
+	return u.Update(func(s *DiscordChannelUpsert) {
+		s.UpdateDiscordid()
+	})
+}
+
+// SetName sets the "name" field.
+func (u *DiscordChannelUpsertOne) SetName(v string) *DiscordChannelUpsertOne {
+	return u.Update(func(s *DiscordChannelUpsert) {
+		s.SetName(v)
+	})
+}
+
+// UpdateName sets the "name" field to the value that was provided on create.
+func (u *DiscordChannelUpsertOne) UpdateName() *DiscordChannelUpsertOne {
+	return u.Update(func(s *DiscordChannelUpsert) {
+		s.UpdateName()
+	})
+}
+
+// SetType sets the "type" field.
+func (u *DiscordChannelUpsertOne) SetType(v discord.ChannelType) *DiscordChannelUpsertOne {
+	return u.Update(func(s *DiscordChannelUpsert) {
+		s.SetType(v)
+	})
+}
+
+// AddType adds v to the "type" field.
+func (u *DiscordChannelUpsertOne) AddType(v discord.ChannelType) *DiscordChannelUpsertOne {
+	return u.Update(func(s *DiscordChannelUpsert) {
+		s.AddType(v)
+	})
+}
+
+// UpdateType sets the "type" field to the value that was provided on create.
+func (u *DiscordChannelUpsertOne) UpdateType() *DiscordChannelUpsertOne {
+	return u.Update(func(s *DiscordChannelUpsert) {
+		s.UpdateType()
+	})
+}
+
+// SetNsfw sets the "nsfw" field.
+func (u *DiscordChannelUpsertOne) SetNsfw(v bool) *DiscordChannelUpsertOne {
+	return u.Update(func(s *DiscordChannelUpsert) {
+		s.SetNsfw(v)
+	})
+}
+
+// UpdateNsfw sets the "nsfw" field to the value that was provided on create.
+func (u *DiscordChannelUpsertOne) UpdateNsfw() *DiscordChannelUpsertOne {
+	return u.Update(func(s *DiscordChannelUpsert) {
+		s.UpdateNsfw()
+	})
+}
+
+// SetFlags sets the "flags" field.
+func (u *DiscordChannelUpsertOne) SetFlags(v int) *DiscordChannelUpsertOne {
+	return u.Update(func(s *DiscordChannelUpsert) {
+		s.SetFlags(v)
+	})
+}
+
+// AddFlags adds v to the "flags" field.
+func (u *DiscordChannelUpsertOne) AddFlags(v int) *DiscordChannelUpsertOne {
+	return u.Update(func(s *DiscordChannelUpsert) {
+		s.AddFlags(v)
+	})
+}
+
+// UpdateFlags sets the "flags" field to the value that was provided on create.
+func (u *DiscordChannelUpsertOne) UpdateFlags() *DiscordChannelUpsertOne {
+	return u.Update(func(s *DiscordChannelUpsert) {
+		s.UpdateFlags()
+	})
+}
+
+// ClearFlags clears the value of the "flags" field.
+func (u *DiscordChannelUpsertOne) ClearFlags() *DiscordChannelUpsertOne {
+	return u.Update(func(s *DiscordChannelUpsert) {
+		s.ClearFlags()
+	})
+}
+
+// Exec executes the query.
+func (u *DiscordChannelUpsertOne) Exec(ctx context.Context) error {
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for DiscordChannelCreate.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *DiscordChannelUpsertOne) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// Exec executes the UPSERT query and returns the inserted/updated ID.
+func (u *DiscordChannelUpsertOne) ID(ctx context.Context) (id uuid.UUID, err error) {
+	if u.create.driver.Dialect() == dialect.MySQL {
+		// In case of "ON CONFLICT", there is no way to get back non-numeric ID
+		// fields from the database since MySQL does not support the RETURNING clause.
+		return id, errors.New("ent: DiscordChannelUpsertOne.ID is not supported by MySQL driver. Use DiscordChannelUpsertOne.Exec instead")
+	}
+	node, err := u.create.Save(ctx)
+	if err != nil {
+		return id, err
+	}
+	return node.ID, nil
+}
+
+// IDX is like ID, but panics if an error occurs.
+func (u *DiscordChannelUpsertOne) IDX(ctx context.Context) uuid.UUID {
+	id, err := u.ID(ctx)
+	if err != nil {
+		panic(err)
+	}
+	return id
+}
+
 // DiscordChannelCreateBulk is the builder for creating many DiscordChannel entities in bulk.
 type DiscordChannelCreateBulk struct {
 	config
 	err      error
 	builders []*DiscordChannelCreate
+	conflict []sql.ConflictOption
 }
 
 // Save creates the DiscordChannel entities in the database.
@@ -347,6 +685,7 @@ func (_c *DiscordChannelCreateBulk) Save(ctx context.Context) ([]*DiscordChannel
 					_, err = mutators[i+1].Mutate(root, _c.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
+					spec.OnConflict = _c.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
 					if err = sqlgraph.BatchCreate(ctx, _c.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
@@ -393,6 +732,228 @@ func (_c *DiscordChannelCreateBulk) Exec(ctx context.Context) error {
 // ExecX is like Exec, but panics if an error occurs.
 func (_c *DiscordChannelCreateBulk) ExecX(ctx context.Context) {
 	if err := _c.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.DiscordChannel.CreateBulk(builders...).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.DiscordChannelUpsert) {
+//			SetCreateTime(v+v).
+//		}).
+//		Exec(ctx)
+func (_c *DiscordChannelCreateBulk) OnConflict(opts ...sql.ConflictOption) *DiscordChannelUpsertBulk {
+	_c.conflict = opts
+	return &DiscordChannelUpsertBulk{
+		create: _c,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.DiscordChannel.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (_c *DiscordChannelCreateBulk) OnConflictColumns(columns ...string) *DiscordChannelUpsertBulk {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
+	return &DiscordChannelUpsertBulk{
+		create: _c,
+	}
+}
+
+// DiscordChannelUpsertBulk is the builder for "upsert"-ing
+// a bulk of DiscordChannel nodes.
+type DiscordChannelUpsertBulk struct {
+	create *DiscordChannelCreateBulk
+}
+
+// UpdateNewValues updates the mutable fields using the new values that
+// were set on create. Using this option is equivalent to using:
+//
+//	client.DiscordChannel.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(discordchannel.FieldID)
+//			}),
+//		).
+//		Exec(ctx)
+func (u *DiscordChannelUpsertBulk) UpdateNewValues() *DiscordChannelUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		for _, b := range u.create.builders {
+			if _, exists := b.mutation.ID(); exists {
+				s.SetIgnore(discordchannel.FieldID)
+			}
+			if _, exists := b.mutation.CreateTime(); exists {
+				s.SetIgnore(discordchannel.FieldCreateTime)
+			}
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.DiscordChannel.Create().
+//		OnConflict(sql.ResolveWithIgnore()).
+//		Exec(ctx)
+func (u *DiscordChannelUpsertBulk) Ignore() *DiscordChannelUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *DiscordChannelUpsertBulk) DoNothing() *DiscordChannelUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the DiscordChannelCreateBulk.OnConflict
+// documentation for more info.
+func (u *DiscordChannelUpsertBulk) Update(set func(*DiscordChannelUpsert)) *DiscordChannelUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&DiscordChannelUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetUpdateTime sets the "update_time" field.
+func (u *DiscordChannelUpsertBulk) SetUpdateTime(v time.Time) *DiscordChannelUpsertBulk {
+	return u.Update(func(s *DiscordChannelUpsert) {
+		s.SetUpdateTime(v)
+	})
+}
+
+// UpdateUpdateTime sets the "update_time" field to the value that was provided on create.
+func (u *DiscordChannelUpsertBulk) UpdateUpdateTime() *DiscordChannelUpsertBulk {
+	return u.Update(func(s *DiscordChannelUpsert) {
+		s.UpdateUpdateTime()
+	})
+}
+
+// SetDiscordid sets the "discordid" field.
+func (u *DiscordChannelUpsertBulk) SetDiscordid(v string) *DiscordChannelUpsertBulk {
+	return u.Update(func(s *DiscordChannelUpsert) {
+		s.SetDiscordid(v)
+	})
+}
+
+// UpdateDiscordid sets the "discordid" field to the value that was provided on create.
+func (u *DiscordChannelUpsertBulk) UpdateDiscordid() *DiscordChannelUpsertBulk {
+	return u.Update(func(s *DiscordChannelUpsert) {
+		s.UpdateDiscordid()
+	})
+}
+
+// SetName sets the "name" field.
+func (u *DiscordChannelUpsertBulk) SetName(v string) *DiscordChannelUpsertBulk {
+	return u.Update(func(s *DiscordChannelUpsert) {
+		s.SetName(v)
+	})
+}
+
+// UpdateName sets the "name" field to the value that was provided on create.
+func (u *DiscordChannelUpsertBulk) UpdateName() *DiscordChannelUpsertBulk {
+	return u.Update(func(s *DiscordChannelUpsert) {
+		s.UpdateName()
+	})
+}
+
+// SetType sets the "type" field.
+func (u *DiscordChannelUpsertBulk) SetType(v discord.ChannelType) *DiscordChannelUpsertBulk {
+	return u.Update(func(s *DiscordChannelUpsert) {
+		s.SetType(v)
+	})
+}
+
+// AddType adds v to the "type" field.
+func (u *DiscordChannelUpsertBulk) AddType(v discord.ChannelType) *DiscordChannelUpsertBulk {
+	return u.Update(func(s *DiscordChannelUpsert) {
+		s.AddType(v)
+	})
+}
+
+// UpdateType sets the "type" field to the value that was provided on create.
+func (u *DiscordChannelUpsertBulk) UpdateType() *DiscordChannelUpsertBulk {
+	return u.Update(func(s *DiscordChannelUpsert) {
+		s.UpdateType()
+	})
+}
+
+// SetNsfw sets the "nsfw" field.
+func (u *DiscordChannelUpsertBulk) SetNsfw(v bool) *DiscordChannelUpsertBulk {
+	return u.Update(func(s *DiscordChannelUpsert) {
+		s.SetNsfw(v)
+	})
+}
+
+// UpdateNsfw sets the "nsfw" field to the value that was provided on create.
+func (u *DiscordChannelUpsertBulk) UpdateNsfw() *DiscordChannelUpsertBulk {
+	return u.Update(func(s *DiscordChannelUpsert) {
+		s.UpdateNsfw()
+	})
+}
+
+// SetFlags sets the "flags" field.
+func (u *DiscordChannelUpsertBulk) SetFlags(v int) *DiscordChannelUpsertBulk {
+	return u.Update(func(s *DiscordChannelUpsert) {
+		s.SetFlags(v)
+	})
+}
+
+// AddFlags adds v to the "flags" field.
+func (u *DiscordChannelUpsertBulk) AddFlags(v int) *DiscordChannelUpsertBulk {
+	return u.Update(func(s *DiscordChannelUpsert) {
+		s.AddFlags(v)
+	})
+}
+
+// UpdateFlags sets the "flags" field to the value that was provided on create.
+func (u *DiscordChannelUpsertBulk) UpdateFlags() *DiscordChannelUpsertBulk {
+	return u.Update(func(s *DiscordChannelUpsert) {
+		s.UpdateFlags()
+	})
+}
+
+// ClearFlags clears the value of the "flags" field.
+func (u *DiscordChannelUpsertBulk) ClearFlags() *DiscordChannelUpsertBulk {
+	return u.Update(func(s *DiscordChannelUpsert) {
+		s.ClearFlags()
+	})
+}
+
+// Exec executes the query.
+func (u *DiscordChannelUpsertBulk) Exec(ctx context.Context) error {
+	if u.create.err != nil {
+		return u.create.err
+	}
+	for i, b := range u.create.builders {
+		if len(b.conflict) != 0 {
+			return fmt.Errorf("ent: OnConflict was set for builder %d. Set it on the DiscordChannelCreateBulk instead", i)
+		}
+	}
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for DiscordChannelCreateBulk.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *DiscordChannelUpsertBulk) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
 		panic(err)
 	}
 }

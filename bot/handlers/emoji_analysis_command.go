@@ -8,6 +8,8 @@ import (
 	"github.com/bwmarrin/discordgo"
 	"github.com/h3mmy/bloopyboi/bot/services"
 	"github.com/h3mmy/bloopyboi/internal/models"
+	log "github.com/h3mmy/bloopyboi/pkg/logs"
+	"go.uber.org/zap"
 )
 
 const (
@@ -15,19 +17,46 @@ const (
 )
 
 type AnalyzeEmojiCommand struct {
-	discordSvc *services.DiscordService
+	meta        models.BloopyMeta
+	Name        string
+	Description string
+	guildId string
+	logger      *zap.Logger
+	roles       []int64
+	discordSvc  *services.DiscordService
 }
 
 func NewAnalyzeEmojiCommand(discordSvc *services.DiscordService) *AnalyzeEmojiCommand {
 	return &AnalyzeEmojiCommand{
+		meta:       models.NewBloopyMeta(),
+		logger:     log.NewZapLogger().Named("analyze_emoji_command"),
+		Name: AnalyzeEmojiCommandName,
+		Description: "Analyze an emoji using an ML model",
 		discordSvc: discordSvc,
 	}
+}
+
+// WithGuild sets the guild ID for the command.
+func (c *AnalyzeEmojiCommand) WithGuild(guildId string) *AnalyzeEmojiCommand {
+	c.guildId = guildId
+	return c
+}
+
+// WithRoles sets the allowed roles for the command.
+func (b *AnalyzeEmojiCommand) WithRoles(roles ...int64) *AnalyzeEmojiCommand {
+	b.roles = roles
+	return b
+}
+
+// GetAllowedRoles returns the allowed roles for the command.
+func (b *AnalyzeEmojiCommand) GetAllowedRoles() []int64 {
+	return b.roles
 }
 
 func (c *AnalyzeEmojiCommand) GetAppCommand() *discordgo.ApplicationCommand {
 	return &discordgo.ApplicationCommand{
 		Name:        AnalyzeEmojiCommandName,
-		Description: "Analyze an emoji using Google Vision AI",
+		Description: "Analyze an emoji using an ML model",
 		Options: []*discordgo.ApplicationCommandOption{
 			{
 				Type:        discordgo.ApplicationCommandOptionString,
@@ -78,14 +107,6 @@ func (c *AnalyzeEmojiCommand) GetAppCommandHandler() func(s *discordgo.Session, 
 	}
 }
 
-func (c *AnalyzeEmojiCommand) WithGuild(guildID string) models.DiscordAppCommand {
-	return c
-}
-
 func (c *AnalyzeEmojiCommand) GetGuildID() string {
-	return ""
-}
-
-func (c *AnalyzeEmojiCommand) GetAllowedRoles() []int64 {
-	return nil
+	return c.guildId
 }

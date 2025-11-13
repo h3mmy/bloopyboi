@@ -45,7 +45,10 @@ type DiscordGuildEdges struct {
 	GuildChannels []*DiscordChannel `json:"guild_channels,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [3]bool
+	loadedTypes          [3]bool
+	namedMembers         map[string][]*DiscordUser
+	namedDiscordMessages map[string][]*DiscordMessage
+	namedGuildChannels   map[string][]*DiscordChannel
 }
 
 // MembersOrErr returns the Members value or an error if the edge
@@ -213,6 +216,78 @@ func (_m *DiscordGuild) String() string {
 	builder.WriteString(fmt.Sprintf("%v", _m.NsfwLevel))
 	builder.WriteByte(')')
 	return builder.String()
+}
+
+// NamedMembers returns the Members named value or an error if the edge was not
+// loaded in eager-loading with this name.
+func (_m *DiscordGuild) NamedMembers(name string) ([]*DiscordUser, error) {
+	if _m.Edges.namedMembers == nil {
+		return nil, &NotLoadedError{edge: name}
+	}
+	nodes, ok := _m.Edges.namedMembers[name]
+	if !ok {
+		return nil, &NotLoadedError{edge: name}
+	}
+	return nodes, nil
+}
+
+func (_m *DiscordGuild) appendNamedMembers(name string, edges ...*DiscordUser) {
+	if _m.Edges.namedMembers == nil {
+		_m.Edges.namedMembers = make(map[string][]*DiscordUser)
+	}
+	if len(edges) == 0 {
+		_m.Edges.namedMembers[name] = []*DiscordUser{}
+	} else {
+		_m.Edges.namedMembers[name] = append(_m.Edges.namedMembers[name], edges...)
+	}
+}
+
+// NamedDiscordMessages returns the DiscordMessages named value or an error if the edge was not
+// loaded in eager-loading with this name.
+func (_m *DiscordGuild) NamedDiscordMessages(name string) ([]*DiscordMessage, error) {
+	if _m.Edges.namedDiscordMessages == nil {
+		return nil, &NotLoadedError{edge: name}
+	}
+	nodes, ok := _m.Edges.namedDiscordMessages[name]
+	if !ok {
+		return nil, &NotLoadedError{edge: name}
+	}
+	return nodes, nil
+}
+
+func (_m *DiscordGuild) appendNamedDiscordMessages(name string, edges ...*DiscordMessage) {
+	if _m.Edges.namedDiscordMessages == nil {
+		_m.Edges.namedDiscordMessages = make(map[string][]*DiscordMessage)
+	}
+	if len(edges) == 0 {
+		_m.Edges.namedDiscordMessages[name] = []*DiscordMessage{}
+	} else {
+		_m.Edges.namedDiscordMessages[name] = append(_m.Edges.namedDiscordMessages[name], edges...)
+	}
+}
+
+// NamedGuildChannels returns the GuildChannels named value or an error if the edge was not
+// loaded in eager-loading with this name.
+func (_m *DiscordGuild) NamedGuildChannels(name string) ([]*DiscordChannel, error) {
+	if _m.Edges.namedGuildChannels == nil {
+		return nil, &NotLoadedError{edge: name}
+	}
+	nodes, ok := _m.Edges.namedGuildChannels[name]
+	if !ok {
+		return nil, &NotLoadedError{edge: name}
+	}
+	return nodes, nil
+}
+
+func (_m *DiscordGuild) appendNamedGuildChannels(name string, edges ...*DiscordChannel) {
+	if _m.Edges.namedGuildChannels == nil {
+		_m.Edges.namedGuildChannels = make(map[string][]*DiscordChannel)
+	}
+	if len(edges) == 0 {
+		_m.Edges.namedGuildChannels[name] = []*DiscordChannel{}
+	} else {
+		_m.Edges.namedGuildChannels[name] = append(_m.Edges.namedGuildChannels[name], edges...)
+	}
 }
 
 // DiscordGuilds is a parsable slice of DiscordGuild.

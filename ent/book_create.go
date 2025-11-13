@@ -7,6 +7,8 @@ import (
 	"errors"
 	"fmt"
 
+	"entgo.io/ent/dialect"
+	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
@@ -20,6 +22,7 @@ type BookCreate struct {
 	config
 	mutation *BookMutation
 	hooks    []Hook
+	conflict []sql.ConflictOption
 }
 
 // SetTitle sets the "title" field.
@@ -246,6 +249,7 @@ func (_c *BookCreate) createSpec() (*Book, *sqlgraph.CreateSpec) {
 		_node = &Book{config: _c.config}
 		_spec = sqlgraph.NewCreateSpec(book.Table, sqlgraph.NewFieldSpec(book.FieldID, field.TypeUUID))
 	)
+	_spec.OnConflict = _c.conflict
 	if id, ok := _c.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = &id
@@ -317,11 +321,433 @@ func (_c *BookCreate) createSpec() (*Book, *sqlgraph.CreateSpec) {
 	return _node, _spec
 }
 
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.Book.Create().
+//		SetTitle(v).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.BookUpsert) {
+//			SetTitle(v+v).
+//		}).
+//		Exec(ctx)
+func (_c *BookCreate) OnConflict(opts ...sql.ConflictOption) *BookUpsertOne {
+	_c.conflict = opts
+	return &BookUpsertOne{
+		create: _c,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.Book.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (_c *BookCreate) OnConflictColumns(columns ...string) *BookUpsertOne {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
+	return &BookUpsertOne{
+		create: _c,
+	}
+}
+
+type (
+	// BookUpsertOne is the builder for "upsert"-ing
+	//  one Book node.
+	BookUpsertOne struct {
+		create *BookCreate
+	}
+
+	// BookUpsert is the "OnConflict" setter.
+	BookUpsert struct {
+		*sql.UpdateSet
+	}
+)
+
+// SetTitle sets the "title" field.
+func (u *BookUpsert) SetTitle(v string) *BookUpsert {
+	u.Set(book.FieldTitle, v)
+	return u
+}
+
+// UpdateTitle sets the "title" field to the value that was provided on create.
+func (u *BookUpsert) UpdateTitle() *BookUpsert {
+	u.SetExcluded(book.FieldTitle)
+	return u
+}
+
+// SetDescription sets the "description" field.
+func (u *BookUpsert) SetDescription(v string) *BookUpsert {
+	u.Set(book.FieldDescription, v)
+	return u
+}
+
+// UpdateDescription sets the "description" field to the value that was provided on create.
+func (u *BookUpsert) UpdateDescription() *BookUpsert {
+	u.SetExcluded(book.FieldDescription)
+	return u
+}
+
+// ClearDescription clears the value of the "description" field.
+func (u *BookUpsert) ClearDescription() *BookUpsert {
+	u.SetNull(book.FieldDescription)
+	return u
+}
+
+// SetGoodreadsID sets the "goodreads_id" field.
+func (u *BookUpsert) SetGoodreadsID(v string) *BookUpsert {
+	u.Set(book.FieldGoodreadsID, v)
+	return u
+}
+
+// UpdateGoodreadsID sets the "goodreads_id" field to the value that was provided on create.
+func (u *BookUpsert) UpdateGoodreadsID() *BookUpsert {
+	u.SetExcluded(book.FieldGoodreadsID)
+	return u
+}
+
+// ClearGoodreadsID clears the value of the "goodreads_id" field.
+func (u *BookUpsert) ClearGoodreadsID() *BookUpsert {
+	u.SetNull(book.FieldGoodreadsID)
+	return u
+}
+
+// SetGoogleVolumeID sets the "google_volume_id" field.
+func (u *BookUpsert) SetGoogleVolumeID(v string) *BookUpsert {
+	u.Set(book.FieldGoogleVolumeID, v)
+	return u
+}
+
+// UpdateGoogleVolumeID sets the "google_volume_id" field to the value that was provided on create.
+func (u *BookUpsert) UpdateGoogleVolumeID() *BookUpsert {
+	u.SetExcluded(book.FieldGoogleVolumeID)
+	return u
+}
+
+// SetIsbn10 sets the "isbn_10" field.
+func (u *BookUpsert) SetIsbn10(v string) *BookUpsert {
+	u.Set(book.FieldIsbn10, v)
+	return u
+}
+
+// UpdateIsbn10 sets the "isbn_10" field to the value that was provided on create.
+func (u *BookUpsert) UpdateIsbn10() *BookUpsert {
+	u.SetExcluded(book.FieldIsbn10)
+	return u
+}
+
+// ClearIsbn10 clears the value of the "isbn_10" field.
+func (u *BookUpsert) ClearIsbn10() *BookUpsert {
+	u.SetNull(book.FieldIsbn10)
+	return u
+}
+
+// SetIsbn13 sets the "isbn_13" field.
+func (u *BookUpsert) SetIsbn13(v string) *BookUpsert {
+	u.Set(book.FieldIsbn13, v)
+	return u
+}
+
+// UpdateIsbn13 sets the "isbn_13" field to the value that was provided on create.
+func (u *BookUpsert) UpdateIsbn13() *BookUpsert {
+	u.SetExcluded(book.FieldIsbn13)
+	return u
+}
+
+// ClearIsbn13 clears the value of the "isbn_13" field.
+func (u *BookUpsert) ClearIsbn13() *BookUpsert {
+	u.SetNull(book.FieldIsbn13)
+	return u
+}
+
+// SetPublisher sets the "publisher" field.
+func (u *BookUpsert) SetPublisher(v string) *BookUpsert {
+	u.Set(book.FieldPublisher, v)
+	return u
+}
+
+// UpdatePublisher sets the "publisher" field to the value that was provided on create.
+func (u *BookUpsert) UpdatePublisher() *BookUpsert {
+	u.SetExcluded(book.FieldPublisher)
+	return u
+}
+
+// ClearPublisher clears the value of the "publisher" field.
+func (u *BookUpsert) ClearPublisher() *BookUpsert {
+	u.SetNull(book.FieldPublisher)
+	return u
+}
+
+// SetImageURL sets the "image_url" field.
+func (u *BookUpsert) SetImageURL(v string) *BookUpsert {
+	u.Set(book.FieldImageURL, v)
+	return u
+}
+
+// UpdateImageURL sets the "image_url" field to the value that was provided on create.
+func (u *BookUpsert) UpdateImageURL() *BookUpsert {
+	u.SetExcluded(book.FieldImageURL)
+	return u
+}
+
+// ClearImageURL clears the value of the "image_url" field.
+func (u *BookUpsert) ClearImageURL() *BookUpsert {
+	u.SetNull(book.FieldImageURL)
+	return u
+}
+
+// UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
+// Using this option is equivalent to using:
+//
+//	client.Book.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(book.FieldID)
+//			}),
+//		).
+//		Exec(ctx)
+func (u *BookUpsertOne) UpdateNewValues() *BookUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		if _, exists := u.create.mutation.ID(); exists {
+			s.SetIgnore(book.FieldID)
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.Book.Create().
+//	    OnConflict(sql.ResolveWithIgnore()).
+//	    Exec(ctx)
+func (u *BookUpsertOne) Ignore() *BookUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *BookUpsertOne) DoNothing() *BookUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the BookCreate.OnConflict
+// documentation for more info.
+func (u *BookUpsertOne) Update(set func(*BookUpsert)) *BookUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&BookUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetTitle sets the "title" field.
+func (u *BookUpsertOne) SetTitle(v string) *BookUpsertOne {
+	return u.Update(func(s *BookUpsert) {
+		s.SetTitle(v)
+	})
+}
+
+// UpdateTitle sets the "title" field to the value that was provided on create.
+func (u *BookUpsertOne) UpdateTitle() *BookUpsertOne {
+	return u.Update(func(s *BookUpsert) {
+		s.UpdateTitle()
+	})
+}
+
+// SetDescription sets the "description" field.
+func (u *BookUpsertOne) SetDescription(v string) *BookUpsertOne {
+	return u.Update(func(s *BookUpsert) {
+		s.SetDescription(v)
+	})
+}
+
+// UpdateDescription sets the "description" field to the value that was provided on create.
+func (u *BookUpsertOne) UpdateDescription() *BookUpsertOne {
+	return u.Update(func(s *BookUpsert) {
+		s.UpdateDescription()
+	})
+}
+
+// ClearDescription clears the value of the "description" field.
+func (u *BookUpsertOne) ClearDescription() *BookUpsertOne {
+	return u.Update(func(s *BookUpsert) {
+		s.ClearDescription()
+	})
+}
+
+// SetGoodreadsID sets the "goodreads_id" field.
+func (u *BookUpsertOne) SetGoodreadsID(v string) *BookUpsertOne {
+	return u.Update(func(s *BookUpsert) {
+		s.SetGoodreadsID(v)
+	})
+}
+
+// UpdateGoodreadsID sets the "goodreads_id" field to the value that was provided on create.
+func (u *BookUpsertOne) UpdateGoodreadsID() *BookUpsertOne {
+	return u.Update(func(s *BookUpsert) {
+		s.UpdateGoodreadsID()
+	})
+}
+
+// ClearGoodreadsID clears the value of the "goodreads_id" field.
+func (u *BookUpsertOne) ClearGoodreadsID() *BookUpsertOne {
+	return u.Update(func(s *BookUpsert) {
+		s.ClearGoodreadsID()
+	})
+}
+
+// SetGoogleVolumeID sets the "google_volume_id" field.
+func (u *BookUpsertOne) SetGoogleVolumeID(v string) *BookUpsertOne {
+	return u.Update(func(s *BookUpsert) {
+		s.SetGoogleVolumeID(v)
+	})
+}
+
+// UpdateGoogleVolumeID sets the "google_volume_id" field to the value that was provided on create.
+func (u *BookUpsertOne) UpdateGoogleVolumeID() *BookUpsertOne {
+	return u.Update(func(s *BookUpsert) {
+		s.UpdateGoogleVolumeID()
+	})
+}
+
+// SetIsbn10 sets the "isbn_10" field.
+func (u *BookUpsertOne) SetIsbn10(v string) *BookUpsertOne {
+	return u.Update(func(s *BookUpsert) {
+		s.SetIsbn10(v)
+	})
+}
+
+// UpdateIsbn10 sets the "isbn_10" field to the value that was provided on create.
+func (u *BookUpsertOne) UpdateIsbn10() *BookUpsertOne {
+	return u.Update(func(s *BookUpsert) {
+		s.UpdateIsbn10()
+	})
+}
+
+// ClearIsbn10 clears the value of the "isbn_10" field.
+func (u *BookUpsertOne) ClearIsbn10() *BookUpsertOne {
+	return u.Update(func(s *BookUpsert) {
+		s.ClearIsbn10()
+	})
+}
+
+// SetIsbn13 sets the "isbn_13" field.
+func (u *BookUpsertOne) SetIsbn13(v string) *BookUpsertOne {
+	return u.Update(func(s *BookUpsert) {
+		s.SetIsbn13(v)
+	})
+}
+
+// UpdateIsbn13 sets the "isbn_13" field to the value that was provided on create.
+func (u *BookUpsertOne) UpdateIsbn13() *BookUpsertOne {
+	return u.Update(func(s *BookUpsert) {
+		s.UpdateIsbn13()
+	})
+}
+
+// ClearIsbn13 clears the value of the "isbn_13" field.
+func (u *BookUpsertOne) ClearIsbn13() *BookUpsertOne {
+	return u.Update(func(s *BookUpsert) {
+		s.ClearIsbn13()
+	})
+}
+
+// SetPublisher sets the "publisher" field.
+func (u *BookUpsertOne) SetPublisher(v string) *BookUpsertOne {
+	return u.Update(func(s *BookUpsert) {
+		s.SetPublisher(v)
+	})
+}
+
+// UpdatePublisher sets the "publisher" field to the value that was provided on create.
+func (u *BookUpsertOne) UpdatePublisher() *BookUpsertOne {
+	return u.Update(func(s *BookUpsert) {
+		s.UpdatePublisher()
+	})
+}
+
+// ClearPublisher clears the value of the "publisher" field.
+func (u *BookUpsertOne) ClearPublisher() *BookUpsertOne {
+	return u.Update(func(s *BookUpsert) {
+		s.ClearPublisher()
+	})
+}
+
+// SetImageURL sets the "image_url" field.
+func (u *BookUpsertOne) SetImageURL(v string) *BookUpsertOne {
+	return u.Update(func(s *BookUpsert) {
+		s.SetImageURL(v)
+	})
+}
+
+// UpdateImageURL sets the "image_url" field to the value that was provided on create.
+func (u *BookUpsertOne) UpdateImageURL() *BookUpsertOne {
+	return u.Update(func(s *BookUpsert) {
+		s.UpdateImageURL()
+	})
+}
+
+// ClearImageURL clears the value of the "image_url" field.
+func (u *BookUpsertOne) ClearImageURL() *BookUpsertOne {
+	return u.Update(func(s *BookUpsert) {
+		s.ClearImageURL()
+	})
+}
+
+// Exec executes the query.
+func (u *BookUpsertOne) Exec(ctx context.Context) error {
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for BookCreate.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *BookUpsertOne) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// Exec executes the UPSERT query and returns the inserted/updated ID.
+func (u *BookUpsertOne) ID(ctx context.Context) (id uuid.UUID, err error) {
+	if u.create.driver.Dialect() == dialect.MySQL {
+		// In case of "ON CONFLICT", there is no way to get back non-numeric ID
+		// fields from the database since MySQL does not support the RETURNING clause.
+		return id, errors.New("ent: BookUpsertOne.ID is not supported by MySQL driver. Use BookUpsertOne.Exec instead")
+	}
+	node, err := u.create.Save(ctx)
+	if err != nil {
+		return id, err
+	}
+	return node.ID, nil
+}
+
+// IDX is like ID, but panics if an error occurs.
+func (u *BookUpsertOne) IDX(ctx context.Context) uuid.UUID {
+	id, err := u.ID(ctx)
+	if err != nil {
+		panic(err)
+	}
+	return id
+}
+
 // BookCreateBulk is the builder for creating many Book entities in bulk.
 type BookCreateBulk struct {
 	config
 	err      error
 	builders []*BookCreate
+	conflict []sql.ConflictOption
 }
 
 // Save creates the Book entities in the database.
@@ -351,6 +777,7 @@ func (_c *BookCreateBulk) Save(ctx context.Context) ([]*Book, error) {
 					_, err = mutators[i+1].Mutate(root, _c.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
+					spec.OnConflict = _c.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
 					if err = sqlgraph.BatchCreate(ctx, _c.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
@@ -397,6 +824,274 @@ func (_c *BookCreateBulk) Exec(ctx context.Context) error {
 // ExecX is like Exec, but panics if an error occurs.
 func (_c *BookCreateBulk) ExecX(ctx context.Context) {
 	if err := _c.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.Book.CreateBulk(builders...).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.BookUpsert) {
+//			SetTitle(v+v).
+//		}).
+//		Exec(ctx)
+func (_c *BookCreateBulk) OnConflict(opts ...sql.ConflictOption) *BookUpsertBulk {
+	_c.conflict = opts
+	return &BookUpsertBulk{
+		create: _c,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.Book.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (_c *BookCreateBulk) OnConflictColumns(columns ...string) *BookUpsertBulk {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
+	return &BookUpsertBulk{
+		create: _c,
+	}
+}
+
+// BookUpsertBulk is the builder for "upsert"-ing
+// a bulk of Book nodes.
+type BookUpsertBulk struct {
+	create *BookCreateBulk
+}
+
+// UpdateNewValues updates the mutable fields using the new values that
+// were set on create. Using this option is equivalent to using:
+//
+//	client.Book.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(book.FieldID)
+//			}),
+//		).
+//		Exec(ctx)
+func (u *BookUpsertBulk) UpdateNewValues() *BookUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		for _, b := range u.create.builders {
+			if _, exists := b.mutation.ID(); exists {
+				s.SetIgnore(book.FieldID)
+			}
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.Book.Create().
+//		OnConflict(sql.ResolveWithIgnore()).
+//		Exec(ctx)
+func (u *BookUpsertBulk) Ignore() *BookUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *BookUpsertBulk) DoNothing() *BookUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the BookCreateBulk.OnConflict
+// documentation for more info.
+func (u *BookUpsertBulk) Update(set func(*BookUpsert)) *BookUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&BookUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetTitle sets the "title" field.
+func (u *BookUpsertBulk) SetTitle(v string) *BookUpsertBulk {
+	return u.Update(func(s *BookUpsert) {
+		s.SetTitle(v)
+	})
+}
+
+// UpdateTitle sets the "title" field to the value that was provided on create.
+func (u *BookUpsertBulk) UpdateTitle() *BookUpsertBulk {
+	return u.Update(func(s *BookUpsert) {
+		s.UpdateTitle()
+	})
+}
+
+// SetDescription sets the "description" field.
+func (u *BookUpsertBulk) SetDescription(v string) *BookUpsertBulk {
+	return u.Update(func(s *BookUpsert) {
+		s.SetDescription(v)
+	})
+}
+
+// UpdateDescription sets the "description" field to the value that was provided on create.
+func (u *BookUpsertBulk) UpdateDescription() *BookUpsertBulk {
+	return u.Update(func(s *BookUpsert) {
+		s.UpdateDescription()
+	})
+}
+
+// ClearDescription clears the value of the "description" field.
+func (u *BookUpsertBulk) ClearDescription() *BookUpsertBulk {
+	return u.Update(func(s *BookUpsert) {
+		s.ClearDescription()
+	})
+}
+
+// SetGoodreadsID sets the "goodreads_id" field.
+func (u *BookUpsertBulk) SetGoodreadsID(v string) *BookUpsertBulk {
+	return u.Update(func(s *BookUpsert) {
+		s.SetGoodreadsID(v)
+	})
+}
+
+// UpdateGoodreadsID sets the "goodreads_id" field to the value that was provided on create.
+func (u *BookUpsertBulk) UpdateGoodreadsID() *BookUpsertBulk {
+	return u.Update(func(s *BookUpsert) {
+		s.UpdateGoodreadsID()
+	})
+}
+
+// ClearGoodreadsID clears the value of the "goodreads_id" field.
+func (u *BookUpsertBulk) ClearGoodreadsID() *BookUpsertBulk {
+	return u.Update(func(s *BookUpsert) {
+		s.ClearGoodreadsID()
+	})
+}
+
+// SetGoogleVolumeID sets the "google_volume_id" field.
+func (u *BookUpsertBulk) SetGoogleVolumeID(v string) *BookUpsertBulk {
+	return u.Update(func(s *BookUpsert) {
+		s.SetGoogleVolumeID(v)
+	})
+}
+
+// UpdateGoogleVolumeID sets the "google_volume_id" field to the value that was provided on create.
+func (u *BookUpsertBulk) UpdateGoogleVolumeID() *BookUpsertBulk {
+	return u.Update(func(s *BookUpsert) {
+		s.UpdateGoogleVolumeID()
+	})
+}
+
+// SetIsbn10 sets the "isbn_10" field.
+func (u *BookUpsertBulk) SetIsbn10(v string) *BookUpsertBulk {
+	return u.Update(func(s *BookUpsert) {
+		s.SetIsbn10(v)
+	})
+}
+
+// UpdateIsbn10 sets the "isbn_10" field to the value that was provided on create.
+func (u *BookUpsertBulk) UpdateIsbn10() *BookUpsertBulk {
+	return u.Update(func(s *BookUpsert) {
+		s.UpdateIsbn10()
+	})
+}
+
+// ClearIsbn10 clears the value of the "isbn_10" field.
+func (u *BookUpsertBulk) ClearIsbn10() *BookUpsertBulk {
+	return u.Update(func(s *BookUpsert) {
+		s.ClearIsbn10()
+	})
+}
+
+// SetIsbn13 sets the "isbn_13" field.
+func (u *BookUpsertBulk) SetIsbn13(v string) *BookUpsertBulk {
+	return u.Update(func(s *BookUpsert) {
+		s.SetIsbn13(v)
+	})
+}
+
+// UpdateIsbn13 sets the "isbn_13" field to the value that was provided on create.
+func (u *BookUpsertBulk) UpdateIsbn13() *BookUpsertBulk {
+	return u.Update(func(s *BookUpsert) {
+		s.UpdateIsbn13()
+	})
+}
+
+// ClearIsbn13 clears the value of the "isbn_13" field.
+func (u *BookUpsertBulk) ClearIsbn13() *BookUpsertBulk {
+	return u.Update(func(s *BookUpsert) {
+		s.ClearIsbn13()
+	})
+}
+
+// SetPublisher sets the "publisher" field.
+func (u *BookUpsertBulk) SetPublisher(v string) *BookUpsertBulk {
+	return u.Update(func(s *BookUpsert) {
+		s.SetPublisher(v)
+	})
+}
+
+// UpdatePublisher sets the "publisher" field to the value that was provided on create.
+func (u *BookUpsertBulk) UpdatePublisher() *BookUpsertBulk {
+	return u.Update(func(s *BookUpsert) {
+		s.UpdatePublisher()
+	})
+}
+
+// ClearPublisher clears the value of the "publisher" field.
+func (u *BookUpsertBulk) ClearPublisher() *BookUpsertBulk {
+	return u.Update(func(s *BookUpsert) {
+		s.ClearPublisher()
+	})
+}
+
+// SetImageURL sets the "image_url" field.
+func (u *BookUpsertBulk) SetImageURL(v string) *BookUpsertBulk {
+	return u.Update(func(s *BookUpsert) {
+		s.SetImageURL(v)
+	})
+}
+
+// UpdateImageURL sets the "image_url" field to the value that was provided on create.
+func (u *BookUpsertBulk) UpdateImageURL() *BookUpsertBulk {
+	return u.Update(func(s *BookUpsert) {
+		s.UpdateImageURL()
+	})
+}
+
+// ClearImageURL clears the value of the "image_url" field.
+func (u *BookUpsertBulk) ClearImageURL() *BookUpsertBulk {
+	return u.Update(func(s *BookUpsert) {
+		s.ClearImageURL()
+	})
+}
+
+// Exec executes the query.
+func (u *BookUpsertBulk) Exec(ctx context.Context) error {
+	if u.create.err != nil {
+		return u.create.err
+	}
+	for i, b := range u.create.builders {
+		if len(b.conflict) != 0 {
+			return fmt.Errorf("ent: OnConflict was set for builder %d. Set it on the BookCreateBulk instead", i)
+		}
+	}
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for BookCreateBulk.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *BookUpsertBulk) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
