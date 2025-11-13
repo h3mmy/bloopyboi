@@ -121,7 +121,7 @@ require (
 	entgo.io/ent v0.14.5
 	github.com/alexliesenfeld/health v0.8.1
 	github.com/fsnotify/fsnotify v1.9.0
-	github.com/go-openapi/runtime v0.29.1
+	github.com/go-openapi/runtime v0.29.2
 	github.com/google/uuid v1.6.0
 	github.com/gorilla/websocket v1.5.4-0.20250319132907-e064f32e3674 // indirect
 	github.com/jackc/pgx/v5 v5.7.6
