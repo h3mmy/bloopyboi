@@ -21,7 +21,7 @@ type InspiroCommand struct {
 func NewInspiroCommand(svc *services.InspiroService) *InspiroCommand {
 	return &InspiroCommand{
 		meta:        models.NewBloopyMeta(),
-		Name:        "inspire",
+		Name:        string(Inspiro),
 		Description: "Summons Inspiration",
 		inspiroSvc:  svc,
 		logger:      log.NewZapLogger().Named("inspiro_command"),

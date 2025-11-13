@@ -27,7 +27,7 @@ type UserRequestCommand struct {
 func NewUserRequestCommand(bookSvc *services.BookService) *UserRequestCommand {
 	return &UserRequestCommand{
 		meta:        models.NewBloopyMeta(),
-		Name:        "requests",
+		Name:        string(Requests),
 		Description: "(Xperimental) Get your requests",
 		bookSvc:     bookSvc,
 		logger:      log.NewZapLogger().Named("requests_command"),

@@ -12,10 +12,6 @@ import (
 	"go.uber.org/zap"
 )
 
-const (
-	AnalyzeEmojiCommandName = "analyze-emoji"
-)
-
 type AnalyzeEmojiCommand struct {
 	meta        models.BloopyMeta
 	Name        string
@@ -30,7 +26,7 @@ func NewAnalyzeEmojiCommand(imageAnalyzerSvc *services.ImageAnalyzerService) *An
 	return &AnalyzeEmojiCommand{
 		meta:       models.NewBloopyMeta(),
 		logger:     log.NewZapLogger().Named("analyze_emoji_command"),
-		Name: AnalyzeEmojiCommandName,
+		Name: string(AnalyzeEmoji),
 		Description: "Analyze an emoji using an ML model",
 		imageAnalyzingSvc: imageAnalyzerSvc,
 	}
@@ -55,8 +51,8 @@ func (b *AnalyzeEmojiCommand) GetAllowedRoles() []int64 {
 
 func (c *AnalyzeEmojiCommand) GetAppCommand() *discordgo.ApplicationCommand {
 	return &discordgo.ApplicationCommand{
-		Name:        AnalyzeEmojiCommandName,
-		Description: "Analyze an emoji using an ML model",
+		Name:        c.Name,
+		Description: c.Description,
 		Options: []*discordgo.ApplicationCommandOption{
 			{
 				Type:        discordgo.ApplicationCommandOptionString,

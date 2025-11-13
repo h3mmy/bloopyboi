@@ -550,19 +550,19 @@ func (d *DiscordService) IngestGuildEmojis(ctx context.Context, guildID string) 
 
 		d.logger.Info("analyzed emoji", zap.String("emoji_id", emoji.ID), zap.Strings("keywords", analysis.Keywords))
 
-		// if d.dbEnabled {
-		// 	err := d.db.Emoji.Create().
-		// 		SetEmojiID(emoji.ID).
-		// 		SetName(emoji.Name).
-		// 		SetAnimated(emoji.Animated).
-		// 		SetKeywords(analysis.Keywords).
-		// 		OnConflict(sql.ConflictColumns("emoji_id")).
-		// 		UpdateNewValues().
-		// 		Exec(ctx)
-		// 	if err != nil {
-		// 		d.logger.Error("failed to save emoji to db", zap.String("emoji_id", emoji.ID), zap.Error(err))
-		// 	}
-		// }
+		if d.dbEnabled {
+			err := d.db.Emoji.Create().
+				SetEmojiID(emoji.ID).
+				SetName(emoji.Name).
+				SetAnimated(emoji.Animated).
+				SetKeywords(analysis.Keywords).
+				OnConflict(sql.ConflictColumns("emoji_id")).
+				UpdateNewValues().
+				Exec(ctx)
+			if err != nil {
+				d.logger.Error("failed to save emoji to db", zap.String("emoji_id", emoji.ID), zap.Error(err))
+			}
+		}
 	}
 
 	return nil
