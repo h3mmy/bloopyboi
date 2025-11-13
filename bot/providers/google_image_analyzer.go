@@ -1,16 +1,14 @@
 package providers
 
 import (
-	"bytes"
 	"context"
 	"fmt"
 	"io"
 	"net/http"
 
-	vision "cloud.google.com/go/vision/apiv1"
+	vision "cloud.google.com/go/vision/v2/apiv1"
+	visionpb "cloud.google.com/go/vision/v2/apiv1/visionpb"
 	"github.com/h3mmy/bloopyboi/internal/models"
-	visionpb "google.golang.org/genproto/googleapis/cloud/vision/v1"
-
 	"google.golang.org/api/option"
 )
 
@@ -44,57 +42,63 @@ func (a *GoogleVisionAnalyzer) AnalyzeImageFromURL(ctx context.Context, url stri
 	}
 
 	// 2. Call the Vision API
-	image, err := vision.NewImageFromReader(bytes.NewReader(imageBytes))
-	if err != nil {
-		return nil, fmt.Errorf("failed to create vision image: %w", err)
+	image := &visionpb.Image{
+		Content: imageBytes,
 	}
 
 	// 3. Perform label and sentiment detection (simplified for this example)
-	labels, err := a.client.DetectLabels(ctx, image, nil, 10)
-	if err != nil {
-		return nil, fmt.Errorf("failed to detect labels: %w", err)
+	req := &visionpb.BatchAnnotateImagesRequest{
+		Requests: []*visionpb.AnnotateImageRequest{
+			{
+				Image: image,
+				Features: []*visionpb.Feature{
+					{
+						Type:       visionpb.Feature_LABEL_DETECTION,
+						MaxResults: 10,
+					},
+					{
+						Type: visionpb.Feature_SAFE_SEARCH_DETECTION,
+					},
+				},
+			},
+		},
 	}
+
+	res, err := a.client.BatchAnnotateImages(ctx, req)
+	if err != nil {
+		return nil, fmt.Errorf("failed to batch annotate images: %w", err)
+	}
+
+	if len(res.Responses) == 0 {
+		return nil, fmt.Errorf("no responses from vision api")
+	}
+
+	response := res.Responses[0]
 
 	analysis := &models.ImageAnalysis{
 		Keywords:  []string{},
-		Sentiment: 0.0, // Placeholder for sentiment logic
+		Sentiment: 0.0,
 	}
 
-	for _, label := range labels {
+	for _, label := range response.LabelAnnotations {
 		analysis.Keywords = append(analysis.Keywords, label.Description)
 	}
 
-	// Sentiment can be derived from face annotations, safe search, or dominant colors.
-	// This logic can be added here.
-	safeSearch, err := a.client.DetectSafeSearch(ctx, image, nil)
-	if err != nil {
-		return nil, fmt.Errorf("failed to detect safe search: %w", err)
-	}
-	analysis.Sentiment = calculateSentiment(safeSearch)
+	analysis.Sentiment = calculateSentiment(response.SafeSearchAnnotation)
 
 	return analysis, nil
 }
 
 // calculateSentiment derives a sentiment score from safe search annotations.
 func calculateSentiment(safeSearch *visionpb.SafeSearchAnnotation) float64 {
-	// This is a simple example. A more sophisticated model could be used.
-	// We'll assign negative scores for "bad" categories and positive for "good".
-	// The likelihoods are enums from UNKNOWN to VERY_LIKELY.
 	var score float64
 
-	// Negative contributors
 	score -= float64(safeSearch.Adult) * 0.25
 	score -= float64(safeSearch.Spoof) * 0.25
 	score -= float64(safeSearch.Medical) * 0.1
 	score -= float64(safeSearch.Violence) * 0.25
 	score -= float64(safeSearch.Racy) * 0.15
 
-	// Normalize the score to be between -1.0 and 1.0
-	// The max negative score is -5 (VERY_LIKELY for all) * 0.25 (avg weight) = -1.25 -> not quite
-	// Let's do it differently. The enum values are 0-5.
-	// Let's normalize the score to be within -1 and 1
-	// The maximum possible negative score is -(5*0.25 + 5*0.25 + 5*0.1 + 5*0.25 + 5*0.15) = -(1.25 + 1.25 + 0.5 + 1.25 + 0.75) = -5
-	// So we can divide by 5 to normalize.
 	return score / 5.0
 }
 

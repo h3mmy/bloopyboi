@@ -13,21 +13,6 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
-type DiscordHandlers struct {
-	discordSvc *services.DiscordService
-	inspiroSvc *services.InspiroService
-}
-
-func NewDiscordHandlers(
-	discordSvc *services.DiscordService,
-	inspiroSvc *services.InspiroService,
-) *DiscordHandlers {
-	return &DiscordHandlers{
-		discordSvc: discordSvc,
-		inspiroSvc: inspiroSvc,
-	}
-}
-
 var (
 	textResponseMap = map[string]string{
 		"pong":   "Ping!",
@@ -35,9 +20,9 @@ var (
 		"!bliss": "I use slash commands now. Try using /bliss",
 	}
 )
+
 // MessageChanBlooper is an experimental handler that processes messages and reactions from channels.
 // TODO: This is an experimental handler and should be refactored.
-
 type MessageChanBlooper struct {
 	msgCreateChan *chan *discordgo.MessageCreate
 	msgReactAChan *chan *discordgo.MessageReactionAdd
@@ -48,8 +33,8 @@ type MessageChanBlooper struct {
 	inspiroSvc    *services.InspiroService
 	discordSvc    *services.DiscordService
 }
-// NewMessageChanBlooper creates a new MessageChanBlooper.
 
+// NewMessageChanBlooper creates a new MessageChanBlooper.
 func NewMessageChanBlooper(
 	dService *services.DiscordService,
 	insproSvc *services.InspiroService,
@@ -76,6 +61,7 @@ func NewMessageChanBlooper(
 		msgRegistry:   make(map[string]*discordgo.Message),
 	}
 }
+
 // Start starts the MessageChanBlooper.
 func (mcb *MessageChanBlooper) Start(ctx context.Context) error {
 	for {
@@ -102,6 +88,7 @@ func (mcb *MessageChanBlooper) Start(ctx context.Context) error {
 		}
 	}
 }
+
 // processIncomingMessage processes an incoming message.
 func (mcb *MessageChanBlooper) processIncomingMessage(msg *discordgo.MessageCreate) {
 	logger := mcb.logger.With(zapcore.Field{Key: "method", Type: zapcore.StringType, String: "processIncomingMessage"})
@@ -124,11 +111,6 @@ func (mcb *MessageChanBlooper) processIncomingMessage(msg *discordgo.MessageCrea
 	}
 
 	// Check for inspiro request
-	if strings.HasPrefix(strings.ToLower(msg.Content), "!analyze-emoji") {
-		h := NewDiscordHandlers(mcb.discordSvc, mcb.inspiroSvc)
-		h.HandleAnalyzeEmojiCmd(mcb.discordSvc.GetSession(), msg)
-	}
-
 	if strings.ToLower(msg.Content) == "inspire" {
 		logger.Debug(
 			fmt.Sprintf(
