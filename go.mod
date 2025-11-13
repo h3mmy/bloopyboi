@@ -135,7 +135,7 @@ require (
 	golang.org/x/sync v0.18.0
 	golang.org/x/sys v0.38.0 // indirect
 	golang.org/x/text v0.30.0 // indirect
-	google.golang.org/api v0.255.0
+	google.golang.org/api v0.256.0
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	k8s.io/client-go v0.34.1
 	k8s.io/metrics v0.34.1
