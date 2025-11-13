@@ -6,9 +6,9 @@ const ApiKey = "apiKey"
 const AppURL = "appUrl"
 
 type ArrClientConfig struct {
-	Name string
-	Type string
-	URL string
+	Name   string
+	Type   string
+	URL    string
 	ApiKey string
 }
 

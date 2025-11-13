@@ -98,7 +98,7 @@ func (*DiscordGuild) scanValues(columns []string) ([]any, error) {
 
 // assignValues assigns the values that were returned from sql.Rows (after scanning)
 // to the DiscordGuild fields.
-func (dg *DiscordGuild) assignValues(columns []string, values []any) error {
+func (_m *DiscordGuild) assignValues(columns []string, values []any) error {
 	if m, n := len(values), len(columns); m < n {
 		return fmt.Errorf("mismatch number of scan values: %d != %d", m, n)
 	}
@@ -108,46 +108,46 @@ func (dg *DiscordGuild) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value != nil {
-				dg.ID = *value
+				_m.ID = *value
 			}
 		case discordguild.FieldDiscordid:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field discordid", values[i])
 			} else if value.Valid {
-				dg.Discordid = value.String
+				_m.Discordid = value.String
 			}
 		case discordguild.FieldName:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field name", values[i])
 			} else if value.Valid {
-				dg.Name = value.String
+				_m.Name = value.String
 			}
 		case discordguild.FieldDescription:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field description", values[i])
 			} else if value.Valid {
-				dg.Description = value.String
+				_m.Description = value.String
 			}
 		case discordguild.FieldRulesChannelID:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field rules_channel_id", values[i])
 			} else if value.Valid {
-				dg.RulesChannelID = value.String
+				_m.RulesChannelID = value.String
 			}
 		case discordguild.FieldPublicUpdatesChannelID:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field public_updates_channel_id", values[i])
 			} else if value.Valid {
-				dg.PublicUpdatesChannelID = value.String
+				_m.PublicUpdatesChannelID = value.String
 			}
 		case discordguild.FieldNsfwLevel:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field nsfw_level", values[i])
 			} else if value.Valid {
-				dg.NsfwLevel = int(value.Int64)
+				_m.NsfwLevel = int(value.Int64)
 			}
 		default:
-			dg.selectValues.Set(columns[i], values[i])
+			_m.selectValues.Set(columns[i], values[i])
 		}
 	}
 	return nil
@@ -155,138 +155,138 @@ func (dg *DiscordGuild) assignValues(columns []string, values []any) error {
 
 // Value returns the ent.Value that was dynamically selected and assigned to the DiscordGuild.
 // This includes values selected through modifiers, order, etc.
-func (dg *DiscordGuild) Value(name string) (ent.Value, error) {
-	return dg.selectValues.Get(name)
+func (_m *DiscordGuild) Value(name string) (ent.Value, error) {
+	return _m.selectValues.Get(name)
 }
 
 // QueryMembers queries the "members" edge of the DiscordGuild entity.
-func (dg *DiscordGuild) QueryMembers() *DiscordUserQuery {
-	return NewDiscordGuildClient(dg.config).QueryMembers(dg)
+func (_m *DiscordGuild) QueryMembers() *DiscordUserQuery {
+	return NewDiscordGuildClient(_m.config).QueryMembers(_m)
 }
 
 // QueryDiscordMessages queries the "discord_messages" edge of the DiscordGuild entity.
-func (dg *DiscordGuild) QueryDiscordMessages() *DiscordMessageQuery {
-	return NewDiscordGuildClient(dg.config).QueryDiscordMessages(dg)
+func (_m *DiscordGuild) QueryDiscordMessages() *DiscordMessageQuery {
+	return NewDiscordGuildClient(_m.config).QueryDiscordMessages(_m)
 }
 
 // QueryGuildChannels queries the "guild_channels" edge of the DiscordGuild entity.
-func (dg *DiscordGuild) QueryGuildChannels() *DiscordChannelQuery {
-	return NewDiscordGuildClient(dg.config).QueryGuildChannels(dg)
+func (_m *DiscordGuild) QueryGuildChannels() *DiscordChannelQuery {
+	return NewDiscordGuildClient(_m.config).QueryGuildChannels(_m)
 }
 
 // Update returns a builder for updating this DiscordGuild.
 // Note that you need to call DiscordGuild.Unwrap() before calling this method if this DiscordGuild
 // was returned from a transaction, and the transaction was committed or rolled back.
-func (dg *DiscordGuild) Update() *DiscordGuildUpdateOne {
-	return NewDiscordGuildClient(dg.config).UpdateOne(dg)
+func (_m *DiscordGuild) Update() *DiscordGuildUpdateOne {
+	return NewDiscordGuildClient(_m.config).UpdateOne(_m)
 }
 
 // Unwrap unwraps the DiscordGuild entity that was returned from a transaction after it was closed,
 // so that all future queries will be executed through the driver which created the transaction.
-func (dg *DiscordGuild) Unwrap() *DiscordGuild {
-	_tx, ok := dg.config.driver.(*txDriver)
+func (_m *DiscordGuild) Unwrap() *DiscordGuild {
+	_tx, ok := _m.config.driver.(*txDriver)
 	if !ok {
 		panic("ent: DiscordGuild is not a transactional entity")
 	}
-	dg.config.driver = _tx.drv
-	return dg
+	_m.config.driver = _tx.drv
+	return _m
 }
 
 // String implements the fmt.Stringer.
-func (dg *DiscordGuild) String() string {
+func (_m *DiscordGuild) String() string {
 	var builder strings.Builder
 	builder.WriteString("DiscordGuild(")
-	builder.WriteString(fmt.Sprintf("id=%v, ", dg.ID))
+	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
 	builder.WriteString("discordid=")
-	builder.WriteString(dg.Discordid)
+	builder.WriteString(_m.Discordid)
 	builder.WriteString(", ")
 	builder.WriteString("name=")
-	builder.WriteString(dg.Name)
+	builder.WriteString(_m.Name)
 	builder.WriteString(", ")
 	builder.WriteString("description=")
-	builder.WriteString(dg.Description)
+	builder.WriteString(_m.Description)
 	builder.WriteString(", ")
 	builder.WriteString("rules_channel_id=")
-	builder.WriteString(dg.RulesChannelID)
+	builder.WriteString(_m.RulesChannelID)
 	builder.WriteString(", ")
 	builder.WriteString("public_updates_channel_id=")
-	builder.WriteString(dg.PublicUpdatesChannelID)
+	builder.WriteString(_m.PublicUpdatesChannelID)
 	builder.WriteString(", ")
 	builder.WriteString("nsfw_level=")
-	builder.WriteString(fmt.Sprintf("%v", dg.NsfwLevel))
+	builder.WriteString(fmt.Sprintf("%v", _m.NsfwLevel))
 	builder.WriteByte(')')
 	return builder.String()
 }
 
 // NamedMembers returns the Members named value or an error if the edge was not
 // loaded in eager-loading with this name.
-func (dg *DiscordGuild) NamedMembers(name string) ([]*DiscordUser, error) {
-	if dg.Edges.namedMembers == nil {
+func (_m *DiscordGuild) NamedMembers(name string) ([]*DiscordUser, error) {
+	if _m.Edges.namedMembers == nil {
 		return nil, &NotLoadedError{edge: name}
 	}
-	nodes, ok := dg.Edges.namedMembers[name]
+	nodes, ok := _m.Edges.namedMembers[name]
 	if !ok {
 		return nil, &NotLoadedError{edge: name}
 	}
 	return nodes, nil
 }
 
-func (dg *DiscordGuild) appendNamedMembers(name string, edges ...*DiscordUser) {
-	if dg.Edges.namedMembers == nil {
-		dg.Edges.namedMembers = make(map[string][]*DiscordUser)
+func (_m *DiscordGuild) appendNamedMembers(name string, edges ...*DiscordUser) {
+	if _m.Edges.namedMembers == nil {
+		_m.Edges.namedMembers = make(map[string][]*DiscordUser)
 	}
 	if len(edges) == 0 {
-		dg.Edges.namedMembers[name] = []*DiscordUser{}
+		_m.Edges.namedMembers[name] = []*DiscordUser{}
 	} else {
-		dg.Edges.namedMembers[name] = append(dg.Edges.namedMembers[name], edges...)
+		_m.Edges.namedMembers[name] = append(_m.Edges.namedMembers[name], edges...)
 	}
 }
 
 // NamedDiscordMessages returns the DiscordMessages named value or an error if the edge was not
 // loaded in eager-loading with this name.
-func (dg *DiscordGuild) NamedDiscordMessages(name string) ([]*DiscordMessage, error) {
-	if dg.Edges.namedDiscordMessages == nil {
+func (_m *DiscordGuild) NamedDiscordMessages(name string) ([]*DiscordMessage, error) {
+	if _m.Edges.namedDiscordMessages == nil {
 		return nil, &NotLoadedError{edge: name}
 	}
-	nodes, ok := dg.Edges.namedDiscordMessages[name]
+	nodes, ok := _m.Edges.namedDiscordMessages[name]
 	if !ok {
 		return nil, &NotLoadedError{edge: name}
 	}
 	return nodes, nil
 }
 
-func (dg *DiscordGuild) appendNamedDiscordMessages(name string, edges ...*DiscordMessage) {
-	if dg.Edges.namedDiscordMessages == nil {
-		dg.Edges.namedDiscordMessages = make(map[string][]*DiscordMessage)
+func (_m *DiscordGuild) appendNamedDiscordMessages(name string, edges ...*DiscordMessage) {
+	if _m.Edges.namedDiscordMessages == nil {
+		_m.Edges.namedDiscordMessages = make(map[string][]*DiscordMessage)
 	}
 	if len(edges) == 0 {
-		dg.Edges.namedDiscordMessages[name] = []*DiscordMessage{}
+		_m.Edges.namedDiscordMessages[name] = []*DiscordMessage{}
 	} else {
-		dg.Edges.namedDiscordMessages[name] = append(dg.Edges.namedDiscordMessages[name], edges...)
+		_m.Edges.namedDiscordMessages[name] = append(_m.Edges.namedDiscordMessages[name], edges...)
 	}
 }
 
 // NamedGuildChannels returns the GuildChannels named value or an error if the edge was not
 // loaded in eager-loading with this name.
-func (dg *DiscordGuild) NamedGuildChannels(name string) ([]*DiscordChannel, error) {
-	if dg.Edges.namedGuildChannels == nil {
+func (_m *DiscordGuild) NamedGuildChannels(name string) ([]*DiscordChannel, error) {
+	if _m.Edges.namedGuildChannels == nil {
 		return nil, &NotLoadedError{edge: name}
 	}
-	nodes, ok := dg.Edges.namedGuildChannels[name]
+	nodes, ok := _m.Edges.namedGuildChannels[name]
 	if !ok {
 		return nil, &NotLoadedError{edge: name}
 	}
 	return nodes, nil
 }
 
-func (dg *DiscordGuild) appendNamedGuildChannels(name string, edges ...*DiscordChannel) {
-	if dg.Edges.namedGuildChannels == nil {
-		dg.Edges.namedGuildChannels = make(map[string][]*DiscordChannel)
+func (_m *DiscordGuild) appendNamedGuildChannels(name string, edges ...*DiscordChannel) {
+	if _m.Edges.namedGuildChannels == nil {
+		_m.Edges.namedGuildChannels = make(map[string][]*DiscordChannel)
 	}
 	if len(edges) == 0 {
-		dg.Edges.namedGuildChannels[name] = []*DiscordChannel{}
+		_m.Edges.namedGuildChannels[name] = []*DiscordChannel{}
 	} else {
-		dg.Edges.namedGuildChannels[name] = append(dg.Edges.namedGuildChannels[name], edges...)
+		_m.Edges.namedGuildChannels[name] = append(_m.Edges.namedGuildChannels[name], edges...)
 	}
 }
 

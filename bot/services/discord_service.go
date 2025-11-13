@@ -7,8 +7,6 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"github.com/bwmarrin/discordgo"
-	"github.com/h3mmy/bloopyboi/pkg/database"
-	"github.com/h3mmy/bloopyboi/internal/models"
 	"github.com/h3mmy/bloopyboi/ent"
 	"github.com/h3mmy/bloopyboi/ent/discordchannel"
 	"github.com/h3mmy/bloopyboi/ent/discordguild"
@@ -16,14 +14,18 @@ import (
 	"github.com/h3mmy/bloopyboi/ent/discordmessagereaction"
 	"github.com/h3mmy/bloopyboi/ent/discorduser"
 	"github.com/h3mmy/bloopyboi/internal/discord"
+	"github.com/h3mmy/bloopyboi/internal/models"
 	"github.com/h3mmy/bloopyboi/pkg/config"
+	"github.com/h3mmy/bloopyboi/pkg/database"
 	log "github.com/h3mmy/bloopyboi/pkg/logs"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
 
+// DefaultIntents are the default intents used by the bot.
 const DefaultIntents = discordgo.IntentsGuildMessages | discordgo.IntentsDirectMessages | discordgo.IntentDirectMessageReactions | discordgo.IntentGuildMessageReactions | discordgo.IntentGuildEmojis
 
+// DiscordService is a service that interacts with the Discord API and the local database.
 type DiscordService struct {
 	meta           models.BloopyMeta
 	logger         *zap.Logger
@@ -38,6 +40,7 @@ type DiscordService struct {
 	intents         discordgo.Intent
 }
 
+// NewDiscordService creates a new DiscordService.
 func NewDiscordService() *DiscordService {
 	lgr := log.NewZapLogger().
 		Named("discord_service").
@@ -58,14 +61,15 @@ func NewDiscordService() *DiscordService {
 	}
 }
 
+// WithSession sets the Discord session for the service.
 func (d *DiscordService) WithSession(session *discordgo.Session) *DiscordService {
 	d.discordSession = session
 	d.discordSession.Identify.Intents = d.intents
 	return d
 }
 
-// NewDiscordServiceWithToken creates a new DiscordService with a token
-// Oauth tokens need to be prefixed with "Bearer " instead so this won't work for that
+// NewDiscordServiceWithToken creates a new DiscordService with a token.
+// Oauth tokens need to be prefixed with "Bearer " instead so this won't work for that.
 func (d *DiscordService) WithToken(token string) *DiscordService {
 	session, err := discordgo.New("Bot " + token)
 	if err != nil {
@@ -75,15 +79,19 @@ func (d *DiscordService) WithToken(token string) *DiscordService {
 	return d.WithSession(session)
 }
 
+// WithConfig sets the Discord configuration for the service.
 func (d *DiscordService) WithConfig(cfg *config.DiscordConfig) *DiscordService {
 	d = d.WithToken(cfg.Token)
 	d.config = cfg
 	return d
 }
 
+// RefreshDBConnection refreshes the database connection.
 func (d *DiscordService) RefreshDBConnection() error {
 	if d.dbEnabled {
-		d.db.Close()
+		if err := d.db.Close(); err != nil {
+			d.logger.Error("failed to close database connection", zap.Error(err))
+		}
 	}
 	dbEnabled := true
 	dbClient, err := database.Open()
@@ -97,24 +105,29 @@ func (d *DiscordService) RefreshDBConnection() error {
 	return err
 }
 
+// GetMeta returns the service's metadata.
 func (d *DiscordService) GetMeta() models.BloopyMeta {
 	return d.meta
 }
 
-// Primarily for backwards compatibility while I move things into a service
+// GetSession returns the Discord session.
+// Primarily for backwards compatibility while I move things into a service.
 func (d *DiscordService) GetSession() *discordgo.Session {
 	return d.discordSession
 }
 
+// AddHandler adds a handler to the Discord session.
 func (d *DiscordService) AddHandler(handler interface{}) func() {
 	logger.Debug("Adding simple handler")
 	return d.discordSession.AddHandler(handler)
 }
 
+// GetDataReady returns true if the Discord session is ready.
 func (d *DiscordService) GetDataReady() bool {
 	return d.discordSession.DataReady
 }
 
+// SetIntents sets the intents for the Discord session.
 func (d *DiscordService) SetIntents(intents discordgo.Intent) {
 	d.intents = intents
 	if d.discordSession == nil {
@@ -124,7 +137,7 @@ func (d *DiscordService) SetIntents(intents discordgo.Intent) {
 	d.discordSession.Identify.Intents = intents
 }
 
-// Registers an app command with discord and adds the respective handler to the svc handler registry.
+// RegisterAppCommand registers an app command with Discord and adds the respective handler to the svc handler registry.
 func (d *DiscordService) RegisterAppCommand(command models.DiscordAppCommand) (*discordgo.ApplicationCommand, error) {
 	d.logger.Debug(fmt.Sprintf("adding handler for %s to registry", command.GetAppCommand().Name))
 	d.interactionHandlerRegistry[command.GetAppCommand().Name] = command.GetAppCommandHandler()
@@ -138,8 +151,8 @@ func (d *DiscordService) RegisterAppCommand(command models.DiscordAppCommand) (*
 	return cmd, nil
 }
 
-// Adds additional handlers to the svc handler registry.
-// Intended for use by MessageComponent handlers
+// RegisterMessageComponentHandlers adds additional handlers to the svc handler registry.
+// Intended for use by MessageComponent handlers.
 func (d *DiscordService) RegisterMessageComponentHandlers(additionalHandlers map[string]func(*discordgo.Session, *discordgo.InteractionCreate)) error {
 	for k, h := range additionalHandlers {
 		d.logger.Debug(fmt.Sprintf("adding handler for %s to registry", k))
@@ -148,7 +161,7 @@ func (d *DiscordService) RegisterMessageComponentHandlers(additionalHandlers map
 	return nil
 }
 
-// Proxies InteractionCreate events to the handlers in the svc handler registry
+// AddInteractionHandlerProxy proxies InteractionCreate events to the handlers in the svc handler registry.
 func (d *DiscordService) AddInteractionHandlerProxy() {
 	d.discordSession.AddHandler(
 		func(s *discordgo.Session, i *discordgo.InteractionCreate) {
@@ -175,7 +188,7 @@ func (d *DiscordService) AddInteractionHandlerProxy() {
 		})
 }
 
-// De-registers all app commands registered with this service.
+// DeleteAppCommands de-registers all app commands registered with this service.
 // Intended for use by the shutdown handler.
 func (d *DiscordService) DeleteAppCommands() {
 	allGlobalCmds, err := d.discordSession.ApplicationCommands(d.discordSession.State.User.ID, "")
@@ -211,8 +224,8 @@ func (d *DiscordService) DeleteAppCommands() {
 	}
 }
 
-// Gets all app commands registered with the discord session AND the discord Registry
-// Uses service registry for retrieval IDs and errors are logged
+// GetCurrentAppCommands gets all app commands registered with the discord session AND the discord Registry.
+// Uses service registry for retrieval IDs and errors are logged.
 func (d *DiscordService) GetCurrentAppCommands() []*discordgo.ApplicationCommand {
 	var commands []*discordgo.ApplicationCommand
 	for _, command := range d.commandRegistry {
@@ -228,6 +241,7 @@ func (d *DiscordService) GetCurrentAppCommands() []*discordgo.ApplicationCommand
 	return commands
 }
 
+// SendMessage sends a message to a channel.
 func (d *DiscordService) SendMessage(messageRequest models.DiscordMessageSendRequest) {
 	d.logger.Debug(fmt.Sprintf("sending message: %v", messageRequest))
 	_, err := d.discordSession.ChannelMessageSendComplex(messageRequest.ChannelID, messageRequest.MessageComplex)
@@ -236,6 +250,7 @@ func (d *DiscordService) SendMessage(messageRequest models.DiscordMessageSendReq
 	}
 }
 
+// RecordDiscordMessage records a Discord message to the database.
 func (d *DiscordService) RecordDiscordMessage(ctx context.Context, m *discordgo.Message) error {
 	logger := d.logger.With(
 		zap.String("messageID", m.ID),
@@ -276,6 +291,7 @@ func (d *DiscordService) RecordDiscordMessage(ctx context.Context, m *discordgo.
 	})
 }
 
+// GetSavedDiscordMessage gets a saved Discord message from the database.
 func (d *DiscordService) GetSavedDiscordMessage(ctx context.Context, channelID string, messageID string) (*ent.DiscordMessage, error) {
 	if !d.dbEnabled {
 		return nil, errors.New("DB Not Enabled")
@@ -303,6 +319,7 @@ func (d *DiscordService) GetSavedDiscordMessage(ctx context.Context, channelID s
 	return discordMessage, nil
 }
 
+// RecordMessageReaction records a message reaction to the database.
 func (d *DiscordService) RecordMessageReaction(ctx context.Context, reaction *discordgo.MessageReaction) error {
 	logger := d.logger.With(
 		zap.String("messageID", reaction.MessageID),
@@ -352,6 +369,7 @@ func (d *DiscordService) RecordMessageReaction(ctx context.Context, reaction *di
 	})
 }
 
+// saveDiscordUser saves a Discord user to the database.
 func (d *DiscordService) saveDiscordUser(ctx context.Context, discUser *discordgo.User) error {
 	if !d.dbEnabled {
 		return nil
@@ -371,6 +389,7 @@ func (d *DiscordService) saveDiscordUser(ctx context.Context, discUser *discordg
 	})
 }
 
+// saveDiscordGuild saves a Discord guild to the database.
 func (d *DiscordService) saveDiscordGuild(ctx context.Context, discGuild *discordgo.Guild) error {
 	if !d.dbEnabled {
 		return nil
@@ -391,6 +410,7 @@ func (d *DiscordService) saveDiscordGuild(ctx context.Context, discGuild *discor
 	})
 }
 
+// saveDiscordChannel saves a Discord channel to the database.
 func (d *DiscordService) saveDiscordChannel(ctx context.Context, discChannel *discordgo.Channel) error {
 	if !d.dbEnabled {
 		return nil
@@ -411,6 +431,7 @@ func (d *DiscordService) saveDiscordChannel(ctx context.Context, discChannel *di
 	})
 }
 
+// SyncSavedChannelWithActiveSession syncs a saved channel with the active session.
 func (d *DiscordService) SyncSavedChannelWithActiveSession(ctx context.Context, discordChannelID string) error {
 	if !d.dbEnabled {
 		return errors.New("DB Not Enabled")
@@ -426,6 +447,7 @@ func (d *DiscordService) SyncSavedChannelWithActiveSession(ctx context.Context, 
 	return d.saveDiscordChannel(ctx, dChannel)
 }
 
+// SyncSavedDiscordUserWithActiveSession syncs a saved Discord user with the active session.
 func (d *DiscordService) SyncSavedDiscordUserWithActiveSession(ctx context.Context, discordUserID string) error {
 	if !d.dbEnabled {
 		return errors.New("DB Not Enabled")
@@ -441,6 +463,7 @@ func (d *DiscordService) SyncSavedDiscordUserWithActiveSession(ctx context.Conte
 	return d.saveDiscordUser(ctx, discordUser)
 }
 
+// GetSavedDiscordChannel gets a saved Discord channel from the database.
 func (d *DiscordService) GetSavedDiscordChannel(ctx context.Context, discordChannelID string) (*ent.DiscordChannel, error) {
 	if !d.dbEnabled {
 		return nil, errors.New("DB Not Enabled")
@@ -464,6 +487,7 @@ func (d *DiscordService) GetSavedDiscordChannel(ctx context.Context, discordChan
 	return discChannel, err
 }
 
+// GetSavedDiscordUser gets a saved Discord user from the database.
 func (d *DiscordService) GetSavedDiscordUser(ctx context.Context, discordUserID string) (*ent.DiscordUser, error) {
 	if !d.dbEnabled {
 		return nil, errors.New("DB Not Enabled")
@@ -487,6 +511,7 @@ func (d *DiscordService) GetSavedDiscordUser(ctx context.Context, discordUserID 
 	return discordUser, nil
 }
 
+// GetSavedGuild gets a saved guild from the database.
 func (d *DiscordService) GetSavedGuild(ctx context.Context, discordGuildId string) (*ent.DiscordGuild, error) {
 	if !d.dbEnabled {
 		return nil, errors.New("DB Not Enabled")
@@ -514,6 +539,7 @@ func (d *DiscordService) GetSavedGuild(ctx context.Context, discordGuildId strin
 	return discordGuild, nil
 }
 
+// TODO: This function is not fully implemented and should be removed or completed.
 // func (d *DiscordService) syncGuildUsers(guildId string) error {
 // 	if !d.dbEnabled {
 // 		return nil

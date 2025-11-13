@@ -90,7 +90,7 @@ func (*Book) scanValues(columns []string) ([]any, error) {
 
 // assignValues assigns the values that were returned from sql.Rows (after scanning)
 // to the Book fields.
-func (b *Book) assignValues(columns []string, values []any) error {
+func (_m *Book) assignValues(columns []string, values []any) error {
 	if m, n := len(values), len(columns); m < n {
 		return fmt.Errorf("mismatch number of scan values: %d != %d", m, n)
 	}
@@ -100,58 +100,58 @@ func (b *Book) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value != nil {
-				b.ID = *value
+				_m.ID = *value
 			}
 		case book.FieldTitle:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field title", values[i])
 			} else if value.Valid {
-				b.Title = value.String
+				_m.Title = value.String
 			}
 		case book.FieldDescription:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field description", values[i])
 			} else if value.Valid {
-				b.Description = value.String
+				_m.Description = value.String
 			}
 		case book.FieldGoodreadsID:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field goodreads_id", values[i])
 			} else if value.Valid {
-				b.GoodreadsID = value.String
+				_m.GoodreadsID = value.String
 			}
 		case book.FieldGoogleVolumeID:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field google_volume_id", values[i])
 			} else if value.Valid {
-				b.GoogleVolumeID = value.String
+				_m.GoogleVolumeID = value.String
 			}
 		case book.FieldIsbn10:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field isbn_10", values[i])
 			} else if value.Valid {
-				b.Isbn10 = value.String
+				_m.Isbn10 = value.String
 			}
 		case book.FieldIsbn13:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field isbn_13", values[i])
 			} else if value.Valid {
-				b.Isbn13 = value.String
+				_m.Isbn13 = value.String
 			}
 		case book.FieldPublisher:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field publisher", values[i])
 			} else if value.Valid {
-				b.Publisher = value.String
+				_m.Publisher = value.String
 			}
 		case book.FieldImageURL:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field image_url", values[i])
 			} else if value.Valid {
-				b.ImageURL = value.String
+				_m.ImageURL = value.String
 			}
 		default:
-			b.selectValues.Set(columns[i], values[i])
+			_m.selectValues.Set(columns[i], values[i])
 		}
 	}
 	return nil
@@ -159,91 +159,91 @@ func (b *Book) assignValues(columns []string, values []any) error {
 
 // Value returns the ent.Value that was dynamically selected and assigned to the Book.
 // This includes values selected through modifiers, order, etc.
-func (b *Book) Value(name string) (ent.Value, error) {
-	return b.selectValues.Get(name)
+func (_m *Book) Value(name string) (ent.Value, error) {
+	return _m.selectValues.Get(name)
 }
 
 // QueryBookAuthor queries the "book_author" edge of the Book entity.
-func (b *Book) QueryBookAuthor() *BookAuthorQuery {
-	return NewBookClient(b.config).QueryBookAuthor(b)
+func (_m *Book) QueryBookAuthor() *BookAuthorQuery {
+	return NewBookClient(_m.config).QueryBookAuthor(_m)
 }
 
 // QueryMediaRequest queries the "media_request" edge of the Book entity.
-func (b *Book) QueryMediaRequest() *MediaRequestQuery {
-	return NewBookClient(b.config).QueryMediaRequest(b)
+func (_m *Book) QueryMediaRequest() *MediaRequestQuery {
+	return NewBookClient(_m.config).QueryMediaRequest(_m)
 }
 
 // Update returns a builder for updating this Book.
 // Note that you need to call Book.Unwrap() before calling this method if this Book
 // was returned from a transaction, and the transaction was committed or rolled back.
-func (b *Book) Update() *BookUpdateOne {
-	return NewBookClient(b.config).UpdateOne(b)
+func (_m *Book) Update() *BookUpdateOne {
+	return NewBookClient(_m.config).UpdateOne(_m)
 }
 
 // Unwrap unwraps the Book entity that was returned from a transaction after it was closed,
 // so that all future queries will be executed through the driver which created the transaction.
-func (b *Book) Unwrap() *Book {
-	_tx, ok := b.config.driver.(*txDriver)
+func (_m *Book) Unwrap() *Book {
+	_tx, ok := _m.config.driver.(*txDriver)
 	if !ok {
 		panic("ent: Book is not a transactional entity")
 	}
-	b.config.driver = _tx.drv
-	return b
+	_m.config.driver = _tx.drv
+	return _m
 }
 
 // String implements the fmt.Stringer.
-func (b *Book) String() string {
+func (_m *Book) String() string {
 	var builder strings.Builder
 	builder.WriteString("Book(")
-	builder.WriteString(fmt.Sprintf("id=%v, ", b.ID))
+	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
 	builder.WriteString("title=")
-	builder.WriteString(b.Title)
+	builder.WriteString(_m.Title)
 	builder.WriteString(", ")
 	builder.WriteString("description=")
-	builder.WriteString(b.Description)
+	builder.WriteString(_m.Description)
 	builder.WriteString(", ")
 	builder.WriteString("goodreads_id=")
-	builder.WriteString(b.GoodreadsID)
+	builder.WriteString(_m.GoodreadsID)
 	builder.WriteString(", ")
 	builder.WriteString("google_volume_id=")
-	builder.WriteString(b.GoogleVolumeID)
+	builder.WriteString(_m.GoogleVolumeID)
 	builder.WriteString(", ")
 	builder.WriteString("isbn_10=")
-	builder.WriteString(b.Isbn10)
+	builder.WriteString(_m.Isbn10)
 	builder.WriteString(", ")
 	builder.WriteString("isbn_13=")
-	builder.WriteString(b.Isbn13)
+	builder.WriteString(_m.Isbn13)
 	builder.WriteString(", ")
 	builder.WriteString("publisher=")
-	builder.WriteString(b.Publisher)
+	builder.WriteString(_m.Publisher)
 	builder.WriteString(", ")
 	builder.WriteString("image_url=")
-	builder.WriteString(b.ImageURL)
+	builder.WriteString(_m.ImageURL)
 	builder.WriteByte(')')
 	return builder.String()
 }
 
 // NamedBookAuthor returns the BookAuthor named value or an error if the edge was not
 // loaded in eager-loading with this name.
-func (b *Book) NamedBookAuthor(name string) ([]*BookAuthor, error) {
-	if b.Edges.namedBookAuthor == nil {
+func (_m *Book) NamedBookAuthor(name string) ([]*BookAuthor, error) {
+	if _m.Edges.namedBookAuthor == nil {
 		return nil, &NotLoadedError{edge: name}
 	}
-	nodes, ok := b.Edges.namedBookAuthor[name]
+	nodes, ok := _m.Edges.namedBookAuthor[name]
 	if !ok {
 		return nil, &NotLoadedError{edge: name}
 	}
 	return nodes, nil
 }
 
-func (b *Book) appendNamedBookAuthor(name string, edges ...*BookAuthor) {
-	if b.Edges.namedBookAuthor == nil {
-		b.Edges.namedBookAuthor = make(map[string][]*BookAuthor)
+func (_m *Book) appendNamedBookAuthor(name string, edges ...*BookAuthor) {
+	if _m.Edges.namedBookAuthor == nil {
+		_m.Edges.namedBookAuthor = make(map[string][]*BookAuthor)
 	}
 	if len(edges) == 0 {
-		b.Edges.namedBookAuthor[name] = []*BookAuthor{}
+		_m.Edges.namedBookAuthor[name] = []*BookAuthor{}
 	} else {
-		b.Edges.namedBookAuthor[name] = append(b.Edges.namedBookAuthor[name], edges...)
+		_m.Edges.namedBookAuthor[name] = append(_m.Edges.namedBookAuthor[name], edges...)
 	}
 }
 

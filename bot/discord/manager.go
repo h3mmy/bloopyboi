@@ -9,9 +9,9 @@ import (
 	"github.com/h3mmy/bloopyboi/bot/asynchandlers"
 	bloopyCommands "github.com/h3mmy/bloopyboi/bot/discord/commands"
 	"github.com/h3mmy/bloopyboi/bot/handlers"
-	"github.com/h3mmy/bloopyboi/internal/models"
 	"github.com/h3mmy/bloopyboi/bot/providers"
 	"github.com/h3mmy/bloopyboi/bot/services"
+	"github.com/h3mmy/bloopyboi/internal/models"
 	"github.com/h3mmy/bloopyboi/pkg/config"
 	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
@@ -20,13 +20,13 @@ import (
 // customTimeFormat holds custom time format string.
 const (
 	// customTimeFormat = "2006-01-02T15:04:05Z"
-
 	// discordBotMentionRegexFmt supports also nicknames (the exclamation mark).
 	// Read more: https://discordjs.guide/miscellaneous/parsing-mention-arguments.html#how-discord-mentions-work
 	discordBotMentionRegexFmt = "^<@!?%s>"
 )
 
-// DiscordManager is responsible for interfacing with the discord session
+// DiscordManager is responsible for interfacing with the Discord session.
+// It contains the bot's mention regex, logger, bot ID, Discord service, and Discord configuration.
 type DiscordManager struct {
 	botMentionRegex *regexp.Regexp
 	log             *zap.Logger
@@ -35,7 +35,7 @@ type DiscordManager struct {
 	discordCfg      *config.DiscordConfig
 }
 
-// Constructs new Discord Manager
+// NewDiscordManager constructs a new DiscordManager.
 func NewDiscordManager(cfg *config.DiscordConfig, logger *zap.Logger) (*DiscordManager, error) {
 	botID := cfg.AppID
 
@@ -47,7 +47,7 @@ func NewDiscordManager(cfg *config.DiscordConfig, logger *zap.Logger) (*DiscordM
 	// Create a new Discord session using the provided bot token.
 	s, err := providers.NewDiscordServiceWithConfig(cfg)
 	if err != nil {
-		return nil, fmt.Errorf("Error Creating Discord Service: %w", err)
+		return nil, fmt.Errorf("error creating Discord Service: %w", err)
 	}
 	return &DiscordManager{
 		botId:           botID,
@@ -58,7 +58,8 @@ func NewDiscordManager(cfg *config.DiscordConfig, logger *zap.Logger) (*DiscordM
 	}, nil
 }
 
-// Initiates websocket connection with Discord and starts listening
+// Start initiates a websocket connection with Discord and starts listening for events.
+// It also registers the bot's commands and handlers.
 func (d *DiscordManager) Start(ctx context.Context) error {
 	messageReactor := asynchandlers.NewMessageReactor()
 	d.log.Info("Starting Bot")
@@ -76,7 +77,7 @@ func (d *DiscordManager) Start(ctx context.Context) error {
 	d.log.Info("Opening Websocket Connection")
 	err := d.discordSvc.GetSession().Open()
 	if err != nil {
-		return fmt.Errorf("While opening a connection: %w", err)
+		return fmt.Errorf("while opening a connection: %w", err)
 	}
 	// d.discordSvc.GetSession().LogLevel = discordgo.LogDebug
 
@@ -95,6 +96,10 @@ func (d *DiscordManager) Start(ctx context.Context) error {
 		}
 	}
 
+	d.log.Info("Initializing Experimental Handler")
+	msgSendChan := make(chan *models.DiscordMessageSendRequest, 20)
+	expHandler := getBloopyChanHandler(d.discordSvc, &msgSendChan)
+
 	d.log.Debug("rotating through guild configs")
 	for _, gcfg := range d.discordCfg.GuildConfigs {
 		d.log.Debug("processing guild config", zap.Any("guildConfig", gcfg))
@@ -105,10 +110,6 @@ func (d *DiscordManager) Start(ctx context.Context) error {
 			d.discordSvc.AddHandler(roleSelector.HandleReactionRemove)
 		}
 	}
-
-	d.log.Info("Initializing Experimental Handler")
-	msgSendChan := make(chan *models.DiscordMessageSendRequest, 20)
-	expHandler := getBloopyChanHandler(d.discordSvc, &msgSendChan)
 
 	ctx, cancelFn := context.WithCancel(ctx)
 	defer cancelFn()
@@ -138,6 +139,7 @@ func (d *DiscordManager) Start(ctx context.Context) error {
 	return nil
 }
 
+// TODO: This is an experimental handler. It should be refactored and moved to a separate file.
 func getBloopyChanHandler(ds *services.DiscordService, msgSendChan *chan *models.DiscordMessageSendRequest) *handlers.MessageChanBlooper {
 	s := ds.GetSession()
 	createCh := bloopyCommands.NextMessageCreateC(s)
@@ -147,10 +149,12 @@ func getBloopyChanHandler(ds *services.DiscordService, msgSendChan *chan *models
 	return handlers.NewMessageChanBlooper(ds, providers.GetInspiroService(), &createCh, &reactACh, &reactRCh, msgSendChan)
 }
 
+// IsReady returns true if the Discord service is ready.
 func (d *DiscordManager) IsReady() bool {
 	return d.discordSvc.GetDataReady()
 }
 
+// GetDiscordService returns the Discord service.
 func (d *DiscordManager) GetDiscordService() *services.DiscordService {
 	return d.discordSvc
 }

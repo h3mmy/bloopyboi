@@ -30,4 +30,3 @@ func NextMessageReactionRemoveC(s *discordgo.Session) chan *discordgo.MessageRea
 	})
 	return out
 }
-

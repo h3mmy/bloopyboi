@@ -6,8 +6,8 @@ import (
 
 	"github.com/h3mmy/bloopyboi/bot"
 	"github.com/h3mmy/bloopyboi/bot/discord"
-	"github.com/h3mmy/bloopyboi/pkg/api/pb"
 	"github.com/h3mmy/bloopyboi/internal/models"
+	"github.com/h3mmy/bloopyboi/pkg/api/pb"
 	"github.com/labstack/echo/v4"
 	"github.com/uptrace/opentelemetry-go-extra/otelzap"
 	"go.uber.org/zap"

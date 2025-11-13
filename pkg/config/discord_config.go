@@ -27,7 +27,7 @@ type RoleSelectionConfig struct {
 }
 
 type RoleSelectionPrompt struct {
-	Message     string `mapstructure:"message"`
+	Message string `mapstructure:"message"`
 	Options []struct {
 		EmojiID     string `mapstructure:"emojiID"`
 		Description string `mapstructure:"description"`
