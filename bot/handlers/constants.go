@@ -8,6 +8,6 @@ const (
 	Blissfest AppCommandName = "blissfest"
 	Book AppCommandName = "book"
 	Requests AppCommandName = "requests"
-	AnalyzeEmoji AppCommandName = "analyze-emoji"
+	AnalyzeEmoji AppCommandName = "analyze"
 	Inspiro AppCommandName = "inspire"
 )
