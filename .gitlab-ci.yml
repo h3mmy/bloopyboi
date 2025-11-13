@@ -1,6 +1,6 @@
 .helm:
   image:
-    name: alpine/helm:latest@sha256:761b0f39033ade8ce9e52e03d9d1608d6ca9cad1c7e68dc3e005f9e4e244410e
+    name: alpine/helm:latest@sha256:aef9b56f64e866207d9591d0abd8f6d767b36aadd12edf68f8a719716d9d29c9
     entrypoint: [""]
   variables:
     CHART_NAME: bloopyboi
