@@ -28,11 +28,7 @@ Active-ish
 
 ## Developing
 
-Once I have settled on an architectural approach, this will be moved to a contributing file
-
-To generate ent schema
-
-`go generate ent`
+Once I have settled on an architectural approach, this will be moved to the [Contributing.md] file
 
 Local Testing (Manual)
 
