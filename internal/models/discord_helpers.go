@@ -16,6 +16,11 @@ type TypingIndicatorChange struct {
 	ChannelID string
 }
 
+type DiscordEmojiAnalysisResult struct {
+	Emoji          *discordgo.Emoji
+	AnalysisResult *ImageAnalysis
+}
+
 type DiscordAppCommand interface {
 	GetAppCommand() *discordgo.ApplicationCommand
 	GetAppCommandHandler() func(s *discordgo.Session, i *discordgo.InteractionCreate)
