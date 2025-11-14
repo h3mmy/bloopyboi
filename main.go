@@ -68,7 +68,7 @@ func main() {
 		Key:    botLogFieldKey,
 		Type:   zapcore.StringType,
 		String: "BloopyBoi",
-	})
+	}))
 	// Create a new errgroup to manage the bot's goroutines.
 	errGroup, ctx := errgroup.WithContext(ctx)
 	// Start the bot in a separate goroutine.
