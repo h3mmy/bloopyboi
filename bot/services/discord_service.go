@@ -548,14 +548,14 @@ func (d *DiscordService) IngestGuildEmojis(ctx context.Context, guildID string) 
 			continue
 		}
 
-		d.logger.Info("analyzed emoji", zap.String("emoji_id", emoji.ID), zap.Strings("keywords", analysis.Keywords))
+		d.logger.Info("analyzed emoji", zap.String("emoji_id", emoji.ID), zap.Strings("keywords", analysis.GetKeywords()))
 
 		if d.dbEnabled {
 			err := d.db.Emoji.Create().
 				SetEmojiID(emoji.ID).
 				SetName(emoji.Name).
 				SetAnimated(emoji.Animated).
-				SetKeywords(analysis.Keywords).
+				SetKeywords(analysis.GetKeywordsSortedByScore()).
 				OnConflict(sql.ConflictColumns("emoji_id")).
 				UpdateNewValues().
 				Exec(ctx)

@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"encoding/json"
+
 	"github.com/bwmarrin/discordgo"
 	"github.com/h3mmy/bloopyboi/ent"
 	"github.com/h3mmy/bloopyboi/internal/models"
@@ -64,4 +66,9 @@ func GetBookRequestsAsEmbeds(requests []*ent.MediaRequest) []*discordgo.MessageE
 		embeds = append(embeds, embed)
 	}
 	return embeds
+}
+
+func PrintJSON(obj interface{}) string {
+	bytes, _ := json.MarshalIndent(obj, "\t", "\t")
+	return string(bytes)
 }
