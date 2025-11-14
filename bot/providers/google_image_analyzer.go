@@ -9,6 +9,7 @@ import (
 	vision "cloud.google.com/go/vision/v2/apiv1"
 	visionpb "cloud.google.com/go/vision/v2/apiv1/visionpb"
 	"github.com/h3mmy/bloopyboi/internal/models"
+	"github.com/h3mmy/bloopyboi/pkg/logs"
 	"go.uber.org/zap"
 	"google.golang.org/api/option"
 )
@@ -26,7 +27,7 @@ func NewGoogleVisionAnalyzer(ctx context.Context, opts ...option.ClientOption) (
 	if err != nil {
 		return nil, fmt.Errorf("failed to create vision client: %w", err)
 	}
-	logger, _ := zap.NewProduction()
+	logger := logs.NewZapLogger().Named("google_vision_analyzer")
 	return &GoogleVisionAnalyzer{client: client, logger: logger}, nil
 }
 
