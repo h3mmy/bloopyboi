@@ -39,6 +39,52 @@ See `git help commit`:
 - Include clear documentation especially via ([GoDoc comments](https://tip.golang.org/doc/comment))
 - Ensure the PR is linked to an issue. If your solution has a design element, please review that in the issue discussion before working on the PR
 
+### Commit Message Format
+
+This project uses [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) for release automation. The commit message should be structured as follows:
+
+```
+<type>[optional scope]: <description>
+
+[optional body]
+
+[optional footer]
+```
+
+The `<type>` is mandatory and must be one of the following:
+
+*   **feat**: A new feature
+*   **fix**: A bug fix
+*   **docs**: Documentation only changes
+*   **style**: Changes that do not affect the meaning of the code (white-space, formatting, missing semi-colons, etc)
+*   **refactor**: A code change that neither fixes a bug nor adds a feature
+*   **perf**: A code change that improves performance
+*   **test**: Adding missing tests or correcting existing tests
+*   **build**: Changes that affect the build system or external dependencies (example scopes: gulp, broccoli, npm)
+*   **ci**: Changes to our CI configuration files and scripts (example scopes: Travis, Circle, BrowserStack, SauceLabs)
+*   **chore**: Other changes that don't modify src or test files
+*   **revert**: Reverts a previous commit
+
+A `!` appended to the type/scope indicates a breaking change, which will result in a major version bump.
+
+For example:
+
+```
+feat: add user authentication endpoint
+
+This commit introduces a new endpoint for user authentication.
+It includes the necessary logic for handling user login and registration.
+```
+
+```
+fix(api)!: correct handling of user sessions
+
+BREAKING CHANGE: The session management has been overhauled.
+Refer to the documentation for the new session handling mechanism.
+```
+
+This ensures that versioning and releases can be automated correctly.
+
 ### Versioning
 
 The package `version` should follow [semver](https://semver.org/).
