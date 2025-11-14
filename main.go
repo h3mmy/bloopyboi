@@ -31,6 +31,10 @@ import (
 	"github.com/alexliesenfeld/health"
 )
 
+var (
+	version string
+)
+
 const (
 	botLogFieldKey = "bot"
 )
