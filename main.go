@@ -59,7 +59,8 @@ func main() {
 		Key:    "group",
 		Type:   zapcore.StringType,
 		String: "common",
-	})
+	}).With(zap.String("version",version))
+			
 
 	// Create a new bot instance.
 	boi := bot.New()
@@ -67,11 +68,9 @@ func main() {
 		Key:    botLogFieldKey,
 		Type:   zapcore.StringType,
 		String: "BloopyBoi",
-	}))
-
+	})
 	// Create a new errgroup to manage the bot's goroutines.
 	errGroup, ctx := errgroup.WithContext(ctx)
-
 	// Start the bot in a separate goroutine.
 	errGroup.Go(func() error {
 		return boi.Run(ctx)
