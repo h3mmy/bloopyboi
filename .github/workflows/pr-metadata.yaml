@@ -28,14 +28,14 @@ on:
 jobs:
   pr-metadata:
     name: Collect PR metadata
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     outputs:
       isRenovatePR: ${{ startsWith(steps.branch-name.outputs.current_branch, 'renovate/') }}
       isFork: ${{ github.event.pull_request.head.repo.full_name != github.repository }}
     steps:
       - name: Get branch name
         id: branch-name
-        uses: tj-actions/branch-names@v7.07
+        uses: tj-actions/branch-names@v9
 
       - name: Save PR data to file
         env:
@@ -44,7 +44,7 @@ jobs:
           echo $PR_NUMBER > pr_number.txt
 
       - name: Store pr data in artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: pr_metadata
           path: ./pr_number.txt
@@ -52,7 +52,7 @@ jobs:
 
   pr-changes:
     name: Collect PR changes
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     outputs:
       addedOrModifiedFilesDetected: ${{ steps.changed-files.outputs.allAddedOrModified }}
       addedOrModifiedFiles: ${{ steps.changed-files.outputs.allAddedOrModified_files }}
@@ -63,7 +63,7 @@ jobs:
       chartsToInstall: ${{ steps.changed-charts.outputs.chartsToInstall }}
     steps:
       - name: Checkout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
         with:
           fetch-depth: 0
 

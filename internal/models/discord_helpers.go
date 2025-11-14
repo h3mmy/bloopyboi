@@ -12,8 +12,13 @@ type DiscordMessageSendRequest struct {
 }
 
 type TypingIndicatorChange struct {
-	IsTyping bool
+	IsTyping  bool
 	ChannelID string
+}
+
+type DiscordEmojiAnalysisResult struct {
+	Emoji          *discordgo.Emoji
+	AnalysisResult *ImageAnalysis
 }
 
 type DiscordAppCommand interface {

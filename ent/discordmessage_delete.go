@@ -20,56 +20,56 @@ type DiscordMessageDelete struct {
 }
 
 // Where appends a list predicates to the DiscordMessageDelete builder.
-func (dmd *DiscordMessageDelete) Where(ps ...predicate.DiscordMessage) *DiscordMessageDelete {
-	dmd.mutation.Where(ps...)
-	return dmd
+func (_d *DiscordMessageDelete) Where(ps ...predicate.DiscordMessage) *DiscordMessageDelete {
+	_d.mutation.Where(ps...)
+	return _d
 }
 
 // Exec executes the deletion query and returns how many vertices were deleted.
-func (dmd *DiscordMessageDelete) Exec(ctx context.Context) (int, error) {
-	return withHooks(ctx, dmd.sqlExec, dmd.mutation, dmd.hooks)
+func (_d *DiscordMessageDelete) Exec(ctx context.Context) (int, error) {
+	return withHooks(ctx, _d.sqlExec, _d.mutation, _d.hooks)
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (dmd *DiscordMessageDelete) ExecX(ctx context.Context) int {
-	n, err := dmd.Exec(ctx)
+func (_d *DiscordMessageDelete) ExecX(ctx context.Context) int {
+	n, err := _d.Exec(ctx)
 	if err != nil {
 		panic(err)
 	}
 	return n
 }
 
-func (dmd *DiscordMessageDelete) sqlExec(ctx context.Context) (int, error) {
+func (_d *DiscordMessageDelete) sqlExec(ctx context.Context) (int, error) {
 	_spec := sqlgraph.NewDeleteSpec(discordmessage.Table, sqlgraph.NewFieldSpec(discordmessage.FieldID, field.TypeUUID))
-	if ps := dmd.mutation.predicates; len(ps) > 0 {
+	if ps := _d.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	affected, err := sqlgraph.DeleteNodes(ctx, dmd.driver, _spec)
+	affected, err := sqlgraph.DeleteNodes(ctx, _d.driver, _spec)
 	if err != nil && sqlgraph.IsConstraintError(err) {
 		err = &ConstraintError{msg: err.Error(), wrap: err}
 	}
-	dmd.mutation.done = true
+	_d.mutation.done = true
 	return affected, err
 }
 
 // DiscordMessageDeleteOne is the builder for deleting a single DiscordMessage entity.
 type DiscordMessageDeleteOne struct {
-	dmd *DiscordMessageDelete
+	_d *DiscordMessageDelete
 }
 
 // Where appends a list predicates to the DiscordMessageDelete builder.
-func (dmdo *DiscordMessageDeleteOne) Where(ps ...predicate.DiscordMessage) *DiscordMessageDeleteOne {
-	dmdo.dmd.mutation.Where(ps...)
-	return dmdo
+func (_d *DiscordMessageDeleteOne) Where(ps ...predicate.DiscordMessage) *DiscordMessageDeleteOne {
+	_d._d.mutation.Where(ps...)
+	return _d
 }
 
 // Exec executes the deletion query.
-func (dmdo *DiscordMessageDeleteOne) Exec(ctx context.Context) error {
-	n, err := dmdo.dmd.Exec(ctx)
+func (_d *DiscordMessageDeleteOne) Exec(ctx context.Context) error {
+	n, err := _d._d.Exec(ctx)
 	switch {
 	case err != nil:
 		return err
@@ -81,8 +81,8 @@ func (dmdo *DiscordMessageDeleteOne) Exec(ctx context.Context) error {
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (dmdo *DiscordMessageDeleteOne) ExecX(ctx context.Context) {
-	if err := dmdo.Exec(ctx); err != nil {
+func (_d *DiscordMessageDeleteOne) ExecX(ctx context.Context) {
+	if err := _d.Exec(ctx); err != nil {
 		panic(err)
 	}
 }

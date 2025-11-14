@@ -7,8 +7,6 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"github.com/bwmarrin/discordgo"
-	"github.com/h3mmy/bloopyboi/pkg/database"
-	"github.com/h3mmy/bloopyboi/internal/models"
 	"github.com/h3mmy/bloopyboi/ent"
 	"github.com/h3mmy/bloopyboi/ent/discordchannel"
 	"github.com/h3mmy/bloopyboi/ent/discordguild"
@@ -16,7 +14,9 @@ import (
 	"github.com/h3mmy/bloopyboi/ent/discordmessagereaction"
 	"github.com/h3mmy/bloopyboi/ent/discorduser"
 	"github.com/h3mmy/bloopyboi/internal/discord"
+	"github.com/h3mmy/bloopyboi/internal/models"
 	"github.com/h3mmy/bloopyboi/pkg/config"
+	"github.com/h3mmy/bloopyboi/pkg/database"
 	log "github.com/h3mmy/bloopyboi/pkg/logs"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -31,11 +31,12 @@ type DiscordService struct {
 	// The interaction handlers registered with this service, keyed by the command name
 	interactionHandlerRegistry map[string]func(*discordgo.Session, *discordgo.InteractionCreate)
 	// The commands registered with discord that will need to be de-registered on shutdown
-	commandRegistry map[string]*discordgo.ApplicationCommand
-	db              *ent.Client
-	dbEnabled       bool
-	config          *config.DiscordConfig
-	intents         discordgo.Intent
+	commandRegistry  map[string]*discordgo.ApplicationCommand
+	db               *ent.Client
+	dbEnabled        bool
+	config           *config.DiscordConfig
+	intents          discordgo.Intent
+	imageAnalyzerSvc ImageAnalyzerService
 }
 
 func NewDiscordService() *DiscordService {
@@ -64,6 +65,15 @@ func (d *DiscordService) WithSession(session *discordgo.Session) *DiscordService
 	return d
 }
 
+func (d *DiscordService) WithImageAnalyzer(analyzerSvc ImageAnalyzerService) *DiscordService {
+	d.imageAnalyzerSvc = analyzerSvc
+	return d
+}
+
+func (d *DiscordService) GetImageAnalyzerService() *ImageAnalyzerService {
+	return &d.imageAnalyzerSvc
+}
+
 // NewDiscordServiceWithToken creates a new DiscordService with a token
 // Oauth tokens need to be prefixed with "Bearer " instead so this won't work for that
 func (d *DiscordService) WithToken(token string) *DiscordService {
@@ -83,7 +93,9 @@ func (d *DiscordService) WithConfig(cfg *config.DiscordConfig) *DiscordService {
 
 func (d *DiscordService) RefreshDBConnection() error {
 	if d.dbEnabled {
-		d.db.Close()
+		if err := d.db.Close(); err != nil {
+			d.logger.Error("failed to close database connection", zap.Error(err))
+		}
 	}
 	dbEnabled := true
 	dbClient, err := database.Open()
@@ -512,6 +524,48 @@ func (d *DiscordService) GetSavedGuild(ctx context.Context, discordGuildId strin
 		}
 	}
 	return discordGuild, nil
+}
+
+func (d *DiscordService) IngestGuildEmojis(ctx context.Context, guildID string) error {
+	// if d.imageAnalyzerSvc == nil {
+	// 	return errors.New("image analyzer is not available")
+	// }
+
+	emojis, err := d.discordSession.GuildEmojis(guildID)
+	if err != nil {
+		return fmt.Errorf("could not get emojis for guild %s: %w", guildID, err)
+	}
+
+	for _, emoji := range emojis {
+		imageURL := fmt.Sprintf("https://cdn.discordapp.com/emojis/%s.png", emoji.ID)
+		if emoji.Animated {
+			imageURL = fmt.Sprintf("https://cdn.discordapp.com/emojis/%s.gif", emoji.ID)
+		}
+
+		analysis, err := d.imageAnalyzerSvc.AnalyzeImageFromURL(ctx, imageURL)
+		if err != nil {
+			d.logger.Error("failed to analyze emoji image", zap.String("emoji_id", emoji.ID), zap.Error(err))
+			continue
+		}
+
+		d.logger.Info("analyzed emoji", zap.String("emoji_id", emoji.ID), zap.Strings("keywords", analysis.GetKeywords()))
+
+		if d.dbEnabled {
+			err := d.db.Emoji.Create().
+				SetEmojiID(emoji.ID).
+				SetName(emoji.Name).
+				SetAnimated(emoji.Animated).
+				SetKeywords(analysis.GetKeywordsSortedByScore()).
+				OnConflict(sql.ConflictColumns("emoji_id")).
+				UpdateNewValues().
+				Exec(ctx)
+			if err != nil {
+				d.logger.Error("failed to save emoji to db", zap.String("emoji_id", emoji.ID), zap.Error(err))
+			}
+		}
+	}
+
+	return nil
 }
 
 // func (d *DiscordService) syncGuildUsers(guildId string) error {

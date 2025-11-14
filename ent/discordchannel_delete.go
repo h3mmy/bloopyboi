@@ -20,56 +20,56 @@ type DiscordChannelDelete struct {
 }
 
 // Where appends a list predicates to the DiscordChannelDelete builder.
-func (dcd *DiscordChannelDelete) Where(ps ...predicate.DiscordChannel) *DiscordChannelDelete {
-	dcd.mutation.Where(ps...)
-	return dcd
+func (_d *DiscordChannelDelete) Where(ps ...predicate.DiscordChannel) *DiscordChannelDelete {
+	_d.mutation.Where(ps...)
+	return _d
 }
 
 // Exec executes the deletion query and returns how many vertices were deleted.
-func (dcd *DiscordChannelDelete) Exec(ctx context.Context) (int, error) {
-	return withHooks(ctx, dcd.sqlExec, dcd.mutation, dcd.hooks)
+func (_d *DiscordChannelDelete) Exec(ctx context.Context) (int, error) {
+	return withHooks(ctx, _d.sqlExec, _d.mutation, _d.hooks)
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (dcd *DiscordChannelDelete) ExecX(ctx context.Context) int {
-	n, err := dcd.Exec(ctx)
+func (_d *DiscordChannelDelete) ExecX(ctx context.Context) int {
+	n, err := _d.Exec(ctx)
 	if err != nil {
 		panic(err)
 	}
 	return n
 }
 
-func (dcd *DiscordChannelDelete) sqlExec(ctx context.Context) (int, error) {
+func (_d *DiscordChannelDelete) sqlExec(ctx context.Context) (int, error) {
 	_spec := sqlgraph.NewDeleteSpec(discordchannel.Table, sqlgraph.NewFieldSpec(discordchannel.FieldID, field.TypeUUID))
-	if ps := dcd.mutation.predicates; len(ps) > 0 {
+	if ps := _d.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	affected, err := sqlgraph.DeleteNodes(ctx, dcd.driver, _spec)
+	affected, err := sqlgraph.DeleteNodes(ctx, _d.driver, _spec)
 	if err != nil && sqlgraph.IsConstraintError(err) {
 		err = &ConstraintError{msg: err.Error(), wrap: err}
 	}
-	dcd.mutation.done = true
+	_d.mutation.done = true
 	return affected, err
 }
 
 // DiscordChannelDeleteOne is the builder for deleting a single DiscordChannel entity.
 type DiscordChannelDeleteOne struct {
-	dcd *DiscordChannelDelete
+	_d *DiscordChannelDelete
 }
 
 // Where appends a list predicates to the DiscordChannelDelete builder.
-func (dcdo *DiscordChannelDeleteOne) Where(ps ...predicate.DiscordChannel) *DiscordChannelDeleteOne {
-	dcdo.dcd.mutation.Where(ps...)
-	return dcdo
+func (_d *DiscordChannelDeleteOne) Where(ps ...predicate.DiscordChannel) *DiscordChannelDeleteOne {
+	_d._d.mutation.Where(ps...)
+	return _d
 }
 
 // Exec executes the deletion query.
-func (dcdo *DiscordChannelDeleteOne) Exec(ctx context.Context) error {
-	n, err := dcdo.dcd.Exec(ctx)
+func (_d *DiscordChannelDeleteOne) Exec(ctx context.Context) error {
+	n, err := _d._d.Exec(ctx)
 	switch {
 	case err != nil:
 		return err
@@ -81,8 +81,8 @@ func (dcdo *DiscordChannelDeleteOne) Exec(ctx context.Context) error {
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (dcdo *DiscordChannelDeleteOne) ExecX(ctx context.Context) {
-	if err := dcdo.Exec(ctx); err != nil {
+func (_d *DiscordChannelDeleteOne) ExecX(ctx context.Context) {
+	if err := _d.Exec(ctx); err != nil {
 		panic(err)
 	}
 }

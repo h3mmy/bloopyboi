@@ -4,8 +4,8 @@ import (
 	"strings"
 
 	"github.com/bwmarrin/discordgo"
-	"github.com/h3mmy/bloopyboi/internal/models"
 	"github.com/h3mmy/bloopyboi/bot/services"
+	"github.com/h3mmy/bloopyboi/internal/models"
 	log "github.com/h3mmy/bloopyboi/pkg/logs"
 	"go.uber.org/zap"
 )
@@ -21,7 +21,7 @@ type InspiroCommand struct {
 func NewInspiroCommand(svc *services.InspiroService) *InspiroCommand {
 	return &InspiroCommand{
 		meta:        models.NewBloopyMeta(),
-		Name:        "inspire",
+		Name:        string(Inspiro),
 		Description: "Summons Inspiration",
 		inspiroSvc:  svc,
 		logger:      log.NewZapLogger().Named("inspiro_command"),

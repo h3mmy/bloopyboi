@@ -27,236 +27,236 @@ type DiscordUserUpdate struct {
 }
 
 // Where appends a list predicates to the DiscordUserUpdate builder.
-func (duu *DiscordUserUpdate) Where(ps ...predicate.DiscordUser) *DiscordUserUpdate {
-	duu.mutation.Where(ps...)
-	return duu
+func (_u *DiscordUserUpdate) Where(ps ...predicate.DiscordUser) *DiscordUserUpdate {
+	_u.mutation.Where(ps...)
+	return _u
 }
 
 // SetDiscordid sets the "discordid" field.
-func (duu *DiscordUserUpdate) SetDiscordid(s string) *DiscordUserUpdate {
-	duu.mutation.SetDiscordid(s)
-	return duu
+func (_u *DiscordUserUpdate) SetDiscordid(v string) *DiscordUserUpdate {
+	_u.mutation.SetDiscordid(v)
+	return _u
 }
 
 // SetNillableDiscordid sets the "discordid" field if the given value is not nil.
-func (duu *DiscordUserUpdate) SetNillableDiscordid(s *string) *DiscordUserUpdate {
-	if s != nil {
-		duu.SetDiscordid(*s)
+func (_u *DiscordUserUpdate) SetNillableDiscordid(v *string) *DiscordUserUpdate {
+	if v != nil {
+		_u.SetDiscordid(*v)
 	}
-	return duu
+	return _u
 }
 
 // SetUsername sets the "username" field.
-func (duu *DiscordUserUpdate) SetUsername(s string) *DiscordUserUpdate {
-	duu.mutation.SetUsername(s)
-	return duu
+func (_u *DiscordUserUpdate) SetUsername(v string) *DiscordUserUpdate {
+	_u.mutation.SetUsername(v)
+	return _u
 }
 
 // SetNillableUsername sets the "username" field if the given value is not nil.
-func (duu *DiscordUserUpdate) SetNillableUsername(s *string) *DiscordUserUpdate {
-	if s != nil {
-		duu.SetUsername(*s)
+func (_u *DiscordUserUpdate) SetNillableUsername(v *string) *DiscordUserUpdate {
+	if v != nil {
+		_u.SetUsername(*v)
 	}
-	return duu
+	return _u
 }
 
 // SetEmail sets the "email" field.
-func (duu *DiscordUserUpdate) SetEmail(s string) *DiscordUserUpdate {
-	duu.mutation.SetEmail(s)
-	return duu
+func (_u *DiscordUserUpdate) SetEmail(v string) *DiscordUserUpdate {
+	_u.mutation.SetEmail(v)
+	return _u
 }
 
 // SetNillableEmail sets the "email" field if the given value is not nil.
-func (duu *DiscordUserUpdate) SetNillableEmail(s *string) *DiscordUserUpdate {
-	if s != nil {
-		duu.SetEmail(*s)
+func (_u *DiscordUserUpdate) SetNillableEmail(v *string) *DiscordUserUpdate {
+	if v != nil {
+		_u.SetEmail(*v)
 	}
-	return duu
+	return _u
 }
 
 // ClearEmail clears the value of the "email" field.
-func (duu *DiscordUserUpdate) ClearEmail() *DiscordUserUpdate {
-	duu.mutation.ClearEmail()
-	return duu
+func (_u *DiscordUserUpdate) ClearEmail() *DiscordUserUpdate {
+	_u.mutation.ClearEmail()
+	return _u
 }
 
 // SetDiscriminator sets the "discriminator" field.
-func (duu *DiscordUserUpdate) SetDiscriminator(s string) *DiscordUserUpdate {
-	duu.mutation.SetDiscriminator(s)
-	return duu
+func (_u *DiscordUserUpdate) SetDiscriminator(v string) *DiscordUserUpdate {
+	_u.mutation.SetDiscriminator(v)
+	return _u
 }
 
 // SetNillableDiscriminator sets the "discriminator" field if the given value is not nil.
-func (duu *DiscordUserUpdate) SetNillableDiscriminator(s *string) *DiscordUserUpdate {
-	if s != nil {
-		duu.SetDiscriminator(*s)
+func (_u *DiscordUserUpdate) SetNillableDiscriminator(v *string) *DiscordUserUpdate {
+	if v != nil {
+		_u.SetDiscriminator(*v)
 	}
-	return duu
+	return _u
 }
 
 // ClearDiscriminator clears the value of the "discriminator" field.
-func (duu *DiscordUserUpdate) ClearDiscriminator() *DiscordUserUpdate {
-	duu.mutation.ClearDiscriminator()
-	return duu
+func (_u *DiscordUserUpdate) ClearDiscriminator() *DiscordUserUpdate {
+	_u.mutation.ClearDiscriminator()
+	return _u
 }
 
 // AddGuildIDs adds the "guilds" edge to the DiscordGuild entity by IDs.
-func (duu *DiscordUserUpdate) AddGuildIDs(ids ...uuid.UUID) *DiscordUserUpdate {
-	duu.mutation.AddGuildIDs(ids...)
-	return duu
+func (_u *DiscordUserUpdate) AddGuildIDs(ids ...uuid.UUID) *DiscordUserUpdate {
+	_u.mutation.AddGuildIDs(ids...)
+	return _u
 }
 
 // AddGuilds adds the "guilds" edges to the DiscordGuild entity.
-func (duu *DiscordUserUpdate) AddGuilds(d ...*DiscordGuild) *DiscordUserUpdate {
-	ids := make([]uuid.UUID, len(d))
-	for i := range d {
-		ids[i] = d[i].ID
+func (_u *DiscordUserUpdate) AddGuilds(v ...*DiscordGuild) *DiscordUserUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return duu.AddGuildIDs(ids...)
+	return _u.AddGuildIDs(ids...)
 }
 
 // AddDiscordMessageIDs adds the "discord_messages" edge to the DiscordMessage entity by IDs.
-func (duu *DiscordUserUpdate) AddDiscordMessageIDs(ids ...uuid.UUID) *DiscordUserUpdate {
-	duu.mutation.AddDiscordMessageIDs(ids...)
-	return duu
+func (_u *DiscordUserUpdate) AddDiscordMessageIDs(ids ...uuid.UUID) *DiscordUserUpdate {
+	_u.mutation.AddDiscordMessageIDs(ids...)
+	return _u
 }
 
 // AddDiscordMessages adds the "discord_messages" edges to the DiscordMessage entity.
-func (duu *DiscordUserUpdate) AddDiscordMessages(d ...*DiscordMessage) *DiscordUserUpdate {
-	ids := make([]uuid.UUID, len(d))
-	for i := range d {
-		ids[i] = d[i].ID
+func (_u *DiscordUserUpdate) AddDiscordMessages(v ...*DiscordMessage) *DiscordUserUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return duu.AddDiscordMessageIDs(ids...)
+	return _u.AddDiscordMessageIDs(ids...)
 }
 
 // AddMediaRequestIDs adds the "media_requests" edge to the MediaRequest entity by IDs.
-func (duu *DiscordUserUpdate) AddMediaRequestIDs(ids ...uuid.UUID) *DiscordUserUpdate {
-	duu.mutation.AddMediaRequestIDs(ids...)
-	return duu
+func (_u *DiscordUserUpdate) AddMediaRequestIDs(ids ...uuid.UUID) *DiscordUserUpdate {
+	_u.mutation.AddMediaRequestIDs(ids...)
+	return _u
 }
 
 // AddMediaRequests adds the "media_requests" edges to the MediaRequest entity.
-func (duu *DiscordUserUpdate) AddMediaRequests(m ...*MediaRequest) *DiscordUserUpdate {
-	ids := make([]uuid.UUID, len(m))
-	for i := range m {
-		ids[i] = m[i].ID
+func (_u *DiscordUserUpdate) AddMediaRequests(v ...*MediaRequest) *DiscordUserUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return duu.AddMediaRequestIDs(ids...)
+	return _u.AddMediaRequestIDs(ids...)
 }
 
 // AddMessageReactionIDs adds the "message_reactions" edge to the DiscordMessageReaction entity by IDs.
-func (duu *DiscordUserUpdate) AddMessageReactionIDs(ids ...uuid.UUID) *DiscordUserUpdate {
-	duu.mutation.AddMessageReactionIDs(ids...)
-	return duu
+func (_u *DiscordUserUpdate) AddMessageReactionIDs(ids ...uuid.UUID) *DiscordUserUpdate {
+	_u.mutation.AddMessageReactionIDs(ids...)
+	return _u
 }
 
 // AddMessageReactions adds the "message_reactions" edges to the DiscordMessageReaction entity.
-func (duu *DiscordUserUpdate) AddMessageReactions(d ...*DiscordMessageReaction) *DiscordUserUpdate {
-	ids := make([]uuid.UUID, len(d))
-	for i := range d {
-		ids[i] = d[i].ID
+func (_u *DiscordUserUpdate) AddMessageReactions(v ...*DiscordMessageReaction) *DiscordUserUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return duu.AddMessageReactionIDs(ids...)
+	return _u.AddMessageReactionIDs(ids...)
 }
 
 // Mutation returns the DiscordUserMutation object of the builder.
-func (duu *DiscordUserUpdate) Mutation() *DiscordUserMutation {
-	return duu.mutation
+func (_u *DiscordUserUpdate) Mutation() *DiscordUserMutation {
+	return _u.mutation
 }
 
 // ClearGuilds clears all "guilds" edges to the DiscordGuild entity.
-func (duu *DiscordUserUpdate) ClearGuilds() *DiscordUserUpdate {
-	duu.mutation.ClearGuilds()
-	return duu
+func (_u *DiscordUserUpdate) ClearGuilds() *DiscordUserUpdate {
+	_u.mutation.ClearGuilds()
+	return _u
 }
 
 // RemoveGuildIDs removes the "guilds" edge to DiscordGuild entities by IDs.
-func (duu *DiscordUserUpdate) RemoveGuildIDs(ids ...uuid.UUID) *DiscordUserUpdate {
-	duu.mutation.RemoveGuildIDs(ids...)
-	return duu
+func (_u *DiscordUserUpdate) RemoveGuildIDs(ids ...uuid.UUID) *DiscordUserUpdate {
+	_u.mutation.RemoveGuildIDs(ids...)
+	return _u
 }
 
 // RemoveGuilds removes "guilds" edges to DiscordGuild entities.
-func (duu *DiscordUserUpdate) RemoveGuilds(d ...*DiscordGuild) *DiscordUserUpdate {
-	ids := make([]uuid.UUID, len(d))
-	for i := range d {
-		ids[i] = d[i].ID
+func (_u *DiscordUserUpdate) RemoveGuilds(v ...*DiscordGuild) *DiscordUserUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return duu.RemoveGuildIDs(ids...)
+	return _u.RemoveGuildIDs(ids...)
 }
 
 // ClearDiscordMessages clears all "discord_messages" edges to the DiscordMessage entity.
-func (duu *DiscordUserUpdate) ClearDiscordMessages() *DiscordUserUpdate {
-	duu.mutation.ClearDiscordMessages()
-	return duu
+func (_u *DiscordUserUpdate) ClearDiscordMessages() *DiscordUserUpdate {
+	_u.mutation.ClearDiscordMessages()
+	return _u
 }
 
 // RemoveDiscordMessageIDs removes the "discord_messages" edge to DiscordMessage entities by IDs.
-func (duu *DiscordUserUpdate) RemoveDiscordMessageIDs(ids ...uuid.UUID) *DiscordUserUpdate {
-	duu.mutation.RemoveDiscordMessageIDs(ids...)
-	return duu
+func (_u *DiscordUserUpdate) RemoveDiscordMessageIDs(ids ...uuid.UUID) *DiscordUserUpdate {
+	_u.mutation.RemoveDiscordMessageIDs(ids...)
+	return _u
 }
 
 // RemoveDiscordMessages removes "discord_messages" edges to DiscordMessage entities.
-func (duu *DiscordUserUpdate) RemoveDiscordMessages(d ...*DiscordMessage) *DiscordUserUpdate {
-	ids := make([]uuid.UUID, len(d))
-	for i := range d {
-		ids[i] = d[i].ID
+func (_u *DiscordUserUpdate) RemoveDiscordMessages(v ...*DiscordMessage) *DiscordUserUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return duu.RemoveDiscordMessageIDs(ids...)
+	return _u.RemoveDiscordMessageIDs(ids...)
 }
 
 // ClearMediaRequests clears all "media_requests" edges to the MediaRequest entity.
-func (duu *DiscordUserUpdate) ClearMediaRequests() *DiscordUserUpdate {
-	duu.mutation.ClearMediaRequests()
-	return duu
+func (_u *DiscordUserUpdate) ClearMediaRequests() *DiscordUserUpdate {
+	_u.mutation.ClearMediaRequests()
+	return _u
 }
 
 // RemoveMediaRequestIDs removes the "media_requests" edge to MediaRequest entities by IDs.
-func (duu *DiscordUserUpdate) RemoveMediaRequestIDs(ids ...uuid.UUID) *DiscordUserUpdate {
-	duu.mutation.RemoveMediaRequestIDs(ids...)
-	return duu
+func (_u *DiscordUserUpdate) RemoveMediaRequestIDs(ids ...uuid.UUID) *DiscordUserUpdate {
+	_u.mutation.RemoveMediaRequestIDs(ids...)
+	return _u
 }
 
 // RemoveMediaRequests removes "media_requests" edges to MediaRequest entities.
-func (duu *DiscordUserUpdate) RemoveMediaRequests(m ...*MediaRequest) *DiscordUserUpdate {
-	ids := make([]uuid.UUID, len(m))
-	for i := range m {
-		ids[i] = m[i].ID
+func (_u *DiscordUserUpdate) RemoveMediaRequests(v ...*MediaRequest) *DiscordUserUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return duu.RemoveMediaRequestIDs(ids...)
+	return _u.RemoveMediaRequestIDs(ids...)
 }
 
 // ClearMessageReactions clears all "message_reactions" edges to the DiscordMessageReaction entity.
-func (duu *DiscordUserUpdate) ClearMessageReactions() *DiscordUserUpdate {
-	duu.mutation.ClearMessageReactions()
-	return duu
+func (_u *DiscordUserUpdate) ClearMessageReactions() *DiscordUserUpdate {
+	_u.mutation.ClearMessageReactions()
+	return _u
 }
 
 // RemoveMessageReactionIDs removes the "message_reactions" edge to DiscordMessageReaction entities by IDs.
-func (duu *DiscordUserUpdate) RemoveMessageReactionIDs(ids ...uuid.UUID) *DiscordUserUpdate {
-	duu.mutation.RemoveMessageReactionIDs(ids...)
-	return duu
+func (_u *DiscordUserUpdate) RemoveMessageReactionIDs(ids ...uuid.UUID) *DiscordUserUpdate {
+	_u.mutation.RemoveMessageReactionIDs(ids...)
+	return _u
 }
 
 // RemoveMessageReactions removes "message_reactions" edges to DiscordMessageReaction entities.
-func (duu *DiscordUserUpdate) RemoveMessageReactions(d ...*DiscordMessageReaction) *DiscordUserUpdate {
-	ids := make([]uuid.UUID, len(d))
-	for i := range d {
-		ids[i] = d[i].ID
+func (_u *DiscordUserUpdate) RemoveMessageReactions(v ...*DiscordMessageReaction) *DiscordUserUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return duu.RemoveMessageReactionIDs(ids...)
+	return _u.RemoveMessageReactionIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
-func (duu *DiscordUserUpdate) Save(ctx context.Context) (int, error) {
-	return withHooks(ctx, duu.sqlSave, duu.mutation, duu.hooks)
+func (_u *DiscordUserUpdate) Save(ctx context.Context) (int, error) {
+	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (duu *DiscordUserUpdate) SaveX(ctx context.Context) int {
-	affected, err := duu.Save(ctx)
+func (_u *DiscordUserUpdate) SaveX(ctx context.Context) int {
+	affected, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -264,46 +264,46 @@ func (duu *DiscordUserUpdate) SaveX(ctx context.Context) int {
 }
 
 // Exec executes the query.
-func (duu *DiscordUserUpdate) Exec(ctx context.Context) error {
-	_, err := duu.Save(ctx)
+func (_u *DiscordUserUpdate) Exec(ctx context.Context) error {
+	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (duu *DiscordUserUpdate) ExecX(ctx context.Context) {
-	if err := duu.Exec(ctx); err != nil {
+func (_u *DiscordUserUpdate) ExecX(ctx context.Context) {
+	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
-func (duu *DiscordUserUpdate) sqlSave(ctx context.Context) (n int, err error) {
+func (_u *DiscordUserUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	_spec := sqlgraph.NewUpdateSpec(discorduser.Table, discorduser.Columns, sqlgraph.NewFieldSpec(discorduser.FieldID, field.TypeUUID))
-	if ps := duu.mutation.predicates; len(ps) > 0 {
+	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if value, ok := duu.mutation.Discordid(); ok {
+	if value, ok := _u.mutation.Discordid(); ok {
 		_spec.SetField(discorduser.FieldDiscordid, field.TypeString, value)
 	}
-	if value, ok := duu.mutation.Username(); ok {
+	if value, ok := _u.mutation.Username(); ok {
 		_spec.SetField(discorduser.FieldUsername, field.TypeString, value)
 	}
-	if value, ok := duu.mutation.Email(); ok {
+	if value, ok := _u.mutation.Email(); ok {
 		_spec.SetField(discorduser.FieldEmail, field.TypeString, value)
 	}
-	if duu.mutation.EmailCleared() {
+	if _u.mutation.EmailCleared() {
 		_spec.ClearField(discorduser.FieldEmail, field.TypeString)
 	}
-	if value, ok := duu.mutation.Discriminator(); ok {
+	if value, ok := _u.mutation.Discriminator(); ok {
 		_spec.SetField(discorduser.FieldDiscriminator, field.TypeString, value)
 	}
-	if duu.mutation.DiscriminatorCleared() {
+	if _u.mutation.DiscriminatorCleared() {
 		_spec.ClearField(discorduser.FieldDiscriminator, field.TypeString)
 	}
-	if duu.mutation.GuildsCleared() {
+	if _u.mutation.GuildsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: true,
@@ -316,23 +316,7 @@ func (duu *DiscordUserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := duu.mutation.RemovedGuildsIDs(); len(nodes) > 0 && !duu.mutation.GuildsCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: true,
-			Table:   discorduser.GuildsTable,
-			Columns: discorduser.GuildsPrimaryKey,
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(discordguild.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := duu.mutation.GuildsIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.RemovedGuildsIDs(); len(nodes) > 0 && !_u.mutation.GuildsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: true,
@@ -346,9 +330,25 @@ func (duu *DiscordUserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.GuildsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   discorduser.GuildsTable,
+			Columns: discorduser.GuildsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(discordguild.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if duu.mutation.DiscordMessagesCleared() {
+	if _u.mutation.DiscordMessagesCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -361,7 +361,7 @@ func (duu *DiscordUserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := duu.mutation.RemovedDiscordMessagesIDs(); len(nodes) > 0 && !duu.mutation.DiscordMessagesCleared() {
+	if nodes := _u.mutation.RemovedDiscordMessagesIDs(); len(nodes) > 0 && !_u.mutation.DiscordMessagesCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -377,7 +377,7 @@ func (duu *DiscordUserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := duu.mutation.DiscordMessagesIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.DiscordMessagesIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -393,7 +393,7 @@ func (duu *DiscordUserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if duu.mutation.MediaRequestsCleared() {
+	if _u.mutation.MediaRequestsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: false,
@@ -406,7 +406,7 @@ func (duu *DiscordUserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := duu.mutation.RemovedMediaRequestsIDs(); len(nodes) > 0 && !duu.mutation.MediaRequestsCleared() {
+	if nodes := _u.mutation.RemovedMediaRequestsIDs(); len(nodes) > 0 && !_u.mutation.MediaRequestsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: false,
@@ -422,7 +422,7 @@ func (duu *DiscordUserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := duu.mutation.MediaRequestsIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.MediaRequestsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: false,
@@ -438,7 +438,7 @@ func (duu *DiscordUserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if duu.mutation.MessageReactionsCleared() {
+	if _u.mutation.MessageReactionsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -451,7 +451,7 @@ func (duu *DiscordUserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := duu.mutation.RemovedMessageReactionsIDs(); len(nodes) > 0 && !duu.mutation.MessageReactionsCleared() {
+	if nodes := _u.mutation.RemovedMessageReactionsIDs(); len(nodes) > 0 && !_u.mutation.MessageReactionsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -467,7 +467,7 @@ func (duu *DiscordUserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := duu.mutation.MessageReactionsIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.MessageReactionsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -483,7 +483,7 @@ func (duu *DiscordUserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if n, err = sqlgraph.UpdateNodes(ctx, duu.driver, _spec); err != nil {
+	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{discorduser.Label}
 		} else if sqlgraph.IsConstraintError(err) {
@@ -491,8 +491,8 @@ func (duu *DiscordUserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		return 0, err
 	}
-	duu.mutation.done = true
-	return n, nil
+	_u.mutation.done = true
+	return _node, nil
 }
 
 // DiscordUserUpdateOne is the builder for updating a single DiscordUser entity.
@@ -504,243 +504,243 @@ type DiscordUserUpdateOne struct {
 }
 
 // SetDiscordid sets the "discordid" field.
-func (duuo *DiscordUserUpdateOne) SetDiscordid(s string) *DiscordUserUpdateOne {
-	duuo.mutation.SetDiscordid(s)
-	return duuo
+func (_u *DiscordUserUpdateOne) SetDiscordid(v string) *DiscordUserUpdateOne {
+	_u.mutation.SetDiscordid(v)
+	return _u
 }
 
 // SetNillableDiscordid sets the "discordid" field if the given value is not nil.
-func (duuo *DiscordUserUpdateOne) SetNillableDiscordid(s *string) *DiscordUserUpdateOne {
-	if s != nil {
-		duuo.SetDiscordid(*s)
+func (_u *DiscordUserUpdateOne) SetNillableDiscordid(v *string) *DiscordUserUpdateOne {
+	if v != nil {
+		_u.SetDiscordid(*v)
 	}
-	return duuo
+	return _u
 }
 
 // SetUsername sets the "username" field.
-func (duuo *DiscordUserUpdateOne) SetUsername(s string) *DiscordUserUpdateOne {
-	duuo.mutation.SetUsername(s)
-	return duuo
+func (_u *DiscordUserUpdateOne) SetUsername(v string) *DiscordUserUpdateOne {
+	_u.mutation.SetUsername(v)
+	return _u
 }
 
 // SetNillableUsername sets the "username" field if the given value is not nil.
-func (duuo *DiscordUserUpdateOne) SetNillableUsername(s *string) *DiscordUserUpdateOne {
-	if s != nil {
-		duuo.SetUsername(*s)
+func (_u *DiscordUserUpdateOne) SetNillableUsername(v *string) *DiscordUserUpdateOne {
+	if v != nil {
+		_u.SetUsername(*v)
 	}
-	return duuo
+	return _u
 }
 
 // SetEmail sets the "email" field.
-func (duuo *DiscordUserUpdateOne) SetEmail(s string) *DiscordUserUpdateOne {
-	duuo.mutation.SetEmail(s)
-	return duuo
+func (_u *DiscordUserUpdateOne) SetEmail(v string) *DiscordUserUpdateOne {
+	_u.mutation.SetEmail(v)
+	return _u
 }
 
 // SetNillableEmail sets the "email" field if the given value is not nil.
-func (duuo *DiscordUserUpdateOne) SetNillableEmail(s *string) *DiscordUserUpdateOne {
-	if s != nil {
-		duuo.SetEmail(*s)
+func (_u *DiscordUserUpdateOne) SetNillableEmail(v *string) *DiscordUserUpdateOne {
+	if v != nil {
+		_u.SetEmail(*v)
 	}
-	return duuo
+	return _u
 }
 
 // ClearEmail clears the value of the "email" field.
-func (duuo *DiscordUserUpdateOne) ClearEmail() *DiscordUserUpdateOne {
-	duuo.mutation.ClearEmail()
-	return duuo
+func (_u *DiscordUserUpdateOne) ClearEmail() *DiscordUserUpdateOne {
+	_u.mutation.ClearEmail()
+	return _u
 }
 
 // SetDiscriminator sets the "discriminator" field.
-func (duuo *DiscordUserUpdateOne) SetDiscriminator(s string) *DiscordUserUpdateOne {
-	duuo.mutation.SetDiscriminator(s)
-	return duuo
+func (_u *DiscordUserUpdateOne) SetDiscriminator(v string) *DiscordUserUpdateOne {
+	_u.mutation.SetDiscriminator(v)
+	return _u
 }
 
 // SetNillableDiscriminator sets the "discriminator" field if the given value is not nil.
-func (duuo *DiscordUserUpdateOne) SetNillableDiscriminator(s *string) *DiscordUserUpdateOne {
-	if s != nil {
-		duuo.SetDiscriminator(*s)
+func (_u *DiscordUserUpdateOne) SetNillableDiscriminator(v *string) *DiscordUserUpdateOne {
+	if v != nil {
+		_u.SetDiscriminator(*v)
 	}
-	return duuo
+	return _u
 }
 
 // ClearDiscriminator clears the value of the "discriminator" field.
-func (duuo *DiscordUserUpdateOne) ClearDiscriminator() *DiscordUserUpdateOne {
-	duuo.mutation.ClearDiscriminator()
-	return duuo
+func (_u *DiscordUserUpdateOne) ClearDiscriminator() *DiscordUserUpdateOne {
+	_u.mutation.ClearDiscriminator()
+	return _u
 }
 
 // AddGuildIDs adds the "guilds" edge to the DiscordGuild entity by IDs.
-func (duuo *DiscordUserUpdateOne) AddGuildIDs(ids ...uuid.UUID) *DiscordUserUpdateOne {
-	duuo.mutation.AddGuildIDs(ids...)
-	return duuo
+func (_u *DiscordUserUpdateOne) AddGuildIDs(ids ...uuid.UUID) *DiscordUserUpdateOne {
+	_u.mutation.AddGuildIDs(ids...)
+	return _u
 }
 
 // AddGuilds adds the "guilds" edges to the DiscordGuild entity.
-func (duuo *DiscordUserUpdateOne) AddGuilds(d ...*DiscordGuild) *DiscordUserUpdateOne {
-	ids := make([]uuid.UUID, len(d))
-	for i := range d {
-		ids[i] = d[i].ID
+func (_u *DiscordUserUpdateOne) AddGuilds(v ...*DiscordGuild) *DiscordUserUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return duuo.AddGuildIDs(ids...)
+	return _u.AddGuildIDs(ids...)
 }
 
 // AddDiscordMessageIDs adds the "discord_messages" edge to the DiscordMessage entity by IDs.
-func (duuo *DiscordUserUpdateOne) AddDiscordMessageIDs(ids ...uuid.UUID) *DiscordUserUpdateOne {
-	duuo.mutation.AddDiscordMessageIDs(ids...)
-	return duuo
+func (_u *DiscordUserUpdateOne) AddDiscordMessageIDs(ids ...uuid.UUID) *DiscordUserUpdateOne {
+	_u.mutation.AddDiscordMessageIDs(ids...)
+	return _u
 }
 
 // AddDiscordMessages adds the "discord_messages" edges to the DiscordMessage entity.
-func (duuo *DiscordUserUpdateOne) AddDiscordMessages(d ...*DiscordMessage) *DiscordUserUpdateOne {
-	ids := make([]uuid.UUID, len(d))
-	for i := range d {
-		ids[i] = d[i].ID
+func (_u *DiscordUserUpdateOne) AddDiscordMessages(v ...*DiscordMessage) *DiscordUserUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return duuo.AddDiscordMessageIDs(ids...)
+	return _u.AddDiscordMessageIDs(ids...)
 }
 
 // AddMediaRequestIDs adds the "media_requests" edge to the MediaRequest entity by IDs.
-func (duuo *DiscordUserUpdateOne) AddMediaRequestIDs(ids ...uuid.UUID) *DiscordUserUpdateOne {
-	duuo.mutation.AddMediaRequestIDs(ids...)
-	return duuo
+func (_u *DiscordUserUpdateOne) AddMediaRequestIDs(ids ...uuid.UUID) *DiscordUserUpdateOne {
+	_u.mutation.AddMediaRequestIDs(ids...)
+	return _u
 }
 
 // AddMediaRequests adds the "media_requests" edges to the MediaRequest entity.
-func (duuo *DiscordUserUpdateOne) AddMediaRequests(m ...*MediaRequest) *DiscordUserUpdateOne {
-	ids := make([]uuid.UUID, len(m))
-	for i := range m {
-		ids[i] = m[i].ID
+func (_u *DiscordUserUpdateOne) AddMediaRequests(v ...*MediaRequest) *DiscordUserUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return duuo.AddMediaRequestIDs(ids...)
+	return _u.AddMediaRequestIDs(ids...)
 }
 
 // AddMessageReactionIDs adds the "message_reactions" edge to the DiscordMessageReaction entity by IDs.
-func (duuo *DiscordUserUpdateOne) AddMessageReactionIDs(ids ...uuid.UUID) *DiscordUserUpdateOne {
-	duuo.mutation.AddMessageReactionIDs(ids...)
-	return duuo
+func (_u *DiscordUserUpdateOne) AddMessageReactionIDs(ids ...uuid.UUID) *DiscordUserUpdateOne {
+	_u.mutation.AddMessageReactionIDs(ids...)
+	return _u
 }
 
 // AddMessageReactions adds the "message_reactions" edges to the DiscordMessageReaction entity.
-func (duuo *DiscordUserUpdateOne) AddMessageReactions(d ...*DiscordMessageReaction) *DiscordUserUpdateOne {
-	ids := make([]uuid.UUID, len(d))
-	for i := range d {
-		ids[i] = d[i].ID
+func (_u *DiscordUserUpdateOne) AddMessageReactions(v ...*DiscordMessageReaction) *DiscordUserUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return duuo.AddMessageReactionIDs(ids...)
+	return _u.AddMessageReactionIDs(ids...)
 }
 
 // Mutation returns the DiscordUserMutation object of the builder.
-func (duuo *DiscordUserUpdateOne) Mutation() *DiscordUserMutation {
-	return duuo.mutation
+func (_u *DiscordUserUpdateOne) Mutation() *DiscordUserMutation {
+	return _u.mutation
 }
 
 // ClearGuilds clears all "guilds" edges to the DiscordGuild entity.
-func (duuo *DiscordUserUpdateOne) ClearGuilds() *DiscordUserUpdateOne {
-	duuo.mutation.ClearGuilds()
-	return duuo
+func (_u *DiscordUserUpdateOne) ClearGuilds() *DiscordUserUpdateOne {
+	_u.mutation.ClearGuilds()
+	return _u
 }
 
 // RemoveGuildIDs removes the "guilds" edge to DiscordGuild entities by IDs.
-func (duuo *DiscordUserUpdateOne) RemoveGuildIDs(ids ...uuid.UUID) *DiscordUserUpdateOne {
-	duuo.mutation.RemoveGuildIDs(ids...)
-	return duuo
+func (_u *DiscordUserUpdateOne) RemoveGuildIDs(ids ...uuid.UUID) *DiscordUserUpdateOne {
+	_u.mutation.RemoveGuildIDs(ids...)
+	return _u
 }
 
 // RemoveGuilds removes "guilds" edges to DiscordGuild entities.
-func (duuo *DiscordUserUpdateOne) RemoveGuilds(d ...*DiscordGuild) *DiscordUserUpdateOne {
-	ids := make([]uuid.UUID, len(d))
-	for i := range d {
-		ids[i] = d[i].ID
+func (_u *DiscordUserUpdateOne) RemoveGuilds(v ...*DiscordGuild) *DiscordUserUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return duuo.RemoveGuildIDs(ids...)
+	return _u.RemoveGuildIDs(ids...)
 }
 
 // ClearDiscordMessages clears all "discord_messages" edges to the DiscordMessage entity.
-func (duuo *DiscordUserUpdateOne) ClearDiscordMessages() *DiscordUserUpdateOne {
-	duuo.mutation.ClearDiscordMessages()
-	return duuo
+func (_u *DiscordUserUpdateOne) ClearDiscordMessages() *DiscordUserUpdateOne {
+	_u.mutation.ClearDiscordMessages()
+	return _u
 }
 
 // RemoveDiscordMessageIDs removes the "discord_messages" edge to DiscordMessage entities by IDs.
-func (duuo *DiscordUserUpdateOne) RemoveDiscordMessageIDs(ids ...uuid.UUID) *DiscordUserUpdateOne {
-	duuo.mutation.RemoveDiscordMessageIDs(ids...)
-	return duuo
+func (_u *DiscordUserUpdateOne) RemoveDiscordMessageIDs(ids ...uuid.UUID) *DiscordUserUpdateOne {
+	_u.mutation.RemoveDiscordMessageIDs(ids...)
+	return _u
 }
 
 // RemoveDiscordMessages removes "discord_messages" edges to DiscordMessage entities.
-func (duuo *DiscordUserUpdateOne) RemoveDiscordMessages(d ...*DiscordMessage) *DiscordUserUpdateOne {
-	ids := make([]uuid.UUID, len(d))
-	for i := range d {
-		ids[i] = d[i].ID
+func (_u *DiscordUserUpdateOne) RemoveDiscordMessages(v ...*DiscordMessage) *DiscordUserUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return duuo.RemoveDiscordMessageIDs(ids...)
+	return _u.RemoveDiscordMessageIDs(ids...)
 }
 
 // ClearMediaRequests clears all "media_requests" edges to the MediaRequest entity.
-func (duuo *DiscordUserUpdateOne) ClearMediaRequests() *DiscordUserUpdateOne {
-	duuo.mutation.ClearMediaRequests()
-	return duuo
+func (_u *DiscordUserUpdateOne) ClearMediaRequests() *DiscordUserUpdateOne {
+	_u.mutation.ClearMediaRequests()
+	return _u
 }
 
 // RemoveMediaRequestIDs removes the "media_requests" edge to MediaRequest entities by IDs.
-func (duuo *DiscordUserUpdateOne) RemoveMediaRequestIDs(ids ...uuid.UUID) *DiscordUserUpdateOne {
-	duuo.mutation.RemoveMediaRequestIDs(ids...)
-	return duuo
+func (_u *DiscordUserUpdateOne) RemoveMediaRequestIDs(ids ...uuid.UUID) *DiscordUserUpdateOne {
+	_u.mutation.RemoveMediaRequestIDs(ids...)
+	return _u
 }
 
 // RemoveMediaRequests removes "media_requests" edges to MediaRequest entities.
-func (duuo *DiscordUserUpdateOne) RemoveMediaRequests(m ...*MediaRequest) *DiscordUserUpdateOne {
-	ids := make([]uuid.UUID, len(m))
-	for i := range m {
-		ids[i] = m[i].ID
+func (_u *DiscordUserUpdateOne) RemoveMediaRequests(v ...*MediaRequest) *DiscordUserUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return duuo.RemoveMediaRequestIDs(ids...)
+	return _u.RemoveMediaRequestIDs(ids...)
 }
 
 // ClearMessageReactions clears all "message_reactions" edges to the DiscordMessageReaction entity.
-func (duuo *DiscordUserUpdateOne) ClearMessageReactions() *DiscordUserUpdateOne {
-	duuo.mutation.ClearMessageReactions()
-	return duuo
+func (_u *DiscordUserUpdateOne) ClearMessageReactions() *DiscordUserUpdateOne {
+	_u.mutation.ClearMessageReactions()
+	return _u
 }
 
 // RemoveMessageReactionIDs removes the "message_reactions" edge to DiscordMessageReaction entities by IDs.
-func (duuo *DiscordUserUpdateOne) RemoveMessageReactionIDs(ids ...uuid.UUID) *DiscordUserUpdateOne {
-	duuo.mutation.RemoveMessageReactionIDs(ids...)
-	return duuo
+func (_u *DiscordUserUpdateOne) RemoveMessageReactionIDs(ids ...uuid.UUID) *DiscordUserUpdateOne {
+	_u.mutation.RemoveMessageReactionIDs(ids...)
+	return _u
 }
 
 // RemoveMessageReactions removes "message_reactions" edges to DiscordMessageReaction entities.
-func (duuo *DiscordUserUpdateOne) RemoveMessageReactions(d ...*DiscordMessageReaction) *DiscordUserUpdateOne {
-	ids := make([]uuid.UUID, len(d))
-	for i := range d {
-		ids[i] = d[i].ID
+func (_u *DiscordUserUpdateOne) RemoveMessageReactions(v ...*DiscordMessageReaction) *DiscordUserUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return duuo.RemoveMessageReactionIDs(ids...)
+	return _u.RemoveMessageReactionIDs(ids...)
 }
 
 // Where appends a list predicates to the DiscordUserUpdate builder.
-func (duuo *DiscordUserUpdateOne) Where(ps ...predicate.DiscordUser) *DiscordUserUpdateOne {
-	duuo.mutation.Where(ps...)
-	return duuo
+func (_u *DiscordUserUpdateOne) Where(ps ...predicate.DiscordUser) *DiscordUserUpdateOne {
+	_u.mutation.Where(ps...)
+	return _u
 }
 
 // Select allows selecting one or more fields (columns) of the returned entity.
 // The default is selecting all fields defined in the entity schema.
-func (duuo *DiscordUserUpdateOne) Select(field string, fields ...string) *DiscordUserUpdateOne {
-	duuo.fields = append([]string{field}, fields...)
-	return duuo
+func (_u *DiscordUserUpdateOne) Select(field string, fields ...string) *DiscordUserUpdateOne {
+	_u.fields = append([]string{field}, fields...)
+	return _u
 }
 
 // Save executes the query and returns the updated DiscordUser entity.
-func (duuo *DiscordUserUpdateOne) Save(ctx context.Context) (*DiscordUser, error) {
-	return withHooks(ctx, duuo.sqlSave, duuo.mutation, duuo.hooks)
+func (_u *DiscordUserUpdateOne) Save(ctx context.Context) (*DiscordUser, error) {
+	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (duuo *DiscordUserUpdateOne) SaveX(ctx context.Context) *DiscordUser {
-	node, err := duuo.Save(ctx)
+func (_u *DiscordUserUpdateOne) SaveX(ctx context.Context) *DiscordUser {
+	node, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -748,26 +748,26 @@ func (duuo *DiscordUserUpdateOne) SaveX(ctx context.Context) *DiscordUser {
 }
 
 // Exec executes the query on the entity.
-func (duuo *DiscordUserUpdateOne) Exec(ctx context.Context) error {
-	_, err := duuo.Save(ctx)
+func (_u *DiscordUserUpdateOne) Exec(ctx context.Context) error {
+	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (duuo *DiscordUserUpdateOne) ExecX(ctx context.Context) {
-	if err := duuo.Exec(ctx); err != nil {
+func (_u *DiscordUserUpdateOne) ExecX(ctx context.Context) {
+	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
-func (duuo *DiscordUserUpdateOne) sqlSave(ctx context.Context) (_node *DiscordUser, err error) {
+func (_u *DiscordUserUpdateOne) sqlSave(ctx context.Context) (_node *DiscordUser, err error) {
 	_spec := sqlgraph.NewUpdateSpec(discorduser.Table, discorduser.Columns, sqlgraph.NewFieldSpec(discorduser.FieldID, field.TypeUUID))
-	id, ok := duuo.mutation.ID()
+	id, ok := _u.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "DiscordUser.id" for update`)}
 	}
 	_spec.Node.ID.Value = id
-	if fields := duuo.fields; len(fields) > 0 {
+	if fields := _u.fields; len(fields) > 0 {
 		_spec.Node.Columns = make([]string, 0, len(fields))
 		_spec.Node.Columns = append(_spec.Node.Columns, discorduser.FieldID)
 		for _, f := range fields {
@@ -779,32 +779,32 @@ func (duuo *DiscordUserUpdateOne) sqlSave(ctx context.Context) (_node *DiscordUs
 			}
 		}
 	}
-	if ps := duuo.mutation.predicates; len(ps) > 0 {
+	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if value, ok := duuo.mutation.Discordid(); ok {
+	if value, ok := _u.mutation.Discordid(); ok {
 		_spec.SetField(discorduser.FieldDiscordid, field.TypeString, value)
 	}
-	if value, ok := duuo.mutation.Username(); ok {
+	if value, ok := _u.mutation.Username(); ok {
 		_spec.SetField(discorduser.FieldUsername, field.TypeString, value)
 	}
-	if value, ok := duuo.mutation.Email(); ok {
+	if value, ok := _u.mutation.Email(); ok {
 		_spec.SetField(discorduser.FieldEmail, field.TypeString, value)
 	}
-	if duuo.mutation.EmailCleared() {
+	if _u.mutation.EmailCleared() {
 		_spec.ClearField(discorduser.FieldEmail, field.TypeString)
 	}
-	if value, ok := duuo.mutation.Discriminator(); ok {
+	if value, ok := _u.mutation.Discriminator(); ok {
 		_spec.SetField(discorduser.FieldDiscriminator, field.TypeString, value)
 	}
-	if duuo.mutation.DiscriminatorCleared() {
+	if _u.mutation.DiscriminatorCleared() {
 		_spec.ClearField(discorduser.FieldDiscriminator, field.TypeString)
 	}
-	if duuo.mutation.GuildsCleared() {
+	if _u.mutation.GuildsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: true,
@@ -817,23 +817,7 @@ func (duuo *DiscordUserUpdateOne) sqlSave(ctx context.Context) (_node *DiscordUs
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := duuo.mutation.RemovedGuildsIDs(); len(nodes) > 0 && !duuo.mutation.GuildsCleared() {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2M,
-			Inverse: true,
-			Table:   discorduser.GuildsTable,
-			Columns: discorduser.GuildsPrimaryKey,
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(discordguild.FieldID, field.TypeUUID),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
-	}
-	if nodes := duuo.mutation.GuildsIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.RemovedGuildsIDs(); len(nodes) > 0 && !_u.mutation.GuildsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: true,
@@ -847,9 +831,25 @@ func (duuo *DiscordUserUpdateOne) sqlSave(ctx context.Context) (_node *DiscordUs
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.GuildsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   discorduser.GuildsTable,
+			Columns: discorduser.GuildsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(discordguild.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if duuo.mutation.DiscordMessagesCleared() {
+	if _u.mutation.DiscordMessagesCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -862,7 +862,7 @@ func (duuo *DiscordUserUpdateOne) sqlSave(ctx context.Context) (_node *DiscordUs
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := duuo.mutation.RemovedDiscordMessagesIDs(); len(nodes) > 0 && !duuo.mutation.DiscordMessagesCleared() {
+	if nodes := _u.mutation.RemovedDiscordMessagesIDs(); len(nodes) > 0 && !_u.mutation.DiscordMessagesCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -878,7 +878,7 @@ func (duuo *DiscordUserUpdateOne) sqlSave(ctx context.Context) (_node *DiscordUs
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := duuo.mutation.DiscordMessagesIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.DiscordMessagesIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -894,7 +894,7 @@ func (duuo *DiscordUserUpdateOne) sqlSave(ctx context.Context) (_node *DiscordUs
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if duuo.mutation.MediaRequestsCleared() {
+	if _u.mutation.MediaRequestsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: false,
@@ -907,7 +907,7 @@ func (duuo *DiscordUserUpdateOne) sqlSave(ctx context.Context) (_node *DiscordUs
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := duuo.mutation.RemovedMediaRequestsIDs(); len(nodes) > 0 && !duuo.mutation.MediaRequestsCleared() {
+	if nodes := _u.mutation.RemovedMediaRequestsIDs(); len(nodes) > 0 && !_u.mutation.MediaRequestsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: false,
@@ -923,7 +923,7 @@ func (duuo *DiscordUserUpdateOne) sqlSave(ctx context.Context) (_node *DiscordUs
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := duuo.mutation.MediaRequestsIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.MediaRequestsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: false,
@@ -939,7 +939,7 @@ func (duuo *DiscordUserUpdateOne) sqlSave(ctx context.Context) (_node *DiscordUs
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if duuo.mutation.MessageReactionsCleared() {
+	if _u.mutation.MessageReactionsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -952,7 +952,7 @@ func (duuo *DiscordUserUpdateOne) sqlSave(ctx context.Context) (_node *DiscordUs
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := duuo.mutation.RemovedMessageReactionsIDs(); len(nodes) > 0 && !duuo.mutation.MessageReactionsCleared() {
+	if nodes := _u.mutation.RemovedMessageReactionsIDs(); len(nodes) > 0 && !_u.mutation.MessageReactionsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -968,7 +968,7 @@ func (duuo *DiscordUserUpdateOne) sqlSave(ctx context.Context) (_node *DiscordUs
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := duuo.mutation.MessageReactionsIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.MessageReactionsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -984,10 +984,10 @@ func (duuo *DiscordUserUpdateOne) sqlSave(ctx context.Context) (_node *DiscordUs
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	_node = &DiscordUser{config: duuo.config}
+	_node = &DiscordUser{config: _u.config}
 	_spec.Assign = _node.assignValues
 	_spec.ScanValues = _node.scanValues
-	if err = sqlgraph.UpdateNode(ctx, duuo.driver, _spec); err != nil {
+	if err = sqlgraph.UpdateNode(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{discorduser.Label}
 		} else if sqlgraph.IsConstraintError(err) {
@@ -995,6 +995,6 @@ func (duuo *DiscordUserUpdateOne) sqlSave(ctx context.Context) (_node *DiscordUs
 		}
 		return nil, err
 	}
-	duuo.mutation.done = true
+	_u.mutation.done = true
 	return _node, nil
 }

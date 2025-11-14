@@ -20,56 +20,56 @@ type DiscordUserDelete struct {
 }
 
 // Where appends a list predicates to the DiscordUserDelete builder.
-func (dud *DiscordUserDelete) Where(ps ...predicate.DiscordUser) *DiscordUserDelete {
-	dud.mutation.Where(ps...)
-	return dud
+func (_d *DiscordUserDelete) Where(ps ...predicate.DiscordUser) *DiscordUserDelete {
+	_d.mutation.Where(ps...)
+	return _d
 }
 
 // Exec executes the deletion query and returns how many vertices were deleted.
-func (dud *DiscordUserDelete) Exec(ctx context.Context) (int, error) {
-	return withHooks(ctx, dud.sqlExec, dud.mutation, dud.hooks)
+func (_d *DiscordUserDelete) Exec(ctx context.Context) (int, error) {
+	return withHooks(ctx, _d.sqlExec, _d.mutation, _d.hooks)
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (dud *DiscordUserDelete) ExecX(ctx context.Context) int {
-	n, err := dud.Exec(ctx)
+func (_d *DiscordUserDelete) ExecX(ctx context.Context) int {
+	n, err := _d.Exec(ctx)
 	if err != nil {
 		panic(err)
 	}
 	return n
 }
 
-func (dud *DiscordUserDelete) sqlExec(ctx context.Context) (int, error) {
+func (_d *DiscordUserDelete) sqlExec(ctx context.Context) (int, error) {
 	_spec := sqlgraph.NewDeleteSpec(discorduser.Table, sqlgraph.NewFieldSpec(discorduser.FieldID, field.TypeUUID))
-	if ps := dud.mutation.predicates; len(ps) > 0 {
+	if ps := _d.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	affected, err := sqlgraph.DeleteNodes(ctx, dud.driver, _spec)
+	affected, err := sqlgraph.DeleteNodes(ctx, _d.driver, _spec)
 	if err != nil && sqlgraph.IsConstraintError(err) {
 		err = &ConstraintError{msg: err.Error(), wrap: err}
 	}
-	dud.mutation.done = true
+	_d.mutation.done = true
 	return affected, err
 }
 
 // DiscordUserDeleteOne is the builder for deleting a single DiscordUser entity.
 type DiscordUserDeleteOne struct {
-	dud *DiscordUserDelete
+	_d *DiscordUserDelete
 }
 
 // Where appends a list predicates to the DiscordUserDelete builder.
-func (dudo *DiscordUserDeleteOne) Where(ps ...predicate.DiscordUser) *DiscordUserDeleteOne {
-	dudo.dud.mutation.Where(ps...)
-	return dudo
+func (_d *DiscordUserDeleteOne) Where(ps ...predicate.DiscordUser) *DiscordUserDeleteOne {
+	_d._d.mutation.Where(ps...)
+	return _d
 }
 
 // Exec executes the deletion query.
-func (dudo *DiscordUserDeleteOne) Exec(ctx context.Context) error {
-	n, err := dudo.dud.Exec(ctx)
+func (_d *DiscordUserDeleteOne) Exec(ctx context.Context) error {
+	n, err := _d._d.Exec(ctx)
 	switch {
 	case err != nil:
 		return err
@@ -81,8 +81,8 @@ func (dudo *DiscordUserDeleteOne) Exec(ctx context.Context) error {
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (dudo *DiscordUserDeleteOne) ExecX(ctx context.Context) {
-	if err := dudo.Exec(ctx); err != nil {
+func (_d *DiscordUserDeleteOne) ExecX(ctx context.Context) {
+	if err := _d.Exec(ctx); err != nil {
 		panic(err)
 	}
 }

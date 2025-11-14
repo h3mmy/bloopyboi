@@ -104,7 +104,7 @@ func (*DiscordUser) scanValues(columns []string) ([]any, error) {
 
 // assignValues assigns the values that were returned from sql.Rows (after scanning)
 // to the DiscordUser fields.
-func (du *DiscordUser) assignValues(columns []string, values []any) error {
+func (_m *DiscordUser) assignValues(columns []string, values []any) error {
 	if m, n := len(values), len(columns); m < n {
 		return fmt.Errorf("mismatch number of scan values: %d != %d", m, n)
 	}
@@ -114,34 +114,34 @@ func (du *DiscordUser) assignValues(columns []string, values []any) error {
 			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value != nil {
-				du.ID = *value
+				_m.ID = *value
 			}
 		case discorduser.FieldDiscordid:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field discordid", values[i])
 			} else if value.Valid {
-				du.Discordid = value.String
+				_m.Discordid = value.String
 			}
 		case discorduser.FieldUsername:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field username", values[i])
 			} else if value.Valid {
-				du.Username = value.String
+				_m.Username = value.String
 			}
 		case discorduser.FieldEmail:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field email", values[i])
 			} else if value.Valid {
-				du.Email = value.String
+				_m.Email = value.String
 			}
 		case discorduser.FieldDiscriminator:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field discriminator", values[i])
 			} else if value.Valid {
-				du.Discriminator = value.String
+				_m.Discriminator = value.String
 			}
 		default:
-			du.selectValues.Set(columns[i], values[i])
+			_m.selectValues.Set(columns[i], values[i])
 		}
 	}
 	return nil
@@ -149,161 +149,161 @@ func (du *DiscordUser) assignValues(columns []string, values []any) error {
 
 // Value returns the ent.Value that was dynamically selected and assigned to the DiscordUser.
 // This includes values selected through modifiers, order, etc.
-func (du *DiscordUser) Value(name string) (ent.Value, error) {
-	return du.selectValues.Get(name)
+func (_m *DiscordUser) Value(name string) (ent.Value, error) {
+	return _m.selectValues.Get(name)
 }
 
 // QueryGuilds queries the "guilds" edge of the DiscordUser entity.
-func (du *DiscordUser) QueryGuilds() *DiscordGuildQuery {
-	return NewDiscordUserClient(du.config).QueryGuilds(du)
+func (_m *DiscordUser) QueryGuilds() *DiscordGuildQuery {
+	return NewDiscordUserClient(_m.config).QueryGuilds(_m)
 }
 
 // QueryDiscordMessages queries the "discord_messages" edge of the DiscordUser entity.
-func (du *DiscordUser) QueryDiscordMessages() *DiscordMessageQuery {
-	return NewDiscordUserClient(du.config).QueryDiscordMessages(du)
+func (_m *DiscordUser) QueryDiscordMessages() *DiscordMessageQuery {
+	return NewDiscordUserClient(_m.config).QueryDiscordMessages(_m)
 }
 
 // QueryMediaRequests queries the "media_requests" edge of the DiscordUser entity.
-func (du *DiscordUser) QueryMediaRequests() *MediaRequestQuery {
-	return NewDiscordUserClient(du.config).QueryMediaRequests(du)
+func (_m *DiscordUser) QueryMediaRequests() *MediaRequestQuery {
+	return NewDiscordUserClient(_m.config).QueryMediaRequests(_m)
 }
 
 // QueryMessageReactions queries the "message_reactions" edge of the DiscordUser entity.
-func (du *DiscordUser) QueryMessageReactions() *DiscordMessageReactionQuery {
-	return NewDiscordUserClient(du.config).QueryMessageReactions(du)
+func (_m *DiscordUser) QueryMessageReactions() *DiscordMessageReactionQuery {
+	return NewDiscordUserClient(_m.config).QueryMessageReactions(_m)
 }
 
 // Update returns a builder for updating this DiscordUser.
 // Note that you need to call DiscordUser.Unwrap() before calling this method if this DiscordUser
 // was returned from a transaction, and the transaction was committed or rolled back.
-func (du *DiscordUser) Update() *DiscordUserUpdateOne {
-	return NewDiscordUserClient(du.config).UpdateOne(du)
+func (_m *DiscordUser) Update() *DiscordUserUpdateOne {
+	return NewDiscordUserClient(_m.config).UpdateOne(_m)
 }
 
 // Unwrap unwraps the DiscordUser entity that was returned from a transaction after it was closed,
 // so that all future queries will be executed through the driver which created the transaction.
-func (du *DiscordUser) Unwrap() *DiscordUser {
-	_tx, ok := du.config.driver.(*txDriver)
+func (_m *DiscordUser) Unwrap() *DiscordUser {
+	_tx, ok := _m.config.driver.(*txDriver)
 	if !ok {
 		panic("ent: DiscordUser is not a transactional entity")
 	}
-	du.config.driver = _tx.drv
-	return du
+	_m.config.driver = _tx.drv
+	return _m
 }
 
 // String implements the fmt.Stringer.
-func (du *DiscordUser) String() string {
+func (_m *DiscordUser) String() string {
 	var builder strings.Builder
 	builder.WriteString("DiscordUser(")
-	builder.WriteString(fmt.Sprintf("id=%v, ", du.ID))
+	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
 	builder.WriteString("discordid=")
-	builder.WriteString(du.Discordid)
+	builder.WriteString(_m.Discordid)
 	builder.WriteString(", ")
 	builder.WriteString("username=")
-	builder.WriteString(du.Username)
+	builder.WriteString(_m.Username)
 	builder.WriteString(", ")
 	builder.WriteString("email=")
-	builder.WriteString(du.Email)
+	builder.WriteString(_m.Email)
 	builder.WriteString(", ")
 	builder.WriteString("discriminator=")
-	builder.WriteString(du.Discriminator)
+	builder.WriteString(_m.Discriminator)
 	builder.WriteByte(')')
 	return builder.String()
 }
 
 // NamedGuilds returns the Guilds named value or an error if the edge was not
 // loaded in eager-loading with this name.
-func (du *DiscordUser) NamedGuilds(name string) ([]*DiscordGuild, error) {
-	if du.Edges.namedGuilds == nil {
+func (_m *DiscordUser) NamedGuilds(name string) ([]*DiscordGuild, error) {
+	if _m.Edges.namedGuilds == nil {
 		return nil, &NotLoadedError{edge: name}
 	}
-	nodes, ok := du.Edges.namedGuilds[name]
+	nodes, ok := _m.Edges.namedGuilds[name]
 	if !ok {
 		return nil, &NotLoadedError{edge: name}
 	}
 	return nodes, nil
 }
 
-func (du *DiscordUser) appendNamedGuilds(name string, edges ...*DiscordGuild) {
-	if du.Edges.namedGuilds == nil {
-		du.Edges.namedGuilds = make(map[string][]*DiscordGuild)
+func (_m *DiscordUser) appendNamedGuilds(name string, edges ...*DiscordGuild) {
+	if _m.Edges.namedGuilds == nil {
+		_m.Edges.namedGuilds = make(map[string][]*DiscordGuild)
 	}
 	if len(edges) == 0 {
-		du.Edges.namedGuilds[name] = []*DiscordGuild{}
+		_m.Edges.namedGuilds[name] = []*DiscordGuild{}
 	} else {
-		du.Edges.namedGuilds[name] = append(du.Edges.namedGuilds[name], edges...)
+		_m.Edges.namedGuilds[name] = append(_m.Edges.namedGuilds[name], edges...)
 	}
 }
 
 // NamedDiscordMessages returns the DiscordMessages named value or an error if the edge was not
 // loaded in eager-loading with this name.
-func (du *DiscordUser) NamedDiscordMessages(name string) ([]*DiscordMessage, error) {
-	if du.Edges.namedDiscordMessages == nil {
+func (_m *DiscordUser) NamedDiscordMessages(name string) ([]*DiscordMessage, error) {
+	if _m.Edges.namedDiscordMessages == nil {
 		return nil, &NotLoadedError{edge: name}
 	}
-	nodes, ok := du.Edges.namedDiscordMessages[name]
+	nodes, ok := _m.Edges.namedDiscordMessages[name]
 	if !ok {
 		return nil, &NotLoadedError{edge: name}
 	}
 	return nodes, nil
 }
 
-func (du *DiscordUser) appendNamedDiscordMessages(name string, edges ...*DiscordMessage) {
-	if du.Edges.namedDiscordMessages == nil {
-		du.Edges.namedDiscordMessages = make(map[string][]*DiscordMessage)
+func (_m *DiscordUser) appendNamedDiscordMessages(name string, edges ...*DiscordMessage) {
+	if _m.Edges.namedDiscordMessages == nil {
+		_m.Edges.namedDiscordMessages = make(map[string][]*DiscordMessage)
 	}
 	if len(edges) == 0 {
-		du.Edges.namedDiscordMessages[name] = []*DiscordMessage{}
+		_m.Edges.namedDiscordMessages[name] = []*DiscordMessage{}
 	} else {
-		du.Edges.namedDiscordMessages[name] = append(du.Edges.namedDiscordMessages[name], edges...)
+		_m.Edges.namedDiscordMessages[name] = append(_m.Edges.namedDiscordMessages[name], edges...)
 	}
 }
 
 // NamedMediaRequests returns the MediaRequests named value or an error if the edge was not
 // loaded in eager-loading with this name.
-func (du *DiscordUser) NamedMediaRequests(name string) ([]*MediaRequest, error) {
-	if du.Edges.namedMediaRequests == nil {
+func (_m *DiscordUser) NamedMediaRequests(name string) ([]*MediaRequest, error) {
+	if _m.Edges.namedMediaRequests == nil {
 		return nil, &NotLoadedError{edge: name}
 	}
-	nodes, ok := du.Edges.namedMediaRequests[name]
+	nodes, ok := _m.Edges.namedMediaRequests[name]
 	if !ok {
 		return nil, &NotLoadedError{edge: name}
 	}
 	return nodes, nil
 }
 
-func (du *DiscordUser) appendNamedMediaRequests(name string, edges ...*MediaRequest) {
-	if du.Edges.namedMediaRequests == nil {
-		du.Edges.namedMediaRequests = make(map[string][]*MediaRequest)
+func (_m *DiscordUser) appendNamedMediaRequests(name string, edges ...*MediaRequest) {
+	if _m.Edges.namedMediaRequests == nil {
+		_m.Edges.namedMediaRequests = make(map[string][]*MediaRequest)
 	}
 	if len(edges) == 0 {
-		du.Edges.namedMediaRequests[name] = []*MediaRequest{}
+		_m.Edges.namedMediaRequests[name] = []*MediaRequest{}
 	} else {
-		du.Edges.namedMediaRequests[name] = append(du.Edges.namedMediaRequests[name], edges...)
+		_m.Edges.namedMediaRequests[name] = append(_m.Edges.namedMediaRequests[name], edges...)
 	}
 }
 
 // NamedMessageReactions returns the MessageReactions named value or an error if the edge was not
 // loaded in eager-loading with this name.
-func (du *DiscordUser) NamedMessageReactions(name string) ([]*DiscordMessageReaction, error) {
-	if du.Edges.namedMessageReactions == nil {
+func (_m *DiscordUser) NamedMessageReactions(name string) ([]*DiscordMessageReaction, error) {
+	if _m.Edges.namedMessageReactions == nil {
 		return nil, &NotLoadedError{edge: name}
 	}
-	nodes, ok := du.Edges.namedMessageReactions[name]
+	nodes, ok := _m.Edges.namedMessageReactions[name]
 	if !ok {
 		return nil, &NotLoadedError{edge: name}
 	}
 	return nodes, nil
 }
 
-func (du *DiscordUser) appendNamedMessageReactions(name string, edges ...*DiscordMessageReaction) {
-	if du.Edges.namedMessageReactions == nil {
-		du.Edges.namedMessageReactions = make(map[string][]*DiscordMessageReaction)
+func (_m *DiscordUser) appendNamedMessageReactions(name string, edges ...*DiscordMessageReaction) {
+	if _m.Edges.namedMessageReactions == nil {
+		_m.Edges.namedMessageReactions = make(map[string][]*DiscordMessageReaction)
 	}
 	if len(edges) == 0 {
-		du.Edges.namedMessageReactions[name] = []*DiscordMessageReaction{}
+		_m.Edges.namedMessageReactions[name] = []*DiscordMessageReaction{}
 	} else {
-		du.Edges.namedMessageReactions[name] = append(du.Edges.namedMessageReactions[name], edges...)
+		_m.Edges.namedMessageReactions[name] = append(_m.Edges.namedMessageReactions[name], edges...)
 	}
 }
 

@@ -11,11 +11,13 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
+// AuthentikService is a service that interacts with the Authentik API.
 type AuthentikService struct {
 	client *api.APIClient
 	logger *zap.Logger
 }
 
+// NewAuthentikService creates a new AuthentikService.
 func NewAuthentikService(clientgen *AuthentikClientGenerator) *AuthentikService {
 	return &AuthentikService{
 		client: clientgen.generateClient(),
@@ -23,10 +25,12 @@ func NewAuthentikService(clientgen *AuthentikClientGenerator) *AuthentikService 
 	}
 }
 
+// GetClient returns the Authentik API client.
 func (s *AuthentikService) GetClient() *api.APIClient {
 	return s.client
 }
 
+// Verify verifies that the Authentik API is reachable and that the credentials are valid.
 func (s *AuthentikService) Verify(ctx context.Context) bool {
 	errGroup, ctx := errgroup.WithContext(ctx)
 	errGroup.Go(func() error {

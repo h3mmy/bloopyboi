@@ -7,12 +7,13 @@ import (
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/dustin/go-humanize"
-	"github.com/h3mmy/bloopyboi/internal/models"
 	"github.com/h3mmy/bloopyboi/bot/services"
+	"github.com/h3mmy/bloopyboi/internal/models"
 	log "github.com/h3mmy/bloopyboi/pkg/logs"
 	"go.uber.org/zap"
 )
 
+// BlissfestCommand is a command that provides information about the Blissfest event.
 type BlissfestCommand struct {
 	meta        models.BloopyMeta
 	Name        string
@@ -25,10 +26,11 @@ type BlissfestCommand struct {
 	roles   []int64
 }
 
+// NewBlissfestCommand creates a new BlissfestCommand.
 func NewBlissfestCommand(svc *services.BlissfestService) *BlissfestCommand {
 	return &BlissfestCommand{
 		meta:        models.NewBloopyMeta(),
-		Name:        "blissfest",
+		Name:        string(Blissfest),
 		Description: "Gets blissfest related information",
 		logger:      log.NewZapLogger().Named("blissfest_command"),
 		blissSvc:    svc,
@@ -37,21 +39,25 @@ func NewBlissfestCommand(svc *services.BlissfestService) *BlissfestCommand {
 	}
 }
 
+// WithGuild sets the guild ID for the command.
 func (p *BlissfestCommand) WithGuild(guildId string) *BlissfestCommand {
 	p.logger.Debug("setting guild", zap.String("guildId", guildId))
 	p.guildId = guildId
 	return p
 }
 
+// WithRoles sets the allowed roles for the command.
 func (p *BlissfestCommand) WithRoles(roles ...int64) *BlissfestCommand {
 	p.roles = roles
 	return p
 }
 
+// GetAllowedRoles returns the allowed roles for the command.
 func (p *BlissfestCommand) GetAllowedRoles() []int64 {
 	return p.roles
 }
 
+// GetAppCommand returns the application command for the Blissfest command.
 func (p *BlissfestCommand) GetAppCommand() *discordgo.ApplicationCommand {
 	return &discordgo.ApplicationCommand{
 		Name:        strings.ToLower(p.Name),
@@ -76,6 +82,7 @@ func (p *BlissfestCommand) GetAppCommand() *discordgo.ApplicationCommand {
 	}
 }
 
+// GetAppCommandHandler returns the handler for the Blissfest command.
 func (p *BlissfestCommand) GetAppCommandHandler() func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	return func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		p.logger.Debug("received interaction", zap.String("interactionID", i.ID), zap.String("username", GetDiscordUserFromInteraction(i).Username))
@@ -121,6 +128,7 @@ func (p *BlissfestCommand) GetAppCommandHandler() func(s *discordgo.Session, i *
 			resData = discordgo.InteractionResponseData{
 				Embeds: resEmbeds,
 				Title:  "Blissfest",
+				// TODO: Use humanize.Time once the pull request is merged.
 				// pending https://github.com/dustin/go-humanize/pull/92
 				// Content: fmt.Sprintf("%s left", humanize.Time(bsvc.GetTimeUntilStart(nil))),
 				Content: fmt.Sprintf("blissfest starts %s", humanize.Time(*bsvc.GetStartTime())),
@@ -128,6 +136,7 @@ func (p *BlissfestCommand) GetAppCommandHandler() func(s *discordgo.Session, i *
 		} else {
 			resData = discordgo.InteractionResponseData{
 				Title: "Blissfest",
+				// TODO: Use humanize.Time once the pull request is merged.
 				// pending https://github.com/dustin/go-humanize/pull/92
 				// Content: fmt.Sprintf("%s left", humanize.Time(bsvc.GetTimeUntilStart(nil))),
 				Content: fmt.Sprintf("blissfest start %s", humanize.Time(*bsvc.GetStartTime())),
@@ -145,16 +154,18 @@ func (p *BlissfestCommand) GetAppCommandHandler() func(s *discordgo.Session, i *
 	}
 }
 
+// GetMessageComponentHandlers returns the message component handlers for the Blissfest command.
 func (p *BlissfestCommand) GetMessageComponentHandlers() map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	return nil
 }
 
+// GetGuildID returns the guild ID for the command.
 func (p *BlissfestCommand) GetGuildID() string {
 	return p.guildId
 }
 
+// GetTicketInfoAsEmbed returns an embed with ticket information.
 func (p *BlissfestCommand) GetTicketInfoAsEmbed() *discordgo.MessageEmbed {
-
 	adultWeekendPriceLevel, err := p.blissSvc.GetAdultWeekendPriceLevel()
 	if err != nil {
 		p.logger.Warn("error getting adult weekend price level. Not including in response", zap.Error(err))

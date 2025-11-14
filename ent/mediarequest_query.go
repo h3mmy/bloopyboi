@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"math"
 
+	"entgo.io/ent"
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -37,44 +38,44 @@ type MediaRequestQuery struct {
 }
 
 // Where adds a new predicate for the MediaRequestQuery builder.
-func (mrq *MediaRequestQuery) Where(ps ...predicate.MediaRequest) *MediaRequestQuery {
-	mrq.predicates = append(mrq.predicates, ps...)
-	return mrq
+func (_q *MediaRequestQuery) Where(ps ...predicate.MediaRequest) *MediaRequestQuery {
+	_q.predicates = append(_q.predicates, ps...)
+	return _q
 }
 
 // Limit the number of records to be returned by this query.
-func (mrq *MediaRequestQuery) Limit(limit int) *MediaRequestQuery {
-	mrq.ctx.Limit = &limit
-	return mrq
+func (_q *MediaRequestQuery) Limit(limit int) *MediaRequestQuery {
+	_q.ctx.Limit = &limit
+	return _q
 }
 
 // Offset to start from.
-func (mrq *MediaRequestQuery) Offset(offset int) *MediaRequestQuery {
-	mrq.ctx.Offset = &offset
-	return mrq
+func (_q *MediaRequestQuery) Offset(offset int) *MediaRequestQuery {
+	_q.ctx.Offset = &offset
+	return _q
 }
 
 // Unique configures the query builder to filter duplicate records on query.
 // By default, unique is set to true, and can be disabled using this method.
-func (mrq *MediaRequestQuery) Unique(unique bool) *MediaRequestQuery {
-	mrq.ctx.Unique = &unique
-	return mrq
+func (_q *MediaRequestQuery) Unique(unique bool) *MediaRequestQuery {
+	_q.ctx.Unique = &unique
+	return _q
 }
 
 // Order specifies how the records should be ordered.
-func (mrq *MediaRequestQuery) Order(o ...mediarequest.OrderOption) *MediaRequestQuery {
-	mrq.order = append(mrq.order, o...)
-	return mrq
+func (_q *MediaRequestQuery) Order(o ...mediarequest.OrderOption) *MediaRequestQuery {
+	_q.order = append(_q.order, o...)
+	return _q
 }
 
 // QueryDiscordUsers chains the current query on the "discord_users" edge.
-func (mrq *MediaRequestQuery) QueryDiscordUsers() *DiscordUserQuery {
-	query := (&DiscordUserClient{config: mrq.config}).Query()
+func (_q *MediaRequestQuery) QueryDiscordUsers() *DiscordUserQuery {
+	query := (&DiscordUserClient{config: _q.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := mrq.prepareQuery(ctx); err != nil {
+		if err := _q.prepareQuery(ctx); err != nil {
 			return nil, err
 		}
-		selector := mrq.sqlQuery(ctx)
+		selector := _q.sqlQuery(ctx)
 		if err := selector.Err(); err != nil {
 			return nil, err
 		}
@@ -83,20 +84,20 @@ func (mrq *MediaRequestQuery) QueryDiscordUsers() *DiscordUserQuery {
 			sqlgraph.To(discorduser.Table, discorduser.FieldID),
 			sqlgraph.Edge(sqlgraph.M2M, true, mediarequest.DiscordUsersTable, mediarequest.DiscordUsersPrimaryKey...),
 		)
-		fromU = sqlgraph.SetNeighbors(mrq.driver.Dialect(), step)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
 	}
 	return query
 }
 
 // QueryBook chains the current query on the "book" edge.
-func (mrq *MediaRequestQuery) QueryBook() *BookQuery {
-	query := (&BookClient{config: mrq.config}).Query()
+func (_q *MediaRequestQuery) QueryBook() *BookQuery {
+	query := (&BookClient{config: _q.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := mrq.prepareQuery(ctx); err != nil {
+		if err := _q.prepareQuery(ctx); err != nil {
 			return nil, err
 		}
-		selector := mrq.sqlQuery(ctx)
+		selector := _q.sqlQuery(ctx)
 		if err := selector.Err(); err != nil {
 			return nil, err
 		}
@@ -105,7 +106,7 @@ func (mrq *MediaRequestQuery) QueryBook() *BookQuery {
 			sqlgraph.To(book.Table, book.FieldID),
 			sqlgraph.Edge(sqlgraph.O2O, true, mediarequest.BookTable, mediarequest.BookColumn),
 		)
-		fromU = sqlgraph.SetNeighbors(mrq.driver.Dialect(), step)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
 	}
 	return query
@@ -113,8 +114,8 @@ func (mrq *MediaRequestQuery) QueryBook() *BookQuery {
 
 // First returns the first MediaRequest entity from the query.
 // Returns a *NotFoundError when no MediaRequest was found.
-func (mrq *MediaRequestQuery) First(ctx context.Context) (*MediaRequest, error) {
-	nodes, err := mrq.Limit(1).All(setContextOp(ctx, mrq.ctx, "First"))
+func (_q *MediaRequestQuery) First(ctx context.Context) (*MediaRequest, error) {
+	nodes, err := _q.Limit(1).All(setContextOp(ctx, _q.ctx, ent.OpQueryFirst))
 	if err != nil {
 		return nil, err
 	}
@@ -125,8 +126,8 @@ func (mrq *MediaRequestQuery) First(ctx context.Context) (*MediaRequest, error) 
 }
 
 // FirstX is like First, but panics if an error occurs.
-func (mrq *MediaRequestQuery) FirstX(ctx context.Context) *MediaRequest {
-	node, err := mrq.First(ctx)
+func (_q *MediaRequestQuery) FirstX(ctx context.Context) *MediaRequest {
+	node, err := _q.First(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
 	}
@@ -135,9 +136,9 @@ func (mrq *MediaRequestQuery) FirstX(ctx context.Context) *MediaRequest {
 
 // FirstID returns the first MediaRequest ID from the query.
 // Returns a *NotFoundError when no MediaRequest ID was found.
-func (mrq *MediaRequestQuery) FirstID(ctx context.Context) (id uuid.UUID, err error) {
+func (_q *MediaRequestQuery) FirstID(ctx context.Context) (id uuid.UUID, err error) {
 	var ids []uuid.UUID
-	if ids, err = mrq.Limit(1).IDs(setContextOp(ctx, mrq.ctx, "FirstID")); err != nil {
+	if ids, err = _q.Limit(1).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryFirstID)); err != nil {
 		return
 	}
 	if len(ids) == 0 {
@@ -148,8 +149,8 @@ func (mrq *MediaRequestQuery) FirstID(ctx context.Context) (id uuid.UUID, err er
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (mrq *MediaRequestQuery) FirstIDX(ctx context.Context) uuid.UUID {
-	id, err := mrq.FirstID(ctx)
+func (_q *MediaRequestQuery) FirstIDX(ctx context.Context) uuid.UUID {
+	id, err := _q.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
 	}
@@ -159,8 +160,8 @@ func (mrq *MediaRequestQuery) FirstIDX(ctx context.Context) uuid.UUID {
 // Only returns a single MediaRequest entity found by the query, ensuring it only returns one.
 // Returns a *NotSingularError when more than one MediaRequest entity is found.
 // Returns a *NotFoundError when no MediaRequest entities are found.
-func (mrq *MediaRequestQuery) Only(ctx context.Context) (*MediaRequest, error) {
-	nodes, err := mrq.Limit(2).All(setContextOp(ctx, mrq.ctx, "Only"))
+func (_q *MediaRequestQuery) Only(ctx context.Context) (*MediaRequest, error) {
+	nodes, err := _q.Limit(2).All(setContextOp(ctx, _q.ctx, ent.OpQueryOnly))
 	if err != nil {
 		return nil, err
 	}
@@ -175,8 +176,8 @@ func (mrq *MediaRequestQuery) Only(ctx context.Context) (*MediaRequest, error) {
 }
 
 // OnlyX is like Only, but panics if an error occurs.
-func (mrq *MediaRequestQuery) OnlyX(ctx context.Context) *MediaRequest {
-	node, err := mrq.Only(ctx)
+func (_q *MediaRequestQuery) OnlyX(ctx context.Context) *MediaRequest {
+	node, err := _q.Only(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -186,9 +187,9 @@ func (mrq *MediaRequestQuery) OnlyX(ctx context.Context) *MediaRequest {
 // OnlyID is like Only, but returns the only MediaRequest ID in the query.
 // Returns a *NotSingularError when more than one MediaRequest ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (mrq *MediaRequestQuery) OnlyID(ctx context.Context) (id uuid.UUID, err error) {
+func (_q *MediaRequestQuery) OnlyID(ctx context.Context) (id uuid.UUID, err error) {
 	var ids []uuid.UUID
-	if ids, err = mrq.Limit(2).IDs(setContextOp(ctx, mrq.ctx, "OnlyID")); err != nil {
+	if ids, err = _q.Limit(2).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryOnlyID)); err != nil {
 		return
 	}
 	switch len(ids) {
@@ -203,8 +204,8 @@ func (mrq *MediaRequestQuery) OnlyID(ctx context.Context) (id uuid.UUID, err err
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (mrq *MediaRequestQuery) OnlyIDX(ctx context.Context) uuid.UUID {
-	id, err := mrq.OnlyID(ctx)
+func (_q *MediaRequestQuery) OnlyIDX(ctx context.Context) uuid.UUID {
+	id, err := _q.OnlyID(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -212,18 +213,18 @@ func (mrq *MediaRequestQuery) OnlyIDX(ctx context.Context) uuid.UUID {
 }
 
 // All executes the query and returns a list of MediaRequests.
-func (mrq *MediaRequestQuery) All(ctx context.Context) ([]*MediaRequest, error) {
-	ctx = setContextOp(ctx, mrq.ctx, "All")
-	if err := mrq.prepareQuery(ctx); err != nil {
+func (_q *MediaRequestQuery) All(ctx context.Context) ([]*MediaRequest, error) {
+	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryAll)
+	if err := _q.prepareQuery(ctx); err != nil {
 		return nil, err
 	}
 	qr := querierAll[[]*MediaRequest, *MediaRequestQuery]()
-	return withInterceptors[[]*MediaRequest](ctx, mrq, qr, mrq.inters)
+	return withInterceptors[[]*MediaRequest](ctx, _q, qr, _q.inters)
 }
 
 // AllX is like All, but panics if an error occurs.
-func (mrq *MediaRequestQuery) AllX(ctx context.Context) []*MediaRequest {
-	nodes, err := mrq.All(ctx)
+func (_q *MediaRequestQuery) AllX(ctx context.Context) []*MediaRequest {
+	nodes, err := _q.All(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -231,20 +232,20 @@ func (mrq *MediaRequestQuery) AllX(ctx context.Context) []*MediaRequest {
 }
 
 // IDs executes the query and returns a list of MediaRequest IDs.
-func (mrq *MediaRequestQuery) IDs(ctx context.Context) (ids []uuid.UUID, err error) {
-	if mrq.ctx.Unique == nil && mrq.path != nil {
-		mrq.Unique(true)
+func (_q *MediaRequestQuery) IDs(ctx context.Context) (ids []uuid.UUID, err error) {
+	if _q.ctx.Unique == nil && _q.path != nil {
+		_q.Unique(true)
 	}
-	ctx = setContextOp(ctx, mrq.ctx, "IDs")
-	if err = mrq.Select(mediarequest.FieldID).Scan(ctx, &ids); err != nil {
+	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryIDs)
+	if err = _q.Select(mediarequest.FieldID).Scan(ctx, &ids); err != nil {
 		return nil, err
 	}
 	return ids, nil
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (mrq *MediaRequestQuery) IDsX(ctx context.Context) []uuid.UUID {
-	ids, err := mrq.IDs(ctx)
+func (_q *MediaRequestQuery) IDsX(ctx context.Context) []uuid.UUID {
+	ids, err := _q.IDs(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -252,17 +253,17 @@ func (mrq *MediaRequestQuery) IDsX(ctx context.Context) []uuid.UUID {
 }
 
 // Count returns the count of the given query.
-func (mrq *MediaRequestQuery) Count(ctx context.Context) (int, error) {
-	ctx = setContextOp(ctx, mrq.ctx, "Count")
-	if err := mrq.prepareQuery(ctx); err != nil {
+func (_q *MediaRequestQuery) Count(ctx context.Context) (int, error) {
+	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryCount)
+	if err := _q.prepareQuery(ctx); err != nil {
 		return 0, err
 	}
-	return withInterceptors[int](ctx, mrq, querierCount[*MediaRequestQuery](), mrq.inters)
+	return withInterceptors[int](ctx, _q, querierCount[*MediaRequestQuery](), _q.inters)
 }
 
 // CountX is like Count, but panics if an error occurs.
-func (mrq *MediaRequestQuery) CountX(ctx context.Context) int {
-	count, err := mrq.Count(ctx)
+func (_q *MediaRequestQuery) CountX(ctx context.Context) int {
+	count, err := _q.Count(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -270,9 +271,9 @@ func (mrq *MediaRequestQuery) CountX(ctx context.Context) int {
 }
 
 // Exist returns true if the query has elements in the graph.
-func (mrq *MediaRequestQuery) Exist(ctx context.Context) (bool, error) {
-	ctx = setContextOp(ctx, mrq.ctx, "Exist")
-	switch _, err := mrq.FirstID(ctx); {
+func (_q *MediaRequestQuery) Exist(ctx context.Context) (bool, error) {
+	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryExist)
+	switch _, err := _q.FirstID(ctx); {
 	case IsNotFound(err):
 		return false, nil
 	case err != nil:
@@ -283,8 +284,8 @@ func (mrq *MediaRequestQuery) Exist(ctx context.Context) (bool, error) {
 }
 
 // ExistX is like Exist, but panics if an error occurs.
-func (mrq *MediaRequestQuery) ExistX(ctx context.Context) bool {
-	exist, err := mrq.Exist(ctx)
+func (_q *MediaRequestQuery) ExistX(ctx context.Context) bool {
+	exist, err := _q.Exist(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -293,44 +294,44 @@ func (mrq *MediaRequestQuery) ExistX(ctx context.Context) bool {
 
 // Clone returns a duplicate of the MediaRequestQuery builder, including all associated steps. It can be
 // used to prepare common query builders and use them differently after the clone is made.
-func (mrq *MediaRequestQuery) Clone() *MediaRequestQuery {
-	if mrq == nil {
+func (_q *MediaRequestQuery) Clone() *MediaRequestQuery {
+	if _q == nil {
 		return nil
 	}
 	return &MediaRequestQuery{
-		config:           mrq.config,
-		ctx:              mrq.ctx.Clone(),
-		order:            append([]mediarequest.OrderOption{}, mrq.order...),
-		inters:           append([]Interceptor{}, mrq.inters...),
-		predicates:       append([]predicate.MediaRequest{}, mrq.predicates...),
-		withDiscordUsers: mrq.withDiscordUsers.Clone(),
-		withBook:         mrq.withBook.Clone(),
+		config:           _q.config,
+		ctx:              _q.ctx.Clone(),
+		order:            append([]mediarequest.OrderOption{}, _q.order...),
+		inters:           append([]Interceptor{}, _q.inters...),
+		predicates:       append([]predicate.MediaRequest{}, _q.predicates...),
+		withDiscordUsers: _q.withDiscordUsers.Clone(),
+		withBook:         _q.withBook.Clone(),
 		// clone intermediate query.
-		sql:  mrq.sql.Clone(),
-		path: mrq.path,
+		sql:  _q.sql.Clone(),
+		path: _q.path,
 	}
 }
 
 // WithDiscordUsers tells the query-builder to eager-load the nodes that are connected to
 // the "discord_users" edge. The optional arguments are used to configure the query builder of the edge.
-func (mrq *MediaRequestQuery) WithDiscordUsers(opts ...func(*DiscordUserQuery)) *MediaRequestQuery {
-	query := (&DiscordUserClient{config: mrq.config}).Query()
+func (_q *MediaRequestQuery) WithDiscordUsers(opts ...func(*DiscordUserQuery)) *MediaRequestQuery {
+	query := (&DiscordUserClient{config: _q.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
-	mrq.withDiscordUsers = query
-	return mrq
+	_q.withDiscordUsers = query
+	return _q
 }
 
 // WithBook tells the query-builder to eager-load the nodes that are connected to
 // the "book" edge. The optional arguments are used to configure the query builder of the edge.
-func (mrq *MediaRequestQuery) WithBook(opts ...func(*BookQuery)) *MediaRequestQuery {
-	query := (&BookClient{config: mrq.config}).Query()
+func (_q *MediaRequestQuery) WithBook(opts ...func(*BookQuery)) *MediaRequestQuery {
+	query := (&BookClient{config: _q.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
-	mrq.withBook = query
-	return mrq
+	_q.withBook = query
+	return _q
 }
 
 // GroupBy is used to group vertices by one or more fields/columns.
@@ -347,10 +348,10 @@ func (mrq *MediaRequestQuery) WithBook(opts ...func(*BookQuery)) *MediaRequestQu
 //		GroupBy(mediarequest.FieldCreateTime).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
-func (mrq *MediaRequestQuery) GroupBy(field string, fields ...string) *MediaRequestGroupBy {
-	mrq.ctx.Fields = append([]string{field}, fields...)
-	grbuild := &MediaRequestGroupBy{build: mrq}
-	grbuild.flds = &mrq.ctx.Fields
+func (_q *MediaRequestQuery) GroupBy(field string, fields ...string) *MediaRequestGroupBy {
+	_q.ctx.Fields = append([]string{field}, fields...)
+	grbuild := &MediaRequestGroupBy{build: _q}
+	grbuild.flds = &_q.ctx.Fields
 	grbuild.label = mediarequest.Label
 	grbuild.scan = grbuild.Scan
 	return grbuild
@@ -368,56 +369,56 @@ func (mrq *MediaRequestQuery) GroupBy(field string, fields ...string) *MediaRequ
 //	client.MediaRequest.Query().
 //		Select(mediarequest.FieldCreateTime).
 //		Scan(ctx, &v)
-func (mrq *MediaRequestQuery) Select(fields ...string) *MediaRequestSelect {
-	mrq.ctx.Fields = append(mrq.ctx.Fields, fields...)
-	sbuild := &MediaRequestSelect{MediaRequestQuery: mrq}
+func (_q *MediaRequestQuery) Select(fields ...string) *MediaRequestSelect {
+	_q.ctx.Fields = append(_q.ctx.Fields, fields...)
+	sbuild := &MediaRequestSelect{MediaRequestQuery: _q}
 	sbuild.label = mediarequest.Label
-	sbuild.flds, sbuild.scan = &mrq.ctx.Fields, sbuild.Scan
+	sbuild.flds, sbuild.scan = &_q.ctx.Fields, sbuild.Scan
 	return sbuild
 }
 
 // Aggregate returns a MediaRequestSelect configured with the given aggregations.
-func (mrq *MediaRequestQuery) Aggregate(fns ...AggregateFunc) *MediaRequestSelect {
-	return mrq.Select().Aggregate(fns...)
+func (_q *MediaRequestQuery) Aggregate(fns ...AggregateFunc) *MediaRequestSelect {
+	return _q.Select().Aggregate(fns...)
 }
 
-func (mrq *MediaRequestQuery) prepareQuery(ctx context.Context) error {
-	for _, inter := range mrq.inters {
+func (_q *MediaRequestQuery) prepareQuery(ctx context.Context) error {
+	for _, inter := range _q.inters {
 		if inter == nil {
 			return fmt.Errorf("ent: uninitialized interceptor (forgotten import ent/runtime?)")
 		}
 		if trv, ok := inter.(Traverser); ok {
-			if err := trv.Traverse(ctx, mrq); err != nil {
+			if err := trv.Traverse(ctx, _q); err != nil {
 				return err
 			}
 		}
 	}
-	for _, f := range mrq.ctx.Fields {
+	for _, f := range _q.ctx.Fields {
 		if !mediarequest.ValidColumn(f) {
 			return &ValidationError{Name: f, err: fmt.Errorf("ent: invalid field %q for query", f)}
 		}
 	}
-	if mrq.path != nil {
-		prev, err := mrq.path(ctx)
+	if _q.path != nil {
+		prev, err := _q.path(ctx)
 		if err != nil {
 			return err
 		}
-		mrq.sql = prev
+		_q.sql = prev
 	}
 	return nil
 }
 
-func (mrq *MediaRequestQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*MediaRequest, error) {
+func (_q *MediaRequestQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*MediaRequest, error) {
 	var (
 		nodes       = []*MediaRequest{}
-		withFKs     = mrq.withFKs
-		_spec       = mrq.querySpec()
+		withFKs     = _q.withFKs
+		_spec       = _q.querySpec()
 		loadedTypes = [2]bool{
-			mrq.withDiscordUsers != nil,
-			mrq.withBook != nil,
+			_q.withDiscordUsers != nil,
+			_q.withBook != nil,
 		}
 	)
-	if mrq.withBook != nil {
+	if _q.withBook != nil {
 		withFKs = true
 	}
 	if withFKs {
@@ -427,38 +428,38 @@ func (mrq *MediaRequestQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([
 		return (*MediaRequest).scanValues(nil, columns)
 	}
 	_spec.Assign = func(columns []string, values []any) error {
-		node := &MediaRequest{config: mrq.config}
+		node := &MediaRequest{config: _q.config}
 		nodes = append(nodes, node)
 		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
 	}
-	if len(mrq.modifiers) > 0 {
-		_spec.Modifiers = mrq.modifiers
+	if len(_q.modifiers) > 0 {
+		_spec.Modifiers = _q.modifiers
 	}
 	for i := range hooks {
 		hooks[i](ctx, _spec)
 	}
-	if err := sqlgraph.QueryNodes(ctx, mrq.driver, _spec); err != nil {
+	if err := sqlgraph.QueryNodes(ctx, _q.driver, _spec); err != nil {
 		return nil, err
 	}
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
-	if query := mrq.withDiscordUsers; query != nil {
-		if err := mrq.loadDiscordUsers(ctx, query, nodes,
+	if query := _q.withDiscordUsers; query != nil {
+		if err := _q.loadDiscordUsers(ctx, query, nodes,
 			func(n *MediaRequest) { n.Edges.DiscordUsers = []*DiscordUser{} },
 			func(n *MediaRequest, e *DiscordUser) { n.Edges.DiscordUsers = append(n.Edges.DiscordUsers, e) }); err != nil {
 			return nil, err
 		}
 	}
-	if query := mrq.withBook; query != nil {
-		if err := mrq.loadBook(ctx, query, nodes, nil,
+	if query := _q.withBook; query != nil {
+		if err := _q.loadBook(ctx, query, nodes, nil,
 			func(n *MediaRequest, e *Book) { n.Edges.Book = e }); err != nil {
 			return nil, err
 		}
 	}
-	for name, query := range mrq.withNamedDiscordUsers {
-		if err := mrq.loadDiscordUsers(ctx, query, nodes,
+	for name, query := range _q.withNamedDiscordUsers {
+		if err := _q.loadDiscordUsers(ctx, query, nodes,
 			func(n *MediaRequest) { n.appendNamedDiscordUsers(name) },
 			func(n *MediaRequest, e *DiscordUser) { n.appendNamedDiscordUsers(name, e) }); err != nil {
 			return nil, err
@@ -467,7 +468,7 @@ func (mrq *MediaRequestQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([
 	return nodes, nil
 }
 
-func (mrq *MediaRequestQuery) loadDiscordUsers(ctx context.Context, query *DiscordUserQuery, nodes []*MediaRequest, init func(*MediaRequest), assign func(*MediaRequest, *DiscordUser)) error {
+func (_q *MediaRequestQuery) loadDiscordUsers(ctx context.Context, query *DiscordUserQuery, nodes []*MediaRequest, init func(*MediaRequest), assign func(*MediaRequest, *DiscordUser)) error {
 	edgeIDs := make([]driver.Value, len(nodes))
 	byID := make(map[uuid.UUID]*MediaRequest)
 	nids := make(map[uuid.UUID]map[*MediaRequest]struct{})
@@ -528,7 +529,7 @@ func (mrq *MediaRequestQuery) loadDiscordUsers(ctx context.Context, query *Disco
 	}
 	return nil
 }
-func (mrq *MediaRequestQuery) loadBook(ctx context.Context, query *BookQuery, nodes []*MediaRequest, init func(*MediaRequest), assign func(*MediaRequest, *Book)) error {
+func (_q *MediaRequestQuery) loadBook(ctx context.Context, query *BookQuery, nodes []*MediaRequest, init func(*MediaRequest), assign func(*MediaRequest, *Book)) error {
 	ids := make([]uuid.UUID, 0, len(nodes))
 	nodeids := make(map[uuid.UUID][]*MediaRequest)
 	for i := range nodes {
@@ -561,27 +562,27 @@ func (mrq *MediaRequestQuery) loadBook(ctx context.Context, query *BookQuery, no
 	return nil
 }
 
-func (mrq *MediaRequestQuery) sqlCount(ctx context.Context) (int, error) {
-	_spec := mrq.querySpec()
-	if len(mrq.modifiers) > 0 {
-		_spec.Modifiers = mrq.modifiers
+func (_q *MediaRequestQuery) sqlCount(ctx context.Context) (int, error) {
+	_spec := _q.querySpec()
+	if len(_q.modifiers) > 0 {
+		_spec.Modifiers = _q.modifiers
 	}
-	_spec.Node.Columns = mrq.ctx.Fields
-	if len(mrq.ctx.Fields) > 0 {
-		_spec.Unique = mrq.ctx.Unique != nil && *mrq.ctx.Unique
+	_spec.Node.Columns = _q.ctx.Fields
+	if len(_q.ctx.Fields) > 0 {
+		_spec.Unique = _q.ctx.Unique != nil && *_q.ctx.Unique
 	}
-	return sqlgraph.CountNodes(ctx, mrq.driver, _spec)
+	return sqlgraph.CountNodes(ctx, _q.driver, _spec)
 }
 
-func (mrq *MediaRequestQuery) querySpec() *sqlgraph.QuerySpec {
+func (_q *MediaRequestQuery) querySpec() *sqlgraph.QuerySpec {
 	_spec := sqlgraph.NewQuerySpec(mediarequest.Table, mediarequest.Columns, sqlgraph.NewFieldSpec(mediarequest.FieldID, field.TypeUUID))
-	_spec.From = mrq.sql
-	if unique := mrq.ctx.Unique; unique != nil {
+	_spec.From = _q.sql
+	if unique := _q.ctx.Unique; unique != nil {
 		_spec.Unique = *unique
-	} else if mrq.path != nil {
+	} else if _q.path != nil {
 		_spec.Unique = true
 	}
-	if fields := mrq.ctx.Fields; len(fields) > 0 {
+	if fields := _q.ctx.Fields; len(fields) > 0 {
 		_spec.Node.Columns = make([]string, 0, len(fields))
 		_spec.Node.Columns = append(_spec.Node.Columns, mediarequest.FieldID)
 		for i := range fields {
@@ -590,20 +591,20 @@ func (mrq *MediaRequestQuery) querySpec() *sqlgraph.QuerySpec {
 			}
 		}
 	}
-	if ps := mrq.predicates; len(ps) > 0 {
+	if ps := _q.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if limit := mrq.ctx.Limit; limit != nil {
+	if limit := _q.ctx.Limit; limit != nil {
 		_spec.Limit = *limit
 	}
-	if offset := mrq.ctx.Offset; offset != nil {
+	if offset := _q.ctx.Offset; offset != nil {
 		_spec.Offset = *offset
 	}
-	if ps := mrq.order; len(ps) > 0 {
+	if ps := _q.order; len(ps) > 0 {
 		_spec.Order = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
@@ -613,36 +614,36 @@ func (mrq *MediaRequestQuery) querySpec() *sqlgraph.QuerySpec {
 	return _spec
 }
 
-func (mrq *MediaRequestQuery) sqlQuery(ctx context.Context) *sql.Selector {
-	builder := sql.Dialect(mrq.driver.Dialect())
+func (_q *MediaRequestQuery) sqlQuery(ctx context.Context) *sql.Selector {
+	builder := sql.Dialect(_q.driver.Dialect())
 	t1 := builder.Table(mediarequest.Table)
-	columns := mrq.ctx.Fields
+	columns := _q.ctx.Fields
 	if len(columns) == 0 {
 		columns = mediarequest.Columns
 	}
 	selector := builder.Select(t1.Columns(columns...)...).From(t1)
-	if mrq.sql != nil {
-		selector = mrq.sql
+	if _q.sql != nil {
+		selector = _q.sql
 		selector.Select(selector.Columns(columns...)...)
 	}
-	if mrq.ctx.Unique != nil && *mrq.ctx.Unique {
+	if _q.ctx.Unique != nil && *_q.ctx.Unique {
 		selector.Distinct()
 	}
-	for _, m := range mrq.modifiers {
+	for _, m := range _q.modifiers {
 		m(selector)
 	}
-	for _, p := range mrq.predicates {
+	for _, p := range _q.predicates {
 		p(selector)
 	}
-	for _, p := range mrq.order {
+	for _, p := range _q.order {
 		p(selector)
 	}
-	if offset := mrq.ctx.Offset; offset != nil {
+	if offset := _q.ctx.Offset; offset != nil {
 		// limit is mandatory for offset clause. We start
 		// with default value, and override it below if needed.
 		selector.Offset(*offset).Limit(math.MaxInt32)
 	}
-	if limit := mrq.ctx.Limit; limit != nil {
+	if limit := _q.ctx.Limit; limit != nil {
 		selector.Limit(*limit)
 	}
 	return selector
@@ -651,41 +652,41 @@ func (mrq *MediaRequestQuery) sqlQuery(ctx context.Context) *sql.Selector {
 // ForUpdate locks the selected rows against concurrent updates, and prevent them from being
 // updated, deleted or "selected ... for update" by other sessions, until the transaction is
 // either committed or rolled-back.
-func (mrq *MediaRequestQuery) ForUpdate(opts ...sql.LockOption) *MediaRequestQuery {
-	if mrq.driver.Dialect() == dialect.Postgres {
-		mrq.Unique(false)
+func (_q *MediaRequestQuery) ForUpdate(opts ...sql.LockOption) *MediaRequestQuery {
+	if _q.driver.Dialect() == dialect.Postgres {
+		_q.Unique(false)
 	}
-	mrq.modifiers = append(mrq.modifiers, func(s *sql.Selector) {
+	_q.modifiers = append(_q.modifiers, func(s *sql.Selector) {
 		s.ForUpdate(opts...)
 	})
-	return mrq
+	return _q
 }
 
 // ForShare behaves similarly to ForUpdate, except that it acquires a shared mode lock
 // on any rows that are read. Other sessions can read the rows, but cannot modify them
 // until your transaction commits.
-func (mrq *MediaRequestQuery) ForShare(opts ...sql.LockOption) *MediaRequestQuery {
-	if mrq.driver.Dialect() == dialect.Postgres {
-		mrq.Unique(false)
+func (_q *MediaRequestQuery) ForShare(opts ...sql.LockOption) *MediaRequestQuery {
+	if _q.driver.Dialect() == dialect.Postgres {
+		_q.Unique(false)
 	}
-	mrq.modifiers = append(mrq.modifiers, func(s *sql.Selector) {
+	_q.modifiers = append(_q.modifiers, func(s *sql.Selector) {
 		s.ForShare(opts...)
 	})
-	return mrq
+	return _q
 }
 
 // WithNamedDiscordUsers tells the query-builder to eager-load the nodes that are connected to the "discord_users"
 // edge with the given name. The optional arguments are used to configure the query builder of the edge.
-func (mrq *MediaRequestQuery) WithNamedDiscordUsers(name string, opts ...func(*DiscordUserQuery)) *MediaRequestQuery {
-	query := (&DiscordUserClient{config: mrq.config}).Query()
+func (_q *MediaRequestQuery) WithNamedDiscordUsers(name string, opts ...func(*DiscordUserQuery)) *MediaRequestQuery {
+	query := (&DiscordUserClient{config: _q.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
-	if mrq.withNamedDiscordUsers == nil {
-		mrq.withNamedDiscordUsers = make(map[string]*DiscordUserQuery)
+	if _q.withNamedDiscordUsers == nil {
+		_q.withNamedDiscordUsers = make(map[string]*DiscordUserQuery)
 	}
-	mrq.withNamedDiscordUsers[name] = query
-	return mrq
+	_q.withNamedDiscordUsers[name] = query
+	return _q
 }
 
 // MediaRequestGroupBy is the group-by builder for MediaRequest entities.
@@ -695,41 +696,41 @@ type MediaRequestGroupBy struct {
 }
 
 // Aggregate adds the given aggregation functions to the group-by query.
-func (mrgb *MediaRequestGroupBy) Aggregate(fns ...AggregateFunc) *MediaRequestGroupBy {
-	mrgb.fns = append(mrgb.fns, fns...)
-	return mrgb
+func (_g *MediaRequestGroupBy) Aggregate(fns ...AggregateFunc) *MediaRequestGroupBy {
+	_g.fns = append(_g.fns, fns...)
+	return _g
 }
 
 // Scan applies the selector query and scans the result into the given value.
-func (mrgb *MediaRequestGroupBy) Scan(ctx context.Context, v any) error {
-	ctx = setContextOp(ctx, mrgb.build.ctx, "GroupBy")
-	if err := mrgb.build.prepareQuery(ctx); err != nil {
+func (_g *MediaRequestGroupBy) Scan(ctx context.Context, v any) error {
+	ctx = setContextOp(ctx, _g.build.ctx, ent.OpQueryGroupBy)
+	if err := _g.build.prepareQuery(ctx); err != nil {
 		return err
 	}
-	return scanWithInterceptors[*MediaRequestQuery, *MediaRequestGroupBy](ctx, mrgb.build, mrgb, mrgb.build.inters, v)
+	return scanWithInterceptors[*MediaRequestQuery, *MediaRequestGroupBy](ctx, _g.build, _g, _g.build.inters, v)
 }
 
-func (mrgb *MediaRequestGroupBy) sqlScan(ctx context.Context, root *MediaRequestQuery, v any) error {
+func (_g *MediaRequestGroupBy) sqlScan(ctx context.Context, root *MediaRequestQuery, v any) error {
 	selector := root.sqlQuery(ctx).Select()
-	aggregation := make([]string, 0, len(mrgb.fns))
-	for _, fn := range mrgb.fns {
+	aggregation := make([]string, 0, len(_g.fns))
+	for _, fn := range _g.fns {
 		aggregation = append(aggregation, fn(selector))
 	}
 	if len(selector.SelectedColumns()) == 0 {
-		columns := make([]string, 0, len(*mrgb.flds)+len(mrgb.fns))
-		for _, f := range *mrgb.flds {
+		columns := make([]string, 0, len(*_g.flds)+len(_g.fns))
+		for _, f := range *_g.flds {
 			columns = append(columns, selector.C(f))
 		}
 		columns = append(columns, aggregation...)
 		selector.Select(columns...)
 	}
-	selector.GroupBy(selector.Columns(*mrgb.flds...)...)
+	selector.GroupBy(selector.Columns(*_g.flds...)...)
 	if err := selector.Err(); err != nil {
 		return err
 	}
 	rows := &sql.Rows{}
 	query, args := selector.Query()
-	if err := mrgb.build.driver.Query(ctx, query, args, rows); err != nil {
+	if err := _g.build.driver.Query(ctx, query, args, rows); err != nil {
 		return err
 	}
 	defer rows.Close()
@@ -743,27 +744,27 @@ type MediaRequestSelect struct {
 }
 
 // Aggregate adds the given aggregation functions to the selector query.
-func (mrs *MediaRequestSelect) Aggregate(fns ...AggregateFunc) *MediaRequestSelect {
-	mrs.fns = append(mrs.fns, fns...)
-	return mrs
+func (_s *MediaRequestSelect) Aggregate(fns ...AggregateFunc) *MediaRequestSelect {
+	_s.fns = append(_s.fns, fns...)
+	return _s
 }
 
 // Scan applies the selector query and scans the result into the given value.
-func (mrs *MediaRequestSelect) Scan(ctx context.Context, v any) error {
-	ctx = setContextOp(ctx, mrs.ctx, "Select")
-	if err := mrs.prepareQuery(ctx); err != nil {
+func (_s *MediaRequestSelect) Scan(ctx context.Context, v any) error {
+	ctx = setContextOp(ctx, _s.ctx, ent.OpQuerySelect)
+	if err := _s.prepareQuery(ctx); err != nil {
 		return err
 	}
-	return scanWithInterceptors[*MediaRequestQuery, *MediaRequestSelect](ctx, mrs.MediaRequestQuery, mrs, mrs.inters, v)
+	return scanWithInterceptors[*MediaRequestQuery, *MediaRequestSelect](ctx, _s.MediaRequestQuery, _s, _s.inters, v)
 }
 
-func (mrs *MediaRequestSelect) sqlScan(ctx context.Context, root *MediaRequestQuery, v any) error {
+func (_s *MediaRequestSelect) sqlScan(ctx context.Context, root *MediaRequestQuery, v any) error {
 	selector := root.sqlQuery(ctx)
-	aggregation := make([]string, 0, len(mrs.fns))
-	for _, fn := range mrs.fns {
+	aggregation := make([]string, 0, len(_s.fns))
+	for _, fn := range _s.fns {
 		aggregation = append(aggregation, fn(selector))
 	}
-	switch n := len(*mrs.selector.flds); {
+	switch n := len(*_s.selector.flds); {
 	case n == 0 && len(aggregation) > 0:
 		selector.Select(aggregation...)
 	case n != 0 && len(aggregation) > 0:
@@ -771,7 +772,7 @@ func (mrs *MediaRequestSelect) sqlScan(ctx context.Context, root *MediaRequestQu
 	}
 	rows := &sql.Rows{}
 	query, args := selector.Query()
-	if err := mrs.driver.Query(ctx, query, args, rows); err != nil {
+	if err := _s.driver.Query(ctx, query, args, rows); err != nil {
 		return err
 	}
 	defer rows.Close()

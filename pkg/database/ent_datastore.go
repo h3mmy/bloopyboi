@@ -6,9 +6,9 @@ import (
 	"time"
 
 	"entgo.io/ent/dialect"
-	"github.com/h3mmy/bloopyboi/pkg/config"
 	"github.com/h3mmy/bloopyboi/ent"
 	"github.com/h3mmy/bloopyboi/ent/migrate"
+	"github.com/h3mmy/bloopyboi/pkg/config"
 	"github.com/uptrace/opentelemetry-go-extra/otelsql"
 	"go.uber.org/zap"
 

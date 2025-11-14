@@ -17,9 +17,11 @@ import (
 	"k8s.io/metrics/pkg/client/clientset/versioned"
 )
 
+// BotK8sMeta contains metadata about the bot's Kubernetes environment.
 type BotK8sMeta struct {
 }
 
+// K8sService is a service that interacts with the Kubernetes API.
 type K8sService struct {
 	botMeta       *BotK8sMeta
 	kubeClient    kubernetes.Interface
@@ -27,6 +29,7 @@ type K8sService struct {
 	logger        *zap.Logger
 }
 
+// NewK8sService creates a new K8sService.
 func NewK8sService() *K8sService {
 	return &K8sService{
 		botMeta:    &BotK8sMeta{},
@@ -39,6 +42,7 @@ func NewK8sService() *K8sService {
 	}
 }
 
+// ListNamespaces lists the namespaces in the cluster.
 func (ks *K8sService) ListNamespaces(ctx context.Context) []coreV1.Namespace {
 	nsList, err := ks.kubeClient.CoreV1().Namespaces().List(ctx, v1.ListOptions{})
 	if err != nil {
@@ -49,6 +53,8 @@ func (ks *K8sService) ListNamespaces(ctx context.Context) []coreV1.Namespace {
 	return nsList.Items
 }
 
+// GetPodMetrics gets the metrics for all pods in a namespace.
+// TODO: This function is not fully implemented and should be removed or completed.
 func (ks *K8sService) GetPodMetrics(ctx context.Context) []v1beta1.PodMetrics {
 	// ks.kubeClient.CoreV1().ServiceAccounts().
 	namespace := "default"
@@ -61,6 +67,7 @@ func (ks *K8sService) GetPodMetrics(ctx context.Context) []v1beta1.PodMetrics {
 	return metricsList.Items
 }
 
+// GetPodNamespace gets the namespace of the pod the bot is running in.
 func (ks *K8sService) GetPodNamespace(ctx context.Context) (string, error) {
 	ks.logger.Debug("Getting pod namespace")
 	if ns := os.Getenv("POD_NAMESPACE"); ns != "" {

@@ -13,5 +13,5 @@ type PostgresConfig struct {
 }
 
 func (p *PostgresConfig) GetDSN() string {
-	return fmt.Sprintf("%s://%s:%s@%s:%s/%s", p.Type, p.User, p.Password , p.Host, p.Port, p.Name)
+	return fmt.Sprintf("%s://%s:%s@%s:%s/%s", p.Type, p.User, p.Password, p.Host, p.Port, p.Name)
 }

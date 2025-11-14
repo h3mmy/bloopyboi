@@ -5,6 +5,7 @@ const DiscordEpoch = 1420070400000
 
 // ChannelType is the type of a Channel
 type ChannelType int
+
 // Block contains known ChannelType values
 const (
 	ChannelTypeGuildText          ChannelType = 0
