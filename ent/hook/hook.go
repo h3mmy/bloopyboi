@@ -93,6 +93,18 @@ func (f DiscordUserFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value,
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.DiscordUserMutation", m)
 }
 
+// The EmojiFunc type is an adapter to allow the use of ordinary
+// function as Emoji mutator.
+type EmojiFunc func(context.Context, *ent.EmojiMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f EmojiFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.EmojiMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.EmojiMutation", m)
+}
+
 // The MediaRequestFunc type is an adapter to allow the use of ordinary
 // function as MediaRequest mutator.
 type MediaRequestFunc func(context.Context, *ent.MediaRequestMutation) (ent.Value, error)

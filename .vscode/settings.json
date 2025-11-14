@@ -4,7 +4,10 @@
   },
   "json.schemas": [
     {
-      "fileMatch": ["./github/renovate.json", "./gitlab/renovate.json5"],
+      "fileMatch": [
+        "./github/renovate.json",
+        "./gitlab/renovate.json5"
+      ],
       "url": "https://docs.renovatebot.com/renovate-schema.json"
     }
   ],
@@ -44,7 +47,7 @@
   "go.lintTool": "golangci-lint",
   "go.lintFlags": ["--fast", "-c .github/lint/golangci.yaml"],
   "editor.formatOnSave": true,
-  "go.vetOnSave": "off",
+   "go.vetOnSave": "off",
   "github.copilot.enable": {
     "*": false
   },

@@ -13,6 +13,7 @@ import (
 	"github.com/h3mmy/bloopyboi/ent/discordmessage"
 	"github.com/h3mmy/bloopyboi/ent/discordmessagereaction"
 	"github.com/h3mmy/bloopyboi/ent/discorduser"
+	"github.com/h3mmy/bloopyboi/ent/emoji"
 	"github.com/h3mmy/bloopyboi/ent/mediarequest"
 	"github.com/h3mmy/bloopyboi/ent/schema"
 )
@@ -110,6 +111,16 @@ func init() {
 	discorduserDescID := discorduserFields[0].Descriptor()
 	// discorduser.DefaultID holds the default value on creation for the id field.
 	discorduser.DefaultID = discorduserDescID.Default.(func() uuid.UUID)
+	emojiFields := schema.Emoji{}.Fields()
+	_ = emojiFields
+	// emojiDescName is the schema descriptor for name field.
+	emojiDescName := emojiFields[1].Descriptor()
+	// emoji.NameValidator is a validator for the "name" field. It is called by the builders before save.
+	emoji.NameValidator = emojiDescName.Validators[0].(func(string) error)
+	// emojiDescAnimated is the schema descriptor for animated field.
+	emojiDescAnimated := emojiFields[2].Descriptor()
+	// emoji.DefaultAnimated holds the default value on creation for the animated field.
+	emoji.DefaultAnimated = emojiDescAnimated.Default.(bool)
 	mediarequestMixin := schema.MediaRequest{}.Mixin()
 	mediarequestMixinFields0 := mediarequestMixin[0].Fields()
 	_ = mediarequestMixinFields0

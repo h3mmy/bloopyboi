@@ -12,7 +12,7 @@ Bot that can be linked to a discord server. Is able to register slash commands a
 
 Runs in a container.
 
-Note: The Helm Chart is Deprecated currently. 
+Note: The Helm Chart is Deprecated currently.
 
 ## Authors and acknowledgment
 
@@ -28,11 +28,7 @@ Active-ish
 
 ## Developing
 
-Once I have settled on an architectural approach, this will be moved to a contributing file
-
-To generate ent schema
-
-`go generate ent`
+Once I have settled on an architectural approach, this will be moved to the [Contributing.md] file
 
 Local Testing (Manual)
 
