@@ -37,7 +37,8 @@ go fmt ./...
 
 ## Linter
 
-The project uses `golangci-lint`. It can be run with `~/go/bin/golangci-lint run --timeout 5m`. If not present, it can be installed with `go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest`.
+The project uses `golangci-lint`. It can be run with `~/go/bin/golangci-lint run --timeout 5m`. If not present, it can be installed with `curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/HEAD/install.sh | sh -s -- -b $(go env GOPATH)/bin v2.6.1
+`.
 
 ## Project Structure
 
