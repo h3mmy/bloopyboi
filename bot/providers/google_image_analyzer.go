@@ -104,19 +104,6 @@ func (a *GoogleVisionAnalyzer) AnalyzeImageFromURL(ctx context.Context, url stri
 	return analysis, nil
 }
 
-// calculateSentiment derives a sentiment score from safe search annotations.
-func calculateSentiment(safeSearch *visionpb.SafeSearchAnnotation) float64 {
-	var score float64
-
-	score -= float64(safeSearch.Adult) * 0.25
-	score -= float64(safeSearch.Spoof) * 0.25
-	score -= float64(safeSearch.Medical) * 0.1
-	score -= float64(safeSearch.Violence) * 0.25
-	score -= float64(safeSearch.Racy) * 0.15
-
-	return score / 5.0
-}
-
 // Close closes the underlying client connection.
 func (a *GoogleVisionAnalyzer) Close() error {
 	return a.client.Close()
