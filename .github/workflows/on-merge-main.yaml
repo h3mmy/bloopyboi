@@ -65,7 +65,7 @@ jobs:
 
       - name: Install semantic release packages
         run: |
-          export $GITHUB_TOKEN=${{ steps.generate-token.outputs.token }}
+          export GITHUB_TOKEN=${{ steps.generate-token.outputs.token }}
           npx --package semantic-release --package @semantic-release/exec --package conventional-changelog-conventionalcommits semantic-release
       
       - name: Semantic Release
