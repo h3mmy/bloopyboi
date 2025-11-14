@@ -76,12 +76,20 @@ func (c *AnalyzeEmojiCommand) GetAppCommandHandler() func(s *discordgo.Session, 
 			parts := strings.Split(trimmed, ":")
 			if len(parts) == 2 || len(parts) == 3 {
 				var emojiID string
+				animated := false
 				if len(parts) == 3 {
 					emojiID = parts[1]
+					animated = true
 				} else {
 					emojiID = parts[2]
 				}
-				emojiURL := fmt.Sprintf("https://cdn.discordapp.com/emojis/%s.png", emojiID)
+
+				extension := "png" // Could also be jpg or webp
+				if animated {
+					extension = "gif"
+				}
+
+				emojiURL := fmt.Sprintf("https://cdn.discordapp.com/emojis/%s.%s", emojiID, extension)
 
 				analysis, err := c.imageAnalyzingSvc.AnalyzeImageFromURL(context.Background(), emojiURL)
 				if err != nil {
@@ -99,8 +107,12 @@ func (c *AnalyzeEmojiCommand) GetAppCommandHandler() func(s *discordgo.Session, 
 				}
 
 				// Format and send the results
-				response := fmt.Sprintf("Analysis for %s:\nKeywords: %s\nSentiment: %.2f", emojiArg, strings.Join(analysis.Keywords, ", "), analysis.Sentiment)
-				errR := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+				response := fmt.Sprintf("Analysis for %s:\nKeywords: %s\nSafeSearchAnnotation: %s",
+					emojiArg,
+					strings.Join(analysis.GetKeywordsSortedByScore(), ", "),
+					PrintJSON(analysis.SafeSearchAnalysis))
+
+					errR := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 					Type: discordgo.InteractionResponseChannelMessageWithSource,
 					Data: &discordgo.InteractionResponseData{
 						Content: response,

@@ -50,7 +50,7 @@ func (a *GoogleVisionAnalyzer) AnalyzeImageFromURL(ctx context.Context, url stri
 		Content: imageBytes,
 	}
 
-	// 3. Perform label and sentiment detection (simplified for this example)
+	// 3. Perform label and safe search detection
 	req := &visionpb.BatchAnnotateImagesRequest{
 		Requests: []*visionpb.AnnotateImageRequest{
 			{
@@ -58,7 +58,7 @@ func (a *GoogleVisionAnalyzer) AnalyzeImageFromURL(ctx context.Context, url stri
 				Features: []*visionpb.Feature{
 					{
 						Type:       visionpb.Feature_LABEL_DETECTION,
-						MaxResults: 10,
+						MaxResults: 15,
 					},
 					{
 						Type: visionpb.Feature_SAFE_SEARCH_DETECTION,
@@ -80,15 +80,26 @@ func (a *GoogleVisionAnalyzer) AnalyzeImageFromURL(ctx context.Context, url stri
 	response := res.Responses[0]
 
 	analysis := &models.ImageAnalysis{
-		Keywords:  []string{},
-		Sentiment: 0.0,
+		Labels: []models.EntityLabelAnnotation{},
+		SafeSearchAnalysis: &models.SafeSearchAnnotation{},
 	}
 
 	for _, label := range response.LabelAnnotations {
-		analysis.Keywords = append(analysis.Keywords, label.Description)
+		analysis.Labels = append(analysis.Labels, models.EntityLabelAnnotation{
+			Locale:       label.GetLocale(),
+			Description:  label.GetDescription(),
+			Score:        label.GetScore(),
+			Topicality:   label.GetTopicality(),
+		})
 	}
 
-	analysis.Sentiment = calculateSentiment(response.SafeSearchAnnotation)
+	analysis.SafeSearchAnalysis = &models.SafeSearchAnnotation{
+		Adult:     models.Likelihood(response.SafeSearchAnnotation.Adult),
+		Spoof:     models.Likelihood(response.SafeSearchAnnotation.Spoof),
+		Medical:   models.Likelihood(response.SafeSearchAnnotation.Medical),
+		Violence:  models.Likelihood(response.SafeSearchAnnotation.Violence),
+		Racy:      models.Likelihood(response.SafeSearchAnnotation.Racy),
+	}
 
 	return analysis, nil
 }
