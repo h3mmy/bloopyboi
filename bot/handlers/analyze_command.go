@@ -77,7 +77,7 @@ func (c *AnalyzeEmojiCommand) GetAppCommandHandler() func(s *discordgo.Session, 
 			if len(parts) == 2 || len(parts) == 3 {
 				var emojiID string
 				animated := false
-				if len(parts) == 3 {
+				if len(parts) == 2 {
 					emojiID = parts[1]
 					animated = true
 				} else {
