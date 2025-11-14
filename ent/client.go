@@ -23,6 +23,7 @@ import (
 	"github.com/h3mmy/bloopyboi/ent/discordmessage"
 	"github.com/h3mmy/bloopyboi/ent/discordmessagereaction"
 	"github.com/h3mmy/bloopyboi/ent/discorduser"
+	"github.com/h3mmy/bloopyboi/ent/emoji"
 	"github.com/h3mmy/bloopyboi/ent/mediarequest"
 )
 
@@ -45,6 +46,8 @@ type Client struct {
 	DiscordMessageReaction *DiscordMessageReactionClient
 	// DiscordUser is the client for interacting with the DiscordUser builders.
 	DiscordUser *DiscordUserClient
+	// Emoji is the client for interacting with the Emoji builders.
+	Emoji *EmojiClient
 	// MediaRequest is the client for interacting with the MediaRequest builders.
 	MediaRequest *MediaRequestClient
 }
@@ -65,6 +68,7 @@ func (c *Client) init() {
 	c.DiscordMessage = NewDiscordMessageClient(c.config)
 	c.DiscordMessageReaction = NewDiscordMessageReactionClient(c.config)
 	c.DiscordUser = NewDiscordUserClient(c.config)
+	c.Emoji = NewEmojiClient(c.config)
 	c.MediaRequest = NewMediaRequestClient(c.config)
 }
 
@@ -165,6 +169,7 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		DiscordMessage:         NewDiscordMessageClient(cfg),
 		DiscordMessageReaction: NewDiscordMessageReactionClient(cfg),
 		DiscordUser:            NewDiscordUserClient(cfg),
+		Emoji:                  NewEmojiClient(cfg),
 		MediaRequest:           NewMediaRequestClient(cfg),
 	}, nil
 }
@@ -192,6 +197,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		DiscordMessage:         NewDiscordMessageClient(cfg),
 		DiscordMessageReaction: NewDiscordMessageReactionClient(cfg),
 		DiscordUser:            NewDiscordUserClient(cfg),
+		Emoji:                  NewEmojiClient(cfg),
 		MediaRequest:           NewMediaRequestClient(cfg),
 	}, nil
 }
@@ -223,7 +229,7 @@ func (c *Client) Close() error {
 func (c *Client) Use(hooks ...Hook) {
 	for _, n := range []interface{ Use(...Hook) }{
 		c.Book, c.BookAuthor, c.DiscordChannel, c.DiscordGuild, c.DiscordMessage,
-		c.DiscordMessageReaction, c.DiscordUser, c.MediaRequest,
+		c.DiscordMessageReaction, c.DiscordUser, c.Emoji, c.MediaRequest,
 	} {
 		n.Use(hooks...)
 	}
@@ -234,7 +240,7 @@ func (c *Client) Use(hooks ...Hook) {
 func (c *Client) Intercept(interceptors ...Interceptor) {
 	for _, n := range []interface{ Intercept(...Interceptor) }{
 		c.Book, c.BookAuthor, c.DiscordChannel, c.DiscordGuild, c.DiscordMessage,
-		c.DiscordMessageReaction, c.DiscordUser, c.MediaRequest,
+		c.DiscordMessageReaction, c.DiscordUser, c.Emoji, c.MediaRequest,
 	} {
 		n.Intercept(interceptors...)
 	}
@@ -257,6 +263,8 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.DiscordMessageReaction.mutate(ctx, m)
 	case *DiscordUserMutation:
 		return c.DiscordUser.mutate(ctx, m)
+	case *EmojiMutation:
+		return c.Emoji.mutate(ctx, m)
 	case *MediaRequestMutation:
 		return c.MediaRequest.mutate(ctx, m)
 	default:
@@ -1483,6 +1491,139 @@ func (c *DiscordUserClient) mutate(ctx context.Context, m *DiscordUserMutation) 
 	}
 }
 
+// EmojiClient is a client for the Emoji schema.
+type EmojiClient struct {
+	config
+}
+
+// NewEmojiClient returns a client for the Emoji from the given config.
+func NewEmojiClient(c config) *EmojiClient {
+	return &EmojiClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `emoji.Hooks(f(g(h())))`.
+func (c *EmojiClient) Use(hooks ...Hook) {
+	c.hooks.Emoji = append(c.hooks.Emoji, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `emoji.Intercept(f(g(h())))`.
+func (c *EmojiClient) Intercept(interceptors ...Interceptor) {
+	c.inters.Emoji = append(c.inters.Emoji, interceptors...)
+}
+
+// Create returns a builder for creating a Emoji entity.
+func (c *EmojiClient) Create() *EmojiCreate {
+	mutation := newEmojiMutation(c.config, OpCreate)
+	return &EmojiCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of Emoji entities.
+func (c *EmojiClient) CreateBulk(builders ...*EmojiCreate) *EmojiCreateBulk {
+	return &EmojiCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *EmojiClient) MapCreateBulk(slice any, setFunc func(*EmojiCreate, int)) *EmojiCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &EmojiCreateBulk{err: fmt.Errorf("calling to EmojiClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*EmojiCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &EmojiCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for Emoji.
+func (c *EmojiClient) Update() *EmojiUpdate {
+	mutation := newEmojiMutation(c.config, OpUpdate)
+	return &EmojiUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *EmojiClient) UpdateOne(_m *Emoji) *EmojiUpdateOne {
+	mutation := newEmojiMutation(c.config, OpUpdateOne, withEmoji(_m))
+	return &EmojiUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *EmojiClient) UpdateOneID(id int) *EmojiUpdateOne {
+	mutation := newEmojiMutation(c.config, OpUpdateOne, withEmojiID(id))
+	return &EmojiUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for Emoji.
+func (c *EmojiClient) Delete() *EmojiDelete {
+	mutation := newEmojiMutation(c.config, OpDelete)
+	return &EmojiDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *EmojiClient) DeleteOne(_m *Emoji) *EmojiDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *EmojiClient) DeleteOneID(id int) *EmojiDeleteOne {
+	builder := c.Delete().Where(emoji.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &EmojiDeleteOne{builder}
+}
+
+// Query returns a query builder for Emoji.
+func (c *EmojiClient) Query() *EmojiQuery {
+	return &EmojiQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeEmoji},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a Emoji entity by its id.
+func (c *EmojiClient) Get(ctx context.Context, id int) (*Emoji, error) {
+	return c.Query().Where(emoji.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *EmojiClient) GetX(ctx context.Context, id int) *Emoji {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// Hooks returns the client hooks.
+func (c *EmojiClient) Hooks() []Hook {
+	return c.hooks.Emoji
+}
+
+// Interceptors returns the client interceptors.
+func (c *EmojiClient) Interceptors() []Interceptor {
+	return c.inters.Emoji
+}
+
+func (c *EmojiClient) mutate(ctx context.Context, m *EmojiMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&EmojiCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&EmojiUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&EmojiUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&EmojiDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown Emoji mutation op: %q", m.Op())
+	}
+}
+
 // MediaRequestClient is a client for the MediaRequest schema.
 type MediaRequestClient struct {
 	config
@@ -1652,10 +1793,10 @@ func (c *MediaRequestClient) mutate(ctx context.Context, m *MediaRequestMutation
 type (
 	hooks struct {
 		Book, BookAuthor, DiscordChannel, DiscordGuild, DiscordMessage,
-		DiscordMessageReaction, DiscordUser, MediaRequest []ent.Hook
+		DiscordMessageReaction, DiscordUser, Emoji, MediaRequest []ent.Hook
 	}
 	inters struct {
 		Book, BookAuthor, DiscordChannel, DiscordGuild, DiscordMessage,
-		DiscordMessageReaction, DiscordUser, MediaRequest []ent.Interceptor
+		DiscordMessageReaction, DiscordUser, Emoji, MediaRequest []ent.Interceptor
 	}
 )

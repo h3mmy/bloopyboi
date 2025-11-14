@@ -27,5 +27,8 @@ type DiscordMessageReaction func(*sql.Selector)
 // DiscordUser is the predicate function for discorduser builders.
 type DiscordUser func(*sql.Selector)
 
+// Emoji is the predicate function for emoji builders.
+type Emoji func(*sql.Selector)
+
 // MediaRequest is the predicate function for mediarequest builders.
 type MediaRequest func(*sql.Selector)

@@ -20,6 +20,7 @@ import (
 	"github.com/h3mmy/bloopyboi/ent/discordmessage"
 	"github.com/h3mmy/bloopyboi/ent/discordmessagereaction"
 	"github.com/h3mmy/bloopyboi/ent/discorduser"
+	"github.com/h3mmy/bloopyboi/ent/emoji"
 	"github.com/h3mmy/bloopyboi/ent/mediarequest"
 	"github.com/h3mmy/bloopyboi/ent/predicate"
 	"github.com/h3mmy/bloopyboi/internal/discord"
@@ -42,6 +43,7 @@ const (
 	TypeDiscordMessage         = "DiscordMessage"
 	TypeDiscordMessageReaction = "DiscordMessageReaction"
 	TypeDiscordUser            = "DiscordUser"
+	TypeEmoji                  = "Emoji"
 	TypeMediaRequest           = "MediaRequest"
 )
 
@@ -5739,6 +5741,533 @@ func (m *DiscordUserMutation) ResetEdge(name string) error {
 		return nil
 	}
 	return fmt.Errorf("unknown DiscordUser edge %s", name)
+}
+
+// EmojiMutation represents an operation that mutates the Emoji nodes in the graph.
+type EmojiMutation struct {
+	config
+	op             Op
+	typ            string
+	id             *int
+	emoji_id       *string
+	name           *string
+	animated       *bool
+	keywords       *[]string
+	appendkeywords []string
+	clearedFields  map[string]struct{}
+	done           bool
+	oldValue       func(context.Context) (*Emoji, error)
+	predicates     []predicate.Emoji
+}
+
+var _ ent.Mutation = (*EmojiMutation)(nil)
+
+// emojiOption allows management of the mutation configuration using functional options.
+type emojiOption func(*EmojiMutation)
+
+// newEmojiMutation creates new mutation for the Emoji entity.
+func newEmojiMutation(c config, op Op, opts ...emojiOption) *EmojiMutation {
+	m := &EmojiMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeEmoji,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withEmojiID sets the ID field of the mutation.
+func withEmojiID(id int) emojiOption {
+	return func(m *EmojiMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *Emoji
+		)
+		m.oldValue = func(ctx context.Context) (*Emoji, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().Emoji.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withEmoji sets the old Emoji of the mutation.
+func withEmoji(node *Emoji) emojiOption {
+	return func(m *EmojiMutation) {
+		m.oldValue = func(context.Context) (*Emoji, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m EmojiMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m EmojiMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *EmojiMutation) ID() (id int, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *EmojiMutation) IDs(ctx context.Context) ([]int, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []int{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().Emoji.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetEmojiID sets the "emoji_id" field.
+func (m *EmojiMutation) SetEmojiID(s string) {
+	m.emoji_id = &s
+}
+
+// EmojiID returns the value of the "emoji_id" field in the mutation.
+func (m *EmojiMutation) EmojiID() (r string, exists bool) {
+	v := m.emoji_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldEmojiID returns the old "emoji_id" field's value of the Emoji entity.
+// If the Emoji object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *EmojiMutation) OldEmojiID(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldEmojiID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldEmojiID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldEmojiID: %w", err)
+	}
+	return oldValue.EmojiID, nil
+}
+
+// ResetEmojiID resets all changes to the "emoji_id" field.
+func (m *EmojiMutation) ResetEmojiID() {
+	m.emoji_id = nil
+}
+
+// SetName sets the "name" field.
+func (m *EmojiMutation) SetName(s string) {
+	m.name = &s
+}
+
+// Name returns the value of the "name" field in the mutation.
+func (m *EmojiMutation) Name() (r string, exists bool) {
+	v := m.name
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldName returns the old "name" field's value of the Emoji entity.
+// If the Emoji object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *EmojiMutation) OldName(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldName is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldName requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldName: %w", err)
+	}
+	return oldValue.Name, nil
+}
+
+// ResetName resets all changes to the "name" field.
+func (m *EmojiMutation) ResetName() {
+	m.name = nil
+}
+
+// SetAnimated sets the "animated" field.
+func (m *EmojiMutation) SetAnimated(b bool) {
+	m.animated = &b
+}
+
+// Animated returns the value of the "animated" field in the mutation.
+func (m *EmojiMutation) Animated() (r bool, exists bool) {
+	v := m.animated
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldAnimated returns the old "animated" field's value of the Emoji entity.
+// If the Emoji object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *EmojiMutation) OldAnimated(ctx context.Context) (v bool, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldAnimated is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldAnimated requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldAnimated: %w", err)
+	}
+	return oldValue.Animated, nil
+}
+
+// ResetAnimated resets all changes to the "animated" field.
+func (m *EmojiMutation) ResetAnimated() {
+	m.animated = nil
+}
+
+// SetKeywords sets the "keywords" field.
+func (m *EmojiMutation) SetKeywords(s []string) {
+	m.keywords = &s
+	m.appendkeywords = nil
+}
+
+// Keywords returns the value of the "keywords" field in the mutation.
+func (m *EmojiMutation) Keywords() (r []string, exists bool) {
+	v := m.keywords
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldKeywords returns the old "keywords" field's value of the Emoji entity.
+// If the Emoji object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *EmojiMutation) OldKeywords(ctx context.Context) (v []string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldKeywords is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldKeywords requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldKeywords: %w", err)
+	}
+	return oldValue.Keywords, nil
+}
+
+// AppendKeywords adds s to the "keywords" field.
+func (m *EmojiMutation) AppendKeywords(s []string) {
+	m.appendkeywords = append(m.appendkeywords, s...)
+}
+
+// AppendedKeywords returns the list of values that were appended to the "keywords" field in this mutation.
+func (m *EmojiMutation) AppendedKeywords() ([]string, bool) {
+	if len(m.appendkeywords) == 0 {
+		return nil, false
+	}
+	return m.appendkeywords, true
+}
+
+// ClearKeywords clears the value of the "keywords" field.
+func (m *EmojiMutation) ClearKeywords() {
+	m.keywords = nil
+	m.appendkeywords = nil
+	m.clearedFields[emoji.FieldKeywords] = struct{}{}
+}
+
+// KeywordsCleared returns if the "keywords" field was cleared in this mutation.
+func (m *EmojiMutation) KeywordsCleared() bool {
+	_, ok := m.clearedFields[emoji.FieldKeywords]
+	return ok
+}
+
+// ResetKeywords resets all changes to the "keywords" field.
+func (m *EmojiMutation) ResetKeywords() {
+	m.keywords = nil
+	m.appendkeywords = nil
+	delete(m.clearedFields, emoji.FieldKeywords)
+}
+
+// Where appends a list predicates to the EmojiMutation builder.
+func (m *EmojiMutation) Where(ps ...predicate.Emoji) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// WhereP appends storage-level predicates to the EmojiMutation builder. Using this method,
+// users can use type-assertion to append predicates that do not depend on any generated package.
+func (m *EmojiMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.Emoji, len(ps))
+	for i := range ps {
+		p[i] = ps[i]
+	}
+	m.Where(p...)
+}
+
+// Op returns the operation name.
+func (m *EmojiMutation) Op() Op {
+	return m.op
+}
+
+// SetOp allows setting the mutation operation.
+func (m *EmojiMutation) SetOp(op Op) {
+	m.op = op
+}
+
+// Type returns the node type of this mutation (Emoji).
+func (m *EmojiMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *EmojiMutation) Fields() []string {
+	fields := make([]string, 0, 4)
+	if m.emoji_id != nil {
+		fields = append(fields, emoji.FieldEmojiID)
+	}
+	if m.name != nil {
+		fields = append(fields, emoji.FieldName)
+	}
+	if m.animated != nil {
+		fields = append(fields, emoji.FieldAnimated)
+	}
+	if m.keywords != nil {
+		fields = append(fields, emoji.FieldKeywords)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *EmojiMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case emoji.FieldEmojiID:
+		return m.EmojiID()
+	case emoji.FieldName:
+		return m.Name()
+	case emoji.FieldAnimated:
+		return m.Animated()
+	case emoji.FieldKeywords:
+		return m.Keywords()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *EmojiMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case emoji.FieldEmojiID:
+		return m.OldEmojiID(ctx)
+	case emoji.FieldName:
+		return m.OldName(ctx)
+	case emoji.FieldAnimated:
+		return m.OldAnimated(ctx)
+	case emoji.FieldKeywords:
+		return m.OldKeywords(ctx)
+	}
+	return nil, fmt.Errorf("unknown Emoji field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *EmojiMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case emoji.FieldEmojiID:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetEmojiID(v)
+		return nil
+	case emoji.FieldName:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetName(v)
+		return nil
+	case emoji.FieldAnimated:
+		v, ok := value.(bool)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetAnimated(v)
+		return nil
+	case emoji.FieldKeywords:
+		v, ok := value.([]string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetKeywords(v)
+		return nil
+	}
+	return fmt.Errorf("unknown Emoji field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *EmojiMutation) AddedFields() []string {
+	return nil
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *EmojiMutation) AddedField(name string) (ent.Value, bool) {
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *EmojiMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	}
+	return fmt.Errorf("unknown Emoji numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *EmojiMutation) ClearedFields() []string {
+	var fields []string
+	if m.FieldCleared(emoji.FieldKeywords) {
+		fields = append(fields, emoji.FieldKeywords)
+	}
+	return fields
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *EmojiMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *EmojiMutation) ClearField(name string) error {
+	switch name {
+	case emoji.FieldKeywords:
+		m.ClearKeywords()
+		return nil
+	}
+	return fmt.Errorf("unknown Emoji nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *EmojiMutation) ResetField(name string) error {
+	switch name {
+	case emoji.FieldEmojiID:
+		m.ResetEmojiID()
+		return nil
+	case emoji.FieldName:
+		m.ResetName()
+		return nil
+	case emoji.FieldAnimated:
+		m.ResetAnimated()
+		return nil
+	case emoji.FieldKeywords:
+		m.ResetKeywords()
+		return nil
+	}
+	return fmt.Errorf("unknown Emoji field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *EmojiMutation) AddedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *EmojiMutation) AddedIDs(name string) []ent.Value {
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *EmojiMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *EmojiMutation) RemovedIDs(name string) []ent.Value {
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *EmojiMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 0)
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *EmojiMutation) EdgeCleared(name string) bool {
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *EmojiMutation) ClearEdge(name string) error {
+	return fmt.Errorf("unknown Emoji unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *EmojiMutation) ResetEdge(name string) error {
+	return fmt.Errorf("unknown Emoji edge %s", name)
 }
 
 // MediaRequestMutation represents an operation that mutates the MediaRequest nodes in the graph.

@@ -19,6 +19,7 @@ import (
 	"github.com/h3mmy/bloopyboi/ent/discordmessage"
 	"github.com/h3mmy/bloopyboi/ent/discordmessagereaction"
 	"github.com/h3mmy/bloopyboi/ent/discorduser"
+	"github.com/h3mmy/bloopyboi/ent/emoji"
 	"github.com/h3mmy/bloopyboi/ent/mediarequest"
 )
 
@@ -87,6 +88,7 @@ func checkColumn(t, c string) error {
 			discordmessage.Table:         discordmessage.ValidColumn,
 			discordmessagereaction.Table: discordmessagereaction.ValidColumn,
 			discorduser.Table:            discorduser.ValidColumn,
+			emoji.Table:                  emoji.ValidColumn,
 			mediarequest.Table:           mediarequest.ValidColumn,
 		})
 	})

@@ -31,7 +31,7 @@ type BookCommand struct {
 func NewBookCommand(bookSvc *services.BookService) *BookCommand {
 	return &BookCommand{
 		meta:        models.NewBloopyMeta(),
-		Name:        "book",
+		Name:        string(Book),
 		Description: "(Xperimental) Get book info",
 		bookSvc:     bookSvc,
 		logger:      log.NewZapLogger().Named("book_command"),
