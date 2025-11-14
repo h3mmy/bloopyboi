@@ -1,12 +1,13 @@
 package handlers
 
 import (
+	"encoding/json"
+
 	"github.com/bwmarrin/discordgo"
 	"github.com/h3mmy/bloopyboi/ent"
 	"github.com/h3mmy/bloopyboi/internal/models"
 )
 
-// TODO: This function is commented out and should be removed or implemented.
 // typeInChannel sets the typing indicator for a channel. The indicator is cleared
 // when a message is sent.
 // func typeInChannel(channel chan bool, s *discordgo.Session, channelID string) {
@@ -23,7 +24,6 @@ import (
 // 	}
 // }
 
-// GetDiscordUserFromInteraction returns the user from an interaction.
 func GetDiscordUserFromInteraction(i *discordgo.InteractionCreate) *discordgo.User {
 	if i.User != nil {
 		// This field is only filled when the slash command was invoked in a DM
@@ -34,7 +34,6 @@ func GetDiscordUserFromInteraction(i *discordgo.InteractionCreate) *discordgo.Us
 	}
 }
 
-// GetBookRequestsAsEmbeds returns a slice of embeds for a slice of book requests.
 func GetBookRequestsAsEmbeds(requests []*ent.MediaRequest) []*discordgo.MessageEmbed {
 	var embeds []*discordgo.MessageEmbed
 	for _, request := range requests {
@@ -67,4 +66,9 @@ func GetBookRequestsAsEmbeds(requests []*ent.MediaRequest) []*discordgo.MessageE
 		embeds = append(embeds, embed)
 	}
 	return embeds
+}
+
+func PrintJSON(obj interface{}) string {
+	bytes, _ := json.MarshalIndent(obj, "\t", "\t")
+	return string(bytes)
 }

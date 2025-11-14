@@ -30,7 +30,7 @@ type BlissfestCommand struct {
 func NewBlissfestCommand(svc *services.BlissfestService) *BlissfestCommand {
 	return &BlissfestCommand{
 		meta:        models.NewBloopyMeta(),
-		Name:        "blissfest",
+		Name:        string(Blissfest),
 		Description: "Gets blissfest related information",
 		logger:      log.NewZapLogger().Named("blissfest_command"),
 		blissSvc:    svc,

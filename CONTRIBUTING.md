@@ -51,4 +51,21 @@ This repo supports the [pre-commit](https://pre-commit.com) framework. Functiona
 
 ### Taskfile
 
-A `Taskfile` is provided along with a set of `.taskfiles` for use with the [go-task](https://taskfile.dev/) utility. Full capabilities may be incomplete, but the intention is to help with common tasks like regenerating ent schemas or protobufs
+A `Taskfile` is provided along with a set of `.taskfiles` for use with the [go-task](https://taskfile.dev/) utility. Full capabilities may be incomplete, but the intention is to help with common tasks like regenerating ent schemas or protobufs.
+
+### Entgo
+
+This project uses [entgo.io](https://entgo.io) as an ORM and primarily focuses on postgresql as a backing datastore. To add a new schema, or make changes to the existing schema, you will focus on the `ent/schema` directory. This is the only place under the `ent` directory where you will make any manual changes. The rest of the code is generated.
+
+After making any changes in the `ent/schemas` directory, you must regenerate the files to keep them in sync. To do this, you can use the existing taskfile task `task schemas:ent`
+This will also maintain a checksum file under the `.task` directory. Ensure you commit this along with the rest of the generated files when committing schema changes.
+
+### Env variables
+
+For local development, I keep a `.env.dev` file that looks like this for minimal config testing
+
+```bash
+export botToken=botTokenViaDiscord
+export appId=appIdViaDiscord
+export GOOGLE_APPLICATION_CREDENTIALS=somefile.json
+```

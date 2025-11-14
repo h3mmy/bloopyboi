@@ -20,10 +20,12 @@ import (
 // customTimeFormat holds custom time format string.
 const (
 	// customTimeFormat = "2006-01-02T15:04:05Z"
+
 	// discordBotMentionRegexFmt supports also nicknames (the exclamation mark).
 	// Read more: https://discordjs.guide/miscellaneous/parsing-mention-arguments.html#how-discord-mentions-work
 	discordBotMentionRegexFmt = "^<@!?%s>"
 )
+
 
 // DiscordManager is responsible for interfacing with the Discord session.
 // It contains the bot's mention regex, logger, bot ID, Discord service, and Discord configuration.
@@ -43,7 +45,6 @@ func NewDiscordManager(cfg *config.DiscordConfig, logger *zap.Logger) (*DiscordM
 	if err != nil {
 		return nil, fmt.Errorf("while compiling bot mention regex: %w", err)
 	}
-
 	// Create a new Discord session using the provided bot token.
 	s, err := providers.NewDiscordServiceWithConfig(cfg)
 	if err != nil {
@@ -96,10 +97,6 @@ func (d *DiscordManager) Start(ctx context.Context) error {
 		}
 	}
 
-	d.log.Info("Initializing Experimental Handler")
-	msgSendChan := make(chan *models.DiscordMessageSendRequest, 20)
-	expHandler := getBloopyChanHandler(d.discordSvc, &msgSendChan)
-
 	d.log.Debug("rotating through guild configs")
 	for _, gcfg := range d.discordCfg.GuildConfigs {
 		d.log.Debug("processing guild config", zap.Any("guildConfig", gcfg))
@@ -111,6 +108,10 @@ func (d *DiscordManager) Start(ctx context.Context) error {
 		}
 	}
 
+	d.log.Info("Initializing Experimental Handler")
+	msgSendChan := make(chan *models.DiscordMessageSendRequest, 20)
+	expHandler := getBloopyChanHandler(d.discordSvc, &msgSendChan)
+
 	ctx, cancelFn := context.WithCancel(ctx)
 	defer cancelFn()
 
@@ -121,6 +122,10 @@ func (d *DiscordManager) Start(ctx context.Context) error {
 	errGroup.Go(func() error {
 		return bloopyCommands.StartChannelMessageActor(ctx, d.discordSvc.GetSession(), &msgSendChan)
 	})
+
+	// for _, gcfg := range d.discordCfg.GuildConfigs {
+	// 	go d.discordSvc.IngestGuildEmojis(ctx, gcfg.GuildId)
+	// }
 
 	<-ctx.Done()
 
@@ -139,7 +144,6 @@ func (d *DiscordManager) Start(ctx context.Context) error {
 	return nil
 }
 
-// TODO: This is an experimental handler. It should be refactored and moved to a separate file.
 func getBloopyChanHandler(ds *services.DiscordService, msgSendChan *chan *models.DiscordMessageSendRequest) *handlers.MessageChanBlooper {
 	s := ds.GetSession()
 	createCh := bloopyCommands.NextMessageCreateC(s)
@@ -148,7 +152,6 @@ func getBloopyChanHandler(ds *services.DiscordService, msgSendChan *chan *models
 
 	return handlers.NewMessageChanBlooper(ds, providers.GetInspiroService(), &createCh, &reactACh, &reactRCh, msgSendChan)
 }
-
 // IsReady returns true if the Discord service is ready.
 func (d *DiscordManager) IsReady() bool {
 	return d.discordSvc.GetDataReady()
