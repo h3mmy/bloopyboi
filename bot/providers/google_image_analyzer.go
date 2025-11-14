@@ -9,12 +9,14 @@ import (
 	vision "cloud.google.com/go/vision/v2/apiv1"
 	visionpb "cloud.google.com/go/vision/v2/apiv1/visionpb"
 	"github.com/h3mmy/bloopyboi/internal/models"
+	"go.uber.org/zap"
 	"google.golang.org/api/option"
 )
 
 // GoogleVisionAnalyzer is an ImageAnalyzer that uses the Google Cloud Vision API.
 type GoogleVisionAnalyzer struct {
 	client *vision.ImageAnnotatorClient
+	logger *zap.Logger
 }
 
 // NewGoogleVisionAnalyzer creates a new analyzer client.
@@ -24,7 +26,8 @@ func NewGoogleVisionAnalyzer(ctx context.Context, opts ...option.ClientOption) (
 	if err != nil {
 		return nil, fmt.Errorf("failed to create vision client: %w", err)
 	}
-	return &GoogleVisionAnalyzer{client: client}, nil
+	logger, _ := zap.NewProduction()
+	return &GoogleVisionAnalyzer{client: client, logger: logger}, nil
 }
 
 // AnalyzeImageFromURL implements the ImageAnalyzer interface.
@@ -93,12 +96,17 @@ func (a *GoogleVisionAnalyzer) AnalyzeImageFromURL(ctx context.Context, url stri
 		})
 	}
 
-	analysis.SafeSearchAnalysis = &models.SafeSearchAnnotation{
-		Adult:     models.Likelihood(response.SafeSearchAnnotation.Adult),
-		Spoof:     models.Likelihood(response.SafeSearchAnnotation.Spoof),
-		Medical:   models.Likelihood(response.SafeSearchAnnotation.Medical),
-		Violence:  models.Likelihood(response.SafeSearchAnnotation.Violence),
-		Racy:      models.Likelihood(response.SafeSearchAnnotation.Racy),
+	if response.SafeSearchAnnotation != nil {
+		analysis.SafeSearchAnalysis = &models.SafeSearchAnnotation{
+			Adult:     models.Likelihood(response.SafeSearchAnnotation.Adult),
+			Spoof:     models.Likelihood(response.SafeSearchAnnotation.Spoof),
+			Medical:   models.Likelihood(response.SafeSearchAnnotation.Medical),
+			Violence:  models.Likelihood(response.SafeSearchAnnotation.Violence),
+			Racy:      models.Likelihood(response.SafeSearchAnnotation.Racy),
+		}
+	} else {
+		a.logger.Warn("SafeSearchAnnotation is nil in Vision API response")
+		analysis.SafeSearchAnalysis = nil
 	}
 
 	return analysis, nil
