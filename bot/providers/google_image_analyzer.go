@@ -106,7 +106,7 @@ func (a *GoogleVisionAnalyzer) AnalyzeImageFromURL(ctx context.Context, url stri
 			Racy:      models.Likelihood(response.SafeSearchAnnotation.Racy),
 		}
 	} else {
-		a.logger.Warn("SafeSearchAnnotation is nil in Vision API response")
+		a.logger.Warn("SafeSearchAnnotation is nil in Vision API response", zap.Any("response", response))
 		analysis.SafeSearchAnalysis = nil
 	}
 
