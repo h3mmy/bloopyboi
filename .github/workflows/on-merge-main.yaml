@@ -64,7 +64,9 @@ jobs:
           private-key: "${{ secrets.APP_PRIVATE_KEY }}"
 
       - name: Install semantic release packages
-        run: $GITHUB_TOKEN="${{ steps.generate-token.outputs.token }}" npx --package semantic-release --package @semantic-release/exec --package conventional-changelog-conventionalcommits semantic-release
+        run: |
+          export $GITHUB_TOKEN=${{ steps.generate-token.outputs.token }}
+          npx --package semantic-release --package @semantic-release/exec --package conventional-changelog-conventionalcommits semantic-release
       
       - name: Semantic Release
         uses: cycjimmy/semantic-release-action@v4
