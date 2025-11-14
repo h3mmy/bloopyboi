@@ -63,7 +63,7 @@ func GetCommandWithConfig(guildId string, cfg config.GuildCommandConfig) models.
 		} else {
 			return handlers.NewUserRequestCommand(bookSvc).WithRoles(cfg.Roles...).WithGuild(guildId)
 		}
-	case string(handlers.AnalyzeEmoji):
+	case string(handlers.Analyze):
 		imageAnalyzer := NewImageAnalyzer(GoogleVision)
 		if imageAnalyzer != nil {
 			imageAnalysisSvc := services.NewImageAnalyzerService(imageAnalyzer)

@@ -34,7 +34,11 @@ func (a *GoogleVisionAnalyzer) AnalyzeImageFromURL(ctx context.Context, url stri
 	if err != nil {
 		return nil, fmt.Errorf("failed to download image from %s: %w", url, err)
 	}
-	defer resp.Body.Close()
+	defer func() {
+		if closeErr := resp.Body.Close(); closeErr != nil && err == nil {
+			err = closeErr
+		}
+	}()
 
 	imageBytes, err := io.ReadAll(resp.Body)
 	if err != nil {

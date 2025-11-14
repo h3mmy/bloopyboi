@@ -4,10 +4,11 @@ package handlers
 const HandlerLoggerFieldKey = "bloopyHandler"
 
 type AppCommandName string
+
 const (
 	Blissfest AppCommandName = "blissfest"
-	Book AppCommandName = "book"
-	Requests AppCommandName = "requests"
-	AnalyzeEmoji AppCommandName = "analyze"
-	Inspiro AppCommandName = "inspire"
+	Book      AppCommandName = "book"
+	Requests  AppCommandName = "requests"
+	Analyze   AppCommandName = "analyze"
+	Inspiro   AppCommandName = "inspire"
 )
