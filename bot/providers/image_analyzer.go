@@ -8,8 +8,9 @@ import (
 )
 
 type ImageAnalyzerType string
-
+// TODO: prefix with AnalyzerType_
 const GoogleVision ImageAnalyzerType = "google_vision"
+const AnalyzerType_Local ImageAnalyzerType = "local"
 
 func NewImageAnalyzer(analyzerType ImageAnalyzerType) models.ImageAnalyzer {
 	switch analyzerType {
@@ -20,6 +21,9 @@ func NewImageAnalyzer(analyzerType ImageAnalyzerType) models.ImageAnalyzer {
 			return nil
 		}
 		return googleVisionAnalyzer
+	case AnalyzerType_Local:
+		logger.Warn("local analyzer type not implemented yet")
+		return nil
 	default:
 		return nil
 	}
