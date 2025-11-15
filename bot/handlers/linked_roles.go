@@ -26,7 +26,10 @@ func HandleLinkedRolesRedirect(c echo.Context, oauthConfig *oauth2.Config) error
 	// Save the state in the session
 	sess, _ := session.Get("session", c)
 	sess.Values[oauth_state_key] = state
-	sess.Save(c.Request(), c.Response())
+	err = sess.Save(c.Request(), c.Response())
+	if err != nil {
+		return c.String(http.StatusInternalServerError, "Failed to save session")
+	}
 
 	return c.Redirect(http.StatusMovedPermanently, oauthConfig.AuthCodeURL(state))
 }
