@@ -91,6 +91,17 @@ func GetDiscordManagerMeta(g *discord.DiscordManager) func(c echo.Context) error
 	}
 }
 
+// TODO: finish this
+
+// func GetRoleConnectionInfo(g *discord.DiscordManager) func(c echo.Context) error{
+// return func(c echo.Context) error {
+// 		if g == nil {
+// 			return c.JSON(http.StatusServiceUnavailable, "Bot Instance Not Attached")
+// 		}
+// 		return c.JSON(http.StatusOK, g.GetDiscordService().GetDiscordUserRoleConnection())
+// 	}
+// }
+
 // func (g *Gateway) startGRPC() error {
 // 	lis, err := net.Listen("tcp", fmt.Sprintf("localhost:%d", g.config.GrpcPort))
 // 	if err != nil {
