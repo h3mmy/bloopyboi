@@ -45,6 +45,9 @@ func HandleLinkedRolesCallback(c echo.Context, oauthConfig *oauth2.Config, disco
 
 	q := c.Request().URL.Query()
 	// A safeguard against CSRF attacks.
+	if len(q["state"]) == 0 {
+		return c.String(http.StatusBadRequest, "state not found in query")
+	}
 	if q["state"][0] != state {
 		return c.String(http.StatusBadRequest, "invalid state")
 	}
