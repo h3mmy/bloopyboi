@@ -126,7 +126,6 @@ func (c *AnalyzeEmojiCommand) GetAppCommandHandler() func(s *discordgo.Session, 
 			c.logger.Debug("Got analysis results", zap.Any("analysis", analysis))
 		}
 
-
 		// Format and send the results
 		response := fmt.Sprintf("Analysis for %s:\nKeywords: %s\nSafeSearchAnnotation: %s",
 			emojiArg,
