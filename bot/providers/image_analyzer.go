@@ -8,6 +8,7 @@ import (
 )
 
 type ImageAnalyzerType string
+
 // TODO: prefix with AnalyzerType_
 const GoogleVision ImageAnalyzerType = "google_vision"
 const AnalyzerType_Local ImageAnalyzerType = "local"

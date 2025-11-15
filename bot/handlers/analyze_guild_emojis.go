@@ -49,7 +49,7 @@ func (i *ImageAnalysisHandler) ProcessGuildEmojis(ctx context.Context, emoji []*
 				Create().
 				SetEmojiID(e.ID).
 				SetKeywords(analysis.AnalysisResult.GetKeywordsSortedByScore()).
-			Exec(ctxf)
+				Exec(ctxf)
 		})
 		if err != nil {
 			logr.Error("failed to create emoji", zap.String("emoji_id", e.ID), zap.Error(err))
