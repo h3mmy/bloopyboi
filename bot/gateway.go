@@ -69,14 +69,16 @@ func RegisterDiscordSvcRoutes(echoGroup *echo.Group, discMgr *discord.DiscordMan
 	dg := echoGroup
 	dg.GET("/manager/meta", GetDiscordManagerMeta(discMgr))
 
-	// Linked Roles
-	lr := dg.Group("/linked-roles")
-	lr.GET("", func(c echo.Context) error {
-		return handlers.HandleLinkedRolesRedirect(c, providers.GetDiscordOauthConfig())
-	})
-	lr.GET("/callback", func(c echo.Context) error {
-		return handlers.HandleLinkedRolesCallback(c, providers.GetDiscordOauthConfig(), discMgr.GetDiscordService())
-	})
+	if discMgr.LinkedRoleEnabled() {
+		// Linked Roles
+		lr := dg.Group("/linked-roles")
+		lr.GET("", func(c echo.Context) error {
+			return handlers.HandleLinkedRolesRedirect(c, providers.GetDiscordOauthConfig())
+		})
+		lr.GET("/callback", func(c echo.Context) error {
+			return handlers.HandleLinkedRolesCallback(c, providers.GetDiscordOauthConfig(), discMgr.GetDiscordService())
+		})
+	}
 	return dg
 }
 

@@ -38,6 +38,7 @@ type DiscordService struct {
 	config           *config.DiscordConfig
 	intents          discordgo.Intent
 	imageAnalyzerSvc ImageAnalyzerService
+	appRoleMetadata []*discordgo.ApplicationRoleConnectionMetadata
 }
 
 func NewDiscordService() *DiscordService {
@@ -566,6 +567,17 @@ func (d *DiscordService) IngestGuildEmojis(ctx context.Context, guildID string) 
 		}
 	}
 
+	return nil
+}
+
+func (d *DiscordService) UpdateAppRoleMetadata(ctx context.Context, cfg *oauth2.Config) error {
+	st, err := d.discordSession.ApplicationRoleConnectionMetadataUpdate(cfg.ClientID, discord.RoleConnectionMetadata)
+	if err != nil {
+		d.logger.Error("failed to update app role metadata", zap.Error(err))
+		return err
+	}
+	d.logger.Debug("updated app role metadata", zap.Any("metadata", st))
+	d.appRoleMetadata = st
 	return nil
 }
 

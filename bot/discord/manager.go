@@ -107,6 +107,16 @@ func (d *DiscordManager) Start(ctx context.Context) error {
 		}
 	}
 
+	if d.LinkedRoleEnabled() {
+		d.log.Debug("registering linked role metadata")
+		err := d.discordSvc.UpdateAppRoleMetadata(ctx, providers.GetDiscordOauthConfig())
+		if err != nil {
+			return fmt.Errorf("while updating app role metadata: %w", err)
+		}
+	} else {
+		d.log.Info("no client secret configured. Not registering linked role metadata")
+	}
+
 	d.log.Info("Initializing Experimental Handler")
 	msgSendChan := make(chan *models.DiscordMessageSendRequest, 20)
 	expHandler := getBloopyChanHandler(d.discordSvc, &msgSendChan)
@@ -160,4 +170,8 @@ func (d *DiscordManager) IsReady() bool {
 // GetDiscordService returns the Discord service.
 func (d *DiscordManager) GetDiscordService() *services.DiscordService {
 	return d.discordSvc
+}
+
+func (d *DiscordManager) LinkedRoleEnabled() bool {
+	return d.discordCfg.ClientSecret != ""
 }
