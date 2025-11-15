@@ -38,7 +38,7 @@ type DiscordService struct {
 	config           *config.DiscordConfig
 	intents          discordgo.Intent
 	imageAnalyzerSvc ImageAnalyzerService
-	appRoleMetadata []*discordgo.ApplicationRoleConnectionMetadata
+	appRoleMetadata  []*discordgo.ApplicationRoleConnectionMetadata
 }
 
 func NewDiscordService() *DiscordService {
@@ -267,13 +267,25 @@ func (d *DiscordService) RecordDiscordMessage(ctx context.Context, m *discordgo.
 	}
 	guild, err := d.GetSavedGuild(ctx, m.GuildID)
 	if err != nil {
-		logger.Error("error getting discord guild. May be a DM", zap.String("discordGuildId", m.GuildID), zap.Error(err))
-		return err
+		logger.Warn("error getting discord guild. May be a DM", zap.String("guild_id", m.GuildID), zap.String("message_content", m.Content), zap.Error(err))
 	}
 	channel, err := d.GetSavedDiscordChannel(ctx, m.ChannelID)
 	if err != nil {
-		logger.Error("error getting discord channel", zap.String("discordChannelID", m.ChannelID), zap.Error(err))
+		logger.Error("error getting discord channel", zap.String("channel_id", m.ChannelID), zap.Error(err))
 		return err
+	}
+	if guild == nil {
+		return database.WithTx(ctx, d.db, func(tx *ent.Tx) error {
+			return tx.DiscordMessage.Create().
+				SetAuthor(discUser).
+				SetDiscordid(m.ID).
+				SetChannel(channel).
+				SetContent(m.Content).
+				SetRaw(*m).
+				OnConflict(sql.ConflictColumns("discordid")).
+				UpdateNewValues().
+				Exec(ctx)
+		})
 	}
 	// save to DB
 	return database.WithTx(ctx, d.db, func(tx *ent.Tx) error {
