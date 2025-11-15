@@ -23,6 +23,8 @@ type AppConfig struct {
 	LogLevel      string          `mapstructure:"logLevel"`
 	DBConfig      *PostgresConfig `mapstructure:"db"`
 	FeatureMap    map[string]FeatureConfig
+	HttpConfig    *HttpServerConfig  `mapstructure:"http"`
+	GrpcConfig    *GrpcServerConfig  `mapstructure:"grpc"`
 	Arrs          *[]ArrClientConfig `mapstructure:"arrs"`
 }
 

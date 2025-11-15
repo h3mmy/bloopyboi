@@ -21,6 +21,7 @@ type ConfigLoader interface {
 // initConfig reads in config file and ENV variables if set.
 // It also registers a filewatch to refresh the config when a change is detected
 func initConfig() {
+	setDefaults()
 	viper.SetConfigName("config")           // name of config file (without extension)
 	viper.SetConfigType("yaml")             // REQUIRED if the config file does not have the extension in the name
 	viper.AddConfigPath("/config")          // path to look for the config file in
@@ -36,6 +37,17 @@ func initConfig() {
 		RefreshAppConfig()
 	})
 	viper.WatchConfig()
+}
+
+func setDefaults() {
+	viper.SetDefault("http.baseUrl", "/")
+	viper.SetDefault("http.port", 8080)
+	viper.SetDefault("http.hostname", "localhost")
+	viper.SetDefault("http.tlsEnabled", false)
+	viper.SetDefault("http.certFile", "")
+	viper.SetDefault("http.keyFile", "")
+	viper.SetDefault("grpc.port", 8081)
+	viper.SetDefault("logLevel", "info")
 }
 
 // GetConfig returns bloopyboi configuration from the current viper instance
