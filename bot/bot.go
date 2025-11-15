@@ -11,6 +11,7 @@ import (
 	"github.com/h3mmy/bloopyboi/pkg/config"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
+	"golang.org/x/oauth2"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -26,6 +27,7 @@ type BloopyBoi struct {
 	Config          *config.AppConfig
 	Status          *health.AvailabilityStatus
 	ServiceRegistry models.ServiceRegistry
+	OAuthConfig     oauth2.Config
 	Running         bool
 }
 

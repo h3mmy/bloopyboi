@@ -84,26 +84,26 @@ func (a *GoogleVisionAnalyzer) AnalyzeImageFromURL(ctx context.Context, url stri
 	response := res.Responses[0]
 
 	analysis := &models.ImageAnalysis{
-		Labels: []models.EntityLabelAnnotation{},
+		Labels:             []models.EntityLabelAnnotation{},
 		SafeSearchAnalysis: &models.SafeSearchAnnotation{},
 	}
 
 	for _, label := range response.LabelAnnotations {
 		analysis.Labels = append(analysis.Labels, models.EntityLabelAnnotation{
-			Locale:       label.GetLocale(),
-			Description:  label.GetDescription(),
-			Score:        label.GetScore(),
-			Topicality:   label.GetTopicality(),
+			Locale:      label.GetLocale(),
+			Description: label.GetDescription(),
+			Score:       label.GetScore(),
+			Topicality:  label.GetTopicality(),
 		})
 	}
 
 	if response.SafeSearchAnnotation != nil {
 		analysis.SafeSearchAnalysis = &models.SafeSearchAnnotation{
-			Adult:     models.Likelihood(response.SafeSearchAnnotation.Adult),
-			Spoof:     models.Likelihood(response.SafeSearchAnnotation.Spoof),
-			Medical:   models.Likelihood(response.SafeSearchAnnotation.Medical),
-			Violence:  models.Likelihood(response.SafeSearchAnnotation.Violence),
-			Racy:      models.Likelihood(response.SafeSearchAnnotation.Racy),
+			Adult:    models.Likelihood(response.SafeSearchAnnotation.Adult),
+			Spoof:    models.Likelihood(response.SafeSearchAnnotation.Spoof),
+			Medical:  models.Likelihood(response.SafeSearchAnnotation.Medical),
+			Violence: models.Likelihood(response.SafeSearchAnnotation.Violence),
+			Racy:     models.Likelihood(response.SafeSearchAnnotation.Racy),
 		}
 	} else {
 		a.logger.Warn("SafeSearchAnnotation is nil in Vision API response", zap.Any("response", response))

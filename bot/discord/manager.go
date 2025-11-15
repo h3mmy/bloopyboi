@@ -26,7 +26,6 @@ const (
 	discordBotMentionRegexFmt = "^<@!?%s>"
 )
 
-
 // DiscordManager is responsible for interfacing with the Discord session.
 // It contains the bot's mention regex, logger, bot ID, Discord service, and Discord configuration.
 type DiscordManager struct {
@@ -152,6 +151,7 @@ func getBloopyChanHandler(ds *services.DiscordService, msgSendChan *chan *models
 
 	return handlers.NewMessageChanBlooper(ds, providers.GetInspiroService(), &createCh, &reactACh, &reactRCh, msgSendChan)
 }
+
 // IsReady returns true if the Discord service is ready.
 func (d *DiscordManager) IsReady() bool {
 	return d.discordSvc.GetDataReady()

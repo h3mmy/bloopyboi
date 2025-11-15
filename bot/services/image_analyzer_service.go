@@ -26,8 +26,8 @@ func NewImageAnalyzerService(imageAnalyzer models.ImageAnalyzer) *ImageAnalyzerS
 			zapcore.Field{Type: zapcore.StringType, Key: ServiceLoggerFieldKey, String: "image_analyzer_service"},
 		)
 	return &ImageAnalyzerService{
-		meta:   meta,
-		logger: lgr,
+		meta:          meta,
+		logger:        lgr,
 		imageAnalyzer: imageAnalyzer,
 	}
 }

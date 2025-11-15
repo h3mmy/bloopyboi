@@ -16,8 +16,8 @@ func NewDiscordServiceWithConfig(cfg *config.DiscordConfig) (*services.DiscordSe
 	imageAnalysisSvc := services.NewImageAnalyzerService(imageAnalyzer)
 
 	dsvc := services.NewDiscordService().
-	WithConfig(cfg).
-	WithImageAnalyzer(*imageAnalysisSvc)
+		WithConfig(cfg).
+		WithImageAnalyzer(*imageAnalysisSvc)
 	err = dsvc.RefreshDBConnection()
 	if err != nil {
 		logger.Warn("encountered error refreshing db connection. persistence may not be available", zap.Error(err))
