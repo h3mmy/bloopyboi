@@ -8,6 +8,7 @@ import (
 )
 
 type ImageAnalyzerType string
+
 const GoogleVision ImageAnalyzerType = "google_vision"
 
 func NewImageAnalyzer(analyzerType ImageAnalyzerType) models.ImageAnalyzer {

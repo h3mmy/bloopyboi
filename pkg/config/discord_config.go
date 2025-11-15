@@ -1,9 +1,11 @@
 package config
 
 type DiscordConfig struct {
-	Token        string               `mapstructure:"token"`
-	AppName      string               `mapstructure:"name"`
-	AppID        int64                `mapstructure:"appId"`
+	Token   string `mapstructure:"token"`
+	AppName string `mapstructure:"name"`
+	AppID   int64  `mapstructure:"appId"`
+	// ClientSecret is the discord client secret for oauth2 (used for doing things on behalf of discord user)
+	ClientSecret string               `mapstructure:"clientSecret"`
 	GuildConfigs []DiscordGuildConfig `mapstructure:"guilds"`
 }
 
