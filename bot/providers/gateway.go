@@ -22,9 +22,14 @@ func GetDiscordOauthConfig() *oauth2.Config {
 		appConfig.HttpConfig.Hostname,
 		appConfig.HttpConfig.BaseUrl)
 
+		clientSecret := ""
+		if appConfig.DiscordConfig.ClientSecret != nil {
+			clientSecret = *appConfig.DiscordConfig.ClientSecret
+		}
+
 	return &oauth2.Config{
 		ClientID:     fmt.Sprint(appConfig.DiscordConfig.AppID),
-		ClientSecret: appConfig.DiscordConfig.ClientSecret,
+		ClientSecret: clientSecret,
 		RedirectURL:  redirectUrl,
 		Scopes:       []string{"identify", "role_connections.write"},
 		Endpoint: oauth2.Endpoint{

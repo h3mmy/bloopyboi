@@ -69,7 +69,7 @@ func RegisterDiscordSvcRoutes(echoGroup *echo.Group, discMgr *discord.DiscordMan
 	dg := echoGroup
 	dg.GET("/manager/meta", GetDiscordManagerMeta(discMgr))
 
-	if discMgr.LinkedRoleEnabled() {
+	if providers.GetDiscordOauthConfig().ClientSecret != "" {
 		// Linked Roles
 		lr := dg.Group("/linked-roles")
 		lr.GET("", func(c echo.Context) error {

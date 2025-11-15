@@ -173,5 +173,5 @@ func (d *DiscordManager) GetDiscordService() *services.DiscordService {
 }
 
 func (d *DiscordManager) LinkedRoleEnabled() bool {
-	return d.discordCfg.ClientSecret != ""
+	return d.discordCfg.ClientSecret != nil && *d.discordCfg.ClientSecret != ""
 }

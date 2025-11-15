@@ -5,7 +5,7 @@ type DiscordConfig struct {
 	AppName string `mapstructure:"name"`
 	AppID   int64  `mapstructure:"appId"`
 	// ClientSecret is the discord client secret for oauth2 (used for doing things on behalf of discord user)
-	ClientSecret string               `mapstructure:"clientSecret"`
+	ClientSecret *string               `mapstructure:"clientSecret"`
 	GuildConfigs []DiscordGuildConfig `mapstructure:"guilds"`
 }
 
