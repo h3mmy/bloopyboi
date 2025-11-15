@@ -11,7 +11,6 @@ import (
 	"go.uber.org/zap"
 )
 
-
 // SelectionPrompt is a type alias for config.RoleSelectionPrompt.
 type SelectionPrompt = config.RoleSelectionPrompt
 

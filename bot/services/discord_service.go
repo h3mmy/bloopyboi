@@ -20,6 +20,7 @@ import (
 	log "github.com/h3mmy/bloopyboi/pkg/logs"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
+	"golang.org/x/oauth2"
 )
 
 const DefaultIntents = discordgo.IntentsGuildMessages | discordgo.IntentsDirectMessages | discordgo.IntentDirectMessageReactions | discordgo.IntentGuildMessageReactions | discordgo.IntentGuildEmojis
@@ -37,6 +38,7 @@ type DiscordService struct {
 	config           *config.DiscordConfig
 	intents          discordgo.Intent
 	imageAnalyzerSvc ImageAnalyzerService
+	appRoleMetadata []*discordgo.ApplicationRoleConnectionMetadata
 }
 
 func NewDiscordService() *DiscordService {
@@ -566,6 +568,70 @@ func (d *DiscordService) IngestGuildEmojis(ctx context.Context, guildID string) 
 	}
 
 	return nil
+}
+
+func (d *DiscordService) UpdateAppRoleMetadata(ctx context.Context, cfg *oauth2.Config) error {
+	st, err := d.discordSession.ApplicationRoleConnectionMetadataUpdate(cfg.ClientID, discord.RoleConnectionMetadata)
+	if err != nil {
+		d.logger.Error("failed to update app role metadata", zap.Error(err))
+		return err
+	}
+	d.logger.Debug("updated app role metadata", zap.Any("metadata", st))
+	d.appRoleMetadata = st
+	return nil
+}
+
+func (d *DiscordService) UpdateDiscordUserRoleConnection(ctx context.Context,
+	ts *discordgo.Session, cfg *oauth2.Config) (*discordgo.ApplicationRoleConnection, error) {
+	// Retrive the user data.
+	du, err := ts.User("@me")
+	if err != nil {
+		d.logger.Error("failed to retrieve user informaion")
+		return nil, err
+	}
+
+	lgr := d.logger.With(
+		zap.String("discordUserID", du.ID),
+	)
+
+	if !d.dbEnabled {
+		return nil, errors.New("DB Not Enabled")
+	}
+
+	ctReacts, err := d.db.DiscordUser.Query().
+		Where(discorduser.DiscordidEQ(du.ID)).
+		QueryMessageReactions().
+		Count(ctx)
+	if err != nil {
+		lgr.Warn("failed to query react count for user")
+		return nil, err
+	}
+	ctMsgs, err := d.db.DiscordUser.Query().
+		Where(discorduser.DiscordidEQ(du.ID)).
+		QueryDiscordMessages().
+		Count(ctx)
+	if err != nil {
+		lgr.Warn("failed to query message count for user")
+		return nil, err
+	}
+
+	metadata := map[string]string{
+		string(discord.RCKey_Reacts): fmt.Sprintf("%d", ctReacts),
+		string(discord.RCKey_Msgs):   fmt.Sprintf("%d", ctMsgs),
+	}
+
+	rcData := &discordgo.ApplicationRoleConnection{
+		PlatformName:     "TODO",
+		PlatformUsername: "TODO",
+		Metadata:         metadata,
+	}
+
+	rcState, err := ts.UserApplicationRoleConnectionUpdate(cfg.ClientID, rcData)
+	if err != nil {
+		lgr.Error("failed to update user role connection", zap.Error(err))
+		return nil, err
+	}
+	return rcState, nil
 }
 
 // func (d *DiscordService) syncGuildUsers(guildId string) error {
