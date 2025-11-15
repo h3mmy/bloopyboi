@@ -568,41 +568,6 @@ func (d *DiscordService) IngestGuildEmojis(ctx context.Context, guildID string) 
 	return nil
 }
 
-func (d *DiscordService) GetDiscordUserRoleConnection(ctx context.Context, du *discordgo.User) (*discordgo.ApplicationRoleConnection, error) {
-	lgr := d.logger.With(
-		zap.String("discordUserID", du.ID),
-	)
-	if !d.dbEnabled {
-		return nil, errors.New("DB Not Enabled")
-	}
-	ctReacts, err := d.db.DiscordUser.Query().
-	Where(discorduser.DiscordidEQ(du.ID)).
-	QueryMessageReactions().
-	Count(ctx)
-	if err != nil {
-		lgr.Warn("failed to query react count for user")
-		return nil, err
-	}
-	ctMsgs, err := d.db.DiscordUser.Query().
-	Where(discorduser.DiscordidEQ(du.ID)).
-	QueryDiscordMessages().
-	Count(ctx)
-	if err != nil {
-		lgr.Warn("failed to query message count for user")
-		return nil, err
-	}
-
-	metadata:= map[string]string{
-		string(discord.RCKey_Reacts): fmt.Sprintf("%d", ctReacts),
-		string(discord.RCKey_Msgs): fmt.Sprintf("%d", ctMsgs),
-	}
-	return &discordgo.ApplicationRoleConnection{
-		PlatformName: "TODO",
-		PlatformUsername: "TODO",
-		Metadata: metadata,
-	}, nil
-}
-
 // func (d *DiscordService) syncGuildUsers(guildId string) error {
 // 	if !d.dbEnabled {
 // 		return nil

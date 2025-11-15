@@ -4,10 +4,12 @@ import (
 	"context"
 	"net/http"
 
+	"github.com/gorilla/sessions"
 	"github.com/h3mmy/bloopyboi/bot/discord"
 	"github.com/h3mmy/bloopyboi/bot/handlers"
 	"github.com/h3mmy/bloopyboi/internal/models"
 	"github.com/h3mmy/bloopyboi/pkg/api/pb"
+	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"
 	"github.com/uptrace/opentelemetry-go-extra/otelzap"
 	"go.uber.org/zap"
@@ -32,6 +34,7 @@ type Gateway struct {
 
 func NewGateway(cfg *models.GatewayConfig) *Gateway {
 	echoServ := echo.New()
+	echoServ.Use(session.Middleware(sessions.NewCookieStore([]byte("secret"))))
 	lgr := otelzap.New(zap.L())
 	return &Gateway{
 		meta:     models.NewBloopyMeta(),
@@ -90,17 +93,6 @@ func GetDiscordManagerMeta(g *discord.DiscordManager) func(c echo.Context) error
 		return c.JSON(http.StatusOK, g.GetDiscordService().GetMeta())
 	}
 }
-
-// TODO: finish this
-
-// func GetRoleConnectionInfo(g *discord.DiscordManager) func(c echo.Context) error{
-// return func(c echo.Context) error {
-// 		if g == nil {
-// 			return c.JSON(http.StatusServiceUnavailable, "Bot Instance Not Attached")
-// 		}
-// 		return c.JSON(http.StatusOK, g.GetDiscordService().GetDiscordUserRoleConnection())
-// 	}
-// }
 
 // func (g *Gateway) startGRPC() error {
 // 	lis, err := net.Listen("tcp", fmt.Sprintf("localhost:%d", g.config.GrpcPort))

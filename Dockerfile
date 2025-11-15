@@ -1,4 +1,4 @@
-FROM golang:1.25-alpine@sha256:d3f0cf7723f3429e3f9ed846243970b20a2de7bae6a5b66fc5914e228d831bbb AS build
+FROM golang:1.25-alpine@sha256:d3f0cf7723f3429e3f9ed846243970b20a2de7bae6a5b66fc5914e228d831bbb as build
 
 ARG TARGETPLATFORM
 ENV TARGETPLATFORM=${TARGETPLATFORM:-linux/amd64}
@@ -29,6 +29,5 @@ COPY --from=build /build/bloopyboi /
 WORKDIR /
 
 EXPOSE 3000
-EXPOSE 8080
 
 ENTRYPOINT ["/bloopyboi"]
