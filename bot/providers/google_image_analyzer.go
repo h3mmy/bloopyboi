@@ -9,12 +9,15 @@ import (
 	vision "cloud.google.com/go/vision/v2/apiv1"
 	visionpb "cloud.google.com/go/vision/v2/apiv1/visionpb"
 	"github.com/h3mmy/bloopyboi/internal/models"
+	"github.com/h3mmy/bloopyboi/pkg/logs"
+	"go.uber.org/zap"
 	"google.golang.org/api/option"
 )
 
 // GoogleVisionAnalyzer is an ImageAnalyzer that uses the Google Cloud Vision API.
 type GoogleVisionAnalyzer struct {
 	client *vision.ImageAnnotatorClient
+	logger *zap.Logger
 }
 
 // NewGoogleVisionAnalyzer creates a new analyzer client.
@@ -24,7 +27,8 @@ func NewGoogleVisionAnalyzer(ctx context.Context, opts ...option.ClientOption) (
 	if err != nil {
 		return nil, fmt.Errorf("failed to create vision client: %w", err)
 	}
-	return &GoogleVisionAnalyzer{client: client}, nil
+	logger := logs.NewZapLogger().Named("google_vision_analyzer")
+	return &GoogleVisionAnalyzer{client: client, logger: logger}, nil
 }
 
 // AnalyzeImageFromURL implements the ImageAnalyzer interface.
@@ -50,7 +54,7 @@ func (a *GoogleVisionAnalyzer) AnalyzeImageFromURL(ctx context.Context, url stri
 		Content: imageBytes,
 	}
 
-	// 3. Perform label and sentiment detection (simplified for this example)
+	// 3. Perform label and safe search detection
 	req := &visionpb.BatchAnnotateImagesRequest{
 		Requests: []*visionpb.AnnotateImageRequest{
 			{
@@ -58,7 +62,7 @@ func (a *GoogleVisionAnalyzer) AnalyzeImageFromURL(ctx context.Context, url stri
 				Features: []*visionpb.Feature{
 					{
 						Type:       visionpb.Feature_LABEL_DETECTION,
-						MaxResults: 10,
+						MaxResults: 15,
 					},
 					{
 						Type: visionpb.Feature_SAFE_SEARCH_DETECTION,
@@ -80,30 +84,33 @@ func (a *GoogleVisionAnalyzer) AnalyzeImageFromURL(ctx context.Context, url stri
 	response := res.Responses[0]
 
 	analysis := &models.ImageAnalysis{
-		Keywords:  []string{},
-		Sentiment: 0.0,
+		Labels: []models.EntityLabelAnnotation{},
+		SafeSearchAnalysis: &models.SafeSearchAnnotation{},
 	}
 
 	for _, label := range response.LabelAnnotations {
-		analysis.Keywords = append(analysis.Keywords, label.Description)
+		analysis.Labels = append(analysis.Labels, models.EntityLabelAnnotation{
+			Locale:       label.GetLocale(),
+			Description:  label.GetDescription(),
+			Score:        label.GetScore(),
+			Topicality:   label.GetTopicality(),
+		})
 	}
 
-	analysis.Sentiment = calculateSentiment(response.SafeSearchAnnotation)
+	if response.SafeSearchAnnotation != nil {
+		analysis.SafeSearchAnalysis = &models.SafeSearchAnnotation{
+			Adult:     models.Likelihood(response.SafeSearchAnnotation.Adult),
+			Spoof:     models.Likelihood(response.SafeSearchAnnotation.Spoof),
+			Medical:   models.Likelihood(response.SafeSearchAnnotation.Medical),
+			Violence:  models.Likelihood(response.SafeSearchAnnotation.Violence),
+			Racy:      models.Likelihood(response.SafeSearchAnnotation.Racy),
+		}
+	} else {
+		a.logger.Warn("SafeSearchAnnotation is nil in Vision API response", zap.Any("response", response))
+		analysis.SafeSearchAnalysis = nil
+	}
 
 	return analysis, nil
-}
-
-// calculateSentiment derives a sentiment score from safe search annotations.
-func calculateSentiment(safeSearch *visionpb.SafeSearchAnnotation) float64 {
-	var score float64
-
-	score -= float64(safeSearch.Adult) * 0.25
-	score -= float64(safeSearch.Spoof) * 0.25
-	score -= float64(safeSearch.Medical) * 0.1
-	score -= float64(safeSearch.Violence) * 0.25
-	score -= float64(safeSearch.Racy) * 0.15
-
-	return score / 5.0
 }
 
 // Close closes the underlying client connection.

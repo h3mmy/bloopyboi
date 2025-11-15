@@ -37,7 +37,14 @@ go fmt ./...
 
 ## Linter
 
-The project uses `golangci-lint`. It can be run with `~/go/bin/golangci-lint run --timeout 5m`. If not present, it can be installed with `go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest`.
+The project uses `golangci-lint`. It can be run with `~/go/bin/golangci-lint run --timeout 5m`. If not present, it can be installed with `curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/HEAD/install.sh | sh -s -- -b $(go env GOPATH)/bin v2.6.1
+`.
+
+## Automated Releases
+
+This project uses `semantic-release` to automate the release process. When a pull request is merged into the `main` branch, a new version is automatically created and tagged based on the commit messages.
+
+It is crucial that all commit messages follow the **Conventional Commits** format. Please refer to the [Contribution Guidelines](CONTRIBUTING.md#commit-message-format) for detailed instructions on how to structure your commit messages.
 
 ## Project Structure
 
