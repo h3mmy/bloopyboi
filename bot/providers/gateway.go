@@ -22,10 +22,10 @@ func GetDiscordOauthConfig() *oauth2.Config {
 		appConfig.HttpConfig.Hostname,
 		appConfig.HttpConfig.BaseUrl)
 
-		clientSecret := ""
-		if appConfig.DiscordConfig.ClientSecret != nil {
-			clientSecret = *appConfig.DiscordConfig.ClientSecret
-		}
+	clientSecret := ""
+	if appConfig.DiscordConfig.ClientSecret != nil {
+		clientSecret = *appConfig.DiscordConfig.ClientSecret
+	}
 
 	return &oauth2.Config{
 		ClientID:     fmt.Sprint(appConfig.DiscordConfig.AppID),

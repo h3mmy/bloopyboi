@@ -105,6 +105,10 @@ func (bot *BloopyBoi) initializeDiscord(ctx context.Context) error {
 
 }
 
+func (bot *BloopyBoi) GetDiscordManager() *discord.DiscordManager {
+	return bot.DiscordManager
+}
+
 // TODO: Implement Kubernetes service initialization.
 // func (bot *BloopyBoi) initializeK8sService(ctx context.Context) error {
 // 	k8sService := services.NewK8sService()

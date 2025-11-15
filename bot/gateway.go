@@ -52,7 +52,12 @@ func (g *Gateway) Start() error {
 	g.logger.Debug("starting gateway with config", zap.Any("config", g.config))
 	g.echoServ.GET("/info", GetAppInfo)
 	dg := g.echoServ.Group("/discord")
-	dg = RegisterDiscordSvcRoutes(dg, g.bot.DiscordManager)
+	dg = RegisterDiscordSvcRoutes(dg, func () *discord.DiscordManager {
+		if g.bot == nil {
+			return nil
+		}
+		return g.bot.GetDiscordManager()
+	})
 	g.logger.Debug("registered group", zap.Bool("isnil", dg == nil))
 	return g.echoServ.Start(fmt.Sprintf(":%d", g.config.HttpServerConfig.Port))
 }
@@ -65,9 +70,9 @@ func GetAppInfo(c echo.Context) error {
 	return c.JSON(http.StatusOK, "Hello World")
 }
 
-func RegisterDiscordSvcRoutes(echoGroup *echo.Group, discMgr *discord.DiscordManager) *echo.Group {
+func RegisterDiscordSvcRoutes(echoGroup *echo.Group, discMgrFunc func() *discord.DiscordManager) *echo.Group {
 	dg := echoGroup
-	dg.GET("/manager/meta", GetDiscordManagerMeta(discMgr))
+	dg.GET("/manager/meta", GetDiscordManagerMeta(discMgrFunc))
 
 	if providers.GetDiscordOauthConfig().ClientSecret != "" {
 		// Linked Roles
@@ -76,18 +81,18 @@ func RegisterDiscordSvcRoutes(echoGroup *echo.Group, discMgr *discord.DiscordMan
 			return handlers.HandleLinkedRolesRedirect(c, providers.GetDiscordOauthConfig())
 		})
 		lr.GET("/callback", func(c echo.Context) error {
-			return handlers.HandleLinkedRolesCallback(c, providers.GetDiscordOauthConfig(), discMgr.GetDiscordService())
+			return handlers.HandleLinkedRolesCallback(c, providers.GetDiscordOauthConfig(), discMgrFunc().GetDiscordService())
 		})
 	}
 	return dg
 }
 
-func GetDiscordManagerMeta(g *discord.DiscordManager) func(c echo.Context) error {
+func GetDiscordManagerMeta(g func () *discord.DiscordManager) func(c echo.Context) error {
 	return func(c echo.Context) error {
 		if g == nil {
 			return c.JSON(http.StatusServiceUnavailable, "Bot Instance Not Attached")
 		}
-		return c.JSON(http.StatusOK, g.GetDiscordService().GetMeta())
+		return c.JSON(http.StatusOK, g().GetDiscordService().GetMeta())
 	}
 }
 
