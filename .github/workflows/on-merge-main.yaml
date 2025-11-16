@@ -71,6 +71,7 @@ jobs:
            # You can specify specifying version range for the extra plugins if you prefer.
           extra_plugins: |
             conventional-changelog-conventionalcommits
+            @goreleaser/goreleaser
             @semantic-release/exec
         env:
           GITHUB_TOKEN: "${{ steps.generate-token.outputs.token }}"
