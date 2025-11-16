@@ -7,9 +7,7 @@
     [
       "@semantic-release/exec",
       {
-        "prepareCmd": "echo ${nextRelease.version} > VERSION"
-      },
-      {
+        "prepareCmd": "echo ${nextRelease.version} > VERSION",      
         "publishCmd": "echo \"${nextRelease.notes}\" > /tmp/release-notes.md && goreleaser release --release-notes /tmp/release-notes.md --clean" 
       }
     ]
