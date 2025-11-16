@@ -11,6 +11,7 @@ require (
 	github.com/cdfmlr/ellipsis v0.0.1
 	github.com/devopsarr/overseerr-go v1.0.2
 	github.com/dustin/go-humanize v1.0.1
+	github.com/gorilla/sessions v1.4.0
 	github.com/jarcoal/httpmock v1.4.1
 	github.com/kljensen/snowball v0.10.0
 	github.com/labstack/echo/v4 v4.13.4
@@ -19,6 +20,7 @@ require (
 	github.com/uptrace/opentelemetry-go-extra/otelsql v0.3.2
 	github.com/uptrace/opentelemetry-go-extra/otelzap v0.3.2
 	go.uber.org/zap v1.27.0
+	golang.org/x/oauth2 v0.33.0
 	golift.io/starr v1.2.1
 	google.golang.org/grpc v1.76.0
 	google.golang.org/protobuf v1.36.10
@@ -70,6 +72,8 @@ require (
 	github.com/google/s2a-go v0.1.9 // indirect
 	github.com/googleapis/enterprise-certificate-proxy v0.3.7 // indirect
 	github.com/googleapis/gax-go/v2 v2.15.0 // indirect
+	github.com/gorilla/context v1.1.2 // indirect
+	github.com/gorilla/securecookie v1.1.2 // indirect
 	github.com/hashicorp/hcl/v2 v2.24.0 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20240606120523-5a60cdf6a761 // indirect
@@ -104,7 +108,6 @@ require (
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
 	golang.org/x/mod v0.30.0 // indirect
 	golang.org/x/net v0.47.0 // indirect
-	golang.org/x/oauth2 v0.33.0 // indirect
 	golang.org/x/term v0.37.0 // indirect
 	golang.org/x/time v0.14.0 // indirect
 	golang.org/x/tools v0.38.0 // indirect
@@ -131,6 +134,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/gorilla/websocket v1.5.4-0.20250319132907-e064f32e3674 // indirect
 	github.com/jackc/pgx/v5 v5.7.6
+	github.com/labstack/echo-contrib v0.17.4
 	github.com/pelletier/go-toml/v2 v2.2.4 // indirect
 	github.com/spf13/afero v1.15.0 // indirect
 	github.com/spf13/cast v1.10.0 // indirect

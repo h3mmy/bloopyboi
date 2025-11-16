@@ -20,6 +20,7 @@ import (
 	log "github.com/h3mmy/bloopyboi/pkg/logs"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
+	"golang.org/x/oauth2"
 )
 
 const DefaultIntents = discordgo.IntentsGuildMessages | discordgo.IntentsDirectMessages | discordgo.IntentDirectMessageReactions | discordgo.IntentGuildMessageReactions | discordgo.IntentGuildEmojis
@@ -37,6 +38,8 @@ type DiscordService struct {
 	config           *config.DiscordConfig
 	intents          discordgo.Intent
 	imageAnalyzerSvc ImageAnalyzerService
+	appRoleMetadata  []*discordgo.ApplicationRoleConnectionMetadata
+	appName          string
 }
 
 func NewDiscordService() *DiscordService {
@@ -111,6 +114,18 @@ func (d *DiscordService) RefreshDBConnection() error {
 
 func (d *DiscordService) GetMeta() models.BloopyMeta {
 	return d.meta
+}
+
+func (d *DiscordService) GetAppName() (string, error) {
+	if d.appName != "" {
+		return d.appName, nil
+	}
+	app, err := d.discordSession.Application("@me")
+	if err != nil {
+		return "", err
+	}
+	d.appName = app.Name
+	return app.Name, nil
 }
 
 // Primarily for backwards compatibility while I move things into a service
@@ -265,13 +280,25 @@ func (d *DiscordService) RecordDiscordMessage(ctx context.Context, m *discordgo.
 	}
 	guild, err := d.GetSavedGuild(ctx, m.GuildID)
 	if err != nil {
-		logger.Error("error getting discord guild. May be a DM", zap.String("discordGuildId", m.GuildID), zap.Error(err))
-		return err
+		logger.Warn("error getting discord guild. May be a DM", zap.String("guild_id", m.GuildID), zap.String("message_content", m.Content), zap.Error(err))
 	}
 	channel, err := d.GetSavedDiscordChannel(ctx, m.ChannelID)
 	if err != nil {
-		logger.Error("error getting discord channel", zap.String("discordChannelID", m.ChannelID), zap.Error(err))
+		logger.Error("error getting discord channel", zap.String("channel_id", m.ChannelID), zap.Error(err))
 		return err
+	}
+	if guild == nil {
+		return database.WithTx(ctx, d.db, func(tx *ent.Tx) error {
+			return tx.DiscordMessage.Create().
+				SetAuthor(discUser).
+				SetDiscordid(m.ID).
+				SetChannel(channel).
+				SetContent(m.Content).
+				SetRaw(*m).
+				OnConflict(sql.ConflictColumns("discordid")).
+				UpdateNewValues().
+				Exec(ctx)
+		})
 	}
 	// save to DB
 	return database.WithTx(ctx, d.db, func(tx *ent.Tx) error {
@@ -566,6 +593,75 @@ func (d *DiscordService) IngestGuildEmojis(ctx context.Context, guildID string) 
 	}
 
 	return nil
+}
+
+func (d *DiscordService) UpdateAppRoleMetadata(ctx context.Context, cfg *oauth2.Config) error {
+	st, err := d.discordSession.ApplicationRoleConnectionMetadataUpdate(cfg.ClientID, discord.RoleConnectionMetadata)
+	if err != nil {
+		d.logger.Error("failed to update app role metadata", zap.Error(err))
+		return err
+	}
+	d.logger.Debug("updated app role metadata", zap.Any("metadata", st))
+	d.appRoleMetadata = st
+	return nil
+}
+
+func (d *DiscordService) UpdateDiscordUserRoleConnection(ctx context.Context,
+	ts *discordgo.Session, cfg *oauth2.Config) (*discordgo.ApplicationRoleConnection, error) {
+	// Retrive the user data.
+	du, err := ts.User("@me")
+	if err != nil {
+		d.logger.Error("failed to retrieve user informaion")
+		return nil, err
+	}
+
+	lgr := d.logger.With(
+		zap.String("discordUserID", du.ID),
+	)
+
+	if !d.dbEnabled {
+		return nil, errors.New("DB Not Enabled")
+	}
+
+	ctReacts, err := d.db.DiscordUser.Query().
+		Where(discorduser.DiscordidEQ(du.ID)).
+		QueryMessageReactions().
+		Count(ctx)
+	if err != nil {
+		lgr.Warn("failed to query react count for user")
+		return nil, err
+	}
+	ctMsgs, err := d.db.DiscordUser.Query().
+		Where(discorduser.DiscordidEQ(du.ID)).
+		QueryDiscordMessages().
+		Count(ctx)
+	if err != nil {
+		lgr.Warn("failed to query message count for user")
+		return nil, err
+	}
+
+	metadata := map[string]string{
+		string(discord.RCKey_Reacts): fmt.Sprintf("%d", ctReacts),
+		string(discord.RCKey_Msgs):   fmt.Sprintf("%d", ctMsgs),
+	}
+
+	appName, err := d.GetAppName()
+	if err != nil {
+		return nil, err
+	}
+
+	rcData := &discordgo.ApplicationRoleConnection{
+		PlatformName:     appName,
+		PlatformUsername: du.Username,
+		Metadata:         metadata,
+	}
+
+	rcState, err := ts.UserApplicationRoleConnectionUpdate(cfg.ClientID, rcData)
+	if err != nil {
+		lgr.Error("failed to update user role connection", zap.Error(err))
+		return nil, err
+	}
+	return rcState, nil
 }
 
 // func (d *DiscordService) syncGuildUsers(guildId string) error {

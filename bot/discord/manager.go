@@ -26,7 +26,6 @@ const (
 	discordBotMentionRegexFmt = "^<@!?%s>"
 )
 
-
 // DiscordManager is responsible for interfacing with the Discord session.
 // It contains the bot's mention regex, logger, bot ID, Discord service, and Discord configuration.
 type DiscordManager struct {
@@ -108,6 +107,16 @@ func (d *DiscordManager) Start(ctx context.Context) error {
 		}
 	}
 
+	if d.LinkedRoleEnabled() {
+		d.log.Debug("registering linked role metadata")
+		err := d.discordSvc.UpdateAppRoleMetadata(ctx, providers.GetDiscordOauthConfig())
+		if err != nil {
+			return fmt.Errorf("while updating app role metadata: %w", err)
+		}
+	} else {
+		d.log.Info("no client secret configured. Not registering linked role metadata")
+	}
+
 	d.log.Info("Initializing Experimental Handler")
 	msgSendChan := make(chan *models.DiscordMessageSendRequest, 20)
 	expHandler := getBloopyChanHandler(d.discordSvc, &msgSendChan)
@@ -152,6 +161,7 @@ func getBloopyChanHandler(ds *services.DiscordService, msgSendChan *chan *models
 
 	return handlers.NewMessageChanBlooper(ds, providers.GetInspiroService(), &createCh, &reactACh, &reactRCh, msgSendChan)
 }
+
 // IsReady returns true if the Discord service is ready.
 func (d *DiscordManager) IsReady() bool {
 	return d.discordSvc.GetDataReady()
@@ -160,4 +170,8 @@ func (d *DiscordManager) IsReady() bool {
 // GetDiscordService returns the Discord service.
 func (d *DiscordManager) GetDiscordService() *services.DiscordService {
 	return d.discordSvc
+}
+
+func (d *DiscordManager) LinkedRoleEnabled() bool {
+	return d.discordCfg.ClientSecret != nil && *d.discordCfg.ClientSecret != ""
 }

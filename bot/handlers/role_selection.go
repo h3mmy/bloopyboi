@@ -11,7 +11,6 @@ import (
 	"go.uber.org/zap"
 )
 
-
 // SelectionPrompt is a type alias for config.RoleSelectionPrompt.
 type SelectionPrompt = config.RoleSelectionPrompt
 
@@ -242,6 +241,10 @@ func (r *RoleSelectionHandler) handleReaction(s *discordgo.Session, mReaction *d
 // HandleReactionAdd handles a reaction add event.
 func (r *RoleSelectionHandler) HandleReactionAdd(s *discordgo.Session, m *discordgo.MessageReactionAdd) {
 	r.logger.Debug("processing ReactionAdd", zap.Any("message", m))
+	if m.Member.User.ID == s.State.User.ID {
+		r.logger.Debug("skipping ReactionAdd for self", zap.Any("message", m))
+		return
+	}
 	focusRoleID, user, err := r.handleReaction(s, m.MessageReaction, m.Member)
 	if err != nil {
 		r.logger.Error("error finding associated role", zap.Any("message", m))
@@ -273,6 +276,11 @@ func (r *RoleSelectionHandler) HandleReactionRemove(s *discordgo.Session, m *dis
 	focusRoleID, user, err := r.handleReaction(s, m.MessageReaction, nil)
 	if err != nil {
 		r.logger.Error("error finding associated role", zap.Any("message", m))
+		return
+	}
+
+	if user.User.ID == s.State.User.ID {
+		r.logger.Debug("skipping ReactionAdd for self", zap.Any("message", m))
 		return
 	}
 
