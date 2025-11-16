@@ -39,6 +39,7 @@ type DiscordService struct {
 	intents          discordgo.Intent
 	imageAnalyzerSvc ImageAnalyzerService
 	appRoleMetadata  []*discordgo.ApplicationRoleConnectionMetadata
+	appName          string
 }
 
 func NewDiscordService() *DiscordService {
@@ -113,6 +114,18 @@ func (d *DiscordService) RefreshDBConnection() error {
 
 func (d *DiscordService) GetMeta() models.BloopyMeta {
 	return d.meta
+}
+
+func (d *DiscordService) GetAppName() (string, error) {
+	if d.appName != "" {
+		return d.appName, nil
+	}
+	app, err := d.discordSession.Application("@me")
+	if err != nil {
+		return "", err
+	}
+	d.appName = app.Name
+	return app.Name, nil
 }
 
 // Primarily for backwards compatibility while I move things into a service
@@ -632,9 +645,14 @@ func (d *DiscordService) UpdateDiscordUserRoleConnection(ctx context.Context,
 		string(discord.RCKey_Msgs):   fmt.Sprintf("%d", ctMsgs),
 	}
 
+	appName, err := d.GetAppName()
+	if err != nil {
+		return nil, err
+	}
+
 	rcData := &discordgo.ApplicationRoleConnection{
-		PlatformName:     "TODO",
-		PlatformUsername: "TODO",
+		PlatformName:     appName,
+		PlatformUsername: du.Username,
 		Metadata:         metadata,
 	}
 
