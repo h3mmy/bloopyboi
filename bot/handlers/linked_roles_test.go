@@ -32,6 +32,22 @@ func TestHandleLinkedRolesRedirect(t *testing.T) {
 
 	// Assertions
 	assert.Equal(t, http.StatusMovedPermanently, rec.Code)
+	// Check that a session cookie was set
+	s := &http.Cookie{}
+	s.Name = "session"
+	for _, cookie := range rec.Result().Cookies() {
+		if cookie.Name == "session" {
+			s = cookie
+		}
+	}
+	assert.NotEmpty(t, s.Value, "session cookie should be set")
+
+	// check that the session contains a non-nil state
+	store := sessions.NewCookieStore([]byte("secret"))
+	session, err := store.Get(req, "session")
+	assert.NoError(t, err)
+	assert.NotEmpty(t, session.Values[oauth_state_key], "state should be set in session")
+
 }
 
 func TestHandleLinkedRolesCallback_NoStateInQuery(t *testing.T) {

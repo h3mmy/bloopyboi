@@ -85,7 +85,6 @@ func HandleLinkedRolesCallback(logger *zap.Logger, c echo.Context, oauthConfig *
 		logger.Error("failed to update discord user role connection", zap.Error(err))
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
-	// For now, just return the user as JSON
 	return c.JSON(http.StatusOK, rcData)
 }
 
