@@ -52,7 +52,7 @@ func (g *Gateway) Start() error {
 	g.logger.Debug("starting gateway with config", zap.Any("config", g.config))
 	g.echoServ.GET("/info", GetAppInfo)
 	dg := g.echoServ.Group("/discord")
-	dg = RegisterDiscordSvcRoutes(dg, func () *discord.DiscordManager {
+	dg = g.RegisterDiscordSvcRoutes(dg, func() *discord.DiscordManager {
 		if g.bot == nil {
 			return nil
 		}
@@ -70,7 +70,7 @@ func GetAppInfo(c echo.Context) error {
 	return c.JSON(http.StatusOK, "Hello World")
 }
 
-func RegisterDiscordSvcRoutes(echoGroup *echo.Group, discMgrFunc func() *discord.DiscordManager) *echo.Group {
+func (g *Gateway) RegisterDiscordSvcRoutes(echoGroup *echo.Group, discMgrFunc func() *discord.DiscordManager) *echo.Group {
 	dg := echoGroup
 	dg.GET("/manager/meta", GetDiscordManagerMeta(discMgrFunc))
 
@@ -78,16 +78,16 @@ func RegisterDiscordSvcRoutes(echoGroup *echo.Group, discMgrFunc func() *discord
 		// Linked Roles
 		lr := dg.Group("/linked-roles")
 		lr.GET("", func(c echo.Context) error {
-			return handlers.HandleLinkedRolesRedirect(c, providers.GetDiscordOauthConfig())
+			return handlers.HandleLinkedRolesRedirect(g.logger.Logger, c, providers.GetDiscordOauthConfig())
 		})
 		lr.GET("/callback", func(c echo.Context) error {
-			return handlers.HandleLinkedRolesCallback(c, providers.GetDiscordOauthConfig(), discMgrFunc().GetDiscordService())
+			return handlers.HandleLinkedRolesCallback(g.logger.Logger, c, providers.GetDiscordOauthConfig(), discMgrFunc().GetDiscordService())
 		})
 	}
 	return dg
 }
 
-func GetDiscordManagerMeta(g func () *discord.DiscordManager) func(c echo.Context) error {
+func GetDiscordManagerMeta(g func() *discord.DiscordManager) func(c echo.Context) error {
 	return func(c echo.Context) error {
 		if g == nil {
 			return c.JSON(http.StatusServiceUnavailable, "Bot Instance Not Attached")
@@ -95,7 +95,6 @@ func GetDiscordManagerMeta(g func () *discord.DiscordManager) func(c echo.Contex
 		return c.JSON(http.StatusOK, g().GetDiscordService().GetMeta())
 	}
 }
-
 // TODO: finish this
 
 // func GetRoleConnectionInfo(g *discord.DiscordManager) func(c echo.Context) error{
