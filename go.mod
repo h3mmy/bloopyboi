@@ -7,13 +7,13 @@ go 1.24.6
 require (
 	cloud.google.com/go/vision/v2 v2.9.6
 	github.com/adrg/strutil v0.3.1
+	github.com/afjoseph/RAKE.go v0.0.0-20250612060730-7593701b6718
 	github.com/bwmarrin/discordgo v0.29.0
 	github.com/cdfmlr/ellipsis v0.0.1
 	github.com/devopsarr/overseerr-go v1.0.2
 	github.com/dustin/go-humanize v1.0.1
 	github.com/gorilla/sessions v1.4.0
 	github.com/jarcoal/httpmock v1.4.1
-	github.com/kljensen/snowball v0.10.0
 	github.com/labstack/echo/v4 v4.13.4
 	github.com/spf13/viper v1.21.0
 	github.com/stretchr/testify v1.11.1
