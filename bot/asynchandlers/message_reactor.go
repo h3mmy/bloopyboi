@@ -3,7 +3,6 @@ package asynchandlers
 import (
 	"fmt"
 	"math/rand"
-	"slices"
 	"time"
 
 	"github.com/adrg/strutil/metrics"
@@ -11,7 +10,7 @@ import (
 	"github.com/h3mmy/bloopyboi/internal/discord"
 	"github.com/h3mmy/bloopyboi/internal/models"
 	log "github.com/h3mmy/bloopyboi/pkg/logs"
-	"github.com/kljensen/snowball"
+	rake "github.com/afjoseph/RAKE.go"
 	"go.uber.org/zap"
 )
 
@@ -150,27 +149,26 @@ func (mr *MessageReactor) SelectGuildEmojiForReaction(m *discordgo.Message, emoj
 func (mr *MessageReactor) FindSimilarEmoji(m *discordgo.Message, emojiPool []*discordgo.Emoji) []*discordgo.Emoji {
 	logger := mr.logger.With(zap.String("method", "FindSimilarEmoji"), zap.String("messageID", m.ID))
 
-	stemmed, err := snowball.Stem(m.Content, "english", true)
-	if err != nil {
-		logger.Error("error while stemming", zap.Error(err))
-		stemmed = m.Content
-	}
-	logger.Debug("stemmed a thing", zap.String("post stemming", stemmed))
+	keywords := rake.RunRake(m.Content)
+
 	oc := metrics.NewOverlapCoefficient()
 	revisedEmojiPool := []*discordgo.Emoji{}
-	highestSim := 0.0
-	// def not efficient
+	keywordScores := make(map[string]float64)
+
+	for _, keyword := range keywords {
+		keywordScores[keyword.Key] = keyword.Value
+	}
+
 	for _, emoji := range emojiPool {
-		sim := oc.Compare(emoji.Name, stemmed)
-		if sim >= float64(highestSim) {
-			highestSim = sim
-			if len(revisedEmojiPool) > 5 {
-				revisedEmojiPool = slices.Delete(revisedEmojiPool, 0, 1)
+		for keyword, score := range keywordScores {
+			sim := oc.Compare(emoji.Name, keyword)
+			if sim > 0.8 {
+				logger.Debug(fmt.Sprintf("Adding with similarity score: .2%f", sim), zap.String("emoji", emoji.Name), zap.String("keyword", keyword), zap.Float64("score", score))
+				revisedEmojiPool = append(revisedEmojiPool, emoji)
 			}
-			logger.Debug(fmt.Sprintf("Adding with similarity score: .2%f", sim), zap.String("emoji", emoji.Name), zap.String("stemmed", stemmed))
-			revisedEmojiPool = append(revisedEmojiPool, emoji)
 		}
 	}
+
 	if len(revisedEmojiPool) == 0 {
 		logger.Warn("no emoji similar enough. Returning OG pool")
 		return emojiPool
