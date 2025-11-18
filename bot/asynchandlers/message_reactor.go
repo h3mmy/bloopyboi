@@ -123,7 +123,7 @@ func (mr *MessageReactor) ReactToMessage(s *discordgo.Session, m *discordgo.Mess
 	logger := mr.logger.With(zap.String("method", "ReactToMessage"), zap.String("messageID", m.ID))
 	guildEmojis, err := s.GuildEmojis(m.GuildID)
 	if err != nil {
-		logger.Warn("could not get emoji for guild", zap.String("guildID", m.GuildID))
+		logger.Warn("could not get emoji for guild", zap.String("guildID", m.GuildID), zap.Error(err))
 	}
 	if guildEmojis != nil {
 		logger.Debug("Found Guild Emojis", zap.Int("count", len(guildEmojis)))
