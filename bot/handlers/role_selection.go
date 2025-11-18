@@ -277,11 +277,11 @@ func (r *RoleSelectionHandler) HandleReactionAdd(s *discordgo.Session, m *discor
 
 // HandleReactionRemove handles a reaction remove event.
 func (r *RoleSelectionHandler) HandleReactionRemove(s *discordgo.Session, m *discordgo.MessageReactionRemove) {
-	r.logger.Debug("processing ReactionRemove", zap.Any("message", m))
-		if m.ChannelID != r.config.Channel.ID {
+	if m.ChannelID != r.config.Channel.ID {
 	    r.logger.Debug("skip reaction not in role selection channel")
 	    return
 	}
+	r.logger.Debug("processing ReactionRemove", zap.Any("message", m))
 	focusRoleID, user, err := r.handleReaction(s, m.MessageReaction, nil)
 	if err != nil {
 		r.logger.Error("error finding associated role", zap.Any("message", m))
