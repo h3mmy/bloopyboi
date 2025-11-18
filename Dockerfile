@@ -8,6 +8,9 @@ ENV GO111MODULE=on \
 
 WORKDIR /build
 
+COPY go.mod go.sum ./
+RUN go mod download
+
 COPY . .
 
 RUN export GOOS=$(echo ${TARGETPLATFORM} | cut -d / -f1) \
@@ -15,8 +18,7 @@ RUN export GOOS=$(echo ${TARGETPLATFORM} | cut -d / -f1) \
     export GOARCH=$(echo ${TARGETPLATFORM} | cut -d / -f2) \
     && \
     GOARM=$(echo ${TARGETPLATFORM} | cut -d / -f3); export GOARM=${GOARM:1}
-RUN go mod download
-# These are done in a different part of the pipeline. 
+# These are done in a different part of the pipeline.
 # RUN go vet -v
 # RUN go test -v ./...
 RUN go build -ldflags="-w -s" .
