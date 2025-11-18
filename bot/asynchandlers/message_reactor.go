@@ -57,9 +57,11 @@ func (mr *MessageReactor) ShouldAddReaction(s *discordgo.Session, m *discordgo.M
 		return false
 	}
 	if len(m.Mentions) > 0 {
+		logger.Debug("has mentions, flip a 45% coin")
 		return rand.Float64() < 0.55
 	}
 	if m.GuildID == "" {
+		logger.Debug("is DM, can't react just in case")
 		// Implies a DM
 		return false
 	}
@@ -82,7 +84,7 @@ func (mr *MessageReactor) ShouldAddReaction(s *discordgo.Session, m *discordgo.M
 
 	if err != nil {
 		logger.Warn(
-			"could not get last channel message",
+			"could not get last channel message for determining reaction odds. won't react",
 			zap.String("channelID", m.ChannelID),
 			zap.String("messageID", m.ID),
 			zap.Error(err),
@@ -92,7 +94,7 @@ func (mr *MessageReactor) ShouldAddReaction(s *discordgo.Session, m *discordgo.M
 		logger.Debug("found the last message?", zap.Int("lastChannelMessages size", len(lastChannelMessages)))
 		lastMessage := lastChannelMessages[0]
 		if lastMessage != nil {
-			logger.Debug("last message is not nil",
+			logger.Debug("last message is not nil. 50-50?",
 				zap.String("channelID", m.ChannelID),
 				zap.String("messageID", m.ID),
 			)
