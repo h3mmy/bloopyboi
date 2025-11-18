@@ -153,32 +153,45 @@ func (mr *MessageReactor) FindSimilarEmoji(m *discordgo.Message, emojiPool []*di
 	
 	logger.Debug("Extracted keywords", zap.Int("keyword_ct", len(keywords)))
 	
-	// TODO: Extract minimum and maximum scores
+	if len(keywords) == 0 {
+		logger.Debug("no keywords found in message")
+		return emojiPool
+	}
 
 	oc := metrics.NewOverlapCoefficient()
-	revisedEmojiPool := []*discordgo.Emoji{}
-	keywordScores := make(map[string]float64)
 
-	for _, keyword := range keywords {
-		keywordScores[keyword.Key] = keyword.Value
-	}
-	
-	logger.Debug("mapped keyword scores", zap.Any("keyword_scores", keywordScores))
+	var totalSimilarity float64
+	var comparisons int
 
 	for _, emoji := range emojiPool {
-		for keyword, score := range keywordScores {
-			sim := oc.Compare(emoji.Name, keyword)
-			// TODO: Replace this static sim score with average/median from min/max instead
-			if sim > 0.3 {
-				logger.Debug(fmt.Sprintf("Adding with similarity score: .2%f", sim), zap.String("emoji", emoji.Name), zap.String("keyword", keyword), zap.Float64("score", score))
+		for _, keyword := range keywords {
+			totalSimilarity += oc.Compare(emoji.Name, keyword.Key)
+			comparisons++
+		}
+	}
+
+	similarityThreshold := totalSimilarity / float64(comparisons)
+	logger.Debug("calculated similarity threshold", zap.Float64("threshold", similarityThreshold))
+
+	revisedEmojiPool := []*discordgo.Emoji{}
+	seen := make(map[string]bool)
+	for _, emoji := range emojiPool {
+		for _, keyword := range keywords {
+			sim := oc.Compare(emoji.Name, keyword.Key)
+			if sim > similarityThreshold && !seen[emoji.Name] {
+				logger.Debug("adding emoji with similarity score",
+					zap.String("emoji", emoji.Name),
+					zap.String("keyword", keyword.Key),
+					zap.Float64("similarity", sim),
+				)
 				revisedEmojiPool = append(revisedEmojiPool, emoji)
+				seen[emoji.Name] = true
 			}
 		}
 	}
 
 	if len(revisedEmojiPool) == 0 {
-		logger.Warn("no emoji similar enough. Returning OG pool")
-		return emojiPool
+		logger.Warn("no emoji similar enough")
 	}
 	return revisedEmojiPool
 }
