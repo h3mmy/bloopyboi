@@ -150,6 +150,10 @@ func (mr *MessageReactor) FindSimilarEmoji(m *discordgo.Message, emojiPool []*di
 	logger := mr.logger.With(zap.String("method", "FindSimilarEmoji"), zap.String("messageID", m.ID))
 
 	keywords := rake.RunRake(m.Content)
+	
+	logger.Debug("Extracted keywords", zap.Int("keyword_ct", len(keywords)))
+	
+	// TODO: Extract minimum and maximum scores
 
 	oc := metrics.NewOverlapCoefficient()
 	revisedEmojiPool := []*discordgo.Emoji{}
@@ -158,11 +162,14 @@ func (mr *MessageReactor) FindSimilarEmoji(m *discordgo.Message, emojiPool []*di
 	for _, keyword := range keywords {
 		keywordScores[keyword.Key] = keyword.Value
 	}
+	
+	logger.Debug("mapped keyword scores", zap.Any("keyword_scores", keywordScores))
 
 	for _, emoji := range emojiPool {
 		for keyword, score := range keywordScores {
 			sim := oc.Compare(emoji.Name, keyword)
-			if sim > 0.8 {
+			// TODO: Replace this static sim score with average/median from min/max instead
+			if sim > 0.3 {
 				logger.Debug(fmt.Sprintf("Adding with similarity score: .2%f", sim), zap.String("emoji", emoji.Name), zap.String("keyword", keyword), zap.Float64("score", score))
 				revisedEmojiPool = append(revisedEmojiPool, emoji)
 			}
