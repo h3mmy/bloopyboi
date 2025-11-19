@@ -43,6 +43,7 @@ runs:
 
     - name: Go Build Cache for Docker
       uses: actions/cache@v4
+      id: cache
       with:
         path: go-build-cache
         key: ${{ runner.os }}-go-build-cache-${{ hashFiles('**/go.sum') }}
@@ -50,7 +51,10 @@ runs:
     - name: Inject go-build-cache
       uses: reproducible-containers/buildkit-cache-dance@v3.3.0
       with:
-        cache-source: go-build-cache
+        builder: ${{ steps.buildx.outputs.name }}
+        cache-dir: go-build-cache
+        dockerfile: Dockerfile
+        skip-extraction: ${{ steps.cache.outputs.cache-hit }}
 
     - name: Login to GitHub Container Registry
       if: github.event_name != 'pull_request'
