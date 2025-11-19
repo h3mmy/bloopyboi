@@ -9,6 +9,13 @@ import (
 	"go.uber.org/zap"
 )
 
+const NoticedReactionPool := []string{"👀","🙊","🙈","🙉","👁️","👄","🫦","🤘🏽","✍","🐸","🐢","🥁",
+    "🔬",
+    "🔭",
+    "⁉️",
+    "🆒"}
+
+//TODO: Migrate to asynchandlers
 // Listens for messages specifically addressing bot
 func DirectedMessageReceive(s *discordgo.Session, m *discordgo.MessageCreate) {
 	directMessage := (m.GuildID == "")
@@ -63,7 +70,8 @@ func DirectedMessageReceive(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 	if strings.Contains(strings.ToLower(m.Content), "bloopyboi") {
 		logger.Sugar().Debug("Detected BloopyBoi in message from ", m.Author.Username)
-		err := s.MessageReactionAdd(m.ChannelID, m.ID, "👀")
+		reactn := NoticedReactionPool[rand(Intn(len(NoticedReactionPool)))]
+		err := s.MessageReactionAdd(m.ChannelID, m.ID, reactn)
 		if err != nil {
 			logger.Sugar().Warn(err)
 		}
