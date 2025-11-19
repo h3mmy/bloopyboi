@@ -9,7 +9,7 @@ import (
 	"go.uber.org/zap"
 )
 
-const NoticedReactionPool = []string{"👀","🙊","🙈","🙉","👁️","👄","🫦","✍🏽","🐸","🐢","🥁","🔬","🔭","⁉️","🆒"}
+var NoticedReactionPool = []string{"👀","🙊","🙈","🙉","👁️","👄","🫦","✍🏽","🐸","🐢","🥁","🔬","🔭","⁉️","🆒"}
 
 //TODO: Migrate to asynchandlers
 // Listens for messages specifically addressing bot
