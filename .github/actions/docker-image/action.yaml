@@ -48,7 +48,7 @@ runs:
         key: ${{ runner.os }}-go-build-cache-${{ hashFiles('**/go.sum') }}
 
     - name: Inject go-build-cache
-      uses: reproducible-containers/buildkit-cache-dance@v2.1.4
+      uses: reproducible-containers/buildkit-cache-dance@v3.3.0
       with:
         cache-source: go-build-cache
 
