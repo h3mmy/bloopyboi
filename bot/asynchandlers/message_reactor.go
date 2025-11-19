@@ -73,6 +73,9 @@ func (mr *MessageReactor) ShouldAddReaction(s *discordgo.Session, m *discordgo.M
 		)
 		// react to the referenced message
 		// s.ChannelMessage(m.ChannelID, m.ID)
+		if m.ReferencedMessage.GuildID == nil || m.ReferencedMessage == "" {
+		    m.ReferencedMessage.GuildID=m.GuildID
+		}
 		err := mr.ReactToMessage(s, m.ReferencedMessage)
 		if err != nil {
 			logger.Warn("failed reacting to referenced message", zap.Error(err))
