@@ -42,3 +42,9 @@ runs:
         args: release --clean --snapshot
       env:
         GITHUB_TOKEN: ${{ inputs.token }}
+
+    - name: Upload assets
+      uses: actions/upload-artifact@v5
+      with:
+        name: bloopyboi
+        path: ./dist/*
