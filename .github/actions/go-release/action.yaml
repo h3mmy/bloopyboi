@@ -38,7 +38,7 @@ runs:
       uses: goreleaser/goreleaser-action@v6
       if: startsWith(github.ref, 'refs/tags/') == false
       with:
-        version: latest
+        version: '~> v2'
         args: release --clean --snapshot
       env:
         GITHUB_TOKEN: ${{ inputs.token }}
