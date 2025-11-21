@@ -14,6 +14,8 @@ import (
 	"github.com/h3mmy/bloopyboi/pkg/config"
 	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"
+	"strings"
+
 	"github.com/uptrace/opentelemetry-go-extra/otelzap"
 	"go.uber.org/zap"
 )
@@ -53,7 +55,11 @@ func NewDefaultGateway() *Gateway {
 func (g *Gateway) Start() error {
 	g.logger.Debug("starting gateway with config", zap.Any("config", g.config))
 	g.echoServ.GET("/info", GetAppInfo)
-	g.echoServ.Use(session.Middleware(sessions.NewCookieStore([]byte(g.config.HttpServerConfig.SessionSecret))))
+	secrets := [][]byte{}
+	for _, secret := range strings.Split(g.config.HttpServerConfig.SessionSecret, ",") {
+		secrets = append(secrets, []byte(secret))
+	}
+	g.echoServ.Use(session.Middleware(sessions.NewCookieStore(secrets...)))
 	dg := g.echoServ.Group("/discord")
 	dg = g.RegisterDiscordSvcRoutes(dg, func() *discord.DiscordManager {
 		if g.bot == nil {
