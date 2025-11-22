@@ -32,11 +32,12 @@ func HandleLinkedRolesRedirect(logger *zap.Logger, c echo.Context, oauthConfig *
 	}
 	sess.Values[oauth_state_key] = state
 	err = sess.Save(c.Request(), c.Response())
+
 	if err != nil {
 		logger.Error("failed to save session", zap.Error(err))
 		return c.String(http.StatusInternalServerError, "Failed to save session")
 	}
-
+  c.Response().Header().Set(echo.HeaderCacheControl, "no-cache, no-store, must-revalidate")
 	logger.Debug("redirecting to discord oauth2 flow", zap.String("state", state))
 	return c.Redirect(http.StatusMovedPermanently, oauthConfig.AuthCodeURL(state))
 }

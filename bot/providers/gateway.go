@@ -3,6 +3,7 @@ package providers
 import (
 	"fmt"
 
+	"github.com/gorilla/sessions"
 	"github.com/h3mmy/bloopyboi/pkg/config"
 	"golang.org/x/oauth2"
 )
@@ -37,4 +38,13 @@ func GetDiscordOauthConfig() *oauth2.Config {
 			TokenURL: "https://discord.com/api/oauth2/token",
 		},
 	}
+}
+
+func GetCookieStore() *sessions.CookieStore {
+	appConfig := config.GetConfig()
+	secrets := [][]byte{}
+	for _, secret := range appConfig.HttpConfig.SessionSecrets {
+		secrets = append(secrets, []byte(secret))
+	}
+	return sessions.NewCookieStore(secrets...)
 }
