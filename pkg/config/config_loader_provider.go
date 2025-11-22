@@ -48,6 +48,7 @@ func setDefaults() {
 	viper.SetDefault("http.keyFile", "")
 	viper.SetDefault("grpc.port", 8081)
 	viper.SetDefault("logLevel", "info")
+	viper.SetDefault("http.cookieSecrets", []string{})
 }
 
 // GetConfig returns bloopyboi configuration from the current viper instance

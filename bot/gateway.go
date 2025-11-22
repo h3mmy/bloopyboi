@@ -10,7 +10,6 @@ import (
 	"github.com/h3mmy/bloopyboi/bot/providers"
 	"github.com/h3mmy/bloopyboi/internal/models"
 	"github.com/h3mmy/bloopyboi/pkg/api/pb"
-	"github.com/gorilla/sessions"
 	"github.com/h3mmy/bloopyboi/pkg/config"
 	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"
@@ -54,11 +53,10 @@ func NewDefaultGateway() *Gateway {
 func (g *Gateway) Start() error {
 	g.logger.Debug("starting gateway with config", zap.Any("config", g.config))
 	g.echoServ.GET("/info", GetAppInfo)
-	secrets := [][]byte{}
-	for _, secret := range g.config.HttpServerConfig.SessionSecrets {
-		secrets = append(secrets, []byte(secret))
-	}
-	g.echoServ.Use(session.Middleware(sessions.NewCookieStore(secrets...)))
+
+	cookieStore := providers.GetCookieStore()
+	g.echoServ.Use(session.Middleware(cookieStore))
+
 	dg := g.echoServ.Group("/discord")
 	dg = g.RegisterDiscordSvcRoutes(dg, func() *discord.DiscordManager {
 		if g.bot == nil {
@@ -103,6 +101,7 @@ func GetDiscordManagerMeta(g func() *discord.DiscordManager) func(c echo.Context
 		return c.JSON(http.StatusOK, g().GetDiscordService().GetMeta())
 	}
 }
+
 // TODO: finish this
 
 // func GetRoleConnectionInfo(g *discord.DiscordManager) func(c echo.Context) error{
