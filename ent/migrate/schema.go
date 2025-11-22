@@ -155,17 +155,72 @@ var (
 	}
 	// EmojisColumns holds the columns for the "emojis" table.
 	EmojisColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "id", Type: field.TypeUUID, Unique: true},
 		{Name: "emoji_id", Type: field.TypeString, Unique: true},
 		{Name: "name", Type: field.TypeString},
 		{Name: "animated", Type: field.TypeBool, Default: false},
-		{Name: "keywords", Type: field.TypeJSON, Nullable: true},
+		{Name: "image_uri", Type: field.TypeString, Nullable: true},
+		{Name: "adult_likelihood", Type: field.TypeInt, Default: 0},
+		{Name: "spoof_likelihood", Type: field.TypeInt, Default: 0},
+		{Name: "medical_likelihood", Type: field.TypeInt, Default: 0},
+		{Name: "violence_likelihood", Type: field.TypeInt, Default: 0},
+		{Name: "racy_likelihood", Type: field.TypeInt, Default: 0},
 	}
 	// EmojisTable holds the schema information for the "emojis" table.
 	EmojisTable = &schema.Table{
 		Name:       "emojis",
 		Columns:    EmojisColumns,
 		PrimaryKey: []*schema.Column{EmojisColumns[0]},
+	}
+	// EmojiKeywordScoresColumns holds the columns for the "emoji_keyword_scores" table.
+	EmojiKeywordScoresColumns = []*schema.Column{
+		{Name: "score", Type: field.TypeFloat32},
+		{Name: "topicality", Type: field.TypeFloat32},
+		{Name: "keyword_id", Type: field.TypeUUID},
+		{Name: "emoji_id", Type: field.TypeUUID},
+	}
+	// EmojiKeywordScoresTable holds the schema information for the "emoji_keyword_scores" table.
+	EmojiKeywordScoresTable = &schema.Table{
+		Name:       "emoji_keyword_scores",
+		Columns:    EmojiKeywordScoresColumns,
+		PrimaryKey: []*schema.Column{EmojiKeywordScoresColumns[3], EmojiKeywordScoresColumns[2]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "emoji_keyword_scores_keywords_keyword",
+				Columns:    []*schema.Column{EmojiKeywordScoresColumns[2]},
+				RefColumns: []*schema.Column{KeywordsColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "emoji_keyword_scores_emojis_emoji",
+				Columns:    []*schema.Column{EmojiKeywordScoresColumns[3]},
+				RefColumns: []*schema.Column{EmojisColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "emojikeywordscore_emoji_id_keyword_id",
+				Unique:  false,
+				Columns: []*schema.Column{EmojiKeywordScoresColumns[3], EmojiKeywordScoresColumns[2]},
+			},
+			{
+				Name:    "emojikeywordscore_score",
+				Unique:  false,
+				Columns: []*schema.Column{EmojiKeywordScoresColumns[0]},
+			},
+		},
+	}
+	// KeywordsColumns holds the columns for the "keywords" table.
+	KeywordsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeUUID, Unique: true},
+		{Name: "keyword", Type: field.TypeString, Unique: true},
+	}
+	// KeywordsTable holds the schema information for the "keywords" table.
+	KeywordsTable = &schema.Table{
+		Name:       "keywords",
+		Columns:    KeywordsColumns,
+		PrimaryKey: []*schema.Column{KeywordsColumns[0]},
 	}
 	// MediaRequestsColumns holds the columns for the "media_requests" table.
 	MediaRequestsColumns = []*schema.Column{
@@ -300,6 +355,8 @@ var (
 		DiscordMessageReactionsTable,
 		DiscordUsersTable,
 		EmojisTable,
+		EmojiKeywordScoresTable,
+		KeywordsTable,
 		MediaRequestsTable,
 		BookAuthorBooksTable,
 		DiscordGuildMembersTable,
@@ -314,6 +371,8 @@ func init() {
 	DiscordMessagesTable.ForeignKeys[2].RefTable = DiscordUsersTable
 	DiscordMessageReactionsTable.ForeignKeys[0].RefTable = DiscordMessagesTable
 	DiscordMessageReactionsTable.ForeignKeys[1].RefTable = DiscordUsersTable
+	EmojiKeywordScoresTable.ForeignKeys[0].RefTable = KeywordsTable
+	EmojiKeywordScoresTable.ForeignKeys[1].RefTable = EmojisTable
 	MediaRequestsTable.ForeignKeys[0].RefTable = BooksTable
 	BookAuthorBooksTable.ForeignKeys[0].RefTable = BookAuthorsTable
 	BookAuthorBooksTable.ForeignKeys[1].RefTable = BooksTable

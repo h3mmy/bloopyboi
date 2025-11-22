@@ -3,12 +3,12 @@
 package ent
 
 import (
-	"encoding/json"
 	"fmt"
 	"strings"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/google/uuid"
 	"github.com/h3mmy/bloopyboi/ent/emoji"
 )
 
@@ -16,16 +16,60 @@ import (
 type Emoji struct {
 	config `json:"-"`
 	// ID of the ent.
-	ID int `json:"id,omitempty"`
+	ID uuid.UUID `json:"id,omitempty"`
 	// EmojiID holds the value of the "emoji_id" field.
 	EmojiID string `json:"emoji_id,omitempty"`
 	// Name holds the value of the "name" field.
 	Name string `json:"name,omitempty"`
 	// Animated holds the value of the "animated" field.
 	Animated bool `json:"animated,omitempty"`
-	// Keywords holds the value of the "keywords" field.
-	Keywords     []string `json:"keywords,omitempty"`
+	// ImageURI holds the value of the "image_uri" field.
+	ImageURI *string `json:"image_uri,omitempty"`
+	// AdultLikelihood holds the value of the "adult_likelihood" field.
+	AdultLikelihood int `json:"adult_likelihood,omitempty"`
+	// SpoofLikelihood holds the value of the "spoof_likelihood" field.
+	SpoofLikelihood int `json:"spoof_likelihood,omitempty"`
+	// MedicalLikelihood holds the value of the "medical_likelihood" field.
+	MedicalLikelihood int `json:"medical_likelihood,omitempty"`
+	// ViolenceLikelihood holds the value of the "violence_likelihood" field.
+	ViolenceLikelihood int `json:"violence_likelihood,omitempty"`
+	// RacyLikelihood holds the value of the "racy_likelihood" field.
+	RacyLikelihood int `json:"racy_likelihood,omitempty"`
+	// Edges holds the relations/edges for other nodes in the graph.
+	// The values are being populated by the EmojiQuery when eager-loading is set.
+	Edges        EmojiEdges `json:"edges"`
 	selectValues sql.SelectValues
+}
+
+// EmojiEdges holds the relations/edges for other nodes in the graph.
+type EmojiEdges struct {
+	// Keywords holds the value of the keywords edge.
+	Keywords []*Keyword `json:"keywords,omitempty"`
+	// EmojiKeywordScores holds the value of the emoji_keyword_scores edge.
+	EmojiKeywordScores []*EmojiKeywordScore `json:"emoji_keyword_scores,omitempty"`
+	// loadedTypes holds the information for reporting if a
+	// type was loaded (or requested) in eager-loading or not.
+	loadedTypes             [2]bool
+	namedKeywords           map[string][]*Keyword
+	namedEmojiKeywordScores map[string][]*EmojiKeywordScore
+}
+
+// KeywordsOrErr returns the Keywords value or an error if the edge
+// was not loaded in eager-loading.
+func (e EmojiEdges) KeywordsOrErr() ([]*Keyword, error) {
+	if e.loadedTypes[0] {
+		return e.Keywords, nil
+	}
+	return nil, &NotLoadedError{edge: "keywords"}
+}
+
+// EmojiKeywordScoresOrErr returns the EmojiKeywordScores value or an error if the edge
+// was not loaded in eager-loading.
+func (e EmojiEdges) EmojiKeywordScoresOrErr() ([]*EmojiKeywordScore, error) {
+	if e.loadedTypes[1] {
+		return e.EmojiKeywordScores, nil
+	}
+	return nil, &NotLoadedError{edge: "emoji_keyword_scores"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -33,14 +77,14 @@ func (*Emoji) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case emoji.FieldKeywords:
-			values[i] = new([]byte)
 		case emoji.FieldAnimated:
 			values[i] = new(sql.NullBool)
-		case emoji.FieldID:
+		case emoji.FieldAdultLikelihood, emoji.FieldSpoofLikelihood, emoji.FieldMedicalLikelihood, emoji.FieldViolenceLikelihood, emoji.FieldRacyLikelihood:
 			values[i] = new(sql.NullInt64)
-		case emoji.FieldEmojiID, emoji.FieldName:
+		case emoji.FieldEmojiID, emoji.FieldName, emoji.FieldImageURI:
 			values[i] = new(sql.NullString)
+		case emoji.FieldID:
+			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -57,11 +101,11 @@ func (_m *Emoji) assignValues(columns []string, values []any) error {
 	for i := range columns {
 		switch columns[i] {
 		case emoji.FieldID:
-			value, ok := values[i].(*sql.NullInt64)
-			if !ok {
-				return fmt.Errorf("unexpected type %T for field id", value)
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field id", values[i])
+			} else if value != nil {
+				_m.ID = *value
 			}
-			_m.ID = int(value.Int64)
 		case emoji.FieldEmojiID:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field emoji_id", values[i])
@@ -80,13 +124,42 @@ func (_m *Emoji) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.Animated = value.Bool
 			}
-		case emoji.FieldKeywords:
-			if value, ok := values[i].(*[]byte); !ok {
-				return fmt.Errorf("unexpected type %T for field keywords", values[i])
-			} else if value != nil && len(*value) > 0 {
-				if err := json.Unmarshal(*value, &_m.Keywords); err != nil {
-					return fmt.Errorf("unmarshal field keywords: %w", err)
-				}
+		case emoji.FieldImageURI:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field image_uri", values[i])
+			} else if value.Valid {
+				_m.ImageURI = new(string)
+				*_m.ImageURI = value.String
+			}
+		case emoji.FieldAdultLikelihood:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field adult_likelihood", values[i])
+			} else if value.Valid {
+				_m.AdultLikelihood = int(value.Int64)
+			}
+		case emoji.FieldSpoofLikelihood:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field spoof_likelihood", values[i])
+			} else if value.Valid {
+				_m.SpoofLikelihood = int(value.Int64)
+			}
+		case emoji.FieldMedicalLikelihood:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field medical_likelihood", values[i])
+			} else if value.Valid {
+				_m.MedicalLikelihood = int(value.Int64)
+			}
+		case emoji.FieldViolenceLikelihood:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field violence_likelihood", values[i])
+			} else if value.Valid {
+				_m.ViolenceLikelihood = int(value.Int64)
+			}
+		case emoji.FieldRacyLikelihood:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field racy_likelihood", values[i])
+			} else if value.Valid {
+				_m.RacyLikelihood = int(value.Int64)
 			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
@@ -99,6 +172,16 @@ func (_m *Emoji) assignValues(columns []string, values []any) error {
 // This includes values selected through modifiers, order, etc.
 func (_m *Emoji) Value(name string) (ent.Value, error) {
 	return _m.selectValues.Get(name)
+}
+
+// QueryKeywords queries the "keywords" edge of the Emoji entity.
+func (_m *Emoji) QueryKeywords() *KeywordQuery {
+	return NewEmojiClient(_m.config).QueryKeywords(_m)
+}
+
+// QueryEmojiKeywordScores queries the "emoji_keyword_scores" edge of the Emoji entity.
+func (_m *Emoji) QueryEmojiKeywordScores() *EmojiKeywordScoreQuery {
+	return NewEmojiClient(_m.config).QueryEmojiKeywordScores(_m)
 }
 
 // Update returns a builder for updating this Emoji.
@@ -133,10 +216,75 @@ func (_m *Emoji) String() string {
 	builder.WriteString("animated=")
 	builder.WriteString(fmt.Sprintf("%v", _m.Animated))
 	builder.WriteString(", ")
-	builder.WriteString("keywords=")
-	builder.WriteString(fmt.Sprintf("%v", _m.Keywords))
+	if v := _m.ImageURI; v != nil {
+		builder.WriteString("image_uri=")
+		builder.WriteString(*v)
+	}
+	builder.WriteString(", ")
+	builder.WriteString("adult_likelihood=")
+	builder.WriteString(fmt.Sprintf("%v", _m.AdultLikelihood))
+	builder.WriteString(", ")
+	builder.WriteString("spoof_likelihood=")
+	builder.WriteString(fmt.Sprintf("%v", _m.SpoofLikelihood))
+	builder.WriteString(", ")
+	builder.WriteString("medical_likelihood=")
+	builder.WriteString(fmt.Sprintf("%v", _m.MedicalLikelihood))
+	builder.WriteString(", ")
+	builder.WriteString("violence_likelihood=")
+	builder.WriteString(fmt.Sprintf("%v", _m.ViolenceLikelihood))
+	builder.WriteString(", ")
+	builder.WriteString("racy_likelihood=")
+	builder.WriteString(fmt.Sprintf("%v", _m.RacyLikelihood))
 	builder.WriteByte(')')
 	return builder.String()
+}
+
+// NamedKeywords returns the Keywords named value or an error if the edge was not
+// loaded in eager-loading with this name.
+func (_m *Emoji) NamedKeywords(name string) ([]*Keyword, error) {
+	if _m.Edges.namedKeywords == nil {
+		return nil, &NotLoadedError{edge: name}
+	}
+	nodes, ok := _m.Edges.namedKeywords[name]
+	if !ok {
+		return nil, &NotLoadedError{edge: name}
+	}
+	return nodes, nil
+}
+
+func (_m *Emoji) appendNamedKeywords(name string, edges ...*Keyword) {
+	if _m.Edges.namedKeywords == nil {
+		_m.Edges.namedKeywords = make(map[string][]*Keyword)
+	}
+	if len(edges) == 0 {
+		_m.Edges.namedKeywords[name] = []*Keyword{}
+	} else {
+		_m.Edges.namedKeywords[name] = append(_m.Edges.namedKeywords[name], edges...)
+	}
+}
+
+// NamedEmojiKeywordScores returns the EmojiKeywordScores named value or an error if the edge was not
+// loaded in eager-loading with this name.
+func (_m *Emoji) NamedEmojiKeywordScores(name string) ([]*EmojiKeywordScore, error) {
+	if _m.Edges.namedEmojiKeywordScores == nil {
+		return nil, &NotLoadedError{edge: name}
+	}
+	nodes, ok := _m.Edges.namedEmojiKeywordScores[name]
+	if !ok {
+		return nil, &NotLoadedError{edge: name}
+	}
+	return nodes, nil
+}
+
+func (_m *Emoji) appendNamedEmojiKeywordScores(name string, edges ...*EmojiKeywordScore) {
+	if _m.Edges.namedEmojiKeywordScores == nil {
+		_m.Edges.namedEmojiKeywordScores = make(map[string][]*EmojiKeywordScore)
+	}
+	if len(edges) == 0 {
+		_m.Edges.namedEmojiKeywordScores[name] = []*EmojiKeywordScore{}
+	} else {
+		_m.Edges.namedEmojiKeywordScores[name] = append(_m.Edges.namedEmojiKeywordScores[name], edges...)
+	}
 }
 
 // Emojis is a parsable slice of Emoji.

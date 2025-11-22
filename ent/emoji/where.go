@@ -4,51 +4,53 @@ package emoji
 
 import (
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/google/uuid"
 	"github.com/h3mmy/bloopyboi/ent/predicate"
 )
 
 // ID filters vertices based on their ID field.
-func ID(id int) predicate.Emoji {
+func ID(id uuid.UUID) predicate.Emoji {
 	return predicate.Emoji(sql.FieldEQ(FieldID, id))
 }
 
 // IDEQ applies the EQ predicate on the ID field.
-func IDEQ(id int) predicate.Emoji {
+func IDEQ(id uuid.UUID) predicate.Emoji {
 	return predicate.Emoji(sql.FieldEQ(FieldID, id))
 }
 
 // IDNEQ applies the NEQ predicate on the ID field.
-func IDNEQ(id int) predicate.Emoji {
+func IDNEQ(id uuid.UUID) predicate.Emoji {
 	return predicate.Emoji(sql.FieldNEQ(FieldID, id))
 }
 
 // IDIn applies the In predicate on the ID field.
-func IDIn(ids ...int) predicate.Emoji {
+func IDIn(ids ...uuid.UUID) predicate.Emoji {
 	return predicate.Emoji(sql.FieldIn(FieldID, ids...))
 }
 
 // IDNotIn applies the NotIn predicate on the ID field.
-func IDNotIn(ids ...int) predicate.Emoji {
+func IDNotIn(ids ...uuid.UUID) predicate.Emoji {
 	return predicate.Emoji(sql.FieldNotIn(FieldID, ids...))
 }
 
 // IDGT applies the GT predicate on the ID field.
-func IDGT(id int) predicate.Emoji {
+func IDGT(id uuid.UUID) predicate.Emoji {
 	return predicate.Emoji(sql.FieldGT(FieldID, id))
 }
 
 // IDGTE applies the GTE predicate on the ID field.
-func IDGTE(id int) predicate.Emoji {
+func IDGTE(id uuid.UUID) predicate.Emoji {
 	return predicate.Emoji(sql.FieldGTE(FieldID, id))
 }
 
 // IDLT applies the LT predicate on the ID field.
-func IDLT(id int) predicate.Emoji {
+func IDLT(id uuid.UUID) predicate.Emoji {
 	return predicate.Emoji(sql.FieldLT(FieldID, id))
 }
 
 // IDLTE applies the LTE predicate on the ID field.
-func IDLTE(id int) predicate.Emoji {
+func IDLTE(id uuid.UUID) predicate.Emoji {
 	return predicate.Emoji(sql.FieldLTE(FieldID, id))
 }
 
@@ -65,6 +67,36 @@ func Name(v string) predicate.Emoji {
 // Animated applies equality check predicate on the "animated" field. It's identical to AnimatedEQ.
 func Animated(v bool) predicate.Emoji {
 	return predicate.Emoji(sql.FieldEQ(FieldAnimated, v))
+}
+
+// ImageURI applies equality check predicate on the "image_uri" field. It's identical to ImageURIEQ.
+func ImageURI(v string) predicate.Emoji {
+	return predicate.Emoji(sql.FieldEQ(FieldImageURI, v))
+}
+
+// AdultLikelihood applies equality check predicate on the "adult_likelihood" field. It's identical to AdultLikelihoodEQ.
+func AdultLikelihood(v int) predicate.Emoji {
+	return predicate.Emoji(sql.FieldEQ(FieldAdultLikelihood, v))
+}
+
+// SpoofLikelihood applies equality check predicate on the "spoof_likelihood" field. It's identical to SpoofLikelihoodEQ.
+func SpoofLikelihood(v int) predicate.Emoji {
+	return predicate.Emoji(sql.FieldEQ(FieldSpoofLikelihood, v))
+}
+
+// MedicalLikelihood applies equality check predicate on the "medical_likelihood" field. It's identical to MedicalLikelihoodEQ.
+func MedicalLikelihood(v int) predicate.Emoji {
+	return predicate.Emoji(sql.FieldEQ(FieldMedicalLikelihood, v))
+}
+
+// ViolenceLikelihood applies equality check predicate on the "violence_likelihood" field. It's identical to ViolenceLikelihoodEQ.
+func ViolenceLikelihood(v int) predicate.Emoji {
+	return predicate.Emoji(sql.FieldEQ(FieldViolenceLikelihood, v))
+}
+
+// RacyLikelihood applies equality check predicate on the "racy_likelihood" field. It's identical to RacyLikelihoodEQ.
+func RacyLikelihood(v int) predicate.Emoji {
+	return predicate.Emoji(sql.FieldEQ(FieldRacyLikelihood, v))
 }
 
 // EmojiIDEQ applies the EQ predicate on the "emoji_id" field.
@@ -207,14 +239,325 @@ func AnimatedNEQ(v bool) predicate.Emoji {
 	return predicate.Emoji(sql.FieldNEQ(FieldAnimated, v))
 }
 
-// KeywordsIsNil applies the IsNil predicate on the "keywords" field.
-func KeywordsIsNil() predicate.Emoji {
-	return predicate.Emoji(sql.FieldIsNull(FieldKeywords))
+// ImageURIEQ applies the EQ predicate on the "image_uri" field.
+func ImageURIEQ(v string) predicate.Emoji {
+	return predicate.Emoji(sql.FieldEQ(FieldImageURI, v))
 }
 
-// KeywordsNotNil applies the NotNil predicate on the "keywords" field.
-func KeywordsNotNil() predicate.Emoji {
-	return predicate.Emoji(sql.FieldNotNull(FieldKeywords))
+// ImageURINEQ applies the NEQ predicate on the "image_uri" field.
+func ImageURINEQ(v string) predicate.Emoji {
+	return predicate.Emoji(sql.FieldNEQ(FieldImageURI, v))
+}
+
+// ImageURIIn applies the In predicate on the "image_uri" field.
+func ImageURIIn(vs ...string) predicate.Emoji {
+	return predicate.Emoji(sql.FieldIn(FieldImageURI, vs...))
+}
+
+// ImageURINotIn applies the NotIn predicate on the "image_uri" field.
+func ImageURINotIn(vs ...string) predicate.Emoji {
+	return predicate.Emoji(sql.FieldNotIn(FieldImageURI, vs...))
+}
+
+// ImageURIGT applies the GT predicate on the "image_uri" field.
+func ImageURIGT(v string) predicate.Emoji {
+	return predicate.Emoji(sql.FieldGT(FieldImageURI, v))
+}
+
+// ImageURIGTE applies the GTE predicate on the "image_uri" field.
+func ImageURIGTE(v string) predicate.Emoji {
+	return predicate.Emoji(sql.FieldGTE(FieldImageURI, v))
+}
+
+// ImageURILT applies the LT predicate on the "image_uri" field.
+func ImageURILT(v string) predicate.Emoji {
+	return predicate.Emoji(sql.FieldLT(FieldImageURI, v))
+}
+
+// ImageURILTE applies the LTE predicate on the "image_uri" field.
+func ImageURILTE(v string) predicate.Emoji {
+	return predicate.Emoji(sql.FieldLTE(FieldImageURI, v))
+}
+
+// ImageURIContains applies the Contains predicate on the "image_uri" field.
+func ImageURIContains(v string) predicate.Emoji {
+	return predicate.Emoji(sql.FieldContains(FieldImageURI, v))
+}
+
+// ImageURIHasPrefix applies the HasPrefix predicate on the "image_uri" field.
+func ImageURIHasPrefix(v string) predicate.Emoji {
+	return predicate.Emoji(sql.FieldHasPrefix(FieldImageURI, v))
+}
+
+// ImageURIHasSuffix applies the HasSuffix predicate on the "image_uri" field.
+func ImageURIHasSuffix(v string) predicate.Emoji {
+	return predicate.Emoji(sql.FieldHasSuffix(FieldImageURI, v))
+}
+
+// ImageURIIsNil applies the IsNil predicate on the "image_uri" field.
+func ImageURIIsNil() predicate.Emoji {
+	return predicate.Emoji(sql.FieldIsNull(FieldImageURI))
+}
+
+// ImageURINotNil applies the NotNil predicate on the "image_uri" field.
+func ImageURINotNil() predicate.Emoji {
+	return predicate.Emoji(sql.FieldNotNull(FieldImageURI))
+}
+
+// ImageURIEqualFold applies the EqualFold predicate on the "image_uri" field.
+func ImageURIEqualFold(v string) predicate.Emoji {
+	return predicate.Emoji(sql.FieldEqualFold(FieldImageURI, v))
+}
+
+// ImageURIContainsFold applies the ContainsFold predicate on the "image_uri" field.
+func ImageURIContainsFold(v string) predicate.Emoji {
+	return predicate.Emoji(sql.FieldContainsFold(FieldImageURI, v))
+}
+
+// AdultLikelihoodEQ applies the EQ predicate on the "adult_likelihood" field.
+func AdultLikelihoodEQ(v int) predicate.Emoji {
+	return predicate.Emoji(sql.FieldEQ(FieldAdultLikelihood, v))
+}
+
+// AdultLikelihoodNEQ applies the NEQ predicate on the "adult_likelihood" field.
+func AdultLikelihoodNEQ(v int) predicate.Emoji {
+	return predicate.Emoji(sql.FieldNEQ(FieldAdultLikelihood, v))
+}
+
+// AdultLikelihoodIn applies the In predicate on the "adult_likelihood" field.
+func AdultLikelihoodIn(vs ...int) predicate.Emoji {
+	return predicate.Emoji(sql.FieldIn(FieldAdultLikelihood, vs...))
+}
+
+// AdultLikelihoodNotIn applies the NotIn predicate on the "adult_likelihood" field.
+func AdultLikelihoodNotIn(vs ...int) predicate.Emoji {
+	return predicate.Emoji(sql.FieldNotIn(FieldAdultLikelihood, vs...))
+}
+
+// AdultLikelihoodGT applies the GT predicate on the "adult_likelihood" field.
+func AdultLikelihoodGT(v int) predicate.Emoji {
+	return predicate.Emoji(sql.FieldGT(FieldAdultLikelihood, v))
+}
+
+// AdultLikelihoodGTE applies the GTE predicate on the "adult_likelihood" field.
+func AdultLikelihoodGTE(v int) predicate.Emoji {
+	return predicate.Emoji(sql.FieldGTE(FieldAdultLikelihood, v))
+}
+
+// AdultLikelihoodLT applies the LT predicate on the "adult_likelihood" field.
+func AdultLikelihoodLT(v int) predicate.Emoji {
+	return predicate.Emoji(sql.FieldLT(FieldAdultLikelihood, v))
+}
+
+// AdultLikelihoodLTE applies the LTE predicate on the "adult_likelihood" field.
+func AdultLikelihoodLTE(v int) predicate.Emoji {
+	return predicate.Emoji(sql.FieldLTE(FieldAdultLikelihood, v))
+}
+
+// SpoofLikelihoodEQ applies the EQ predicate on the "spoof_likelihood" field.
+func SpoofLikelihoodEQ(v int) predicate.Emoji {
+	return predicate.Emoji(sql.FieldEQ(FieldSpoofLikelihood, v))
+}
+
+// SpoofLikelihoodNEQ applies the NEQ predicate on the "spoof_likelihood" field.
+func SpoofLikelihoodNEQ(v int) predicate.Emoji {
+	return predicate.Emoji(sql.FieldNEQ(FieldSpoofLikelihood, v))
+}
+
+// SpoofLikelihoodIn applies the In predicate on the "spoof_likelihood" field.
+func SpoofLikelihoodIn(vs ...int) predicate.Emoji {
+	return predicate.Emoji(sql.FieldIn(FieldSpoofLikelihood, vs...))
+}
+
+// SpoofLikelihoodNotIn applies the NotIn predicate on the "spoof_likelihood" field.
+func SpoofLikelihoodNotIn(vs ...int) predicate.Emoji {
+	return predicate.Emoji(sql.FieldNotIn(FieldSpoofLikelihood, vs...))
+}
+
+// SpoofLikelihoodGT applies the GT predicate on the "spoof_likelihood" field.
+func SpoofLikelihoodGT(v int) predicate.Emoji {
+	return predicate.Emoji(sql.FieldGT(FieldSpoofLikelihood, v))
+}
+
+// SpoofLikelihoodGTE applies the GTE predicate on the "spoof_likelihood" field.
+func SpoofLikelihoodGTE(v int) predicate.Emoji {
+	return predicate.Emoji(sql.FieldGTE(FieldSpoofLikelihood, v))
+}
+
+// SpoofLikelihoodLT applies the LT predicate on the "spoof_likelihood" field.
+func SpoofLikelihoodLT(v int) predicate.Emoji {
+	return predicate.Emoji(sql.FieldLT(FieldSpoofLikelihood, v))
+}
+
+// SpoofLikelihoodLTE applies the LTE predicate on the "spoof_likelihood" field.
+func SpoofLikelihoodLTE(v int) predicate.Emoji {
+	return predicate.Emoji(sql.FieldLTE(FieldSpoofLikelihood, v))
+}
+
+// MedicalLikelihoodEQ applies the EQ predicate on the "medical_likelihood" field.
+func MedicalLikelihoodEQ(v int) predicate.Emoji {
+	return predicate.Emoji(sql.FieldEQ(FieldMedicalLikelihood, v))
+}
+
+// MedicalLikelihoodNEQ applies the NEQ predicate on the "medical_likelihood" field.
+func MedicalLikelihoodNEQ(v int) predicate.Emoji {
+	return predicate.Emoji(sql.FieldNEQ(FieldMedicalLikelihood, v))
+}
+
+// MedicalLikelihoodIn applies the In predicate on the "medical_likelihood" field.
+func MedicalLikelihoodIn(vs ...int) predicate.Emoji {
+	return predicate.Emoji(sql.FieldIn(FieldMedicalLikelihood, vs...))
+}
+
+// MedicalLikelihoodNotIn applies the NotIn predicate on the "medical_likelihood" field.
+func MedicalLikelihoodNotIn(vs ...int) predicate.Emoji {
+	return predicate.Emoji(sql.FieldNotIn(FieldMedicalLikelihood, vs...))
+}
+
+// MedicalLikelihoodGT applies the GT predicate on the "medical_likelihood" field.
+func MedicalLikelihoodGT(v int) predicate.Emoji {
+	return predicate.Emoji(sql.FieldGT(FieldMedicalLikelihood, v))
+}
+
+// MedicalLikelihoodGTE applies the GTE predicate on the "medical_likelihood" field.
+func MedicalLikelihoodGTE(v int) predicate.Emoji {
+	return predicate.Emoji(sql.FieldGTE(FieldMedicalLikelihood, v))
+}
+
+// MedicalLikelihoodLT applies the LT predicate on the "medical_likelihood" field.
+func MedicalLikelihoodLT(v int) predicate.Emoji {
+	return predicate.Emoji(sql.FieldLT(FieldMedicalLikelihood, v))
+}
+
+// MedicalLikelihoodLTE applies the LTE predicate on the "medical_likelihood" field.
+func MedicalLikelihoodLTE(v int) predicate.Emoji {
+	return predicate.Emoji(sql.FieldLTE(FieldMedicalLikelihood, v))
+}
+
+// ViolenceLikelihoodEQ applies the EQ predicate on the "violence_likelihood" field.
+func ViolenceLikelihoodEQ(v int) predicate.Emoji {
+	return predicate.Emoji(sql.FieldEQ(FieldViolenceLikelihood, v))
+}
+
+// ViolenceLikelihoodNEQ applies the NEQ predicate on the "violence_likelihood" field.
+func ViolenceLikelihoodNEQ(v int) predicate.Emoji {
+	return predicate.Emoji(sql.FieldNEQ(FieldViolenceLikelihood, v))
+}
+
+// ViolenceLikelihoodIn applies the In predicate on the "violence_likelihood" field.
+func ViolenceLikelihoodIn(vs ...int) predicate.Emoji {
+	return predicate.Emoji(sql.FieldIn(FieldViolenceLikelihood, vs...))
+}
+
+// ViolenceLikelihoodNotIn applies the NotIn predicate on the "violence_likelihood" field.
+func ViolenceLikelihoodNotIn(vs ...int) predicate.Emoji {
+	return predicate.Emoji(sql.FieldNotIn(FieldViolenceLikelihood, vs...))
+}
+
+// ViolenceLikelihoodGT applies the GT predicate on the "violence_likelihood" field.
+func ViolenceLikelihoodGT(v int) predicate.Emoji {
+	return predicate.Emoji(sql.FieldGT(FieldViolenceLikelihood, v))
+}
+
+// ViolenceLikelihoodGTE applies the GTE predicate on the "violence_likelihood" field.
+func ViolenceLikelihoodGTE(v int) predicate.Emoji {
+	return predicate.Emoji(sql.FieldGTE(FieldViolenceLikelihood, v))
+}
+
+// ViolenceLikelihoodLT applies the LT predicate on the "violence_likelihood" field.
+func ViolenceLikelihoodLT(v int) predicate.Emoji {
+	return predicate.Emoji(sql.FieldLT(FieldViolenceLikelihood, v))
+}
+
+// ViolenceLikelihoodLTE applies the LTE predicate on the "violence_likelihood" field.
+func ViolenceLikelihoodLTE(v int) predicate.Emoji {
+	return predicate.Emoji(sql.FieldLTE(FieldViolenceLikelihood, v))
+}
+
+// RacyLikelihoodEQ applies the EQ predicate on the "racy_likelihood" field.
+func RacyLikelihoodEQ(v int) predicate.Emoji {
+	return predicate.Emoji(sql.FieldEQ(FieldRacyLikelihood, v))
+}
+
+// RacyLikelihoodNEQ applies the NEQ predicate on the "racy_likelihood" field.
+func RacyLikelihoodNEQ(v int) predicate.Emoji {
+	return predicate.Emoji(sql.FieldNEQ(FieldRacyLikelihood, v))
+}
+
+// RacyLikelihoodIn applies the In predicate on the "racy_likelihood" field.
+func RacyLikelihoodIn(vs ...int) predicate.Emoji {
+	return predicate.Emoji(sql.FieldIn(FieldRacyLikelihood, vs...))
+}
+
+// RacyLikelihoodNotIn applies the NotIn predicate on the "racy_likelihood" field.
+func RacyLikelihoodNotIn(vs ...int) predicate.Emoji {
+	return predicate.Emoji(sql.FieldNotIn(FieldRacyLikelihood, vs...))
+}
+
+// RacyLikelihoodGT applies the GT predicate on the "racy_likelihood" field.
+func RacyLikelihoodGT(v int) predicate.Emoji {
+	return predicate.Emoji(sql.FieldGT(FieldRacyLikelihood, v))
+}
+
+// RacyLikelihoodGTE applies the GTE predicate on the "racy_likelihood" field.
+func RacyLikelihoodGTE(v int) predicate.Emoji {
+	return predicate.Emoji(sql.FieldGTE(FieldRacyLikelihood, v))
+}
+
+// RacyLikelihoodLT applies the LT predicate on the "racy_likelihood" field.
+func RacyLikelihoodLT(v int) predicate.Emoji {
+	return predicate.Emoji(sql.FieldLT(FieldRacyLikelihood, v))
+}
+
+// RacyLikelihoodLTE applies the LTE predicate on the "racy_likelihood" field.
+func RacyLikelihoodLTE(v int) predicate.Emoji {
+	return predicate.Emoji(sql.FieldLTE(FieldRacyLikelihood, v))
+}
+
+// HasKeywords applies the HasEdge predicate on the "keywords" edge.
+func HasKeywords() predicate.Emoji {
+	return predicate.Emoji(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, false, KeywordsTable, KeywordsPrimaryKey...),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasKeywordsWith applies the HasEdge predicate on the "keywords" edge with a given conditions (other predicates).
+func HasKeywordsWith(preds ...predicate.Keyword) predicate.Emoji {
+	return predicate.Emoji(func(s *sql.Selector) {
+		step := newKeywordsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasEmojiKeywordScores applies the HasEdge predicate on the "emoji_keyword_scores" edge.
+func HasEmojiKeywordScores() predicate.Emoji {
+	return predicate.Emoji(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, true, EmojiKeywordScoresTable, EmojiKeywordScoresColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasEmojiKeywordScoresWith applies the HasEdge predicate on the "emoji_keyword_scores" edge with a given conditions (other predicates).
+func HasEmojiKeywordScoresWith(preds ...predicate.EmojiKeywordScore) predicate.Emoji {
+	return predicate.Emoji(func(s *sql.Selector) {
+		step := newEmojiKeywordScoresStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
 }
 
 // And groups predicates with the AND operator between them.

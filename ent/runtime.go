@@ -14,6 +14,7 @@ import (
 	"github.com/h3mmy/bloopyboi/ent/discordmessagereaction"
 	"github.com/h3mmy/bloopyboi/ent/discorduser"
 	"github.com/h3mmy/bloopyboi/ent/emoji"
+	"github.com/h3mmy/bloopyboi/ent/keyword"
 	"github.com/h3mmy/bloopyboi/ent/mediarequest"
 	"github.com/h3mmy/bloopyboi/ent/schema"
 )
@@ -114,13 +115,43 @@ func init() {
 	emojiFields := schema.Emoji{}.Fields()
 	_ = emojiFields
 	// emojiDescName is the schema descriptor for name field.
-	emojiDescName := emojiFields[1].Descriptor()
+	emojiDescName := emojiFields[2].Descriptor()
 	// emoji.NameValidator is a validator for the "name" field. It is called by the builders before save.
 	emoji.NameValidator = emojiDescName.Validators[0].(func(string) error)
 	// emojiDescAnimated is the schema descriptor for animated field.
-	emojiDescAnimated := emojiFields[2].Descriptor()
+	emojiDescAnimated := emojiFields[3].Descriptor()
 	// emoji.DefaultAnimated holds the default value on creation for the animated field.
 	emoji.DefaultAnimated = emojiDescAnimated.Default.(bool)
+	// emojiDescAdultLikelihood is the schema descriptor for adult_likelihood field.
+	emojiDescAdultLikelihood := emojiFields[5].Descriptor()
+	// emoji.DefaultAdultLikelihood holds the default value on creation for the adult_likelihood field.
+	emoji.DefaultAdultLikelihood = emojiDescAdultLikelihood.Default.(int)
+	// emojiDescSpoofLikelihood is the schema descriptor for spoof_likelihood field.
+	emojiDescSpoofLikelihood := emojiFields[6].Descriptor()
+	// emoji.DefaultSpoofLikelihood holds the default value on creation for the spoof_likelihood field.
+	emoji.DefaultSpoofLikelihood = emojiDescSpoofLikelihood.Default.(int)
+	// emojiDescMedicalLikelihood is the schema descriptor for medical_likelihood field.
+	emojiDescMedicalLikelihood := emojiFields[7].Descriptor()
+	// emoji.DefaultMedicalLikelihood holds the default value on creation for the medical_likelihood field.
+	emoji.DefaultMedicalLikelihood = emojiDescMedicalLikelihood.Default.(int)
+	// emojiDescViolenceLikelihood is the schema descriptor for violence_likelihood field.
+	emojiDescViolenceLikelihood := emojiFields[8].Descriptor()
+	// emoji.DefaultViolenceLikelihood holds the default value on creation for the violence_likelihood field.
+	emoji.DefaultViolenceLikelihood = emojiDescViolenceLikelihood.Default.(int)
+	// emojiDescRacyLikelihood is the schema descriptor for racy_likelihood field.
+	emojiDescRacyLikelihood := emojiFields[9].Descriptor()
+	// emoji.DefaultRacyLikelihood holds the default value on creation for the racy_likelihood field.
+	emoji.DefaultRacyLikelihood = emojiDescRacyLikelihood.Default.(int)
+	// emojiDescID is the schema descriptor for id field.
+	emojiDescID := emojiFields[0].Descriptor()
+	// emoji.DefaultID holds the default value on creation for the id field.
+	emoji.DefaultID = emojiDescID.Default.(func() uuid.UUID)
+	keywordFields := schema.Keyword{}.Fields()
+	_ = keywordFields
+	// keywordDescID is the schema descriptor for id field.
+	keywordDescID := keywordFields[0].Descriptor()
+	// keyword.DefaultID holds the default value on creation for the id field.
+	keyword.DefaultID = keywordDescID.Default.(func() uuid.UUID)
 	mediarequestMixin := schema.MediaRequest{}.Mixin()
 	mediarequestMixinFields0 := mediarequestMixin[0].Fields()
 	_ = mediarequestMixinFields0

@@ -7,10 +7,13 @@ import (
 	"errors"
 	"fmt"
 
+	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 	"github.com/h3mmy/bloopyboi/ent/emoji"
+	"github.com/h3mmy/bloopyboi/ent/keyword"
 )
 
 // EmojiCreate is the builder for creating a Emoji entity.
@@ -47,10 +50,117 @@ func (_c *EmojiCreate) SetNillableAnimated(v *bool) *EmojiCreate {
 	return _c
 }
 
-// SetKeywords sets the "keywords" field.
-func (_c *EmojiCreate) SetKeywords(v []string) *EmojiCreate {
-	_c.mutation.SetKeywords(v)
+// SetImageURI sets the "image_uri" field.
+func (_c *EmojiCreate) SetImageURI(v string) *EmojiCreate {
+	_c.mutation.SetImageURI(v)
 	return _c
+}
+
+// SetNillableImageURI sets the "image_uri" field if the given value is not nil.
+func (_c *EmojiCreate) SetNillableImageURI(v *string) *EmojiCreate {
+	if v != nil {
+		_c.SetImageURI(*v)
+	}
+	return _c
+}
+
+// SetAdultLikelihood sets the "adult_likelihood" field.
+func (_c *EmojiCreate) SetAdultLikelihood(v int) *EmojiCreate {
+	_c.mutation.SetAdultLikelihood(v)
+	return _c
+}
+
+// SetNillableAdultLikelihood sets the "adult_likelihood" field if the given value is not nil.
+func (_c *EmojiCreate) SetNillableAdultLikelihood(v *int) *EmojiCreate {
+	if v != nil {
+		_c.SetAdultLikelihood(*v)
+	}
+	return _c
+}
+
+// SetSpoofLikelihood sets the "spoof_likelihood" field.
+func (_c *EmojiCreate) SetSpoofLikelihood(v int) *EmojiCreate {
+	_c.mutation.SetSpoofLikelihood(v)
+	return _c
+}
+
+// SetNillableSpoofLikelihood sets the "spoof_likelihood" field if the given value is not nil.
+func (_c *EmojiCreate) SetNillableSpoofLikelihood(v *int) *EmojiCreate {
+	if v != nil {
+		_c.SetSpoofLikelihood(*v)
+	}
+	return _c
+}
+
+// SetMedicalLikelihood sets the "medical_likelihood" field.
+func (_c *EmojiCreate) SetMedicalLikelihood(v int) *EmojiCreate {
+	_c.mutation.SetMedicalLikelihood(v)
+	return _c
+}
+
+// SetNillableMedicalLikelihood sets the "medical_likelihood" field if the given value is not nil.
+func (_c *EmojiCreate) SetNillableMedicalLikelihood(v *int) *EmojiCreate {
+	if v != nil {
+		_c.SetMedicalLikelihood(*v)
+	}
+	return _c
+}
+
+// SetViolenceLikelihood sets the "violence_likelihood" field.
+func (_c *EmojiCreate) SetViolenceLikelihood(v int) *EmojiCreate {
+	_c.mutation.SetViolenceLikelihood(v)
+	return _c
+}
+
+// SetNillableViolenceLikelihood sets the "violence_likelihood" field if the given value is not nil.
+func (_c *EmojiCreate) SetNillableViolenceLikelihood(v *int) *EmojiCreate {
+	if v != nil {
+		_c.SetViolenceLikelihood(*v)
+	}
+	return _c
+}
+
+// SetRacyLikelihood sets the "racy_likelihood" field.
+func (_c *EmojiCreate) SetRacyLikelihood(v int) *EmojiCreate {
+	_c.mutation.SetRacyLikelihood(v)
+	return _c
+}
+
+// SetNillableRacyLikelihood sets the "racy_likelihood" field if the given value is not nil.
+func (_c *EmojiCreate) SetNillableRacyLikelihood(v *int) *EmojiCreate {
+	if v != nil {
+		_c.SetRacyLikelihood(*v)
+	}
+	return _c
+}
+
+// SetID sets the "id" field.
+func (_c *EmojiCreate) SetID(v uuid.UUID) *EmojiCreate {
+	_c.mutation.SetID(v)
+	return _c
+}
+
+// SetNillableID sets the "id" field if the given value is not nil.
+func (_c *EmojiCreate) SetNillableID(v *uuid.UUID) *EmojiCreate {
+	if v != nil {
+		_c.SetID(*v)
+	}
+	return _c
+}
+
+// AddKeywordIDs adds the "keywords" edge to the Keyword entity by IDs.
+func (_c *EmojiCreate) AddKeywordIDs(ids ...uuid.UUID) *EmojiCreate {
+	_c.mutation.AddKeywordIDs(ids...)
+	return _c
+}
+
+// AddKeywords adds the "keywords" edges to the Keyword entity.
+func (_c *EmojiCreate) AddKeywords(v ...*Keyword) *EmojiCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddKeywordIDs(ids...)
 }
 
 // Mutation returns the EmojiMutation object of the builder.
@@ -92,6 +202,30 @@ func (_c *EmojiCreate) defaults() {
 		v := emoji.DefaultAnimated
 		_c.mutation.SetAnimated(v)
 	}
+	if _, ok := _c.mutation.AdultLikelihood(); !ok {
+		v := emoji.DefaultAdultLikelihood
+		_c.mutation.SetAdultLikelihood(v)
+	}
+	if _, ok := _c.mutation.SpoofLikelihood(); !ok {
+		v := emoji.DefaultSpoofLikelihood
+		_c.mutation.SetSpoofLikelihood(v)
+	}
+	if _, ok := _c.mutation.MedicalLikelihood(); !ok {
+		v := emoji.DefaultMedicalLikelihood
+		_c.mutation.SetMedicalLikelihood(v)
+	}
+	if _, ok := _c.mutation.ViolenceLikelihood(); !ok {
+		v := emoji.DefaultViolenceLikelihood
+		_c.mutation.SetViolenceLikelihood(v)
+	}
+	if _, ok := _c.mutation.RacyLikelihood(); !ok {
+		v := emoji.DefaultRacyLikelihood
+		_c.mutation.SetRacyLikelihood(v)
+	}
+	if _, ok := _c.mutation.ID(); !ok {
+		v := emoji.DefaultID()
+		_c.mutation.SetID(v)
+	}
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -110,6 +244,21 @@ func (_c *EmojiCreate) check() error {
 	if _, ok := _c.mutation.Animated(); !ok {
 		return &ValidationError{Name: "animated", err: errors.New(`ent: missing required field "Emoji.animated"`)}
 	}
+	if _, ok := _c.mutation.AdultLikelihood(); !ok {
+		return &ValidationError{Name: "adult_likelihood", err: errors.New(`ent: missing required field "Emoji.adult_likelihood"`)}
+	}
+	if _, ok := _c.mutation.SpoofLikelihood(); !ok {
+		return &ValidationError{Name: "spoof_likelihood", err: errors.New(`ent: missing required field "Emoji.spoof_likelihood"`)}
+	}
+	if _, ok := _c.mutation.MedicalLikelihood(); !ok {
+		return &ValidationError{Name: "medical_likelihood", err: errors.New(`ent: missing required field "Emoji.medical_likelihood"`)}
+	}
+	if _, ok := _c.mutation.ViolenceLikelihood(); !ok {
+		return &ValidationError{Name: "violence_likelihood", err: errors.New(`ent: missing required field "Emoji.violence_likelihood"`)}
+	}
+	if _, ok := _c.mutation.RacyLikelihood(); !ok {
+		return &ValidationError{Name: "racy_likelihood", err: errors.New(`ent: missing required field "Emoji.racy_likelihood"`)}
+	}
 	return nil
 }
 
@@ -124,8 +273,13 @@ func (_c *EmojiCreate) sqlSave(ctx context.Context) (*Emoji, error) {
 		}
 		return nil, err
 	}
-	id := _spec.ID.Value.(int64)
-	_node.ID = int(id)
+	if _spec.ID.Value != nil {
+		if id, ok := _spec.ID.Value.(*uuid.UUID); ok {
+			_node.ID = *id
+		} else if err := _node.ID.Scan(_spec.ID.Value); err != nil {
+			return nil, err
+		}
+	}
 	_c.mutation.id = &_node.ID
 	_c.mutation.done = true
 	return _node, nil
@@ -134,9 +288,13 @@ func (_c *EmojiCreate) sqlSave(ctx context.Context) (*Emoji, error) {
 func (_c *EmojiCreate) createSpec() (*Emoji, *sqlgraph.CreateSpec) {
 	var (
 		_node = &Emoji{config: _c.config}
-		_spec = sqlgraph.NewCreateSpec(emoji.Table, sqlgraph.NewFieldSpec(emoji.FieldID, field.TypeInt))
+		_spec = sqlgraph.NewCreateSpec(emoji.Table, sqlgraph.NewFieldSpec(emoji.FieldID, field.TypeUUID))
 	)
 	_spec.OnConflict = _c.conflict
+	if id, ok := _c.mutation.ID(); ok {
+		_node.ID = id
+		_spec.ID.Value = &id
+	}
 	if value, ok := _c.mutation.EmojiID(); ok {
 		_spec.SetField(emoji.FieldEmojiID, field.TypeString, value)
 		_node.EmojiID = value
@@ -149,9 +307,45 @@ func (_c *EmojiCreate) createSpec() (*Emoji, *sqlgraph.CreateSpec) {
 		_spec.SetField(emoji.FieldAnimated, field.TypeBool, value)
 		_node.Animated = value
 	}
-	if value, ok := _c.mutation.Keywords(); ok {
-		_spec.SetField(emoji.FieldKeywords, field.TypeJSON, value)
-		_node.Keywords = value
+	if value, ok := _c.mutation.ImageURI(); ok {
+		_spec.SetField(emoji.FieldImageURI, field.TypeString, value)
+		_node.ImageURI = &value
+	}
+	if value, ok := _c.mutation.AdultLikelihood(); ok {
+		_spec.SetField(emoji.FieldAdultLikelihood, field.TypeInt, value)
+		_node.AdultLikelihood = value
+	}
+	if value, ok := _c.mutation.SpoofLikelihood(); ok {
+		_spec.SetField(emoji.FieldSpoofLikelihood, field.TypeInt, value)
+		_node.SpoofLikelihood = value
+	}
+	if value, ok := _c.mutation.MedicalLikelihood(); ok {
+		_spec.SetField(emoji.FieldMedicalLikelihood, field.TypeInt, value)
+		_node.MedicalLikelihood = value
+	}
+	if value, ok := _c.mutation.ViolenceLikelihood(); ok {
+		_spec.SetField(emoji.FieldViolenceLikelihood, field.TypeInt, value)
+		_node.ViolenceLikelihood = value
+	}
+	if value, ok := _c.mutation.RacyLikelihood(); ok {
+		_spec.SetField(emoji.FieldRacyLikelihood, field.TypeInt, value)
+		_node.RacyLikelihood = value
+	}
+	if nodes := _c.mutation.KeywordsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   emoji.KeywordsTable,
+			Columns: emoji.KeywordsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(keyword.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
 }
@@ -241,34 +435,132 @@ func (u *EmojiUpsert) UpdateAnimated() *EmojiUpsert {
 	return u
 }
 
-// SetKeywords sets the "keywords" field.
-func (u *EmojiUpsert) SetKeywords(v []string) *EmojiUpsert {
-	u.Set(emoji.FieldKeywords, v)
+// SetImageURI sets the "image_uri" field.
+func (u *EmojiUpsert) SetImageURI(v string) *EmojiUpsert {
+	u.Set(emoji.FieldImageURI, v)
 	return u
 }
 
-// UpdateKeywords sets the "keywords" field to the value that was provided on create.
-func (u *EmojiUpsert) UpdateKeywords() *EmojiUpsert {
-	u.SetExcluded(emoji.FieldKeywords)
+// UpdateImageURI sets the "image_uri" field to the value that was provided on create.
+func (u *EmojiUpsert) UpdateImageURI() *EmojiUpsert {
+	u.SetExcluded(emoji.FieldImageURI)
 	return u
 }
 
-// ClearKeywords clears the value of the "keywords" field.
-func (u *EmojiUpsert) ClearKeywords() *EmojiUpsert {
-	u.SetNull(emoji.FieldKeywords)
+// ClearImageURI clears the value of the "image_uri" field.
+func (u *EmojiUpsert) ClearImageURI() *EmojiUpsert {
+	u.SetNull(emoji.FieldImageURI)
 	return u
 }
 
-// UpdateNewValues updates the mutable fields using the new values that were set on create.
+// SetAdultLikelihood sets the "adult_likelihood" field.
+func (u *EmojiUpsert) SetAdultLikelihood(v int) *EmojiUpsert {
+	u.Set(emoji.FieldAdultLikelihood, v)
+	return u
+}
+
+// UpdateAdultLikelihood sets the "adult_likelihood" field to the value that was provided on create.
+func (u *EmojiUpsert) UpdateAdultLikelihood() *EmojiUpsert {
+	u.SetExcluded(emoji.FieldAdultLikelihood)
+	return u
+}
+
+// AddAdultLikelihood adds v to the "adult_likelihood" field.
+func (u *EmojiUpsert) AddAdultLikelihood(v int) *EmojiUpsert {
+	u.Add(emoji.FieldAdultLikelihood, v)
+	return u
+}
+
+// SetSpoofLikelihood sets the "spoof_likelihood" field.
+func (u *EmojiUpsert) SetSpoofLikelihood(v int) *EmojiUpsert {
+	u.Set(emoji.FieldSpoofLikelihood, v)
+	return u
+}
+
+// UpdateSpoofLikelihood sets the "spoof_likelihood" field to the value that was provided on create.
+func (u *EmojiUpsert) UpdateSpoofLikelihood() *EmojiUpsert {
+	u.SetExcluded(emoji.FieldSpoofLikelihood)
+	return u
+}
+
+// AddSpoofLikelihood adds v to the "spoof_likelihood" field.
+func (u *EmojiUpsert) AddSpoofLikelihood(v int) *EmojiUpsert {
+	u.Add(emoji.FieldSpoofLikelihood, v)
+	return u
+}
+
+// SetMedicalLikelihood sets the "medical_likelihood" field.
+func (u *EmojiUpsert) SetMedicalLikelihood(v int) *EmojiUpsert {
+	u.Set(emoji.FieldMedicalLikelihood, v)
+	return u
+}
+
+// UpdateMedicalLikelihood sets the "medical_likelihood" field to the value that was provided on create.
+func (u *EmojiUpsert) UpdateMedicalLikelihood() *EmojiUpsert {
+	u.SetExcluded(emoji.FieldMedicalLikelihood)
+	return u
+}
+
+// AddMedicalLikelihood adds v to the "medical_likelihood" field.
+func (u *EmojiUpsert) AddMedicalLikelihood(v int) *EmojiUpsert {
+	u.Add(emoji.FieldMedicalLikelihood, v)
+	return u
+}
+
+// SetViolenceLikelihood sets the "violence_likelihood" field.
+func (u *EmojiUpsert) SetViolenceLikelihood(v int) *EmojiUpsert {
+	u.Set(emoji.FieldViolenceLikelihood, v)
+	return u
+}
+
+// UpdateViolenceLikelihood sets the "violence_likelihood" field to the value that was provided on create.
+func (u *EmojiUpsert) UpdateViolenceLikelihood() *EmojiUpsert {
+	u.SetExcluded(emoji.FieldViolenceLikelihood)
+	return u
+}
+
+// AddViolenceLikelihood adds v to the "violence_likelihood" field.
+func (u *EmojiUpsert) AddViolenceLikelihood(v int) *EmojiUpsert {
+	u.Add(emoji.FieldViolenceLikelihood, v)
+	return u
+}
+
+// SetRacyLikelihood sets the "racy_likelihood" field.
+func (u *EmojiUpsert) SetRacyLikelihood(v int) *EmojiUpsert {
+	u.Set(emoji.FieldRacyLikelihood, v)
+	return u
+}
+
+// UpdateRacyLikelihood sets the "racy_likelihood" field to the value that was provided on create.
+func (u *EmojiUpsert) UpdateRacyLikelihood() *EmojiUpsert {
+	u.SetExcluded(emoji.FieldRacyLikelihood)
+	return u
+}
+
+// AddRacyLikelihood adds v to the "racy_likelihood" field.
+func (u *EmojiUpsert) AddRacyLikelihood(v int) *EmojiUpsert {
+	u.Add(emoji.FieldRacyLikelihood, v)
+	return u
+}
+
+// UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
 // Using this option is equivalent to using:
 //
 //	client.Emoji.Create().
 //		OnConflict(
 //			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(emoji.FieldID)
+//			}),
 //		).
 //		Exec(ctx)
 func (u *EmojiUpsertOne) UpdateNewValues() *EmojiUpsertOne {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		if _, exists := u.create.mutation.ID(); exists {
+			s.SetIgnore(emoji.FieldID)
+		}
+	}))
 	return u
 }
 
@@ -341,24 +633,129 @@ func (u *EmojiUpsertOne) UpdateAnimated() *EmojiUpsertOne {
 	})
 }
 
-// SetKeywords sets the "keywords" field.
-func (u *EmojiUpsertOne) SetKeywords(v []string) *EmojiUpsertOne {
+// SetImageURI sets the "image_uri" field.
+func (u *EmojiUpsertOne) SetImageURI(v string) *EmojiUpsertOne {
 	return u.Update(func(s *EmojiUpsert) {
-		s.SetKeywords(v)
+		s.SetImageURI(v)
 	})
 }
 
-// UpdateKeywords sets the "keywords" field to the value that was provided on create.
-func (u *EmojiUpsertOne) UpdateKeywords() *EmojiUpsertOne {
+// UpdateImageURI sets the "image_uri" field to the value that was provided on create.
+func (u *EmojiUpsertOne) UpdateImageURI() *EmojiUpsertOne {
 	return u.Update(func(s *EmojiUpsert) {
-		s.UpdateKeywords()
+		s.UpdateImageURI()
 	})
 }
 
-// ClearKeywords clears the value of the "keywords" field.
-func (u *EmojiUpsertOne) ClearKeywords() *EmojiUpsertOne {
+// ClearImageURI clears the value of the "image_uri" field.
+func (u *EmojiUpsertOne) ClearImageURI() *EmojiUpsertOne {
 	return u.Update(func(s *EmojiUpsert) {
-		s.ClearKeywords()
+		s.ClearImageURI()
+	})
+}
+
+// SetAdultLikelihood sets the "adult_likelihood" field.
+func (u *EmojiUpsertOne) SetAdultLikelihood(v int) *EmojiUpsertOne {
+	return u.Update(func(s *EmojiUpsert) {
+		s.SetAdultLikelihood(v)
+	})
+}
+
+// AddAdultLikelihood adds v to the "adult_likelihood" field.
+func (u *EmojiUpsertOne) AddAdultLikelihood(v int) *EmojiUpsertOne {
+	return u.Update(func(s *EmojiUpsert) {
+		s.AddAdultLikelihood(v)
+	})
+}
+
+// UpdateAdultLikelihood sets the "adult_likelihood" field to the value that was provided on create.
+func (u *EmojiUpsertOne) UpdateAdultLikelihood() *EmojiUpsertOne {
+	return u.Update(func(s *EmojiUpsert) {
+		s.UpdateAdultLikelihood()
+	})
+}
+
+// SetSpoofLikelihood sets the "spoof_likelihood" field.
+func (u *EmojiUpsertOne) SetSpoofLikelihood(v int) *EmojiUpsertOne {
+	return u.Update(func(s *EmojiUpsert) {
+		s.SetSpoofLikelihood(v)
+	})
+}
+
+// AddSpoofLikelihood adds v to the "spoof_likelihood" field.
+func (u *EmojiUpsertOne) AddSpoofLikelihood(v int) *EmojiUpsertOne {
+	return u.Update(func(s *EmojiUpsert) {
+		s.AddSpoofLikelihood(v)
+	})
+}
+
+// UpdateSpoofLikelihood sets the "spoof_likelihood" field to the value that was provided on create.
+func (u *EmojiUpsertOne) UpdateSpoofLikelihood() *EmojiUpsertOne {
+	return u.Update(func(s *EmojiUpsert) {
+		s.UpdateSpoofLikelihood()
+	})
+}
+
+// SetMedicalLikelihood sets the "medical_likelihood" field.
+func (u *EmojiUpsertOne) SetMedicalLikelihood(v int) *EmojiUpsertOne {
+	return u.Update(func(s *EmojiUpsert) {
+		s.SetMedicalLikelihood(v)
+	})
+}
+
+// AddMedicalLikelihood adds v to the "medical_likelihood" field.
+func (u *EmojiUpsertOne) AddMedicalLikelihood(v int) *EmojiUpsertOne {
+	return u.Update(func(s *EmojiUpsert) {
+		s.AddMedicalLikelihood(v)
+	})
+}
+
+// UpdateMedicalLikelihood sets the "medical_likelihood" field to the value that was provided on create.
+func (u *EmojiUpsertOne) UpdateMedicalLikelihood() *EmojiUpsertOne {
+	return u.Update(func(s *EmojiUpsert) {
+		s.UpdateMedicalLikelihood()
+	})
+}
+
+// SetViolenceLikelihood sets the "violence_likelihood" field.
+func (u *EmojiUpsertOne) SetViolenceLikelihood(v int) *EmojiUpsertOne {
+	return u.Update(func(s *EmojiUpsert) {
+		s.SetViolenceLikelihood(v)
+	})
+}
+
+// AddViolenceLikelihood adds v to the "violence_likelihood" field.
+func (u *EmojiUpsertOne) AddViolenceLikelihood(v int) *EmojiUpsertOne {
+	return u.Update(func(s *EmojiUpsert) {
+		s.AddViolenceLikelihood(v)
+	})
+}
+
+// UpdateViolenceLikelihood sets the "violence_likelihood" field to the value that was provided on create.
+func (u *EmojiUpsertOne) UpdateViolenceLikelihood() *EmojiUpsertOne {
+	return u.Update(func(s *EmojiUpsert) {
+		s.UpdateViolenceLikelihood()
+	})
+}
+
+// SetRacyLikelihood sets the "racy_likelihood" field.
+func (u *EmojiUpsertOne) SetRacyLikelihood(v int) *EmojiUpsertOne {
+	return u.Update(func(s *EmojiUpsert) {
+		s.SetRacyLikelihood(v)
+	})
+}
+
+// AddRacyLikelihood adds v to the "racy_likelihood" field.
+func (u *EmojiUpsertOne) AddRacyLikelihood(v int) *EmojiUpsertOne {
+	return u.Update(func(s *EmojiUpsert) {
+		s.AddRacyLikelihood(v)
+	})
+}
+
+// UpdateRacyLikelihood sets the "racy_likelihood" field to the value that was provided on create.
+func (u *EmojiUpsertOne) UpdateRacyLikelihood() *EmojiUpsertOne {
+	return u.Update(func(s *EmojiUpsert) {
+		s.UpdateRacyLikelihood()
 	})
 }
 
@@ -378,7 +775,12 @@ func (u *EmojiUpsertOne) ExecX(ctx context.Context) {
 }
 
 // Exec executes the UPSERT query and returns the inserted/updated ID.
-func (u *EmojiUpsertOne) ID(ctx context.Context) (id int, err error) {
+func (u *EmojiUpsertOne) ID(ctx context.Context) (id uuid.UUID, err error) {
+	if u.create.driver.Dialect() == dialect.MySQL {
+		// In case of "ON CONFLICT", there is no way to get back non-numeric ID
+		// fields from the database since MySQL does not support the RETURNING clause.
+		return id, errors.New("ent: EmojiUpsertOne.ID is not supported by MySQL driver. Use EmojiUpsertOne.Exec instead")
+	}
 	node, err := u.create.Save(ctx)
 	if err != nil {
 		return id, err
@@ -387,7 +789,7 @@ func (u *EmojiUpsertOne) ID(ctx context.Context) (id int, err error) {
 }
 
 // IDX is like ID, but panics if an error occurs.
-func (u *EmojiUpsertOne) IDX(ctx context.Context) int {
+func (u *EmojiUpsertOne) IDX(ctx context.Context) uuid.UUID {
 	id, err := u.ID(ctx)
 	if err != nil {
 		panic(err)
@@ -442,10 +844,6 @@ func (_c *EmojiCreateBulk) Save(ctx context.Context) ([]*Emoji, error) {
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
-				if specs[i].ID.Value != nil {
-					id := specs[i].ID.Value.(int64)
-					nodes[i].ID = int(id)
-				}
 				mutation.done = true
 				return nodes[i], nil
 			})
@@ -532,10 +930,20 @@ type EmojiUpsertBulk struct {
 //	client.Emoji.Create().
 //		OnConflict(
 //			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(emoji.FieldID)
+//			}),
 //		).
 //		Exec(ctx)
 func (u *EmojiUpsertBulk) UpdateNewValues() *EmojiUpsertBulk {
 	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		for _, b := range u.create.builders {
+			if _, exists := b.mutation.ID(); exists {
+				s.SetIgnore(emoji.FieldID)
+			}
+		}
+	}))
 	return u
 }
 
@@ -608,24 +1016,129 @@ func (u *EmojiUpsertBulk) UpdateAnimated() *EmojiUpsertBulk {
 	})
 }
 
-// SetKeywords sets the "keywords" field.
-func (u *EmojiUpsertBulk) SetKeywords(v []string) *EmojiUpsertBulk {
+// SetImageURI sets the "image_uri" field.
+func (u *EmojiUpsertBulk) SetImageURI(v string) *EmojiUpsertBulk {
 	return u.Update(func(s *EmojiUpsert) {
-		s.SetKeywords(v)
+		s.SetImageURI(v)
 	})
 }
 
-// UpdateKeywords sets the "keywords" field to the value that was provided on create.
-func (u *EmojiUpsertBulk) UpdateKeywords() *EmojiUpsertBulk {
+// UpdateImageURI sets the "image_uri" field to the value that was provided on create.
+func (u *EmojiUpsertBulk) UpdateImageURI() *EmojiUpsertBulk {
 	return u.Update(func(s *EmojiUpsert) {
-		s.UpdateKeywords()
+		s.UpdateImageURI()
 	})
 }
 
-// ClearKeywords clears the value of the "keywords" field.
-func (u *EmojiUpsertBulk) ClearKeywords() *EmojiUpsertBulk {
+// ClearImageURI clears the value of the "image_uri" field.
+func (u *EmojiUpsertBulk) ClearImageURI() *EmojiUpsertBulk {
 	return u.Update(func(s *EmojiUpsert) {
-		s.ClearKeywords()
+		s.ClearImageURI()
+	})
+}
+
+// SetAdultLikelihood sets the "adult_likelihood" field.
+func (u *EmojiUpsertBulk) SetAdultLikelihood(v int) *EmojiUpsertBulk {
+	return u.Update(func(s *EmojiUpsert) {
+		s.SetAdultLikelihood(v)
+	})
+}
+
+// AddAdultLikelihood adds v to the "adult_likelihood" field.
+func (u *EmojiUpsertBulk) AddAdultLikelihood(v int) *EmojiUpsertBulk {
+	return u.Update(func(s *EmojiUpsert) {
+		s.AddAdultLikelihood(v)
+	})
+}
+
+// UpdateAdultLikelihood sets the "adult_likelihood" field to the value that was provided on create.
+func (u *EmojiUpsertBulk) UpdateAdultLikelihood() *EmojiUpsertBulk {
+	return u.Update(func(s *EmojiUpsert) {
+		s.UpdateAdultLikelihood()
+	})
+}
+
+// SetSpoofLikelihood sets the "spoof_likelihood" field.
+func (u *EmojiUpsertBulk) SetSpoofLikelihood(v int) *EmojiUpsertBulk {
+	return u.Update(func(s *EmojiUpsert) {
+		s.SetSpoofLikelihood(v)
+	})
+}
+
+// AddSpoofLikelihood adds v to the "spoof_likelihood" field.
+func (u *EmojiUpsertBulk) AddSpoofLikelihood(v int) *EmojiUpsertBulk {
+	return u.Update(func(s *EmojiUpsert) {
+		s.AddSpoofLikelihood(v)
+	})
+}
+
+// UpdateSpoofLikelihood sets the "spoof_likelihood" field to the value that was provided on create.
+func (u *EmojiUpsertBulk) UpdateSpoofLikelihood() *EmojiUpsertBulk {
+	return u.Update(func(s *EmojiUpsert) {
+		s.UpdateSpoofLikelihood()
+	})
+}
+
+// SetMedicalLikelihood sets the "medical_likelihood" field.
+func (u *EmojiUpsertBulk) SetMedicalLikelihood(v int) *EmojiUpsertBulk {
+	return u.Update(func(s *EmojiUpsert) {
+		s.SetMedicalLikelihood(v)
+	})
+}
+
+// AddMedicalLikelihood adds v to the "medical_likelihood" field.
+func (u *EmojiUpsertBulk) AddMedicalLikelihood(v int) *EmojiUpsertBulk {
+	return u.Update(func(s *EmojiUpsert) {
+		s.AddMedicalLikelihood(v)
+	})
+}
+
+// UpdateMedicalLikelihood sets the "medical_likelihood" field to the value that was provided on create.
+func (u *EmojiUpsertBulk) UpdateMedicalLikelihood() *EmojiUpsertBulk {
+	return u.Update(func(s *EmojiUpsert) {
+		s.UpdateMedicalLikelihood()
+	})
+}
+
+// SetViolenceLikelihood sets the "violence_likelihood" field.
+func (u *EmojiUpsertBulk) SetViolenceLikelihood(v int) *EmojiUpsertBulk {
+	return u.Update(func(s *EmojiUpsert) {
+		s.SetViolenceLikelihood(v)
+	})
+}
+
+// AddViolenceLikelihood adds v to the "violence_likelihood" field.
+func (u *EmojiUpsertBulk) AddViolenceLikelihood(v int) *EmojiUpsertBulk {
+	return u.Update(func(s *EmojiUpsert) {
+		s.AddViolenceLikelihood(v)
+	})
+}
+
+// UpdateViolenceLikelihood sets the "violence_likelihood" field to the value that was provided on create.
+func (u *EmojiUpsertBulk) UpdateViolenceLikelihood() *EmojiUpsertBulk {
+	return u.Update(func(s *EmojiUpsert) {
+		s.UpdateViolenceLikelihood()
+	})
+}
+
+// SetRacyLikelihood sets the "racy_likelihood" field.
+func (u *EmojiUpsertBulk) SetRacyLikelihood(v int) *EmojiUpsertBulk {
+	return u.Update(func(s *EmojiUpsert) {
+		s.SetRacyLikelihood(v)
+	})
+}
+
+// AddRacyLikelihood adds v to the "racy_likelihood" field.
+func (u *EmojiUpsertBulk) AddRacyLikelihood(v int) *EmojiUpsertBulk {
+	return u.Update(func(s *EmojiUpsert) {
+		s.AddRacyLikelihood(v)
+	})
+}
+
+// UpdateRacyLikelihood sets the "racy_likelihood" field to the value that was provided on create.
+func (u *EmojiUpsertBulk) UpdateRacyLikelihood() *EmojiUpsertBulk {
+	return u.Update(func(s *EmojiUpsert) {
+		s.UpdateRacyLikelihood()
 	})
 }
 

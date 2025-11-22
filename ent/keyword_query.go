@@ -20,57 +20,57 @@ import (
 	"github.com/h3mmy/bloopyboi/ent/predicate"
 )
 
-// EmojiQuery is the builder for querying Emoji entities.
-type EmojiQuery struct {
+// KeywordQuery is the builder for querying Keyword entities.
+type KeywordQuery struct {
 	config
 	ctx                         *QueryContext
-	order                       []emoji.OrderOption
+	order                       []keyword.OrderOption
 	inters                      []Interceptor
-	predicates                  []predicate.Emoji
-	withKeywords                *KeywordQuery
+	predicates                  []predicate.Keyword
+	withEmojis                  *EmojiQuery
 	withEmojiKeywordScores      *EmojiKeywordScoreQuery
 	modifiers                   []func(*sql.Selector)
-	withNamedKeywords           map[string]*KeywordQuery
+	withNamedEmojis             map[string]*EmojiQuery
 	withNamedEmojiKeywordScores map[string]*EmojiKeywordScoreQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
 }
 
-// Where adds a new predicate for the EmojiQuery builder.
-func (_q *EmojiQuery) Where(ps ...predicate.Emoji) *EmojiQuery {
+// Where adds a new predicate for the KeywordQuery builder.
+func (_q *KeywordQuery) Where(ps ...predicate.Keyword) *KeywordQuery {
 	_q.predicates = append(_q.predicates, ps...)
 	return _q
 }
 
 // Limit the number of records to be returned by this query.
-func (_q *EmojiQuery) Limit(limit int) *EmojiQuery {
+func (_q *KeywordQuery) Limit(limit int) *KeywordQuery {
 	_q.ctx.Limit = &limit
 	return _q
 }
 
 // Offset to start from.
-func (_q *EmojiQuery) Offset(offset int) *EmojiQuery {
+func (_q *KeywordQuery) Offset(offset int) *KeywordQuery {
 	_q.ctx.Offset = &offset
 	return _q
 }
 
 // Unique configures the query builder to filter duplicate records on query.
 // By default, unique is set to true, and can be disabled using this method.
-func (_q *EmojiQuery) Unique(unique bool) *EmojiQuery {
+func (_q *KeywordQuery) Unique(unique bool) *KeywordQuery {
 	_q.ctx.Unique = &unique
 	return _q
 }
 
 // Order specifies how the records should be ordered.
-func (_q *EmojiQuery) Order(o ...emoji.OrderOption) *EmojiQuery {
+func (_q *KeywordQuery) Order(o ...keyword.OrderOption) *KeywordQuery {
 	_q.order = append(_q.order, o...)
 	return _q
 }
 
-// QueryKeywords chains the current query on the "keywords" edge.
-func (_q *EmojiQuery) QueryKeywords() *KeywordQuery {
-	query := (&KeywordClient{config: _q.config}).Query()
+// QueryEmojis chains the current query on the "emojis" edge.
+func (_q *KeywordQuery) QueryEmojis() *EmojiQuery {
+	query := (&EmojiClient{config: _q.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := _q.prepareQuery(ctx); err != nil {
 			return nil, err
@@ -80,9 +80,9 @@ func (_q *EmojiQuery) QueryKeywords() *KeywordQuery {
 			return nil, err
 		}
 		step := sqlgraph.NewStep(
-			sqlgraph.From(emoji.Table, emoji.FieldID, selector),
-			sqlgraph.To(keyword.Table, keyword.FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, false, emoji.KeywordsTable, emoji.KeywordsPrimaryKey...),
+			sqlgraph.From(keyword.Table, keyword.FieldID, selector),
+			sqlgraph.To(emoji.Table, emoji.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, true, keyword.EmojisTable, keyword.EmojisPrimaryKey...),
 		)
 		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
@@ -91,7 +91,7 @@ func (_q *EmojiQuery) QueryKeywords() *KeywordQuery {
 }
 
 // QueryEmojiKeywordScores chains the current query on the "emoji_keyword_scores" edge.
-func (_q *EmojiQuery) QueryEmojiKeywordScores() *EmojiKeywordScoreQuery {
+func (_q *KeywordQuery) QueryEmojiKeywordScores() *EmojiKeywordScoreQuery {
 	query := (&EmojiKeywordScoreClient{config: _q.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := _q.prepareQuery(ctx); err != nil {
@@ -102,9 +102,9 @@ func (_q *EmojiQuery) QueryEmojiKeywordScores() *EmojiKeywordScoreQuery {
 			return nil, err
 		}
 		step := sqlgraph.NewStep(
-			sqlgraph.From(emoji.Table, emoji.FieldID, selector),
-			sqlgraph.To(emojikeywordscore.Table, emojikeywordscore.EmojiColumn),
-			sqlgraph.Edge(sqlgraph.O2M, true, emoji.EmojiKeywordScoresTable, emoji.EmojiKeywordScoresColumn),
+			sqlgraph.From(keyword.Table, keyword.FieldID, selector),
+			sqlgraph.To(emojikeywordscore.Table, emojikeywordscore.KeywordColumn),
+			sqlgraph.Edge(sqlgraph.O2M, true, keyword.EmojiKeywordScoresTable, keyword.EmojiKeywordScoresColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
@@ -112,21 +112,21 @@ func (_q *EmojiQuery) QueryEmojiKeywordScores() *EmojiKeywordScoreQuery {
 	return query
 }
 
-// First returns the first Emoji entity from the query.
-// Returns a *NotFoundError when no Emoji was found.
-func (_q *EmojiQuery) First(ctx context.Context) (*Emoji, error) {
+// First returns the first Keyword entity from the query.
+// Returns a *NotFoundError when no Keyword was found.
+func (_q *KeywordQuery) First(ctx context.Context) (*Keyword, error) {
 	nodes, err := _q.Limit(1).All(setContextOp(ctx, _q.ctx, ent.OpQueryFirst))
 	if err != nil {
 		return nil, err
 	}
 	if len(nodes) == 0 {
-		return nil, &NotFoundError{emoji.Label}
+		return nil, &NotFoundError{keyword.Label}
 	}
 	return nodes[0], nil
 }
 
 // FirstX is like First, but panics if an error occurs.
-func (_q *EmojiQuery) FirstX(ctx context.Context) *Emoji {
+func (_q *KeywordQuery) FirstX(ctx context.Context) *Keyword {
 	node, err := _q.First(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -134,22 +134,22 @@ func (_q *EmojiQuery) FirstX(ctx context.Context) *Emoji {
 	return node
 }
 
-// FirstID returns the first Emoji ID from the query.
-// Returns a *NotFoundError when no Emoji ID was found.
-func (_q *EmojiQuery) FirstID(ctx context.Context) (id uuid.UUID, err error) {
+// FirstID returns the first Keyword ID from the query.
+// Returns a *NotFoundError when no Keyword ID was found.
+func (_q *KeywordQuery) FirstID(ctx context.Context) (id uuid.UUID, err error) {
 	var ids []uuid.UUID
 	if ids, err = _q.Limit(1).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryFirstID)); err != nil {
 		return
 	}
 	if len(ids) == 0 {
-		err = &NotFoundError{emoji.Label}
+		err = &NotFoundError{keyword.Label}
 		return
 	}
 	return ids[0], nil
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (_q *EmojiQuery) FirstIDX(ctx context.Context) uuid.UUID {
+func (_q *KeywordQuery) FirstIDX(ctx context.Context) uuid.UUID {
 	id, err := _q.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -157,10 +157,10 @@ func (_q *EmojiQuery) FirstIDX(ctx context.Context) uuid.UUID {
 	return id
 }
 
-// Only returns a single Emoji entity found by the query, ensuring it only returns one.
-// Returns a *NotSingularError when more than one Emoji entity is found.
-// Returns a *NotFoundError when no Emoji entities are found.
-func (_q *EmojiQuery) Only(ctx context.Context) (*Emoji, error) {
+// Only returns a single Keyword entity found by the query, ensuring it only returns one.
+// Returns a *NotSingularError when more than one Keyword entity is found.
+// Returns a *NotFoundError when no Keyword entities are found.
+func (_q *KeywordQuery) Only(ctx context.Context) (*Keyword, error) {
 	nodes, err := _q.Limit(2).All(setContextOp(ctx, _q.ctx, ent.OpQueryOnly))
 	if err != nil {
 		return nil, err
@@ -169,14 +169,14 @@ func (_q *EmojiQuery) Only(ctx context.Context) (*Emoji, error) {
 	case 1:
 		return nodes[0], nil
 	case 0:
-		return nil, &NotFoundError{emoji.Label}
+		return nil, &NotFoundError{keyword.Label}
 	default:
-		return nil, &NotSingularError{emoji.Label}
+		return nil, &NotSingularError{keyword.Label}
 	}
 }
 
 // OnlyX is like Only, but panics if an error occurs.
-func (_q *EmojiQuery) OnlyX(ctx context.Context) *Emoji {
+func (_q *KeywordQuery) OnlyX(ctx context.Context) *Keyword {
 	node, err := _q.Only(ctx)
 	if err != nil {
 		panic(err)
@@ -184,10 +184,10 @@ func (_q *EmojiQuery) OnlyX(ctx context.Context) *Emoji {
 	return node
 }
 
-// OnlyID is like Only, but returns the only Emoji ID in the query.
-// Returns a *NotSingularError when more than one Emoji ID is found.
+// OnlyID is like Only, but returns the only Keyword ID in the query.
+// Returns a *NotSingularError when more than one Keyword ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (_q *EmojiQuery) OnlyID(ctx context.Context) (id uuid.UUID, err error) {
+func (_q *KeywordQuery) OnlyID(ctx context.Context) (id uuid.UUID, err error) {
 	var ids []uuid.UUID
 	if ids, err = _q.Limit(2).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryOnlyID)); err != nil {
 		return
@@ -196,15 +196,15 @@ func (_q *EmojiQuery) OnlyID(ctx context.Context) (id uuid.UUID, err error) {
 	case 1:
 		id = ids[0]
 	case 0:
-		err = &NotFoundError{emoji.Label}
+		err = &NotFoundError{keyword.Label}
 	default:
-		err = &NotSingularError{emoji.Label}
+		err = &NotSingularError{keyword.Label}
 	}
 	return
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (_q *EmojiQuery) OnlyIDX(ctx context.Context) uuid.UUID {
+func (_q *KeywordQuery) OnlyIDX(ctx context.Context) uuid.UUID {
 	id, err := _q.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -212,18 +212,18 @@ func (_q *EmojiQuery) OnlyIDX(ctx context.Context) uuid.UUID {
 	return id
 }
 
-// All executes the query and returns a list of Emojis.
-func (_q *EmojiQuery) All(ctx context.Context) ([]*Emoji, error) {
+// All executes the query and returns a list of Keywords.
+func (_q *KeywordQuery) All(ctx context.Context) ([]*Keyword, error) {
 	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryAll)
 	if err := _q.prepareQuery(ctx); err != nil {
 		return nil, err
 	}
-	qr := querierAll[[]*Emoji, *EmojiQuery]()
-	return withInterceptors[[]*Emoji](ctx, _q, qr, _q.inters)
+	qr := querierAll[[]*Keyword, *KeywordQuery]()
+	return withInterceptors[[]*Keyword](ctx, _q, qr, _q.inters)
 }
 
 // AllX is like All, but panics if an error occurs.
-func (_q *EmojiQuery) AllX(ctx context.Context) []*Emoji {
+func (_q *KeywordQuery) AllX(ctx context.Context) []*Keyword {
 	nodes, err := _q.All(ctx)
 	if err != nil {
 		panic(err)
@@ -231,20 +231,20 @@ func (_q *EmojiQuery) AllX(ctx context.Context) []*Emoji {
 	return nodes
 }
 
-// IDs executes the query and returns a list of Emoji IDs.
-func (_q *EmojiQuery) IDs(ctx context.Context) (ids []uuid.UUID, err error) {
+// IDs executes the query and returns a list of Keyword IDs.
+func (_q *KeywordQuery) IDs(ctx context.Context) (ids []uuid.UUID, err error) {
 	if _q.ctx.Unique == nil && _q.path != nil {
 		_q.Unique(true)
 	}
 	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryIDs)
-	if err = _q.Select(emoji.FieldID).Scan(ctx, &ids); err != nil {
+	if err = _q.Select(keyword.FieldID).Scan(ctx, &ids); err != nil {
 		return nil, err
 	}
 	return ids, nil
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (_q *EmojiQuery) IDsX(ctx context.Context) []uuid.UUID {
+func (_q *KeywordQuery) IDsX(ctx context.Context) []uuid.UUID {
 	ids, err := _q.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -253,16 +253,16 @@ func (_q *EmojiQuery) IDsX(ctx context.Context) []uuid.UUID {
 }
 
 // Count returns the count of the given query.
-func (_q *EmojiQuery) Count(ctx context.Context) (int, error) {
+func (_q *KeywordQuery) Count(ctx context.Context) (int, error) {
 	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryCount)
 	if err := _q.prepareQuery(ctx); err != nil {
 		return 0, err
 	}
-	return withInterceptors[int](ctx, _q, querierCount[*EmojiQuery](), _q.inters)
+	return withInterceptors[int](ctx, _q, querierCount[*KeywordQuery](), _q.inters)
 }
 
 // CountX is like Count, but panics if an error occurs.
-func (_q *EmojiQuery) CountX(ctx context.Context) int {
+func (_q *KeywordQuery) CountX(ctx context.Context) int {
 	count, err := _q.Count(ctx)
 	if err != nil {
 		panic(err)
@@ -271,7 +271,7 @@ func (_q *EmojiQuery) CountX(ctx context.Context) int {
 }
 
 // Exist returns true if the query has elements in the graph.
-func (_q *EmojiQuery) Exist(ctx context.Context) (bool, error) {
+func (_q *KeywordQuery) Exist(ctx context.Context) (bool, error) {
 	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryExist)
 	switch _, err := _q.FirstID(ctx); {
 	case IsNotFound(err):
@@ -284,7 +284,7 @@ func (_q *EmojiQuery) Exist(ctx context.Context) (bool, error) {
 }
 
 // ExistX is like Exist, but panics if an error occurs.
-func (_q *EmojiQuery) ExistX(ctx context.Context) bool {
+func (_q *KeywordQuery) ExistX(ctx context.Context) bool {
 	exist, err := _q.Exist(ctx)
 	if err != nil {
 		panic(err)
@@ -292,19 +292,19 @@ func (_q *EmojiQuery) ExistX(ctx context.Context) bool {
 	return exist
 }
 
-// Clone returns a duplicate of the EmojiQuery builder, including all associated steps. It can be
+// Clone returns a duplicate of the KeywordQuery builder, including all associated steps. It can be
 // used to prepare common query builders and use them differently after the clone is made.
-func (_q *EmojiQuery) Clone() *EmojiQuery {
+func (_q *KeywordQuery) Clone() *KeywordQuery {
 	if _q == nil {
 		return nil
 	}
-	return &EmojiQuery{
+	return &KeywordQuery{
 		config:                 _q.config,
 		ctx:                    _q.ctx.Clone(),
-		order:                  append([]emoji.OrderOption{}, _q.order...),
+		order:                  append([]keyword.OrderOption{}, _q.order...),
 		inters:                 append([]Interceptor{}, _q.inters...),
-		predicates:             append([]predicate.Emoji{}, _q.predicates...),
-		withKeywords:           _q.withKeywords.Clone(),
+		predicates:             append([]predicate.Keyword{}, _q.predicates...),
+		withEmojis:             _q.withEmojis.Clone(),
 		withEmojiKeywordScores: _q.withEmojiKeywordScores.Clone(),
 		// clone intermediate query.
 		sql:  _q.sql.Clone(),
@@ -312,20 +312,20 @@ func (_q *EmojiQuery) Clone() *EmojiQuery {
 	}
 }
 
-// WithKeywords tells the query-builder to eager-load the nodes that are connected to
-// the "keywords" edge. The optional arguments are used to configure the query builder of the edge.
-func (_q *EmojiQuery) WithKeywords(opts ...func(*KeywordQuery)) *EmojiQuery {
-	query := (&KeywordClient{config: _q.config}).Query()
+// WithEmojis tells the query-builder to eager-load the nodes that are connected to
+// the "emojis" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *KeywordQuery) WithEmojis(opts ...func(*EmojiQuery)) *KeywordQuery {
+	query := (&EmojiClient{config: _q.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
-	_q.withKeywords = query
+	_q.withEmojis = query
 	return _q
 }
 
 // WithEmojiKeywordScores tells the query-builder to eager-load the nodes that are connected to
 // the "emoji_keyword_scores" edge. The optional arguments are used to configure the query builder of the edge.
-func (_q *EmojiQuery) WithEmojiKeywordScores(opts ...func(*EmojiKeywordScoreQuery)) *EmojiQuery {
+func (_q *KeywordQuery) WithEmojiKeywordScores(opts ...func(*EmojiKeywordScoreQuery)) *KeywordQuery {
 	query := (&EmojiKeywordScoreClient{config: _q.config}).Query()
 	for _, opt := range opts {
 		opt(query)
@@ -340,19 +340,19 @@ func (_q *EmojiQuery) WithEmojiKeywordScores(opts ...func(*EmojiKeywordScoreQuer
 // Example:
 //
 //	var v []struct {
-//		EmojiID string `json:"emoji_id,omitempty"`
+//		Keyword string `json:"keyword,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
-//	client.Emoji.Query().
-//		GroupBy(emoji.FieldEmojiID).
+//	client.Keyword.Query().
+//		GroupBy(keyword.FieldKeyword).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
-func (_q *EmojiQuery) GroupBy(field string, fields ...string) *EmojiGroupBy {
+func (_q *KeywordQuery) GroupBy(field string, fields ...string) *KeywordGroupBy {
 	_q.ctx.Fields = append([]string{field}, fields...)
-	grbuild := &EmojiGroupBy{build: _q}
+	grbuild := &KeywordGroupBy{build: _q}
 	grbuild.flds = &_q.ctx.Fields
-	grbuild.label = emoji.Label
+	grbuild.label = keyword.Label
 	grbuild.scan = grbuild.Scan
 	return grbuild
 }
@@ -363,26 +363,26 @@ func (_q *EmojiQuery) GroupBy(field string, fields ...string) *EmojiGroupBy {
 // Example:
 //
 //	var v []struct {
-//		EmojiID string `json:"emoji_id,omitempty"`
+//		Keyword string `json:"keyword,omitempty"`
 //	}
 //
-//	client.Emoji.Query().
-//		Select(emoji.FieldEmojiID).
+//	client.Keyword.Query().
+//		Select(keyword.FieldKeyword).
 //		Scan(ctx, &v)
-func (_q *EmojiQuery) Select(fields ...string) *EmojiSelect {
+func (_q *KeywordQuery) Select(fields ...string) *KeywordSelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)
-	sbuild := &EmojiSelect{EmojiQuery: _q}
-	sbuild.label = emoji.Label
+	sbuild := &KeywordSelect{KeywordQuery: _q}
+	sbuild.label = keyword.Label
 	sbuild.flds, sbuild.scan = &_q.ctx.Fields, sbuild.Scan
 	return sbuild
 }
 
-// Aggregate returns a EmojiSelect configured with the given aggregations.
-func (_q *EmojiQuery) Aggregate(fns ...AggregateFunc) *EmojiSelect {
+// Aggregate returns a KeywordSelect configured with the given aggregations.
+func (_q *KeywordQuery) Aggregate(fns ...AggregateFunc) *KeywordSelect {
 	return _q.Select().Aggregate(fns...)
 }
 
-func (_q *EmojiQuery) prepareQuery(ctx context.Context) error {
+func (_q *KeywordQuery) prepareQuery(ctx context.Context) error {
 	for _, inter := range _q.inters {
 		if inter == nil {
 			return fmt.Errorf("ent: uninitialized interceptor (forgotten import ent/runtime?)")
@@ -394,7 +394,7 @@ func (_q *EmojiQuery) prepareQuery(ctx context.Context) error {
 		}
 	}
 	for _, f := range _q.ctx.Fields {
-		if !emoji.ValidColumn(f) {
+		if !keyword.ValidColumn(f) {
 			return &ValidationError{Name: f, err: fmt.Errorf("ent: invalid field %q for query", f)}
 		}
 	}
@@ -408,20 +408,20 @@ func (_q *EmojiQuery) prepareQuery(ctx context.Context) error {
 	return nil
 }
 
-func (_q *EmojiQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Emoji, error) {
+func (_q *KeywordQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Keyword, error) {
 	var (
-		nodes       = []*Emoji{}
+		nodes       = []*Keyword{}
 		_spec       = _q.querySpec()
 		loadedTypes = [2]bool{
-			_q.withKeywords != nil,
+			_q.withEmojis != nil,
 			_q.withEmojiKeywordScores != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
-		return (*Emoji).scanValues(nil, columns)
+		return (*Keyword).scanValues(nil, columns)
 	}
 	_spec.Assign = func(columns []string, values []any) error {
-		node := &Emoji{config: _q.config}
+		node := &Keyword{config: _q.config}
 		nodes = append(nodes, node)
 		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
@@ -438,43 +438,43 @@ func (_q *EmojiQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Emoji,
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
-	if query := _q.withKeywords; query != nil {
-		if err := _q.loadKeywords(ctx, query, nodes,
-			func(n *Emoji) { n.Edges.Keywords = []*Keyword{} },
-			func(n *Emoji, e *Keyword) { n.Edges.Keywords = append(n.Edges.Keywords, e) }); err != nil {
+	if query := _q.withEmojis; query != nil {
+		if err := _q.loadEmojis(ctx, query, nodes,
+			func(n *Keyword) { n.Edges.Emojis = []*Emoji{} },
+			func(n *Keyword, e *Emoji) { n.Edges.Emojis = append(n.Edges.Emojis, e) }); err != nil {
 			return nil, err
 		}
 	}
 	if query := _q.withEmojiKeywordScores; query != nil {
 		if err := _q.loadEmojiKeywordScores(ctx, query, nodes,
-			func(n *Emoji) { n.Edges.EmojiKeywordScores = []*EmojiKeywordScore{} },
-			func(n *Emoji, e *EmojiKeywordScore) {
+			func(n *Keyword) { n.Edges.EmojiKeywordScores = []*EmojiKeywordScore{} },
+			func(n *Keyword, e *EmojiKeywordScore) {
 				n.Edges.EmojiKeywordScores = append(n.Edges.EmojiKeywordScores, e)
 			}); err != nil {
 			return nil, err
 		}
 	}
-	for name, query := range _q.withNamedKeywords {
-		if err := _q.loadKeywords(ctx, query, nodes,
-			func(n *Emoji) { n.appendNamedKeywords(name) },
-			func(n *Emoji, e *Keyword) { n.appendNamedKeywords(name, e) }); err != nil {
+	for name, query := range _q.withNamedEmojis {
+		if err := _q.loadEmojis(ctx, query, nodes,
+			func(n *Keyword) { n.appendNamedEmojis(name) },
+			func(n *Keyword, e *Emoji) { n.appendNamedEmojis(name, e) }); err != nil {
 			return nil, err
 		}
 	}
 	for name, query := range _q.withNamedEmojiKeywordScores {
 		if err := _q.loadEmojiKeywordScores(ctx, query, nodes,
-			func(n *Emoji) { n.appendNamedEmojiKeywordScores(name) },
-			func(n *Emoji, e *EmojiKeywordScore) { n.appendNamedEmojiKeywordScores(name, e) }); err != nil {
+			func(n *Keyword) { n.appendNamedEmojiKeywordScores(name) },
+			func(n *Keyword, e *EmojiKeywordScore) { n.appendNamedEmojiKeywordScores(name, e) }); err != nil {
 			return nil, err
 		}
 	}
 	return nodes, nil
 }
 
-func (_q *EmojiQuery) loadKeywords(ctx context.Context, query *KeywordQuery, nodes []*Emoji, init func(*Emoji), assign func(*Emoji, *Keyword)) error {
+func (_q *KeywordQuery) loadEmojis(ctx context.Context, query *EmojiQuery, nodes []*Keyword, init func(*Keyword), assign func(*Keyword, *Emoji)) error {
 	edgeIDs := make([]driver.Value, len(nodes))
-	byID := make(map[uuid.UUID]*Emoji)
-	nids := make(map[uuid.UUID]map[*Emoji]struct{})
+	byID := make(map[uuid.UUID]*Keyword)
+	nids := make(map[uuid.UUID]map[*Keyword]struct{})
 	for i, node := range nodes {
 		edgeIDs[i] = node.ID
 		byID[node.ID] = node
@@ -483,11 +483,11 @@ func (_q *EmojiQuery) loadKeywords(ctx context.Context, query *KeywordQuery, nod
 		}
 	}
 	query.Where(func(s *sql.Selector) {
-		joinT := sql.Table(emoji.KeywordsTable)
-		s.Join(joinT).On(s.C(keyword.FieldID), joinT.C(emoji.KeywordsPrimaryKey[1]))
-		s.Where(sql.InValues(joinT.C(emoji.KeywordsPrimaryKey[0]), edgeIDs...))
+		joinT := sql.Table(keyword.EmojisTable)
+		s.Join(joinT).On(s.C(emoji.FieldID), joinT.C(keyword.EmojisPrimaryKey[0]))
+		s.Where(sql.InValues(joinT.C(keyword.EmojisPrimaryKey[1]), edgeIDs...))
 		columns := s.SelectedColumns()
-		s.Select(joinT.C(emoji.KeywordsPrimaryKey[0]))
+		s.Select(joinT.C(keyword.EmojisPrimaryKey[1]))
 		s.AppendSelect(columns...)
 		s.SetDistinct(false)
 	})
@@ -509,7 +509,7 @@ func (_q *EmojiQuery) loadKeywords(ctx context.Context, query *KeywordQuery, nod
 				outValue := *values[0].(*uuid.UUID)
 				inValue := *values[1].(*uuid.UUID)
 				if nids[inValue] == nil {
-					nids[inValue] = map[*Emoji]struct{}{byID[outValue]: {}}
+					nids[inValue] = map[*Keyword]struct{}{byID[outValue]: {}}
 					return assign(columns[1:], values[1:])
 				}
 				nids[inValue][byID[outValue]] = struct{}{}
@@ -517,14 +517,14 @@ func (_q *EmojiQuery) loadKeywords(ctx context.Context, query *KeywordQuery, nod
 			}
 		})
 	})
-	neighbors, err := withInterceptors[[]*Keyword](ctx, query, qr, query.inters)
+	neighbors, err := withInterceptors[[]*Emoji](ctx, query, qr, query.inters)
 	if err != nil {
 		return err
 	}
 	for _, n := range neighbors {
 		nodes, ok := nids[n.ID]
 		if !ok {
-			return fmt.Errorf(`unexpected "keywords" node returned %v`, n.ID)
+			return fmt.Errorf(`unexpected "emojis" node returned %v`, n.ID)
 		}
 		for kn := range nodes {
 			assign(kn, n)
@@ -532,9 +532,9 @@ func (_q *EmojiQuery) loadKeywords(ctx context.Context, query *KeywordQuery, nod
 	}
 	return nil
 }
-func (_q *EmojiQuery) loadEmojiKeywordScores(ctx context.Context, query *EmojiKeywordScoreQuery, nodes []*Emoji, init func(*Emoji), assign func(*Emoji, *EmojiKeywordScore)) error {
+func (_q *KeywordQuery) loadEmojiKeywordScores(ctx context.Context, query *EmojiKeywordScoreQuery, nodes []*Keyword, init func(*Keyword), assign func(*Keyword, *EmojiKeywordScore)) error {
 	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[uuid.UUID]*Emoji)
+	nodeids := make(map[uuid.UUID]*Keyword)
 	for i := range nodes {
 		fks = append(fks, nodes[i].ID)
 		nodeids[nodes[i].ID] = nodes[i]
@@ -543,27 +543,27 @@ func (_q *EmojiQuery) loadEmojiKeywordScores(ctx context.Context, query *EmojiKe
 		}
 	}
 	if len(query.ctx.Fields) > 0 {
-		query.ctx.AppendFieldOnce(emojikeywordscore.FieldEmojiID)
+		query.ctx.AppendFieldOnce(emojikeywordscore.FieldKeywordID)
 	}
 	query.Where(predicate.EmojiKeywordScore(func(s *sql.Selector) {
-		s.Where(sql.InValues(s.C(emoji.EmojiKeywordScoresColumn), fks...))
+		s.Where(sql.InValues(s.C(keyword.EmojiKeywordScoresColumn), fks...))
 	}))
 	neighbors, err := query.All(ctx)
 	if err != nil {
 		return err
 	}
 	for _, n := range neighbors {
-		fk := n.EmojiID
+		fk := n.KeywordID
 		node, ok := nodeids[fk]
 		if !ok {
-			return fmt.Errorf(`unexpected referenced foreign-key "emoji_id" returned %v for node %v`, fk, n)
+			return fmt.Errorf(`unexpected referenced foreign-key "keyword_id" returned %v for node %v`, fk, n)
 		}
 		assign(node, n)
 	}
 	return nil
 }
 
-func (_q *EmojiQuery) sqlCount(ctx context.Context) (int, error) {
+func (_q *KeywordQuery) sqlCount(ctx context.Context) (int, error) {
 	_spec := _q.querySpec()
 	if len(_q.modifiers) > 0 {
 		_spec.Modifiers = _q.modifiers
@@ -575,8 +575,8 @@ func (_q *EmojiQuery) sqlCount(ctx context.Context) (int, error) {
 	return sqlgraph.CountNodes(ctx, _q.driver, _spec)
 }
 
-func (_q *EmojiQuery) querySpec() *sqlgraph.QuerySpec {
-	_spec := sqlgraph.NewQuerySpec(emoji.Table, emoji.Columns, sqlgraph.NewFieldSpec(emoji.FieldID, field.TypeUUID))
+func (_q *KeywordQuery) querySpec() *sqlgraph.QuerySpec {
+	_spec := sqlgraph.NewQuerySpec(keyword.Table, keyword.Columns, sqlgraph.NewFieldSpec(keyword.FieldID, field.TypeUUID))
 	_spec.From = _q.sql
 	if unique := _q.ctx.Unique; unique != nil {
 		_spec.Unique = *unique
@@ -585,9 +585,9 @@ func (_q *EmojiQuery) querySpec() *sqlgraph.QuerySpec {
 	}
 	if fields := _q.ctx.Fields; len(fields) > 0 {
 		_spec.Node.Columns = make([]string, 0, len(fields))
-		_spec.Node.Columns = append(_spec.Node.Columns, emoji.FieldID)
+		_spec.Node.Columns = append(_spec.Node.Columns, keyword.FieldID)
 		for i := range fields {
-			if fields[i] != emoji.FieldID {
+			if fields[i] != keyword.FieldID {
 				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 			}
 		}
@@ -615,12 +615,12 @@ func (_q *EmojiQuery) querySpec() *sqlgraph.QuerySpec {
 	return _spec
 }
 
-func (_q *EmojiQuery) sqlQuery(ctx context.Context) *sql.Selector {
+func (_q *KeywordQuery) sqlQuery(ctx context.Context) *sql.Selector {
 	builder := sql.Dialect(_q.driver.Dialect())
-	t1 := builder.Table(emoji.Table)
+	t1 := builder.Table(keyword.Table)
 	columns := _q.ctx.Fields
 	if len(columns) == 0 {
-		columns = emoji.Columns
+		columns = keyword.Columns
 	}
 	selector := builder.Select(t1.Columns(columns...)...).From(t1)
 	if _q.sql != nil {
@@ -653,7 +653,7 @@ func (_q *EmojiQuery) sqlQuery(ctx context.Context) *sql.Selector {
 // ForUpdate locks the selected rows against concurrent updates, and prevent them from being
 // updated, deleted or "selected ... for update" by other sessions, until the transaction is
 // either committed or rolled-back.
-func (_q *EmojiQuery) ForUpdate(opts ...sql.LockOption) *EmojiQuery {
+func (_q *KeywordQuery) ForUpdate(opts ...sql.LockOption) *KeywordQuery {
 	if _q.driver.Dialect() == dialect.Postgres {
 		_q.Unique(false)
 	}
@@ -666,7 +666,7 @@ func (_q *EmojiQuery) ForUpdate(opts ...sql.LockOption) *EmojiQuery {
 // ForShare behaves similarly to ForUpdate, except that it acquires a shared mode lock
 // on any rows that are read. Other sessions can read the rows, but cannot modify them
 // until your transaction commits.
-func (_q *EmojiQuery) ForShare(opts ...sql.LockOption) *EmojiQuery {
+func (_q *KeywordQuery) ForShare(opts ...sql.LockOption) *KeywordQuery {
 	if _q.driver.Dialect() == dialect.Postgres {
 		_q.Unique(false)
 	}
@@ -676,23 +676,23 @@ func (_q *EmojiQuery) ForShare(opts ...sql.LockOption) *EmojiQuery {
 	return _q
 }
 
-// WithNamedKeywords tells the query-builder to eager-load the nodes that are connected to the "keywords"
+// WithNamedEmojis tells the query-builder to eager-load the nodes that are connected to the "emojis"
 // edge with the given name. The optional arguments are used to configure the query builder of the edge.
-func (_q *EmojiQuery) WithNamedKeywords(name string, opts ...func(*KeywordQuery)) *EmojiQuery {
-	query := (&KeywordClient{config: _q.config}).Query()
+func (_q *KeywordQuery) WithNamedEmojis(name string, opts ...func(*EmojiQuery)) *KeywordQuery {
+	query := (&EmojiClient{config: _q.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
-	if _q.withNamedKeywords == nil {
-		_q.withNamedKeywords = make(map[string]*KeywordQuery)
+	if _q.withNamedEmojis == nil {
+		_q.withNamedEmojis = make(map[string]*EmojiQuery)
 	}
-	_q.withNamedKeywords[name] = query
+	_q.withNamedEmojis[name] = query
 	return _q
 }
 
 // WithNamedEmojiKeywordScores tells the query-builder to eager-load the nodes that are connected to the "emoji_keyword_scores"
 // edge with the given name. The optional arguments are used to configure the query builder of the edge.
-func (_q *EmojiQuery) WithNamedEmojiKeywordScores(name string, opts ...func(*EmojiKeywordScoreQuery)) *EmojiQuery {
+func (_q *KeywordQuery) WithNamedEmojiKeywordScores(name string, opts ...func(*EmojiKeywordScoreQuery)) *KeywordQuery {
 	query := (&EmojiKeywordScoreClient{config: _q.config}).Query()
 	for _, opt := range opts {
 		opt(query)
@@ -704,28 +704,28 @@ func (_q *EmojiQuery) WithNamedEmojiKeywordScores(name string, opts ...func(*Emo
 	return _q
 }
 
-// EmojiGroupBy is the group-by builder for Emoji entities.
-type EmojiGroupBy struct {
+// KeywordGroupBy is the group-by builder for Keyword entities.
+type KeywordGroupBy struct {
 	selector
-	build *EmojiQuery
+	build *KeywordQuery
 }
 
 // Aggregate adds the given aggregation functions to the group-by query.
-func (_g *EmojiGroupBy) Aggregate(fns ...AggregateFunc) *EmojiGroupBy {
+func (_g *KeywordGroupBy) Aggregate(fns ...AggregateFunc) *KeywordGroupBy {
 	_g.fns = append(_g.fns, fns...)
 	return _g
 }
 
 // Scan applies the selector query and scans the result into the given value.
-func (_g *EmojiGroupBy) Scan(ctx context.Context, v any) error {
+func (_g *KeywordGroupBy) Scan(ctx context.Context, v any) error {
 	ctx = setContextOp(ctx, _g.build.ctx, ent.OpQueryGroupBy)
 	if err := _g.build.prepareQuery(ctx); err != nil {
 		return err
 	}
-	return scanWithInterceptors[*EmojiQuery, *EmojiGroupBy](ctx, _g.build, _g, _g.build.inters, v)
+	return scanWithInterceptors[*KeywordQuery, *KeywordGroupBy](ctx, _g.build, _g, _g.build.inters, v)
 }
 
-func (_g *EmojiGroupBy) sqlScan(ctx context.Context, root *EmojiQuery, v any) error {
+func (_g *KeywordGroupBy) sqlScan(ctx context.Context, root *KeywordQuery, v any) error {
 	selector := root.sqlQuery(ctx).Select()
 	aggregation := make([]string, 0, len(_g.fns))
 	for _, fn := range _g.fns {
@@ -752,28 +752,28 @@ func (_g *EmojiGroupBy) sqlScan(ctx context.Context, root *EmojiQuery, v any) er
 	return sql.ScanSlice(rows, v)
 }
 
-// EmojiSelect is the builder for selecting fields of Emoji entities.
-type EmojiSelect struct {
-	*EmojiQuery
+// KeywordSelect is the builder for selecting fields of Keyword entities.
+type KeywordSelect struct {
+	*KeywordQuery
 	selector
 }
 
 // Aggregate adds the given aggregation functions to the selector query.
-func (_s *EmojiSelect) Aggregate(fns ...AggregateFunc) *EmojiSelect {
+func (_s *KeywordSelect) Aggregate(fns ...AggregateFunc) *KeywordSelect {
 	_s.fns = append(_s.fns, fns...)
 	return _s
 }
 
 // Scan applies the selector query and scans the result into the given value.
-func (_s *EmojiSelect) Scan(ctx context.Context, v any) error {
+func (_s *KeywordSelect) Scan(ctx context.Context, v any) error {
 	ctx = setContextOp(ctx, _s.ctx, ent.OpQuerySelect)
 	if err := _s.prepareQuery(ctx); err != nil {
 		return err
 	}
-	return scanWithInterceptors[*EmojiQuery, *EmojiSelect](ctx, _s.EmojiQuery, _s, _s.inters, v)
+	return scanWithInterceptors[*KeywordQuery, *KeywordSelect](ctx, _s.KeywordQuery, _s, _s.inters, v)
 }
 
-func (_s *EmojiSelect) sqlScan(ctx context.Context, root *EmojiQuery, v any) error {
+func (_s *KeywordSelect) sqlScan(ctx context.Context, root *KeywordQuery, v any) error {
 	selector := root.sqlQuery(ctx)
 	aggregation := make([]string, 0, len(_s.fns))
 	for _, fn := range _s.fns {
