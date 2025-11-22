@@ -42,8 +42,14 @@ func GetDiscordOauthConfig() *oauth2.Config {
 
 func GetCookieStore() *sessions.CookieStore {
 	appConfig := config.GetConfig()
+	if len(appConfig.HttpConfig.CookieSecrets) == 0 {
+		logger.Warn("No Cookie Secret found. Will generate a random one, but this will be lost on restart")
+		generatedSecret := GenerateRandomKey(64)
+		return sessions.NewCookieStore(generatedSecret)
+	}
 	secrets := [][]byte{}
-	for _, secret := range appConfig.HttpConfig.SessionSecrets {
+	// Auth/Enc keypairs. enc key can be nil.
+	for _, secret := range appConfig.HttpConfig.CookieSecrets {
 		secrets = append(secrets, []byte(secret))
 	}
 	return sessions.NewCookieStore(secrets...)

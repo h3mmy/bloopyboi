@@ -7,7 +7,7 @@ type HttpServerConfig struct {
 	CertFile       string   `mapstructure:"certFile"`
 	KeyFile        string   `mapstructure:"keyFile"`
 	Port           int      `mapstructure:"port"`
-	SessionSecrets []string `mapstructure:"sessionSecrets"`
+	CookieSecrets []string `mapstructure:"cookieSecrets"`
 }
 
 type GrpcServerConfig struct {
