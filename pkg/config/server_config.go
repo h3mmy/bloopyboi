@@ -1,13 +1,13 @@
 package config
 
 type HttpServerConfig struct {
-	Hostname      string `mapstructure:"hostname"`
-	BaseUrl       string `mapstructure:"baseUrl"`
-	TlsEnabled    bool   `mapstructure:"tlsEnabled"`
-	CertFile      string `mapstructure:"certFile"`
-	KeyFile       string `mapstructure:"keyFile"`
-	Port          int    `mapstructure:"port"`
-	SessionSecret string `mapstructure:"sessionSecret"`
+	Hostname       string   `mapstructure:"hostname"`
+	BaseUrl        string   `mapstructure:"baseUrl"`
+	TlsEnabled     bool     `mapstructure:"tlsEnabled"`
+	CertFile       string   `mapstructure:"certFile"`
+	KeyFile        string   `mapstructure:"keyFile"`
+	Port           int      `mapstructure:"port"`
+	SessionSecrets []string `mapstructure:"sessionSecrets"`
 }
 
 type GrpcServerConfig struct {
