@@ -24,6 +24,8 @@ import (
 	"github.com/h3mmy/bloopyboi/ent/discordmessagereaction"
 	"github.com/h3mmy/bloopyboi/ent/discorduser"
 	"github.com/h3mmy/bloopyboi/ent/emoji"
+	"github.com/h3mmy/bloopyboi/ent/emojikeywordscore"
+	"github.com/h3mmy/bloopyboi/ent/keyword"
 	"github.com/h3mmy/bloopyboi/ent/mediarequest"
 )
 
@@ -48,6 +50,10 @@ type Client struct {
 	DiscordUser *DiscordUserClient
 	// Emoji is the client for interacting with the Emoji builders.
 	Emoji *EmojiClient
+	// EmojiKeywordScore is the client for interacting with the EmojiKeywordScore builders.
+	EmojiKeywordScore *EmojiKeywordScoreClient
+	// Keyword is the client for interacting with the Keyword builders.
+	Keyword *KeywordClient
 	// MediaRequest is the client for interacting with the MediaRequest builders.
 	MediaRequest *MediaRequestClient
 }
@@ -69,6 +75,8 @@ func (c *Client) init() {
 	c.DiscordMessageReaction = NewDiscordMessageReactionClient(c.config)
 	c.DiscordUser = NewDiscordUserClient(c.config)
 	c.Emoji = NewEmojiClient(c.config)
+	c.EmojiKeywordScore = NewEmojiKeywordScoreClient(c.config)
+	c.Keyword = NewKeywordClient(c.config)
 	c.MediaRequest = NewMediaRequestClient(c.config)
 }
 
@@ -170,6 +178,8 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		DiscordMessageReaction: NewDiscordMessageReactionClient(cfg),
 		DiscordUser:            NewDiscordUserClient(cfg),
 		Emoji:                  NewEmojiClient(cfg),
+		EmojiKeywordScore:      NewEmojiKeywordScoreClient(cfg),
+		Keyword:                NewKeywordClient(cfg),
 		MediaRequest:           NewMediaRequestClient(cfg),
 	}, nil
 }
@@ -198,6 +208,8 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		DiscordMessageReaction: NewDiscordMessageReactionClient(cfg),
 		DiscordUser:            NewDiscordUserClient(cfg),
 		Emoji:                  NewEmojiClient(cfg),
+		EmojiKeywordScore:      NewEmojiKeywordScoreClient(cfg),
+		Keyword:                NewKeywordClient(cfg),
 		MediaRequest:           NewMediaRequestClient(cfg),
 	}, nil
 }
@@ -229,7 +241,8 @@ func (c *Client) Close() error {
 func (c *Client) Use(hooks ...Hook) {
 	for _, n := range []interface{ Use(...Hook) }{
 		c.Book, c.BookAuthor, c.DiscordChannel, c.DiscordGuild, c.DiscordMessage,
-		c.DiscordMessageReaction, c.DiscordUser, c.Emoji, c.MediaRequest,
+		c.DiscordMessageReaction, c.DiscordUser, c.Emoji, c.EmojiKeywordScore,
+		c.Keyword, c.MediaRequest,
 	} {
 		n.Use(hooks...)
 	}
@@ -240,7 +253,8 @@ func (c *Client) Use(hooks ...Hook) {
 func (c *Client) Intercept(interceptors ...Interceptor) {
 	for _, n := range []interface{ Intercept(...Interceptor) }{
 		c.Book, c.BookAuthor, c.DiscordChannel, c.DiscordGuild, c.DiscordMessage,
-		c.DiscordMessageReaction, c.DiscordUser, c.Emoji, c.MediaRequest,
+		c.DiscordMessageReaction, c.DiscordUser, c.Emoji, c.EmojiKeywordScore,
+		c.Keyword, c.MediaRequest,
 	} {
 		n.Intercept(interceptors...)
 	}
@@ -265,6 +279,10 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.DiscordUser.mutate(ctx, m)
 	case *EmojiMutation:
 		return c.Emoji.mutate(ctx, m)
+	case *EmojiKeywordScoreMutation:
+		return c.EmojiKeywordScore.mutate(ctx, m)
+	case *KeywordMutation:
+		return c.Keyword.mutate(ctx, m)
 	case *MediaRequestMutation:
 		return c.MediaRequest.mutate(ctx, m)
 	default:
@@ -1552,7 +1570,7 @@ func (c *EmojiClient) UpdateOne(_m *Emoji) *EmojiUpdateOne {
 }
 
 // UpdateOneID returns an update builder for the given id.
-func (c *EmojiClient) UpdateOneID(id int) *EmojiUpdateOne {
+func (c *EmojiClient) UpdateOneID(id uuid.UUID) *EmojiUpdateOne {
 	mutation := newEmojiMutation(c.config, OpUpdateOne, withEmojiID(id))
 	return &EmojiUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
@@ -1569,7 +1587,7 @@ func (c *EmojiClient) DeleteOne(_m *Emoji) *EmojiDeleteOne {
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *EmojiClient) DeleteOneID(id int) *EmojiDeleteOne {
+func (c *EmojiClient) DeleteOneID(id uuid.UUID) *EmojiDeleteOne {
 	builder := c.Delete().Where(emoji.ID(id))
 	builder.mutation.id = &id
 	builder.mutation.op = OpDeleteOne
@@ -1586,17 +1604,49 @@ func (c *EmojiClient) Query() *EmojiQuery {
 }
 
 // Get returns a Emoji entity by its id.
-func (c *EmojiClient) Get(ctx context.Context, id int) (*Emoji, error) {
+func (c *EmojiClient) Get(ctx context.Context, id uuid.UUID) (*Emoji, error) {
 	return c.Query().Where(emoji.ID(id)).Only(ctx)
 }
 
 // GetX is like Get, but panics if an error occurs.
-func (c *EmojiClient) GetX(ctx context.Context, id int) *Emoji {
+func (c *EmojiClient) GetX(ctx context.Context, id uuid.UUID) *Emoji {
 	obj, err := c.Get(ctx, id)
 	if err != nil {
 		panic(err)
 	}
 	return obj
+}
+
+// QueryKeywords queries the keywords edge of a Emoji.
+func (c *EmojiClient) QueryKeywords(_m *Emoji) *KeywordQuery {
+	query := (&KeywordClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(emoji.Table, emoji.FieldID, id),
+			sqlgraph.To(keyword.Table, keyword.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, false, emoji.KeywordsTable, emoji.KeywordsPrimaryKey...),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryEmojiKeywordScores queries the emoji_keyword_scores edge of a Emoji.
+func (c *EmojiClient) QueryEmojiKeywordScores(_m *Emoji) *EmojiKeywordScoreQuery {
+	query := (&EmojiKeywordScoreClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(emoji.Table, emoji.FieldID, id),
+			sqlgraph.To(emojikeywordscore.Table, emojikeywordscore.EmojiColumn),
+			sqlgraph.Edge(sqlgraph.O2M, true, emoji.EmojiKeywordScoresTable, emoji.EmojiKeywordScoresColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
 }
 
 // Hooks returns the client hooks.
@@ -1621,6 +1671,287 @@ func (c *EmojiClient) mutate(ctx context.Context, m *EmojiMutation) (Value, erro
 		return (&EmojiDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
 		return nil, fmt.Errorf("ent: unknown Emoji mutation op: %q", m.Op())
+	}
+}
+
+// EmojiKeywordScoreClient is a client for the EmojiKeywordScore schema.
+type EmojiKeywordScoreClient struct {
+	config
+}
+
+// NewEmojiKeywordScoreClient returns a client for the EmojiKeywordScore from the given config.
+func NewEmojiKeywordScoreClient(c config) *EmojiKeywordScoreClient {
+	return &EmojiKeywordScoreClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `emojikeywordscore.Hooks(f(g(h())))`.
+func (c *EmojiKeywordScoreClient) Use(hooks ...Hook) {
+	c.hooks.EmojiKeywordScore = append(c.hooks.EmojiKeywordScore, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `emojikeywordscore.Intercept(f(g(h())))`.
+func (c *EmojiKeywordScoreClient) Intercept(interceptors ...Interceptor) {
+	c.inters.EmojiKeywordScore = append(c.inters.EmojiKeywordScore, interceptors...)
+}
+
+// Create returns a builder for creating a EmojiKeywordScore entity.
+func (c *EmojiKeywordScoreClient) Create() *EmojiKeywordScoreCreate {
+	mutation := newEmojiKeywordScoreMutation(c.config, OpCreate)
+	return &EmojiKeywordScoreCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of EmojiKeywordScore entities.
+func (c *EmojiKeywordScoreClient) CreateBulk(builders ...*EmojiKeywordScoreCreate) *EmojiKeywordScoreCreateBulk {
+	return &EmojiKeywordScoreCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *EmojiKeywordScoreClient) MapCreateBulk(slice any, setFunc func(*EmojiKeywordScoreCreate, int)) *EmojiKeywordScoreCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &EmojiKeywordScoreCreateBulk{err: fmt.Errorf("calling to EmojiKeywordScoreClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*EmojiKeywordScoreCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &EmojiKeywordScoreCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for EmojiKeywordScore.
+func (c *EmojiKeywordScoreClient) Update() *EmojiKeywordScoreUpdate {
+	mutation := newEmojiKeywordScoreMutation(c.config, OpUpdate)
+	return &EmojiKeywordScoreUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *EmojiKeywordScoreClient) UpdateOne(_m *EmojiKeywordScore) *EmojiKeywordScoreUpdateOne {
+	mutation := newEmojiKeywordScoreMutation(c.config, OpUpdateOne)
+	mutation.emoji = &_m.EmojiID
+	mutation.keyword = &_m.KeywordID
+	return &EmojiKeywordScoreUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for EmojiKeywordScore.
+func (c *EmojiKeywordScoreClient) Delete() *EmojiKeywordScoreDelete {
+	mutation := newEmojiKeywordScoreMutation(c.config, OpDelete)
+	return &EmojiKeywordScoreDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Query returns a query builder for EmojiKeywordScore.
+func (c *EmojiKeywordScoreClient) Query() *EmojiKeywordScoreQuery {
+	return &EmojiKeywordScoreQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeEmojiKeywordScore},
+		inters: c.Interceptors(),
+	}
+}
+
+// QueryKeyword queries the keyword edge of a EmojiKeywordScore.
+func (c *EmojiKeywordScoreClient) QueryKeyword(_m *EmojiKeywordScore) *KeywordQuery {
+	return c.Query().
+		Where(emojikeywordscore.EmojiID(_m.EmojiID), emojikeywordscore.KeywordID(_m.KeywordID)).
+		QueryKeyword()
+}
+
+// QueryEmoji queries the emoji edge of a EmojiKeywordScore.
+func (c *EmojiKeywordScoreClient) QueryEmoji(_m *EmojiKeywordScore) *EmojiQuery {
+	return c.Query().
+		Where(emojikeywordscore.EmojiID(_m.EmojiID), emojikeywordscore.KeywordID(_m.KeywordID)).
+		QueryEmoji()
+}
+
+// Hooks returns the client hooks.
+func (c *EmojiKeywordScoreClient) Hooks() []Hook {
+	return c.hooks.EmojiKeywordScore
+}
+
+// Interceptors returns the client interceptors.
+func (c *EmojiKeywordScoreClient) Interceptors() []Interceptor {
+	return c.inters.EmojiKeywordScore
+}
+
+func (c *EmojiKeywordScoreClient) mutate(ctx context.Context, m *EmojiKeywordScoreMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&EmojiKeywordScoreCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&EmojiKeywordScoreUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&EmojiKeywordScoreUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&EmojiKeywordScoreDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown EmojiKeywordScore mutation op: %q", m.Op())
+	}
+}
+
+// KeywordClient is a client for the Keyword schema.
+type KeywordClient struct {
+	config
+}
+
+// NewKeywordClient returns a client for the Keyword from the given config.
+func NewKeywordClient(c config) *KeywordClient {
+	return &KeywordClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `keyword.Hooks(f(g(h())))`.
+func (c *KeywordClient) Use(hooks ...Hook) {
+	c.hooks.Keyword = append(c.hooks.Keyword, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `keyword.Intercept(f(g(h())))`.
+func (c *KeywordClient) Intercept(interceptors ...Interceptor) {
+	c.inters.Keyword = append(c.inters.Keyword, interceptors...)
+}
+
+// Create returns a builder for creating a Keyword entity.
+func (c *KeywordClient) Create() *KeywordCreate {
+	mutation := newKeywordMutation(c.config, OpCreate)
+	return &KeywordCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of Keyword entities.
+func (c *KeywordClient) CreateBulk(builders ...*KeywordCreate) *KeywordCreateBulk {
+	return &KeywordCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *KeywordClient) MapCreateBulk(slice any, setFunc func(*KeywordCreate, int)) *KeywordCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &KeywordCreateBulk{err: fmt.Errorf("calling to KeywordClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*KeywordCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &KeywordCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for Keyword.
+func (c *KeywordClient) Update() *KeywordUpdate {
+	mutation := newKeywordMutation(c.config, OpUpdate)
+	return &KeywordUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *KeywordClient) UpdateOne(_m *Keyword) *KeywordUpdateOne {
+	mutation := newKeywordMutation(c.config, OpUpdateOne, withKeyword(_m))
+	return &KeywordUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *KeywordClient) UpdateOneID(id uuid.UUID) *KeywordUpdateOne {
+	mutation := newKeywordMutation(c.config, OpUpdateOne, withKeywordID(id))
+	return &KeywordUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for Keyword.
+func (c *KeywordClient) Delete() *KeywordDelete {
+	mutation := newKeywordMutation(c.config, OpDelete)
+	return &KeywordDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *KeywordClient) DeleteOne(_m *Keyword) *KeywordDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *KeywordClient) DeleteOneID(id uuid.UUID) *KeywordDeleteOne {
+	builder := c.Delete().Where(keyword.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &KeywordDeleteOne{builder}
+}
+
+// Query returns a query builder for Keyword.
+func (c *KeywordClient) Query() *KeywordQuery {
+	return &KeywordQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeKeyword},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a Keyword entity by its id.
+func (c *KeywordClient) Get(ctx context.Context, id uuid.UUID) (*Keyword, error) {
+	return c.Query().Where(keyword.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *KeywordClient) GetX(ctx context.Context, id uuid.UUID) *Keyword {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryEmojis queries the emojis edge of a Keyword.
+func (c *KeywordClient) QueryEmojis(_m *Keyword) *EmojiQuery {
+	query := (&EmojiClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(keyword.Table, keyword.FieldID, id),
+			sqlgraph.To(emoji.Table, emoji.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, true, keyword.EmojisTable, keyword.EmojisPrimaryKey...),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryEmojiKeywordScores queries the emoji_keyword_scores edge of a Keyword.
+func (c *KeywordClient) QueryEmojiKeywordScores(_m *Keyword) *EmojiKeywordScoreQuery {
+	query := (&EmojiKeywordScoreClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(keyword.Table, keyword.FieldID, id),
+			sqlgraph.To(emojikeywordscore.Table, emojikeywordscore.KeywordColumn),
+			sqlgraph.Edge(sqlgraph.O2M, true, keyword.EmojiKeywordScoresTable, keyword.EmojiKeywordScoresColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *KeywordClient) Hooks() []Hook {
+	return c.hooks.Keyword
+}
+
+// Interceptors returns the client interceptors.
+func (c *KeywordClient) Interceptors() []Interceptor {
+	return c.inters.Keyword
+}
+
+func (c *KeywordClient) mutate(ctx context.Context, m *KeywordMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&KeywordCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&KeywordUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&KeywordUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&KeywordDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown Keyword mutation op: %q", m.Op())
 	}
 }
 
@@ -1793,10 +2124,12 @@ func (c *MediaRequestClient) mutate(ctx context.Context, m *MediaRequestMutation
 type (
 	hooks struct {
 		Book, BookAuthor, DiscordChannel, DiscordGuild, DiscordMessage,
-		DiscordMessageReaction, DiscordUser, Emoji, MediaRequest []ent.Hook
+		DiscordMessageReaction, DiscordUser, Emoji, EmojiKeywordScore, Keyword,
+		MediaRequest []ent.Hook
 	}
 	inters struct {
 		Book, BookAuthor, DiscordChannel, DiscordGuild, DiscordMessage,
-		DiscordMessageReaction, DiscordUser, Emoji, MediaRequest []ent.Interceptor
+		DiscordMessageReaction, DiscordUser, Emoji, EmojiKeywordScore, Keyword,
+		MediaRequest []ent.Interceptor
 	}
 )

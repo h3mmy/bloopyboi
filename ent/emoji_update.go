@@ -9,9 +9,10 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
-	"entgo.io/ent/dialect/sql/sqljson"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 	"github.com/h3mmy/bloopyboi/ent/emoji"
+	"github.com/h3mmy/bloopyboi/ent/keyword"
 	"github.com/h3mmy/bloopyboi/ent/predicate"
 )
 
@@ -70,27 +71,170 @@ func (_u *EmojiUpdate) SetNillableAnimated(v *bool) *EmojiUpdate {
 	return _u
 }
 
-// SetKeywords sets the "keywords" field.
-func (_u *EmojiUpdate) SetKeywords(v []string) *EmojiUpdate {
-	_u.mutation.SetKeywords(v)
+// SetImageURI sets the "image_uri" field.
+func (_u *EmojiUpdate) SetImageURI(v string) *EmojiUpdate {
+	_u.mutation.SetImageURI(v)
 	return _u
 }
 
-// AppendKeywords appends value to the "keywords" field.
-func (_u *EmojiUpdate) AppendKeywords(v []string) *EmojiUpdate {
-	_u.mutation.AppendKeywords(v)
+// SetNillableImageURI sets the "image_uri" field if the given value is not nil.
+func (_u *EmojiUpdate) SetNillableImageURI(v *string) *EmojiUpdate {
+	if v != nil {
+		_u.SetImageURI(*v)
+	}
 	return _u
 }
 
-// ClearKeywords clears the value of the "keywords" field.
-func (_u *EmojiUpdate) ClearKeywords() *EmojiUpdate {
-	_u.mutation.ClearKeywords()
+// ClearImageURI clears the value of the "image_uri" field.
+func (_u *EmojiUpdate) ClearImageURI() *EmojiUpdate {
+	_u.mutation.ClearImageURI()
 	return _u
+}
+
+// SetAdultLikelihood sets the "adult_likelihood" field.
+func (_u *EmojiUpdate) SetAdultLikelihood(v int) *EmojiUpdate {
+	_u.mutation.ResetAdultLikelihood()
+	_u.mutation.SetAdultLikelihood(v)
+	return _u
+}
+
+// SetNillableAdultLikelihood sets the "adult_likelihood" field if the given value is not nil.
+func (_u *EmojiUpdate) SetNillableAdultLikelihood(v *int) *EmojiUpdate {
+	if v != nil {
+		_u.SetAdultLikelihood(*v)
+	}
+	return _u
+}
+
+// AddAdultLikelihood adds value to the "adult_likelihood" field.
+func (_u *EmojiUpdate) AddAdultLikelihood(v int) *EmojiUpdate {
+	_u.mutation.AddAdultLikelihood(v)
+	return _u
+}
+
+// SetSpoofLikelihood sets the "spoof_likelihood" field.
+func (_u *EmojiUpdate) SetSpoofLikelihood(v int) *EmojiUpdate {
+	_u.mutation.ResetSpoofLikelihood()
+	_u.mutation.SetSpoofLikelihood(v)
+	return _u
+}
+
+// SetNillableSpoofLikelihood sets the "spoof_likelihood" field if the given value is not nil.
+func (_u *EmojiUpdate) SetNillableSpoofLikelihood(v *int) *EmojiUpdate {
+	if v != nil {
+		_u.SetSpoofLikelihood(*v)
+	}
+	return _u
+}
+
+// AddSpoofLikelihood adds value to the "spoof_likelihood" field.
+func (_u *EmojiUpdate) AddSpoofLikelihood(v int) *EmojiUpdate {
+	_u.mutation.AddSpoofLikelihood(v)
+	return _u
+}
+
+// SetMedicalLikelihood sets the "medical_likelihood" field.
+func (_u *EmojiUpdate) SetMedicalLikelihood(v int) *EmojiUpdate {
+	_u.mutation.ResetMedicalLikelihood()
+	_u.mutation.SetMedicalLikelihood(v)
+	return _u
+}
+
+// SetNillableMedicalLikelihood sets the "medical_likelihood" field if the given value is not nil.
+func (_u *EmojiUpdate) SetNillableMedicalLikelihood(v *int) *EmojiUpdate {
+	if v != nil {
+		_u.SetMedicalLikelihood(*v)
+	}
+	return _u
+}
+
+// AddMedicalLikelihood adds value to the "medical_likelihood" field.
+func (_u *EmojiUpdate) AddMedicalLikelihood(v int) *EmojiUpdate {
+	_u.mutation.AddMedicalLikelihood(v)
+	return _u
+}
+
+// SetViolenceLikelihood sets the "violence_likelihood" field.
+func (_u *EmojiUpdate) SetViolenceLikelihood(v int) *EmojiUpdate {
+	_u.mutation.ResetViolenceLikelihood()
+	_u.mutation.SetViolenceLikelihood(v)
+	return _u
+}
+
+// SetNillableViolenceLikelihood sets the "violence_likelihood" field if the given value is not nil.
+func (_u *EmojiUpdate) SetNillableViolenceLikelihood(v *int) *EmojiUpdate {
+	if v != nil {
+		_u.SetViolenceLikelihood(*v)
+	}
+	return _u
+}
+
+// AddViolenceLikelihood adds value to the "violence_likelihood" field.
+func (_u *EmojiUpdate) AddViolenceLikelihood(v int) *EmojiUpdate {
+	_u.mutation.AddViolenceLikelihood(v)
+	return _u
+}
+
+// SetRacyLikelihood sets the "racy_likelihood" field.
+func (_u *EmojiUpdate) SetRacyLikelihood(v int) *EmojiUpdate {
+	_u.mutation.ResetRacyLikelihood()
+	_u.mutation.SetRacyLikelihood(v)
+	return _u
+}
+
+// SetNillableRacyLikelihood sets the "racy_likelihood" field if the given value is not nil.
+func (_u *EmojiUpdate) SetNillableRacyLikelihood(v *int) *EmojiUpdate {
+	if v != nil {
+		_u.SetRacyLikelihood(*v)
+	}
+	return _u
+}
+
+// AddRacyLikelihood adds value to the "racy_likelihood" field.
+func (_u *EmojiUpdate) AddRacyLikelihood(v int) *EmojiUpdate {
+	_u.mutation.AddRacyLikelihood(v)
+	return _u
+}
+
+// AddKeywordIDs adds the "keywords" edge to the Keyword entity by IDs.
+func (_u *EmojiUpdate) AddKeywordIDs(ids ...uuid.UUID) *EmojiUpdate {
+	_u.mutation.AddKeywordIDs(ids...)
+	return _u
+}
+
+// AddKeywords adds the "keywords" edges to the Keyword entity.
+func (_u *EmojiUpdate) AddKeywords(v ...*Keyword) *EmojiUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddKeywordIDs(ids...)
 }
 
 // Mutation returns the EmojiMutation object of the builder.
 func (_u *EmojiUpdate) Mutation() *EmojiMutation {
 	return _u.mutation
+}
+
+// ClearKeywords clears all "keywords" edges to the Keyword entity.
+func (_u *EmojiUpdate) ClearKeywords() *EmojiUpdate {
+	_u.mutation.ClearKeywords()
+	return _u
+}
+
+// RemoveKeywordIDs removes the "keywords" edge to Keyword entities by IDs.
+func (_u *EmojiUpdate) RemoveKeywordIDs(ids ...uuid.UUID) *EmojiUpdate {
+	_u.mutation.RemoveKeywordIDs(ids...)
+	return _u
+}
+
+// RemoveKeywords removes "keywords" edges to Keyword entities.
+func (_u *EmojiUpdate) RemoveKeywords(v ...*Keyword) *EmojiUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveKeywordIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -134,7 +278,7 @@ func (_u *EmojiUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if err := _u.check(); err != nil {
 		return _node, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(emoji.Table, emoji.Columns, sqlgraph.NewFieldSpec(emoji.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(emoji.Table, emoji.Columns, sqlgraph.NewFieldSpec(emoji.FieldID, field.TypeUUID))
 	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
@@ -151,16 +295,86 @@ func (_u *EmojiUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if value, ok := _u.mutation.Animated(); ok {
 		_spec.SetField(emoji.FieldAnimated, field.TypeBool, value)
 	}
-	if value, ok := _u.mutation.Keywords(); ok {
-		_spec.SetField(emoji.FieldKeywords, field.TypeJSON, value)
+	if value, ok := _u.mutation.ImageURI(); ok {
+		_spec.SetField(emoji.FieldImageURI, field.TypeString, value)
 	}
-	if value, ok := _u.mutation.AppendedKeywords(); ok {
-		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, emoji.FieldKeywords, value)
-		})
+	if _u.mutation.ImageURICleared() {
+		_spec.ClearField(emoji.FieldImageURI, field.TypeString)
+	}
+	if value, ok := _u.mutation.AdultLikelihood(); ok {
+		_spec.SetField(emoji.FieldAdultLikelihood, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedAdultLikelihood(); ok {
+		_spec.AddField(emoji.FieldAdultLikelihood, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.SpoofLikelihood(); ok {
+		_spec.SetField(emoji.FieldSpoofLikelihood, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedSpoofLikelihood(); ok {
+		_spec.AddField(emoji.FieldSpoofLikelihood, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.MedicalLikelihood(); ok {
+		_spec.SetField(emoji.FieldMedicalLikelihood, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedMedicalLikelihood(); ok {
+		_spec.AddField(emoji.FieldMedicalLikelihood, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.ViolenceLikelihood(); ok {
+		_spec.SetField(emoji.FieldViolenceLikelihood, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedViolenceLikelihood(); ok {
+		_spec.AddField(emoji.FieldViolenceLikelihood, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.RacyLikelihood(); ok {
+		_spec.SetField(emoji.FieldRacyLikelihood, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedRacyLikelihood(); ok {
+		_spec.AddField(emoji.FieldRacyLikelihood, field.TypeInt, value)
 	}
 	if _u.mutation.KeywordsCleared() {
-		_spec.ClearField(emoji.FieldKeywords, field.TypeJSON)
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   emoji.KeywordsTable,
+			Columns: emoji.KeywordsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(keyword.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedKeywordsIDs(); len(nodes) > 0 && !_u.mutation.KeywordsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   emoji.KeywordsTable,
+			Columns: emoji.KeywordsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(keyword.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.KeywordsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   emoji.KeywordsTable,
+			Columns: emoji.KeywordsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(keyword.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -224,27 +438,170 @@ func (_u *EmojiUpdateOne) SetNillableAnimated(v *bool) *EmojiUpdateOne {
 	return _u
 }
 
-// SetKeywords sets the "keywords" field.
-func (_u *EmojiUpdateOne) SetKeywords(v []string) *EmojiUpdateOne {
-	_u.mutation.SetKeywords(v)
+// SetImageURI sets the "image_uri" field.
+func (_u *EmojiUpdateOne) SetImageURI(v string) *EmojiUpdateOne {
+	_u.mutation.SetImageURI(v)
 	return _u
 }
 
-// AppendKeywords appends value to the "keywords" field.
-func (_u *EmojiUpdateOne) AppendKeywords(v []string) *EmojiUpdateOne {
-	_u.mutation.AppendKeywords(v)
+// SetNillableImageURI sets the "image_uri" field if the given value is not nil.
+func (_u *EmojiUpdateOne) SetNillableImageURI(v *string) *EmojiUpdateOne {
+	if v != nil {
+		_u.SetImageURI(*v)
+	}
 	return _u
 }
 
-// ClearKeywords clears the value of the "keywords" field.
-func (_u *EmojiUpdateOne) ClearKeywords() *EmojiUpdateOne {
-	_u.mutation.ClearKeywords()
+// ClearImageURI clears the value of the "image_uri" field.
+func (_u *EmojiUpdateOne) ClearImageURI() *EmojiUpdateOne {
+	_u.mutation.ClearImageURI()
 	return _u
+}
+
+// SetAdultLikelihood sets the "adult_likelihood" field.
+func (_u *EmojiUpdateOne) SetAdultLikelihood(v int) *EmojiUpdateOne {
+	_u.mutation.ResetAdultLikelihood()
+	_u.mutation.SetAdultLikelihood(v)
+	return _u
+}
+
+// SetNillableAdultLikelihood sets the "adult_likelihood" field if the given value is not nil.
+func (_u *EmojiUpdateOne) SetNillableAdultLikelihood(v *int) *EmojiUpdateOne {
+	if v != nil {
+		_u.SetAdultLikelihood(*v)
+	}
+	return _u
+}
+
+// AddAdultLikelihood adds value to the "adult_likelihood" field.
+func (_u *EmojiUpdateOne) AddAdultLikelihood(v int) *EmojiUpdateOne {
+	_u.mutation.AddAdultLikelihood(v)
+	return _u
+}
+
+// SetSpoofLikelihood sets the "spoof_likelihood" field.
+func (_u *EmojiUpdateOne) SetSpoofLikelihood(v int) *EmojiUpdateOne {
+	_u.mutation.ResetSpoofLikelihood()
+	_u.mutation.SetSpoofLikelihood(v)
+	return _u
+}
+
+// SetNillableSpoofLikelihood sets the "spoof_likelihood" field if the given value is not nil.
+func (_u *EmojiUpdateOne) SetNillableSpoofLikelihood(v *int) *EmojiUpdateOne {
+	if v != nil {
+		_u.SetSpoofLikelihood(*v)
+	}
+	return _u
+}
+
+// AddSpoofLikelihood adds value to the "spoof_likelihood" field.
+func (_u *EmojiUpdateOne) AddSpoofLikelihood(v int) *EmojiUpdateOne {
+	_u.mutation.AddSpoofLikelihood(v)
+	return _u
+}
+
+// SetMedicalLikelihood sets the "medical_likelihood" field.
+func (_u *EmojiUpdateOne) SetMedicalLikelihood(v int) *EmojiUpdateOne {
+	_u.mutation.ResetMedicalLikelihood()
+	_u.mutation.SetMedicalLikelihood(v)
+	return _u
+}
+
+// SetNillableMedicalLikelihood sets the "medical_likelihood" field if the given value is not nil.
+func (_u *EmojiUpdateOne) SetNillableMedicalLikelihood(v *int) *EmojiUpdateOne {
+	if v != nil {
+		_u.SetMedicalLikelihood(*v)
+	}
+	return _u
+}
+
+// AddMedicalLikelihood adds value to the "medical_likelihood" field.
+func (_u *EmojiUpdateOne) AddMedicalLikelihood(v int) *EmojiUpdateOne {
+	_u.mutation.AddMedicalLikelihood(v)
+	return _u
+}
+
+// SetViolenceLikelihood sets the "violence_likelihood" field.
+func (_u *EmojiUpdateOne) SetViolenceLikelihood(v int) *EmojiUpdateOne {
+	_u.mutation.ResetViolenceLikelihood()
+	_u.mutation.SetViolenceLikelihood(v)
+	return _u
+}
+
+// SetNillableViolenceLikelihood sets the "violence_likelihood" field if the given value is not nil.
+func (_u *EmojiUpdateOne) SetNillableViolenceLikelihood(v *int) *EmojiUpdateOne {
+	if v != nil {
+		_u.SetViolenceLikelihood(*v)
+	}
+	return _u
+}
+
+// AddViolenceLikelihood adds value to the "violence_likelihood" field.
+func (_u *EmojiUpdateOne) AddViolenceLikelihood(v int) *EmojiUpdateOne {
+	_u.mutation.AddViolenceLikelihood(v)
+	return _u
+}
+
+// SetRacyLikelihood sets the "racy_likelihood" field.
+func (_u *EmojiUpdateOne) SetRacyLikelihood(v int) *EmojiUpdateOne {
+	_u.mutation.ResetRacyLikelihood()
+	_u.mutation.SetRacyLikelihood(v)
+	return _u
+}
+
+// SetNillableRacyLikelihood sets the "racy_likelihood" field if the given value is not nil.
+func (_u *EmojiUpdateOne) SetNillableRacyLikelihood(v *int) *EmojiUpdateOne {
+	if v != nil {
+		_u.SetRacyLikelihood(*v)
+	}
+	return _u
+}
+
+// AddRacyLikelihood adds value to the "racy_likelihood" field.
+func (_u *EmojiUpdateOne) AddRacyLikelihood(v int) *EmojiUpdateOne {
+	_u.mutation.AddRacyLikelihood(v)
+	return _u
+}
+
+// AddKeywordIDs adds the "keywords" edge to the Keyword entity by IDs.
+func (_u *EmojiUpdateOne) AddKeywordIDs(ids ...uuid.UUID) *EmojiUpdateOne {
+	_u.mutation.AddKeywordIDs(ids...)
+	return _u
+}
+
+// AddKeywords adds the "keywords" edges to the Keyword entity.
+func (_u *EmojiUpdateOne) AddKeywords(v ...*Keyword) *EmojiUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddKeywordIDs(ids...)
 }
 
 // Mutation returns the EmojiMutation object of the builder.
 func (_u *EmojiUpdateOne) Mutation() *EmojiMutation {
 	return _u.mutation
+}
+
+// ClearKeywords clears all "keywords" edges to the Keyword entity.
+func (_u *EmojiUpdateOne) ClearKeywords() *EmojiUpdateOne {
+	_u.mutation.ClearKeywords()
+	return _u
+}
+
+// RemoveKeywordIDs removes the "keywords" edge to Keyword entities by IDs.
+func (_u *EmojiUpdateOne) RemoveKeywordIDs(ids ...uuid.UUID) *EmojiUpdateOne {
+	_u.mutation.RemoveKeywordIDs(ids...)
+	return _u
+}
+
+// RemoveKeywords removes "keywords" edges to Keyword entities.
+func (_u *EmojiUpdateOne) RemoveKeywords(v ...*Keyword) *EmojiUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveKeywordIDs(ids...)
 }
 
 // Where appends a list predicates to the EmojiUpdate builder.
@@ -301,7 +658,7 @@ func (_u *EmojiUpdateOne) sqlSave(ctx context.Context) (_node *Emoji, err error)
 	if err := _u.check(); err != nil {
 		return _node, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(emoji.Table, emoji.Columns, sqlgraph.NewFieldSpec(emoji.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewUpdateSpec(emoji.Table, emoji.Columns, sqlgraph.NewFieldSpec(emoji.FieldID, field.TypeUUID))
 	id, ok := _u.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "Emoji.id" for update`)}
@@ -335,16 +692,86 @@ func (_u *EmojiUpdateOne) sqlSave(ctx context.Context) (_node *Emoji, err error)
 	if value, ok := _u.mutation.Animated(); ok {
 		_spec.SetField(emoji.FieldAnimated, field.TypeBool, value)
 	}
-	if value, ok := _u.mutation.Keywords(); ok {
-		_spec.SetField(emoji.FieldKeywords, field.TypeJSON, value)
+	if value, ok := _u.mutation.ImageURI(); ok {
+		_spec.SetField(emoji.FieldImageURI, field.TypeString, value)
 	}
-	if value, ok := _u.mutation.AppendedKeywords(); ok {
-		_spec.AddModifier(func(u *sql.UpdateBuilder) {
-			sqljson.Append(u, emoji.FieldKeywords, value)
-		})
+	if _u.mutation.ImageURICleared() {
+		_spec.ClearField(emoji.FieldImageURI, field.TypeString)
+	}
+	if value, ok := _u.mutation.AdultLikelihood(); ok {
+		_spec.SetField(emoji.FieldAdultLikelihood, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedAdultLikelihood(); ok {
+		_spec.AddField(emoji.FieldAdultLikelihood, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.SpoofLikelihood(); ok {
+		_spec.SetField(emoji.FieldSpoofLikelihood, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedSpoofLikelihood(); ok {
+		_spec.AddField(emoji.FieldSpoofLikelihood, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.MedicalLikelihood(); ok {
+		_spec.SetField(emoji.FieldMedicalLikelihood, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedMedicalLikelihood(); ok {
+		_spec.AddField(emoji.FieldMedicalLikelihood, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.ViolenceLikelihood(); ok {
+		_spec.SetField(emoji.FieldViolenceLikelihood, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedViolenceLikelihood(); ok {
+		_spec.AddField(emoji.FieldViolenceLikelihood, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.RacyLikelihood(); ok {
+		_spec.SetField(emoji.FieldRacyLikelihood, field.TypeInt, value)
+	}
+	if value, ok := _u.mutation.AddedRacyLikelihood(); ok {
+		_spec.AddField(emoji.FieldRacyLikelihood, field.TypeInt, value)
 	}
 	if _u.mutation.KeywordsCleared() {
-		_spec.ClearField(emoji.FieldKeywords, field.TypeJSON)
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   emoji.KeywordsTable,
+			Columns: emoji.KeywordsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(keyword.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedKeywordsIDs(); len(nodes) > 0 && !_u.mutation.KeywordsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   emoji.KeywordsTable,
+			Columns: emoji.KeywordsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(keyword.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.KeywordsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   emoji.KeywordsTable,
+			Columns: emoji.KeywordsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(keyword.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_node = &Emoji{config: _u.config}
 	_spec.Assign = _node.assignValues

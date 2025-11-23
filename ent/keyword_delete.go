@@ -8,30 +8,30 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/h3mmy/bloopyboi/ent/emoji"
+	"github.com/h3mmy/bloopyboi/ent/keyword"
 	"github.com/h3mmy/bloopyboi/ent/predicate"
 )
 
-// EmojiDelete is the builder for deleting a Emoji entity.
-type EmojiDelete struct {
+// KeywordDelete is the builder for deleting a Keyword entity.
+type KeywordDelete struct {
 	config
 	hooks    []Hook
-	mutation *EmojiMutation
+	mutation *KeywordMutation
 }
 
-// Where appends a list predicates to the EmojiDelete builder.
-func (_d *EmojiDelete) Where(ps ...predicate.Emoji) *EmojiDelete {
+// Where appends a list predicates to the KeywordDelete builder.
+func (_d *KeywordDelete) Where(ps ...predicate.Keyword) *KeywordDelete {
 	_d.mutation.Where(ps...)
 	return _d
 }
 
 // Exec executes the deletion query and returns how many vertices were deleted.
-func (_d *EmojiDelete) Exec(ctx context.Context) (int, error) {
+func (_d *KeywordDelete) Exec(ctx context.Context) (int, error) {
 	return withHooks(ctx, _d.sqlExec, _d.mutation, _d.hooks)
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (_d *EmojiDelete) ExecX(ctx context.Context) int {
+func (_d *KeywordDelete) ExecX(ctx context.Context) int {
 	n, err := _d.Exec(ctx)
 	if err != nil {
 		panic(err)
@@ -39,8 +39,8 @@ func (_d *EmojiDelete) ExecX(ctx context.Context) int {
 	return n
 }
 
-func (_d *EmojiDelete) sqlExec(ctx context.Context) (int, error) {
-	_spec := sqlgraph.NewDeleteSpec(emoji.Table, sqlgraph.NewFieldSpec(emoji.FieldID, field.TypeUUID))
+func (_d *KeywordDelete) sqlExec(ctx context.Context) (int, error) {
+	_spec := sqlgraph.NewDeleteSpec(keyword.Table, sqlgraph.NewFieldSpec(keyword.FieldID, field.TypeUUID))
 	if ps := _d.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
@@ -56,32 +56,32 @@ func (_d *EmojiDelete) sqlExec(ctx context.Context) (int, error) {
 	return affected, err
 }
 
-// EmojiDeleteOne is the builder for deleting a single Emoji entity.
-type EmojiDeleteOne struct {
-	_d *EmojiDelete
+// KeywordDeleteOne is the builder for deleting a single Keyword entity.
+type KeywordDeleteOne struct {
+	_d *KeywordDelete
 }
 
-// Where appends a list predicates to the EmojiDelete builder.
-func (_d *EmojiDeleteOne) Where(ps ...predicate.Emoji) *EmojiDeleteOne {
+// Where appends a list predicates to the KeywordDelete builder.
+func (_d *KeywordDeleteOne) Where(ps ...predicate.Keyword) *KeywordDeleteOne {
 	_d._d.mutation.Where(ps...)
 	return _d
 }
 
 // Exec executes the deletion query.
-func (_d *EmojiDeleteOne) Exec(ctx context.Context) error {
+func (_d *KeywordDeleteOne) Exec(ctx context.Context) error {
 	n, err := _d._d.Exec(ctx)
 	switch {
 	case err != nil:
 		return err
 	case n == 0:
-		return &NotFoundError{emoji.Label}
+		return &NotFoundError{keyword.Label}
 	default:
 		return nil
 	}
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (_d *EmojiDeleteOne) ExecX(ctx context.Context) {
+func (_d *KeywordDeleteOne) ExecX(ctx context.Context) {
 	if err := _d.Exec(ctx); err != nil {
 		panic(err)
 	}

@@ -105,6 +105,30 @@ func (f EmojiFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.EmojiMutation", m)
 }
 
+// The EmojiKeywordScoreFunc type is an adapter to allow the use of ordinary
+// function as EmojiKeywordScore mutator.
+type EmojiKeywordScoreFunc func(context.Context, *ent.EmojiKeywordScoreMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f EmojiKeywordScoreFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.EmojiKeywordScoreMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.EmojiKeywordScoreMutation", m)
+}
+
+// The KeywordFunc type is an adapter to allow the use of ordinary
+// function as Keyword mutator.
+type KeywordFunc func(context.Context, *ent.KeywordMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f KeywordFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.KeywordMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.KeywordMutation", m)
+}
+
 // The MediaRequestFunc type is an adapter to allow the use of ordinary
 // function as MediaRequest mutator.
 type MediaRequestFunc func(context.Context, *ent.MediaRequestMutation) (ent.Value, error)

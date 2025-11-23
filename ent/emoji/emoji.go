@@ -4,6 +4,8 @@ package emoji
 
 import (
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/google/uuid"
 )
 
 const (
@@ -17,10 +19,36 @@ const (
 	FieldName = "name"
 	// FieldAnimated holds the string denoting the animated field in the database.
 	FieldAnimated = "animated"
-	// FieldKeywords holds the string denoting the keywords field in the database.
-	FieldKeywords = "keywords"
+	// FieldImageURI holds the string denoting the image_uri field in the database.
+	FieldImageURI = "image_uri"
+	// FieldAdultLikelihood holds the string denoting the adult_likelihood field in the database.
+	FieldAdultLikelihood = "adult_likelihood"
+	// FieldSpoofLikelihood holds the string denoting the spoof_likelihood field in the database.
+	FieldSpoofLikelihood = "spoof_likelihood"
+	// FieldMedicalLikelihood holds the string denoting the medical_likelihood field in the database.
+	FieldMedicalLikelihood = "medical_likelihood"
+	// FieldViolenceLikelihood holds the string denoting the violence_likelihood field in the database.
+	FieldViolenceLikelihood = "violence_likelihood"
+	// FieldRacyLikelihood holds the string denoting the racy_likelihood field in the database.
+	FieldRacyLikelihood = "racy_likelihood"
+	// EdgeKeywords holds the string denoting the keywords edge name in mutations.
+	EdgeKeywords = "keywords"
+	// EdgeEmojiKeywordScores holds the string denoting the emoji_keyword_scores edge name in mutations.
+	EdgeEmojiKeywordScores = "emoji_keyword_scores"
 	// Table holds the table name of the emoji in the database.
 	Table = "emojis"
+	// KeywordsTable is the table that holds the keywords relation/edge. The primary key declared below.
+	KeywordsTable = "emoji_keyword_scores"
+	// KeywordsInverseTable is the table name for the Keyword entity.
+	// It exists in this package in order to avoid circular dependency with the "keyword" package.
+	KeywordsInverseTable = "keywords"
+	// EmojiKeywordScoresTable is the table that holds the emoji_keyword_scores relation/edge.
+	EmojiKeywordScoresTable = "emoji_keyword_scores"
+	// EmojiKeywordScoresInverseTable is the table name for the EmojiKeywordScore entity.
+	// It exists in this package in order to avoid circular dependency with the "emojikeywordscore" package.
+	EmojiKeywordScoresInverseTable = "emoji_keyword_scores"
+	// EmojiKeywordScoresColumn is the table column denoting the emoji_keyword_scores relation/edge.
+	EmojiKeywordScoresColumn = "emoji_id"
 )
 
 // Columns holds all SQL columns for emoji fields.
@@ -29,8 +57,19 @@ var Columns = []string{
 	FieldEmojiID,
 	FieldName,
 	FieldAnimated,
-	FieldKeywords,
+	FieldImageURI,
+	FieldAdultLikelihood,
+	FieldSpoofLikelihood,
+	FieldMedicalLikelihood,
+	FieldViolenceLikelihood,
+	FieldRacyLikelihood,
 }
+
+var (
+	// KeywordsPrimaryKey and KeywordsColumn2 are the table columns denoting the
+	// primary key for the keywords relation (M2M).
+	KeywordsPrimaryKey = []string{"emoji_id", "keyword_id"}
+)
 
 // ValidColumn reports if the column name is valid (part of the table columns).
 func ValidColumn(column string) bool {
@@ -47,6 +86,18 @@ var (
 	NameValidator func(string) error
 	// DefaultAnimated holds the default value on creation for the "animated" field.
 	DefaultAnimated bool
+	// DefaultAdultLikelihood holds the default value on creation for the "adult_likelihood" field.
+	DefaultAdultLikelihood int
+	// DefaultSpoofLikelihood holds the default value on creation for the "spoof_likelihood" field.
+	DefaultSpoofLikelihood int
+	// DefaultMedicalLikelihood holds the default value on creation for the "medical_likelihood" field.
+	DefaultMedicalLikelihood int
+	// DefaultViolenceLikelihood holds the default value on creation for the "violence_likelihood" field.
+	DefaultViolenceLikelihood int
+	// DefaultRacyLikelihood holds the default value on creation for the "racy_likelihood" field.
+	DefaultRacyLikelihood int
+	// DefaultID holds the default value on creation for the "id" field.
+	DefaultID func() uuid.UUID
 )
 
 // OrderOption defines the ordering options for the Emoji queries.
@@ -70,4 +121,76 @@ func ByName(opts ...sql.OrderTermOption) OrderOption {
 // ByAnimated orders the results by the animated field.
 func ByAnimated(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldAnimated, opts...).ToFunc()
+}
+
+// ByImageURI orders the results by the image_uri field.
+func ByImageURI(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldImageURI, opts...).ToFunc()
+}
+
+// ByAdultLikelihood orders the results by the adult_likelihood field.
+func ByAdultLikelihood(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldAdultLikelihood, opts...).ToFunc()
+}
+
+// BySpoofLikelihood orders the results by the spoof_likelihood field.
+func BySpoofLikelihood(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldSpoofLikelihood, opts...).ToFunc()
+}
+
+// ByMedicalLikelihood orders the results by the medical_likelihood field.
+func ByMedicalLikelihood(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldMedicalLikelihood, opts...).ToFunc()
+}
+
+// ByViolenceLikelihood orders the results by the violence_likelihood field.
+func ByViolenceLikelihood(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldViolenceLikelihood, opts...).ToFunc()
+}
+
+// ByRacyLikelihood orders the results by the racy_likelihood field.
+func ByRacyLikelihood(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldRacyLikelihood, opts...).ToFunc()
+}
+
+// ByKeywordsCount orders the results by keywords count.
+func ByKeywordsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newKeywordsStep(), opts...)
+	}
+}
+
+// ByKeywords orders the results by keywords terms.
+func ByKeywords(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newKeywordsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+
+// ByEmojiKeywordScoresCount orders the results by emoji_keyword_scores count.
+func ByEmojiKeywordScoresCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newEmojiKeywordScoresStep(), opts...)
+	}
+}
+
+// ByEmojiKeywordScores orders the results by emoji_keyword_scores terms.
+func ByEmojiKeywordScores(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newEmojiKeywordScoresStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+func newKeywordsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(KeywordsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2M, false, KeywordsTable, KeywordsPrimaryKey...),
+	)
+}
+func newEmojiKeywordScoresStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(EmojiKeywordScoresInverseTable, EmojiKeywordScoresColumn),
+		sqlgraph.Edge(sqlgraph.O2M, true, EmojiKeywordScoresTable, EmojiKeywordScoresColumn),
+	)
 }

@@ -28,6 +28,10 @@ type Tx struct {
 	DiscordUser *DiscordUserClient
 	// Emoji is the client for interacting with the Emoji builders.
 	Emoji *EmojiClient
+	// EmojiKeywordScore is the client for interacting with the EmojiKeywordScore builders.
+	EmojiKeywordScore *EmojiKeywordScoreClient
+	// Keyword is the client for interacting with the Keyword builders.
+	Keyword *KeywordClient
 	// MediaRequest is the client for interacting with the MediaRequest builders.
 	MediaRequest *MediaRequestClient
 
@@ -169,6 +173,8 @@ func (tx *Tx) init() {
 	tx.DiscordMessageReaction = NewDiscordMessageReactionClient(tx.config)
 	tx.DiscordUser = NewDiscordUserClient(tx.config)
 	tx.Emoji = NewEmojiClient(tx.config)
+	tx.EmojiKeywordScore = NewEmojiKeywordScoreClient(tx.config)
+	tx.Keyword = NewKeywordClient(tx.config)
 	tx.MediaRequest = NewMediaRequestClient(tx.config)
 }
 
