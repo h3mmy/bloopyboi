@@ -3,6 +3,7 @@ package providers
 import (
 	"fmt"
 
+	"github.com/gorilla/sessions"
 	"github.com/h3mmy/bloopyboi/pkg/config"
 	"golang.org/x/oauth2"
 )
@@ -37,4 +38,19 @@ func GetDiscordOauthConfig() *oauth2.Config {
 			TokenURL: "https://discord.com/api/oauth2/token",
 		},
 	}
+}
+
+func GetCookieStore() *sessions.CookieStore {
+	appConfig := config.GetConfig()
+	if len(appConfig.HttpConfig.CookieSecrets) == 0 {
+		logger.Warn("No Cookie Secret found. Will generate a random one, but this will be lost on restart")
+		generatedSecret := GenerateRandomKey(64)
+		return sessions.NewCookieStore(generatedSecret)
+	}
+	secrets := [][]byte{}
+	// Auth/Enc keypairs. enc key can be nil.
+	for _, secret := range appConfig.HttpConfig.CookieSecrets {
+		secrets = append(secrets, []byte(secret))
+	}
+	return sessions.NewCookieStore(secrets...)
 }
