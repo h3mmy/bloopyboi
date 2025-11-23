@@ -582,7 +582,6 @@ func (d *DiscordService) IngestGuildEmojis(ctx context.Context, guildID string) 
 				SetEmojiID(emoji.ID).
 				SetName(emoji.Name).
 				SetAnimated(emoji.Animated).
-				SetKeywords(analysis.GetKeywordsSortedByScore()).
 				OnConflict(sql.ConflictColumns("emoji_id")).
 				UpdateNewValues().
 				Exec(ctx)

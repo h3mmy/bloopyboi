@@ -17,6 +17,7 @@ type TypingIndicatorChange struct {
 }
 
 type DiscordEmojiAnalysisResult struct {
+	ImageURI       string
 	Emoji          *discordgo.Emoji
 	AnalysisResult *ImageAnalysis
 }
