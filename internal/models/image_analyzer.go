@@ -80,7 +80,7 @@ func (ia *ImageAnalysis) GetKeywords() []string {
 func (ia *ImageAnalysis) GetKeywordsSortedByScore() []string {
 	var keywords []string
 	sortingLabels := ia.Labels
-	sort.Slice(ia.Labels, func(i, j int) bool {
+	sort.Slice(sortingLabels, func(i, j int) bool {
 		return sortingLabels[i].Score > sortingLabels[j].Score
 	})
 	for _, label := range sortingLabels {

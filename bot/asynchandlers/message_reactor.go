@@ -3,14 +3,15 @@ package asynchandlers
 import (
 	"fmt"
 	"math/rand"
+	"sort"
 	"time"
 
 	"github.com/adrg/strutil/metrics"
+	rake "github.com/afjoseph/RAKE.go"
 	"github.com/bwmarrin/discordgo"
 	"github.com/h3mmy/bloopyboi/internal/discord"
 	"github.com/h3mmy/bloopyboi/internal/models"
 	log "github.com/h3mmy/bloopyboi/pkg/logs"
-	rake "github.com/afjoseph/RAKE.go"
 	"go.uber.org/zap"
 )
 
@@ -74,7 +75,7 @@ func (mr *MessageReactor) ShouldAddReaction(s *discordgo.Session, m *discordgo.M
 		// react to the referenced message
 		// s.ChannelMessage(m.ChannelID, m.ID)
 		if m.ReferencedMessage.GuildID == "" {
-		    m.ReferencedMessage.GuildID = m.GuildID
+			m.ReferencedMessage.GuildID = m.GuildID
 		}
 		err := mr.ReactToMessage(s, m.ReferencedMessage)
 		if err != nil {
@@ -155,27 +156,41 @@ func (mr *MessageReactor) FindSimilarEmoji(m *discordgo.Message, emojiPool []*di
 	logger := mr.logger.With(zap.String("method", "FindSimilarEmoji"), zap.String("messageID", m.ID))
 
 	keywords := rake.RunRake(m.Content)
-	
+
 	logger.Debug("Extracted keywords", zap.Int("keyword_ct", len(keywords)))
-	
+
 	// TODO: Extract minimum and maximum scores
 
 	oc := metrics.NewOverlapCoefficient()
 	revisedEmojiPool := []*discordgo.Emoji{}
 	keywordScores := make(map[string]float64)
-
-	for _, keyword := range keywords {
+	keywordScoreList := make([]rake.Pair, len(keywords))
+	for i, keyword := range keywords {
 		keywordScores[keyword.Key] = keyword.Value
+		keywordScoreList[i] = keyword
 	}
-	
+	sort.Slice(keywordScoreList, func(i, j int) bool {
+		return keywordScoreList[i].Value > keywordScoreList[j].Value
+	})
+
 	logger.Debug("mapped keyword scores", zap.Any("keyword_scores", keywordScores))
 
+	keywordLim := 5
+	if len(keywordScoreList) < keywordLim {
+		keywordLim = len(keywordScoreList)
+	}
+
 	for _, emoji := range emojiPool {
-		for keyword, score := range keywordScores {
+		for _, keywordScore := range keywordScoreList[:keywordLim] {
+			keyword := keywordScore.Key
+			score := keywordScore.Value
 			sim := oc.Compare(emoji.Name, keyword)
 			// TODO: Replace this static sim score with average/median from min/max instead
 			if sim > 0.3 {
-				logger.Debug(fmt.Sprintf("Adding with similarity score: .2%f", sim), zap.String("emoji", emoji.Name), zap.String("keyword", keyword), zap.Float64("score", score))
+				logger.Debug(fmt.Sprintf("Adding with similarity score: .2%f", sim),
+					zap.String("emoji", emoji.Name),
+					zap.String("keyword", keyword),
+					zap.Float64("rake_keyword_score", score))
 				revisedEmojiPool = append(revisedEmojiPool, emoji)
 			}
 		}

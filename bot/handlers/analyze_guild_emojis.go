@@ -46,25 +46,10 @@ func (i *ImageAnalysisHandler) ProcessGuildEmojis(ctx context.Context, emoji []*
 			logr.Error("failed to process emoji", zap.String("emoji_id", e.ID), zap.Error(err))
 			continue
 		}
-		// TODO: Complete properly after schema redesign. Will require some thought
-		err = database.WithTx(ctxf, i.db, func(tx *ent.Tx) error {
-			return tx.Emoji.
-				Create().
-				SetEmojiID(e.ID).
-				SetAnimated(e.Animated).
-				SetName(e.Name).
-				SetImageURI(analysis.ImageURI).
-				SetAdultLikelihood(int(analysis.AnalysisResult.SafeSearchAnalysis.Adult)).
-				SetRacyLikelihood(int(analysis.AnalysisResult.SafeSearchAnalysis.Racy)).
-				SetSpoofLikelihood(int(analysis.AnalysisResult.SafeSearchAnalysis.Spoof)).
-				SetViolenceLikelihood(int(analysis.AnalysisResult.SafeSearchAnalysis.Violence)).
-				SetMedicalLikelihood(int(analysis.AnalysisResult.SafeSearchAnalysis.Medical)).
-				OnConflict(sql.ConflictColumns("emoji_id")).
-				UpdateNewValues().
-				Exec(ctxf)
-		})
+
+		err = i.SaveDiscordEmojiWithAnalysis(ctx, analysis)
 		if err != nil {
-			logr.Error("failed to create emoji", zap.String("emoji_id", e.ID), zap.Error(err))
+			logr.Error("failed to persist emoji analysis", zap.String("emoji_id", e.ID), zap.Error(err))
 			continue
 		}
 	}
