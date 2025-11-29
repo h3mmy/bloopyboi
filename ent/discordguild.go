@@ -43,12 +43,15 @@ type DiscordGuildEdges struct {
 	DiscordMessages []*DiscordMessage `json:"discord_messages,omitempty"`
 	// GuildChannels holds the value of the guild_channels edge.
 	GuildChannels []*DiscordChannel `json:"guild_channels,omitempty"`
+	// GuildEmojis holds the value of the guild_emojis edge.
+	GuildEmojis []*Emoji `json:"guild_emojis,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes          [3]bool
+	loadedTypes          [4]bool
 	namedMembers         map[string][]*DiscordUser
 	namedDiscordMessages map[string][]*DiscordMessage
 	namedGuildChannels   map[string][]*DiscordChannel
+	namedGuildEmojis     map[string][]*Emoji
 }
 
 // MembersOrErr returns the Members value or an error if the edge
@@ -76,6 +79,15 @@ func (e DiscordGuildEdges) GuildChannelsOrErr() ([]*DiscordChannel, error) {
 		return e.GuildChannels, nil
 	}
 	return nil, &NotLoadedError{edge: "guild_channels"}
+}
+
+// GuildEmojisOrErr returns the GuildEmojis value or an error if the edge
+// was not loaded in eager-loading.
+func (e DiscordGuildEdges) GuildEmojisOrErr() ([]*Emoji, error) {
+	if e.loadedTypes[3] {
+		return e.GuildEmojis, nil
+	}
+	return nil, &NotLoadedError{edge: "guild_emojis"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -172,6 +184,11 @@ func (_m *DiscordGuild) QueryDiscordMessages() *DiscordMessageQuery {
 // QueryGuildChannels queries the "guild_channels" edge of the DiscordGuild entity.
 func (_m *DiscordGuild) QueryGuildChannels() *DiscordChannelQuery {
 	return NewDiscordGuildClient(_m.config).QueryGuildChannels(_m)
+}
+
+// QueryGuildEmojis queries the "guild_emojis" edge of the DiscordGuild entity.
+func (_m *DiscordGuild) QueryGuildEmojis() *EmojiQuery {
+	return NewDiscordGuildClient(_m.config).QueryGuildEmojis(_m)
 }
 
 // Update returns a builder for updating this DiscordGuild.
@@ -287,6 +304,30 @@ func (_m *DiscordGuild) appendNamedGuildChannels(name string, edges ...*DiscordC
 		_m.Edges.namedGuildChannels[name] = []*DiscordChannel{}
 	} else {
 		_m.Edges.namedGuildChannels[name] = append(_m.Edges.namedGuildChannels[name], edges...)
+	}
+}
+
+// NamedGuildEmojis returns the GuildEmojis named value or an error if the edge was not
+// loaded in eager-loading with this name.
+func (_m *DiscordGuild) NamedGuildEmojis(name string) ([]*Emoji, error) {
+	if _m.Edges.namedGuildEmojis == nil {
+		return nil, &NotLoadedError{edge: name}
+	}
+	nodes, ok := _m.Edges.namedGuildEmojis[name]
+	if !ok {
+		return nil, &NotLoadedError{edge: name}
+	}
+	return nodes, nil
+}
+
+func (_m *DiscordGuild) appendNamedGuildEmojis(name string, edges ...*Emoji) {
+	if _m.Edges.namedGuildEmojis == nil {
+		_m.Edges.namedGuildEmojis = make(map[string][]*Emoji)
+	}
+	if len(edges) == 0 {
+		_m.Edges.namedGuildEmojis[name] = []*Emoji{}
+	} else {
+		_m.Edges.namedGuildEmojis[name] = append(_m.Edges.namedGuildEmojis[name], edges...)
 	}
 }
 

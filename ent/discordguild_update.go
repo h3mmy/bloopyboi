@@ -15,6 +15,7 @@ import (
 	"github.com/h3mmy/bloopyboi/ent/discordguild"
 	"github.com/h3mmy/bloopyboi/ent/discordmessage"
 	"github.com/h3mmy/bloopyboi/ent/discorduser"
+	"github.com/h3mmy/bloopyboi/ent/emoji"
 	"github.com/h3mmy/bloopyboi/ent/predicate"
 )
 
@@ -191,6 +192,21 @@ func (_u *DiscordGuildUpdate) AddGuildChannels(v ...*DiscordChannel) *DiscordGui
 	return _u.AddGuildChannelIDs(ids...)
 }
 
+// AddGuildEmojiIDs adds the "guild_emojis" edge to the Emoji entity by IDs.
+func (_u *DiscordGuildUpdate) AddGuildEmojiIDs(ids ...uuid.UUID) *DiscordGuildUpdate {
+	_u.mutation.AddGuildEmojiIDs(ids...)
+	return _u
+}
+
+// AddGuildEmojis adds the "guild_emojis" edges to the Emoji entity.
+func (_u *DiscordGuildUpdate) AddGuildEmojis(v ...*Emoji) *DiscordGuildUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddGuildEmojiIDs(ids...)
+}
+
 // Mutation returns the DiscordGuildMutation object of the builder.
 func (_u *DiscordGuildUpdate) Mutation() *DiscordGuildMutation {
 	return _u.mutation
@@ -257,6 +273,27 @@ func (_u *DiscordGuildUpdate) RemoveGuildChannels(v ...*DiscordChannel) *Discord
 		ids[i] = v[i].ID
 	}
 	return _u.RemoveGuildChannelIDs(ids...)
+}
+
+// ClearGuildEmojis clears all "guild_emojis" edges to the Emoji entity.
+func (_u *DiscordGuildUpdate) ClearGuildEmojis() *DiscordGuildUpdate {
+	_u.mutation.ClearGuildEmojis()
+	return _u
+}
+
+// RemoveGuildEmojiIDs removes the "guild_emojis" edge to Emoji entities by IDs.
+func (_u *DiscordGuildUpdate) RemoveGuildEmojiIDs(ids ...uuid.UUID) *DiscordGuildUpdate {
+	_u.mutation.RemoveGuildEmojiIDs(ids...)
+	return _u
+}
+
+// RemoveGuildEmojis removes "guild_emojis" edges to Emoji entities.
+func (_u *DiscordGuildUpdate) RemoveGuildEmojis(v ...*Emoji) *DiscordGuildUpdate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveGuildEmojiIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -463,6 +500,51 @@ func (_u *DiscordGuildUpdate) sqlSave(ctx context.Context) (_node int, err error
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
+	if _u.mutation.GuildEmojisCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   discordguild.GuildEmojisTable,
+			Columns: []string{discordguild.GuildEmojisColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(emoji.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedGuildEmojisIDs(); len(nodes) > 0 && !_u.mutation.GuildEmojisCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   discordguild.GuildEmojisTable,
+			Columns: []string{discordguild.GuildEmojisColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(emoji.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.GuildEmojisIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   discordguild.GuildEmojisTable,
+			Columns: []string{discordguild.GuildEmojisColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(emoji.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{discordguild.Label}
@@ -643,6 +725,21 @@ func (_u *DiscordGuildUpdateOne) AddGuildChannels(v ...*DiscordChannel) *Discord
 	return _u.AddGuildChannelIDs(ids...)
 }
 
+// AddGuildEmojiIDs adds the "guild_emojis" edge to the Emoji entity by IDs.
+func (_u *DiscordGuildUpdateOne) AddGuildEmojiIDs(ids ...uuid.UUID) *DiscordGuildUpdateOne {
+	_u.mutation.AddGuildEmojiIDs(ids...)
+	return _u
+}
+
+// AddGuildEmojis adds the "guild_emojis" edges to the Emoji entity.
+func (_u *DiscordGuildUpdateOne) AddGuildEmojis(v ...*Emoji) *DiscordGuildUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddGuildEmojiIDs(ids...)
+}
+
 // Mutation returns the DiscordGuildMutation object of the builder.
 func (_u *DiscordGuildUpdateOne) Mutation() *DiscordGuildMutation {
 	return _u.mutation
@@ -709,6 +806,27 @@ func (_u *DiscordGuildUpdateOne) RemoveGuildChannels(v ...*DiscordChannel) *Disc
 		ids[i] = v[i].ID
 	}
 	return _u.RemoveGuildChannelIDs(ids...)
+}
+
+// ClearGuildEmojis clears all "guild_emojis" edges to the Emoji entity.
+func (_u *DiscordGuildUpdateOne) ClearGuildEmojis() *DiscordGuildUpdateOne {
+	_u.mutation.ClearGuildEmojis()
+	return _u
+}
+
+// RemoveGuildEmojiIDs removes the "guild_emojis" edge to Emoji entities by IDs.
+func (_u *DiscordGuildUpdateOne) RemoveGuildEmojiIDs(ids ...uuid.UUID) *DiscordGuildUpdateOne {
+	_u.mutation.RemoveGuildEmojiIDs(ids...)
+	return _u
+}
+
+// RemoveGuildEmojis removes "guild_emojis" edges to Emoji entities.
+func (_u *DiscordGuildUpdateOne) RemoveGuildEmojis(v ...*Emoji) *DiscordGuildUpdateOne {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveGuildEmojiIDs(ids...)
 }
 
 // Where appends a list predicates to the DiscordGuildUpdate builder.
@@ -938,6 +1056,51 @@ func (_u *DiscordGuildUpdateOne) sqlSave(ctx context.Context) (_node *DiscordGui
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(discordchannel.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.GuildEmojisCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   discordguild.GuildEmojisTable,
+			Columns: []string{discordguild.GuildEmojisColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(emoji.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.RemovedGuildEmojisIDs(); len(nodes) > 0 && !_u.mutation.GuildEmojisCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   discordguild.GuildEmojisTable,
+			Columns: []string{discordguild.GuildEmojisColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(emoji.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.GuildEmojisIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   discordguild.GuildEmojisTable,
+			Columns: []string{discordguild.GuildEmojisColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(emoji.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

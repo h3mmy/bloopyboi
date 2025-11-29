@@ -925,6 +925,22 @@ func (c *DiscordGuildClient) QueryGuildChannels(_m *DiscordGuild) *DiscordChanne
 	return query
 }
 
+// QueryGuildEmojis queries the guild_emojis edge of a DiscordGuild.
+func (c *DiscordGuildClient) QueryGuildEmojis(_m *DiscordGuild) *EmojiQuery {
+	query := (&EmojiClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(discordguild.Table, discordguild.FieldID, id),
+			sqlgraph.To(emoji.Table, emoji.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, discordguild.GuildEmojisTable, discordguild.GuildEmojisColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *DiscordGuildClient) Hooks() []Hook {
 	return c.hooks.DiscordGuild
@@ -1615,6 +1631,22 @@ func (c *EmojiClient) GetX(ctx context.Context, id uuid.UUID) *Emoji {
 		panic(err)
 	}
 	return obj
+}
+
+// QueryGuild queries the guild edge of a Emoji.
+func (c *EmojiClient) QueryGuild(_m *Emoji) *DiscordGuildQuery {
+	query := (&DiscordGuildClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(emoji.Table, emoji.FieldID, id),
+			sqlgraph.To(discordguild.Table, discordguild.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, emoji.GuildTable, emoji.GuildColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
 }
 
 // QueryKeywords queries the keywords edge of a Emoji.

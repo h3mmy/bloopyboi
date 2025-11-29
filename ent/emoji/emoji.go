@@ -31,12 +31,21 @@ const (
 	FieldViolenceLikelihood = "violence_likelihood"
 	// FieldRacyLikelihood holds the string denoting the racy_likelihood field in the database.
 	FieldRacyLikelihood = "racy_likelihood"
+	// EdgeGuild holds the string denoting the guild edge name in mutations.
+	EdgeGuild = "guild"
 	// EdgeKeywords holds the string denoting the keywords edge name in mutations.
 	EdgeKeywords = "keywords"
 	// EdgeEmojiKeywordScores holds the string denoting the emoji_keyword_scores edge name in mutations.
 	EdgeEmojiKeywordScores = "emoji_keyword_scores"
 	// Table holds the table name of the emoji in the database.
 	Table = "emojis"
+	// GuildTable is the table that holds the guild relation/edge.
+	GuildTable = "emojis"
+	// GuildInverseTable is the table name for the DiscordGuild entity.
+	// It exists in this package in order to avoid circular dependency with the "discordguild" package.
+	GuildInverseTable = "discord_guilds"
+	// GuildColumn is the table column denoting the guild relation/edge.
+	GuildColumn = "discord_guild_guild_emojis"
 	// KeywordsTable is the table that holds the keywords relation/edge. The primary key declared below.
 	KeywordsTable = "emoji_keyword_scores"
 	// KeywordsInverseTable is the table name for the Keyword entity.
@@ -65,6 +74,12 @@ var Columns = []string{
 	FieldRacyLikelihood,
 }
 
+// ForeignKeys holds the SQL foreign-keys that are owned by the "emojis"
+// table and are not defined as standalone fields in the schema.
+var ForeignKeys = []string{
+	"discord_guild_guild_emojis",
+}
+
 var (
 	// KeywordsPrimaryKey and KeywordsColumn2 are the table columns denoting the
 	// primary key for the keywords relation (M2M).
@@ -75,6 +90,11 @@ var (
 func ValidColumn(column string) bool {
 	for i := range Columns {
 		if column == Columns[i] {
+			return true
+		}
+	}
+	for i := range ForeignKeys {
+		if column == ForeignKeys[i] {
 			return true
 		}
 	}
@@ -153,6 +173,13 @@ func ByRacyLikelihood(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldRacyLikelihood, opts...).ToFunc()
 }
 
+// ByGuildField orders the results by guild field.
+func ByGuildField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newGuildStep(), sql.OrderByField(field, opts...))
+	}
+}
+
 // ByKeywordsCount orders the results by keywords count.
 func ByKeywordsCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
@@ -179,6 +206,13 @@ func ByEmojiKeywordScores(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOptio
 	return func(s *sql.Selector) {
 		sqlgraph.OrderByNeighborTerms(s, newEmojiKeywordScoresStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
+}
+func newGuildStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(GuildInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, GuildTable, GuildColumn),
+	)
 }
 func newKeywordsStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(

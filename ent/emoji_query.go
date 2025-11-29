@@ -14,6 +14,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
+	"github.com/h3mmy/bloopyboi/ent/discordguild"
 	"github.com/h3mmy/bloopyboi/ent/emoji"
 	"github.com/h3mmy/bloopyboi/ent/emojikeywordscore"
 	"github.com/h3mmy/bloopyboi/ent/keyword"
@@ -27,8 +28,10 @@ type EmojiQuery struct {
 	order                       []emoji.OrderOption
 	inters                      []Interceptor
 	predicates                  []predicate.Emoji
+	withGuild                   *DiscordGuildQuery
 	withKeywords                *KeywordQuery
 	withEmojiKeywordScores      *EmojiKeywordScoreQuery
+	withFKs                     bool
 	modifiers                   []func(*sql.Selector)
 	withNamedKeywords           map[string]*KeywordQuery
 	withNamedEmojiKeywordScores map[string]*EmojiKeywordScoreQuery
@@ -66,6 +69,28 @@ func (_q *EmojiQuery) Unique(unique bool) *EmojiQuery {
 func (_q *EmojiQuery) Order(o ...emoji.OrderOption) *EmojiQuery {
 	_q.order = append(_q.order, o...)
 	return _q
+}
+
+// QueryGuild chains the current query on the "guild" edge.
+func (_q *EmojiQuery) QueryGuild() *DiscordGuildQuery {
+	query := (&DiscordGuildClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(emoji.Table, emoji.FieldID, selector),
+			sqlgraph.To(discordguild.Table, discordguild.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, emoji.GuildTable, emoji.GuildColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
 }
 
 // QueryKeywords chains the current query on the "keywords" edge.
@@ -304,12 +329,24 @@ func (_q *EmojiQuery) Clone() *EmojiQuery {
 		order:                  append([]emoji.OrderOption{}, _q.order...),
 		inters:                 append([]Interceptor{}, _q.inters...),
 		predicates:             append([]predicate.Emoji{}, _q.predicates...),
+		withGuild:              _q.withGuild.Clone(),
 		withKeywords:           _q.withKeywords.Clone(),
 		withEmojiKeywordScores: _q.withEmojiKeywordScores.Clone(),
 		// clone intermediate query.
 		sql:  _q.sql.Clone(),
 		path: _q.path,
 	}
+}
+
+// WithGuild tells the query-builder to eager-load the nodes that are connected to
+// the "guild" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *EmojiQuery) WithGuild(opts ...func(*DiscordGuildQuery)) *EmojiQuery {
+	query := (&DiscordGuildClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withGuild = query
+	return _q
 }
 
 // WithKeywords tells the query-builder to eager-load the nodes that are connected to
@@ -411,12 +448,20 @@ func (_q *EmojiQuery) prepareQuery(ctx context.Context) error {
 func (_q *EmojiQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Emoji, error) {
 	var (
 		nodes       = []*Emoji{}
+		withFKs     = _q.withFKs
 		_spec       = _q.querySpec()
-		loadedTypes = [2]bool{
+		loadedTypes = [3]bool{
+			_q.withGuild != nil,
 			_q.withKeywords != nil,
 			_q.withEmojiKeywordScores != nil,
 		}
 	)
+	if _q.withGuild != nil {
+		withFKs = true
+	}
+	if withFKs {
+		_spec.Node.Columns = append(_spec.Node.Columns, emoji.ForeignKeys...)
+	}
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*Emoji).scanValues(nil, columns)
 	}
@@ -437,6 +482,12 @@ func (_q *EmojiQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Emoji,
 	}
 	if len(nodes) == 0 {
 		return nodes, nil
+	}
+	if query := _q.withGuild; query != nil {
+		if err := _q.loadGuild(ctx, query, nodes, nil,
+			func(n *Emoji, e *DiscordGuild) { n.Edges.Guild = e }); err != nil {
+			return nil, err
+		}
 	}
 	if query := _q.withKeywords; query != nil {
 		if err := _q.loadKeywords(ctx, query, nodes,
@@ -471,6 +522,38 @@ func (_q *EmojiQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Emoji,
 	return nodes, nil
 }
 
+func (_q *EmojiQuery) loadGuild(ctx context.Context, query *DiscordGuildQuery, nodes []*Emoji, init func(*Emoji), assign func(*Emoji, *DiscordGuild)) error {
+	ids := make([]uuid.UUID, 0, len(nodes))
+	nodeids := make(map[uuid.UUID][]*Emoji)
+	for i := range nodes {
+		if nodes[i].discord_guild_guild_emojis == nil {
+			continue
+		}
+		fk := *nodes[i].discord_guild_guild_emojis
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(discordguild.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "discord_guild_guild_emojis" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
+	}
+	return nil
+}
 func (_q *EmojiQuery) loadKeywords(ctx context.Context, query *KeywordQuery, nodes []*Emoji, init func(*Emoji), assign func(*Emoji, *Keyword)) error {
 	edgeIDs := make([]driver.Value, len(nodes))
 	byID := make(map[uuid.UUID]*Emoji)

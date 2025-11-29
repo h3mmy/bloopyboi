@@ -43,6 +43,9 @@ func (Emoji) Fields() []ent.Field {
 // Edges of the Emoji.
 func (Emoji) Edges() []ent.Edge {
 	return []ent.Edge{
+		edge.From("guild", DiscordGuild.Type).
+			Ref("guild_emojis").
+			Unique(),
 		edge.To("keywords", Keyword.Type).
 			Through("emoji_keyword_scores", EmojiKeywordScore.Type),
 	}

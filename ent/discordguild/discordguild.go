@@ -31,6 +31,8 @@ const (
 	EdgeDiscordMessages = "discord_messages"
 	// EdgeGuildChannels holds the string denoting the guild_channels edge name in mutations.
 	EdgeGuildChannels = "guild_channels"
+	// EdgeGuildEmojis holds the string denoting the guild_emojis edge name in mutations.
+	EdgeGuildEmojis = "guild_emojis"
 	// Table holds the table name of the discordguild in the database.
 	Table = "discord_guilds"
 	// MembersTable is the table that holds the members relation/edge. The primary key declared below.
@@ -50,6 +52,13 @@ const (
 	// GuildChannelsInverseTable is the table name for the DiscordChannel entity.
 	// It exists in this package in order to avoid circular dependency with the "discordchannel" package.
 	GuildChannelsInverseTable = "discord_channels"
+	// GuildEmojisTable is the table that holds the guild_emojis relation/edge.
+	GuildEmojisTable = "emojis"
+	// GuildEmojisInverseTable is the table name for the Emoji entity.
+	// It exists in this package in order to avoid circular dependency with the "emoji" package.
+	GuildEmojisInverseTable = "emojis"
+	// GuildEmojisColumn is the table column denoting the guild_emojis relation/edge.
+	GuildEmojisColumn = "discord_guild_guild_emojis"
 )
 
 // Columns holds all SQL columns for discordguild fields.
@@ -166,6 +175,20 @@ func ByGuildChannels(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newGuildChannelsStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
+
+// ByGuildEmojisCount orders the results by guild_emojis count.
+func ByGuildEmojisCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newGuildEmojisStep(), opts...)
+	}
+}
+
+// ByGuildEmojis orders the results by guild_emojis terms.
+func ByGuildEmojis(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newGuildEmojisStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
 func newMembersStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
@@ -185,5 +208,12 @@ func newGuildChannelsStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(GuildChannelsInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.M2M, false, GuildChannelsTable, GuildChannelsPrimaryKey...),
+	)
+}
+func newGuildEmojisStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(GuildEmojisInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, GuildEmojisTable, GuildEmojisColumn),
 	)
 }

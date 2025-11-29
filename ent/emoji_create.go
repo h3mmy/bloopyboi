@@ -12,6 +12,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
+	"github.com/h3mmy/bloopyboi/ent/discordguild"
 	"github.com/h3mmy/bloopyboi/ent/emoji"
 	"github.com/h3mmy/bloopyboi/ent/keyword"
 )
@@ -146,6 +147,25 @@ func (_c *EmojiCreate) SetNillableID(v *uuid.UUID) *EmojiCreate {
 		_c.SetID(*v)
 	}
 	return _c
+}
+
+// SetGuildID sets the "guild" edge to the DiscordGuild entity by ID.
+func (_c *EmojiCreate) SetGuildID(id uuid.UUID) *EmojiCreate {
+	_c.mutation.SetGuildID(id)
+	return _c
+}
+
+// SetNillableGuildID sets the "guild" edge to the DiscordGuild entity by ID if the given value is not nil.
+func (_c *EmojiCreate) SetNillableGuildID(id *uuid.UUID) *EmojiCreate {
+	if id != nil {
+		_c = _c.SetGuildID(*id)
+	}
+	return _c
+}
+
+// SetGuild sets the "guild" edge to the DiscordGuild entity.
+func (_c *EmojiCreate) SetGuild(v *DiscordGuild) *EmojiCreate {
+	return _c.SetGuildID(v.ID)
 }
 
 // AddKeywordIDs adds the "keywords" edge to the Keyword entity by IDs.
@@ -330,6 +350,23 @@ func (_c *EmojiCreate) createSpec() (*Emoji, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.RacyLikelihood(); ok {
 		_spec.SetField(emoji.FieldRacyLikelihood, field.TypeInt, value)
 		_node.RacyLikelihood = value
+	}
+	if nodes := _c.mutation.GuildIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   emoji.GuildTable,
+			Columns: []string{emoji.GuildColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(discordguild.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.discord_guild_guild_emojis = &nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
 	}
 	if nodes := _c.mutation.KeywordsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

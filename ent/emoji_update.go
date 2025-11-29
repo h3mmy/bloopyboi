@@ -11,6 +11,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
+	"github.com/h3mmy/bloopyboi/ent/discordguild"
 	"github.com/h3mmy/bloopyboi/ent/emoji"
 	"github.com/h3mmy/bloopyboi/ent/keyword"
 	"github.com/h3mmy/bloopyboi/ent/predicate"
@@ -196,6 +197,25 @@ func (_u *EmojiUpdate) AddRacyLikelihood(v int) *EmojiUpdate {
 	return _u
 }
 
+// SetGuildID sets the "guild" edge to the DiscordGuild entity by ID.
+func (_u *EmojiUpdate) SetGuildID(id uuid.UUID) *EmojiUpdate {
+	_u.mutation.SetGuildID(id)
+	return _u
+}
+
+// SetNillableGuildID sets the "guild" edge to the DiscordGuild entity by ID if the given value is not nil.
+func (_u *EmojiUpdate) SetNillableGuildID(id *uuid.UUID) *EmojiUpdate {
+	if id != nil {
+		_u = _u.SetGuildID(*id)
+	}
+	return _u
+}
+
+// SetGuild sets the "guild" edge to the DiscordGuild entity.
+func (_u *EmojiUpdate) SetGuild(v *DiscordGuild) *EmojiUpdate {
+	return _u.SetGuildID(v.ID)
+}
+
 // AddKeywordIDs adds the "keywords" edge to the Keyword entity by IDs.
 func (_u *EmojiUpdate) AddKeywordIDs(ids ...uuid.UUID) *EmojiUpdate {
 	_u.mutation.AddKeywordIDs(ids...)
@@ -214,6 +234,12 @@ func (_u *EmojiUpdate) AddKeywords(v ...*Keyword) *EmojiUpdate {
 // Mutation returns the EmojiMutation object of the builder.
 func (_u *EmojiUpdate) Mutation() *EmojiMutation {
 	return _u.mutation
+}
+
+// ClearGuild clears the "guild" edge to the DiscordGuild entity.
+func (_u *EmojiUpdate) ClearGuild() *EmojiUpdate {
+	_u.mutation.ClearGuild()
+	return _u
 }
 
 // ClearKeywords clears all "keywords" edges to the Keyword entity.
@@ -330,6 +356,35 @@ func (_u *EmojiUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if value, ok := _u.mutation.AddedRacyLikelihood(); ok {
 		_spec.AddField(emoji.FieldRacyLikelihood, field.TypeInt, value)
+	}
+	if _u.mutation.GuildCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   emoji.GuildTable,
+			Columns: []string{emoji.GuildColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(discordguild.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.GuildIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   emoji.GuildTable,
+			Columns: []string{emoji.GuildColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(discordguild.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	if _u.mutation.KeywordsCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -563,6 +618,25 @@ func (_u *EmojiUpdateOne) AddRacyLikelihood(v int) *EmojiUpdateOne {
 	return _u
 }
 
+// SetGuildID sets the "guild" edge to the DiscordGuild entity by ID.
+func (_u *EmojiUpdateOne) SetGuildID(id uuid.UUID) *EmojiUpdateOne {
+	_u.mutation.SetGuildID(id)
+	return _u
+}
+
+// SetNillableGuildID sets the "guild" edge to the DiscordGuild entity by ID if the given value is not nil.
+func (_u *EmojiUpdateOne) SetNillableGuildID(id *uuid.UUID) *EmojiUpdateOne {
+	if id != nil {
+		_u = _u.SetGuildID(*id)
+	}
+	return _u
+}
+
+// SetGuild sets the "guild" edge to the DiscordGuild entity.
+func (_u *EmojiUpdateOne) SetGuild(v *DiscordGuild) *EmojiUpdateOne {
+	return _u.SetGuildID(v.ID)
+}
+
 // AddKeywordIDs adds the "keywords" edge to the Keyword entity by IDs.
 func (_u *EmojiUpdateOne) AddKeywordIDs(ids ...uuid.UUID) *EmojiUpdateOne {
 	_u.mutation.AddKeywordIDs(ids...)
@@ -581,6 +655,12 @@ func (_u *EmojiUpdateOne) AddKeywords(v ...*Keyword) *EmojiUpdateOne {
 // Mutation returns the EmojiMutation object of the builder.
 func (_u *EmojiUpdateOne) Mutation() *EmojiMutation {
 	return _u.mutation
+}
+
+// ClearGuild clears the "guild" edge to the DiscordGuild entity.
+func (_u *EmojiUpdateOne) ClearGuild() *EmojiUpdateOne {
+	_u.mutation.ClearGuild()
+	return _u
 }
 
 // ClearKeywords clears all "keywords" edges to the Keyword entity.
@@ -727,6 +807,35 @@ func (_u *EmojiUpdateOne) sqlSave(ctx context.Context) (_node *Emoji, err error)
 	}
 	if value, ok := _u.mutation.AddedRacyLikelihood(); ok {
 		_spec.AddField(emoji.FieldRacyLikelihood, field.TypeInt, value)
+	}
+	if _u.mutation.GuildCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   emoji.GuildTable,
+			Columns: []string{emoji.GuildColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(discordguild.FieldID, field.TypeUUID),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.GuildIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   emoji.GuildTable,
+			Columns: []string{emoji.GuildColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(discordguild.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	if _u.mutation.KeywordsCleared() {
 		edge := &sqlgraph.EdgeSpec{

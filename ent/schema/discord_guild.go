@@ -39,5 +39,6 @@ func (DiscordGuild) Edges() []ent.Edge {
 		edge.To("members", DiscordUser.Type),
 		edge.To("discord_messages", DiscordMessage.Type),
 		edge.To("guild_channels", DiscordChannel.Type),
+		edge.To("guild_emojis", Emoji.Type),
 	}
 }

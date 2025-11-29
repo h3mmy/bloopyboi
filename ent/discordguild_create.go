@@ -16,6 +16,7 @@ import (
 	"github.com/h3mmy/bloopyboi/ent/discordguild"
 	"github.com/h3mmy/bloopyboi/ent/discordmessage"
 	"github.com/h3mmy/bloopyboi/ent/discorduser"
+	"github.com/h3mmy/bloopyboi/ent/emoji"
 )
 
 // DiscordGuildCreate is the builder for creating a DiscordGuild entity.
@@ -151,6 +152,21 @@ func (_c *DiscordGuildCreate) AddGuildChannels(v ...*DiscordChannel) *DiscordGui
 		ids[i] = v[i].ID
 	}
 	return _c.AddGuildChannelIDs(ids...)
+}
+
+// AddGuildEmojiIDs adds the "guild_emojis" edge to the Emoji entity by IDs.
+func (_c *DiscordGuildCreate) AddGuildEmojiIDs(ids ...uuid.UUID) *DiscordGuildCreate {
+	_c.mutation.AddGuildEmojiIDs(ids...)
+	return _c
+}
+
+// AddGuildEmojis adds the "guild_emojis" edges to the Emoji entity.
+func (_c *DiscordGuildCreate) AddGuildEmojis(v ...*Emoji) *DiscordGuildCreate {
+	ids := make([]uuid.UUID, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddGuildEmojiIDs(ids...)
 }
 
 // Mutation returns the DiscordGuildMutation object of the builder.
@@ -303,6 +319,22 @@ func (_c *DiscordGuildCreate) createSpec() (*DiscordGuild, *sqlgraph.CreateSpec)
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(discordchannel.FieldID, field.TypeUUID),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.GuildEmojisIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   discordguild.GuildEmojisTable,
+			Columns: []string{discordguild.GuildEmojisColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(emoji.FieldID, field.TypeUUID),
 			},
 		}
 		for _, k := range nodes {

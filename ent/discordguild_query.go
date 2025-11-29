@@ -18,6 +18,7 @@ import (
 	"github.com/h3mmy/bloopyboi/ent/discordguild"
 	"github.com/h3mmy/bloopyboi/ent/discordmessage"
 	"github.com/h3mmy/bloopyboi/ent/discorduser"
+	"github.com/h3mmy/bloopyboi/ent/emoji"
 	"github.com/h3mmy/bloopyboi/ent/predicate"
 )
 
@@ -31,10 +32,12 @@ type DiscordGuildQuery struct {
 	withMembers              *DiscordUserQuery
 	withDiscordMessages      *DiscordMessageQuery
 	withGuildChannels        *DiscordChannelQuery
+	withGuildEmojis          *EmojiQuery
 	modifiers                []func(*sql.Selector)
 	withNamedMembers         map[string]*DiscordUserQuery
 	withNamedDiscordMessages map[string]*DiscordMessageQuery
 	withNamedGuildChannels   map[string]*DiscordChannelQuery
+	withNamedGuildEmojis     map[string]*EmojiQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -130,6 +133,28 @@ func (_q *DiscordGuildQuery) QueryGuildChannels() *DiscordChannelQuery {
 			sqlgraph.From(discordguild.Table, discordguild.FieldID, selector),
 			sqlgraph.To(discordchannel.Table, discordchannel.FieldID),
 			sqlgraph.Edge(sqlgraph.M2M, false, discordguild.GuildChannelsTable, discordguild.GuildChannelsPrimaryKey...),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryGuildEmojis chains the current query on the "guild_emojis" edge.
+func (_q *DiscordGuildQuery) QueryGuildEmojis() *EmojiQuery {
+	query := (&EmojiClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(discordguild.Table, discordguild.FieldID, selector),
+			sqlgraph.To(emoji.Table, emoji.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, discordguild.GuildEmojisTable, discordguild.GuildEmojisColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
@@ -332,6 +357,7 @@ func (_q *DiscordGuildQuery) Clone() *DiscordGuildQuery {
 		withMembers:         _q.withMembers.Clone(),
 		withDiscordMessages: _q.withDiscordMessages.Clone(),
 		withGuildChannels:   _q.withGuildChannels.Clone(),
+		withGuildEmojis:     _q.withGuildEmojis.Clone(),
 		// clone intermediate query.
 		sql:  _q.sql.Clone(),
 		path: _q.path,
@@ -368,6 +394,17 @@ func (_q *DiscordGuildQuery) WithGuildChannels(opts ...func(*DiscordChannelQuery
 		opt(query)
 	}
 	_q.withGuildChannels = query
+	return _q
+}
+
+// WithGuildEmojis tells the query-builder to eager-load the nodes that are connected to
+// the "guild_emojis" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *DiscordGuildQuery) WithGuildEmojis(opts ...func(*EmojiQuery)) *DiscordGuildQuery {
+	query := (&EmojiClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withGuildEmojis = query
 	return _q
 }
 
@@ -449,10 +486,11 @@ func (_q *DiscordGuildQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]
 	var (
 		nodes       = []*DiscordGuild{}
 		_spec       = _q.querySpec()
-		loadedTypes = [3]bool{
+		loadedTypes = [4]bool{
 			_q.withMembers != nil,
 			_q.withDiscordMessages != nil,
 			_q.withGuildChannels != nil,
+			_q.withGuildEmojis != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -497,6 +535,13 @@ func (_q *DiscordGuildQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]
 			return nil, err
 		}
 	}
+	if query := _q.withGuildEmojis; query != nil {
+		if err := _q.loadGuildEmojis(ctx, query, nodes,
+			func(n *DiscordGuild) { n.Edges.GuildEmojis = []*Emoji{} },
+			func(n *DiscordGuild, e *Emoji) { n.Edges.GuildEmojis = append(n.Edges.GuildEmojis, e) }); err != nil {
+			return nil, err
+		}
+	}
 	for name, query := range _q.withNamedMembers {
 		if err := _q.loadMembers(ctx, query, nodes,
 			func(n *DiscordGuild) { n.appendNamedMembers(name) },
@@ -515,6 +560,13 @@ func (_q *DiscordGuildQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]
 		if err := _q.loadGuildChannels(ctx, query, nodes,
 			func(n *DiscordGuild) { n.appendNamedGuildChannels(name) },
 			func(n *DiscordGuild, e *DiscordChannel) { n.appendNamedGuildChannels(name, e) }); err != nil {
+			return nil, err
+		}
+	}
+	for name, query := range _q.withNamedGuildEmojis {
+		if err := _q.loadGuildEmojis(ctx, query, nodes,
+			func(n *DiscordGuild) { n.appendNamedGuildEmojis(name) },
+			func(n *DiscordGuild, e *Emoji) { n.appendNamedGuildEmojis(name, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -674,6 +726,37 @@ func (_q *DiscordGuildQuery) loadGuildChannels(ctx context.Context, query *Disco
 	}
 	return nil
 }
+func (_q *DiscordGuildQuery) loadGuildEmojis(ctx context.Context, query *EmojiQuery, nodes []*DiscordGuild, init func(*DiscordGuild), assign func(*DiscordGuild, *Emoji)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[uuid.UUID]*DiscordGuild)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	query.withFKs = true
+	query.Where(predicate.Emoji(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(discordguild.GuildEmojisColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.discord_guild_guild_emojis
+		if fk == nil {
+			return fmt.Errorf(`foreign-key "discord_guild_guild_emojis" is nil for node %v`, n.ID)
+		}
+		node, ok := nodeids[*fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "discord_guild_guild_emojis" returned %v for node %v`, *fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
 
 func (_q *DiscordGuildQuery) sqlCount(ctx context.Context) (int, error) {
 	_spec := _q.querySpec()
@@ -827,6 +910,20 @@ func (_q *DiscordGuildQuery) WithNamedGuildChannels(name string, opts ...func(*D
 		_q.withNamedGuildChannels = make(map[string]*DiscordChannelQuery)
 	}
 	_q.withNamedGuildChannels[name] = query
+	return _q
+}
+
+// WithNamedGuildEmojis tells the query-builder to eager-load the nodes that are connected to the "guild_emojis"
+// edge with the given name. The optional arguments are used to configure the query builder of the edge.
+func (_q *DiscordGuildQuery) WithNamedGuildEmojis(name string, opts ...func(*EmojiQuery)) *DiscordGuildQuery {
+	query := (&EmojiClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	if _q.withNamedGuildEmojis == nil {
+		_q.withNamedGuildEmojis = make(map[string]*EmojiQuery)
+	}
+	_q.withNamedGuildEmojis[name] = query
 	return _q
 }
 

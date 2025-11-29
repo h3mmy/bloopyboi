@@ -7,6 +7,7 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"github.com/bwmarrin/discordgo"
+	"github.com/google/uuid"
 	"github.com/h3mmy/bloopyboi/ent"
 	"github.com/h3mmy/bloopyboi/ent/discordchannel"
 	"github.com/h3mmy/bloopyboi/ent/discordguild"
@@ -557,13 +558,18 @@ func (d *DiscordService) GetSavedGuild(ctx context.Context, discordGuildId strin
 
 func (d *DiscordService) SaveDiscordEmojiWithAnalysis(ctx context.Context, analysis *models.DiscordEmojiAnalysisResult) error {
 	logr := d.logger.With(zap.Any("context", ctx))
+	guildId, ok := ctx.Value(models.CtxDiscordGuildID).(string)
+	if !ok {
+		logr.Warn("value of guild_id in context missing/invalid, defaulting to null")
+		guildId = ""
+	}
 	logr.Debug("saving discord emoji with analysis", zap.Any("analysis", analysis))
 	tx, err := d.db.Tx(ctx)
 	if err != nil {
 		return fmt.Errorf("starting a transaction: %w", err)
 	}
 
-	emjID, err := tx.Emoji.
+	emjIdBuilder := tx.Emoji.
 		Create().
 		SetEmojiID(analysis.Emoji.ID).
 		SetAnimated(analysis.Emoji.Animated).
@@ -573,8 +579,30 @@ func (d *DiscordService) SaveDiscordEmojiWithAnalysis(ctx context.Context, analy
 		SetRacyLikelihood(int(analysis.AnalysisResult.SafeSearchAnalysis.Racy)).
 		SetSpoofLikelihood(int(analysis.AnalysisResult.SafeSearchAnalysis.Spoof)).
 		SetViolenceLikelihood(int(analysis.AnalysisResult.SafeSearchAnalysis.Violence)).
-		SetMedicalLikelihood(int(analysis.AnalysisResult.SafeSearchAnalysis.Medical)).
-		OnConflict(sql.ConflictColumns("emoji_id")).
+		SetMedicalLikelihood(int(analysis.AnalysisResult.SafeSearchAnalysis.Medical))
+
+	var emjID uuid.UUID
+
+	if guildId != "" {
+		entGuildId, err2 := tx.DiscordGuild.
+			Query().
+			Where(discordguild.DiscordidEQ(guildId)).
+			OnlyID(ctx)
+		if err2 != nil {
+			if ent.IsNotFound(err2) {
+				logr.Info("discord guild not found for given ID", zap.String("guild_id", guildId))
+				entGuildId = uuid.Nil
+			} else {
+				return err2
+			}
+		}
+		if entGuildId != uuid.Nil {
+			emjIdBuilder = emjIdBuilder.
+				SetGuildID(entGuildId)
+		}
+	}
+
+	emjID, err = emjIdBuilder.OnConflict(sql.ConflictColumns("emoji_id")).
 		UpdateNewValues().
 		ID(ctx)
 

@@ -2402,6 +2402,9 @@ type DiscordGuildMutation struct {
 	guild_channels            map[uuid.UUID]struct{}
 	removedguild_channels     map[uuid.UUID]struct{}
 	clearedguild_channels     bool
+	guild_emojis              map[uuid.UUID]struct{}
+	removedguild_emojis       map[uuid.UUID]struct{}
+	clearedguild_emojis       bool
 	done                      bool
 	oldValue                  func(context.Context) (*DiscordGuild, error)
 	predicates                []predicate.DiscordGuild
@@ -2962,6 +2965,60 @@ func (m *DiscordGuildMutation) ResetGuildChannels() {
 	m.removedguild_channels = nil
 }
 
+// AddGuildEmojiIDs adds the "guild_emojis" edge to the Emoji entity by ids.
+func (m *DiscordGuildMutation) AddGuildEmojiIDs(ids ...uuid.UUID) {
+	if m.guild_emojis == nil {
+		m.guild_emojis = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		m.guild_emojis[ids[i]] = struct{}{}
+	}
+}
+
+// ClearGuildEmojis clears the "guild_emojis" edge to the Emoji entity.
+func (m *DiscordGuildMutation) ClearGuildEmojis() {
+	m.clearedguild_emojis = true
+}
+
+// GuildEmojisCleared reports if the "guild_emojis" edge to the Emoji entity was cleared.
+func (m *DiscordGuildMutation) GuildEmojisCleared() bool {
+	return m.clearedguild_emojis
+}
+
+// RemoveGuildEmojiIDs removes the "guild_emojis" edge to the Emoji entity by IDs.
+func (m *DiscordGuildMutation) RemoveGuildEmojiIDs(ids ...uuid.UUID) {
+	if m.removedguild_emojis == nil {
+		m.removedguild_emojis = make(map[uuid.UUID]struct{})
+	}
+	for i := range ids {
+		delete(m.guild_emojis, ids[i])
+		m.removedguild_emojis[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedGuildEmojis returns the removed IDs of the "guild_emojis" edge to the Emoji entity.
+func (m *DiscordGuildMutation) RemovedGuildEmojisIDs() (ids []uuid.UUID) {
+	for id := range m.removedguild_emojis {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// GuildEmojisIDs returns the "guild_emojis" edge IDs in the mutation.
+func (m *DiscordGuildMutation) GuildEmojisIDs() (ids []uuid.UUID) {
+	for id := range m.guild_emojis {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetGuildEmojis resets all changes to the "guild_emojis" edge.
+func (m *DiscordGuildMutation) ResetGuildEmojis() {
+	m.guild_emojis = nil
+	m.clearedguild_emojis = false
+	m.removedguild_emojis = nil
+}
+
 // Where appends a list predicates to the DiscordGuildMutation builder.
 func (m *DiscordGuildMutation) Where(ps ...predicate.DiscordGuild) {
 	m.predicates = append(m.predicates, ps...)
@@ -3222,7 +3279,7 @@ func (m *DiscordGuildMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *DiscordGuildMutation) AddedEdges() []string {
-	edges := make([]string, 0, 3)
+	edges := make([]string, 0, 4)
 	if m.members != nil {
 		edges = append(edges, discordguild.EdgeMembers)
 	}
@@ -3231,6 +3288,9 @@ func (m *DiscordGuildMutation) AddedEdges() []string {
 	}
 	if m.guild_channels != nil {
 		edges = append(edges, discordguild.EdgeGuildChannels)
+	}
+	if m.guild_emojis != nil {
+		edges = append(edges, discordguild.EdgeGuildEmojis)
 	}
 	return edges
 }
@@ -3257,13 +3317,19 @@ func (m *DiscordGuildMutation) AddedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case discordguild.EdgeGuildEmojis:
+		ids := make([]ent.Value, 0, len(m.guild_emojis))
+		for id := range m.guild_emojis {
+			ids = append(ids, id)
+		}
+		return ids
 	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *DiscordGuildMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 3)
+	edges := make([]string, 0, 4)
 	if m.removedmembers != nil {
 		edges = append(edges, discordguild.EdgeMembers)
 	}
@@ -3272,6 +3338,9 @@ func (m *DiscordGuildMutation) RemovedEdges() []string {
 	}
 	if m.removedguild_channels != nil {
 		edges = append(edges, discordguild.EdgeGuildChannels)
+	}
+	if m.removedguild_emojis != nil {
+		edges = append(edges, discordguild.EdgeGuildEmojis)
 	}
 	return edges
 }
@@ -3298,13 +3367,19 @@ func (m *DiscordGuildMutation) RemovedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case discordguild.EdgeGuildEmojis:
+		ids := make([]ent.Value, 0, len(m.removedguild_emojis))
+		for id := range m.removedguild_emojis {
+			ids = append(ids, id)
+		}
+		return ids
 	}
 	return nil
 }
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *DiscordGuildMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 3)
+	edges := make([]string, 0, 4)
 	if m.clearedmembers {
 		edges = append(edges, discordguild.EdgeMembers)
 	}
@@ -3313,6 +3388,9 @@ func (m *DiscordGuildMutation) ClearedEdges() []string {
 	}
 	if m.clearedguild_channels {
 		edges = append(edges, discordguild.EdgeGuildChannels)
+	}
+	if m.clearedguild_emojis {
+		edges = append(edges, discordguild.EdgeGuildEmojis)
 	}
 	return edges
 }
@@ -3327,6 +3405,8 @@ func (m *DiscordGuildMutation) EdgeCleared(name string) bool {
 		return m.cleareddiscord_messages
 	case discordguild.EdgeGuildChannels:
 		return m.clearedguild_channels
+	case discordguild.EdgeGuildEmojis:
+		return m.clearedguild_emojis
 	}
 	return false
 }
@@ -3351,6 +3431,9 @@ func (m *DiscordGuildMutation) ResetEdge(name string) error {
 		return nil
 	case discordguild.EdgeGuildChannels:
 		m.ResetGuildChannels()
+		return nil
+	case discordguild.EdgeGuildEmojis:
+		m.ResetGuildEmojis()
 		return nil
 	}
 	return fmt.Errorf("unknown DiscordGuild edge %s", name)
@@ -5768,6 +5851,8 @@ type EmojiMutation struct {
 	racy_likelihood        *int
 	addracy_likelihood     *int
 	clearedFields          map[string]struct{}
+	guild                  *uuid.UUID
+	clearedguild           bool
 	keywords               map[uuid.UUID]struct{}
 	removedkeywords        map[uuid.UUID]struct{}
 	clearedkeywords        bool
@@ -6317,6 +6402,45 @@ func (m *EmojiMutation) ResetRacyLikelihood() {
 	m.addracy_likelihood = nil
 }
 
+// SetGuildID sets the "guild" edge to the DiscordGuild entity by id.
+func (m *EmojiMutation) SetGuildID(id uuid.UUID) {
+	m.guild = &id
+}
+
+// ClearGuild clears the "guild" edge to the DiscordGuild entity.
+func (m *EmojiMutation) ClearGuild() {
+	m.clearedguild = true
+}
+
+// GuildCleared reports if the "guild" edge to the DiscordGuild entity was cleared.
+func (m *EmojiMutation) GuildCleared() bool {
+	return m.clearedguild
+}
+
+// GuildID returns the "guild" edge ID in the mutation.
+func (m *EmojiMutation) GuildID() (id uuid.UUID, exists bool) {
+	if m.guild != nil {
+		return *m.guild, true
+	}
+	return
+}
+
+// GuildIDs returns the "guild" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// GuildID instead. It exists only for internal usage by the builders.
+func (m *EmojiMutation) GuildIDs() (ids []uuid.UUID) {
+	if id := m.guild; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetGuild resets all changes to the "guild" edge.
+func (m *EmojiMutation) ResetGuild() {
+	m.guild = nil
+	m.clearedguild = false
+}
+
 // AddKeywordIDs adds the "keywords" edge to the Keyword entity by ids.
 func (m *EmojiMutation) AddKeywordIDs(ids ...uuid.UUID) {
 	if m.keywords == nil {
@@ -6712,7 +6836,10 @@ func (m *EmojiMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *EmojiMutation) AddedEdges() []string {
-	edges := make([]string, 0, 1)
+	edges := make([]string, 0, 2)
+	if m.guild != nil {
+		edges = append(edges, emoji.EdgeGuild)
+	}
 	if m.keywords != nil {
 		edges = append(edges, emoji.EdgeKeywords)
 	}
@@ -6723,6 +6850,10 @@ func (m *EmojiMutation) AddedEdges() []string {
 // name in this mutation.
 func (m *EmojiMutation) AddedIDs(name string) []ent.Value {
 	switch name {
+	case emoji.EdgeGuild:
+		if id := m.guild; id != nil {
+			return []ent.Value{*id}
+		}
 	case emoji.EdgeKeywords:
 		ids := make([]ent.Value, 0, len(m.keywords))
 		for id := range m.keywords {
@@ -6735,7 +6866,7 @@ func (m *EmojiMutation) AddedIDs(name string) []ent.Value {
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *EmojiMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 1)
+	edges := make([]string, 0, 2)
 	if m.removedkeywords != nil {
 		edges = append(edges, emoji.EdgeKeywords)
 	}
@@ -6758,7 +6889,10 @@ func (m *EmojiMutation) RemovedIDs(name string) []ent.Value {
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *EmojiMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 1)
+	edges := make([]string, 0, 2)
+	if m.clearedguild {
+		edges = append(edges, emoji.EdgeGuild)
+	}
 	if m.clearedkeywords {
 		edges = append(edges, emoji.EdgeKeywords)
 	}
@@ -6769,6 +6903,8 @@ func (m *EmojiMutation) ClearedEdges() []string {
 // was cleared in this mutation.
 func (m *EmojiMutation) EdgeCleared(name string) bool {
 	switch name {
+	case emoji.EdgeGuild:
+		return m.clearedguild
 	case emoji.EdgeKeywords:
 		return m.clearedkeywords
 	}
@@ -6779,6 +6915,9 @@ func (m *EmojiMutation) EdgeCleared(name string) bool {
 // if that edge is not defined in the schema.
 func (m *EmojiMutation) ClearEdge(name string) error {
 	switch name {
+	case emoji.EdgeGuild:
+		m.ClearGuild()
+		return nil
 	}
 	return fmt.Errorf("unknown Emoji unique edge %s", name)
 }
@@ -6787,6 +6926,9 @@ func (m *EmojiMutation) ClearEdge(name string) error {
 // It returns an error if the edge is not defined in the schema.
 func (m *EmojiMutation) ResetEdge(name string) error {
 	switch name {
+	case emoji.EdgeGuild:
+		m.ResetGuild()
+		return nil
 	case emoji.EdgeKeywords:
 		m.ResetKeywords()
 		return nil

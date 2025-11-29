@@ -9,6 +9,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"github.com/google/uuid"
+	"github.com/h3mmy/bloopyboi/ent/discordguild"
 	"github.com/h3mmy/bloopyboi/ent/emoji"
 )
 
@@ -37,27 +38,41 @@ type Emoji struct {
 	RacyLikelihood int `json:"racy_likelihood,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the EmojiQuery when eager-loading is set.
-	Edges        EmojiEdges `json:"edges"`
-	selectValues sql.SelectValues
+	Edges                      EmojiEdges `json:"edges"`
+	discord_guild_guild_emojis *uuid.UUID
+	selectValues               sql.SelectValues
 }
 
 // EmojiEdges holds the relations/edges for other nodes in the graph.
 type EmojiEdges struct {
+	// Guild holds the value of the guild edge.
+	Guild *DiscordGuild `json:"guild,omitempty"`
 	// Keywords holds the value of the keywords edge.
 	Keywords []*Keyword `json:"keywords,omitempty"`
 	// EmojiKeywordScores holds the value of the emoji_keyword_scores edge.
 	EmojiKeywordScores []*EmojiKeywordScore `json:"emoji_keyword_scores,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes             [2]bool
+	loadedTypes             [3]bool
 	namedKeywords           map[string][]*Keyword
 	namedEmojiKeywordScores map[string][]*EmojiKeywordScore
+}
+
+// GuildOrErr returns the Guild value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e EmojiEdges) GuildOrErr() (*DiscordGuild, error) {
+	if e.Guild != nil {
+		return e.Guild, nil
+	} else if e.loadedTypes[0] {
+		return nil, &NotFoundError{label: discordguild.Label}
+	}
+	return nil, &NotLoadedError{edge: "guild"}
 }
 
 // KeywordsOrErr returns the Keywords value or an error if the edge
 // was not loaded in eager-loading.
 func (e EmojiEdges) KeywordsOrErr() ([]*Keyword, error) {
-	if e.loadedTypes[0] {
+	if e.loadedTypes[1] {
 		return e.Keywords, nil
 	}
 	return nil, &NotLoadedError{edge: "keywords"}
@@ -66,7 +81,7 @@ func (e EmojiEdges) KeywordsOrErr() ([]*Keyword, error) {
 // EmojiKeywordScoresOrErr returns the EmojiKeywordScores value or an error if the edge
 // was not loaded in eager-loading.
 func (e EmojiEdges) EmojiKeywordScoresOrErr() ([]*EmojiKeywordScore, error) {
-	if e.loadedTypes[1] {
+	if e.loadedTypes[2] {
 		return e.EmojiKeywordScores, nil
 	}
 	return nil, &NotLoadedError{edge: "emoji_keyword_scores"}
@@ -85,6 +100,8 @@ func (*Emoji) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullString)
 		case emoji.FieldID:
 			values[i] = new(uuid.UUID)
+		case emoji.ForeignKeys[0]: // discord_guild_guild_emojis
+			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -161,6 +178,13 @@ func (_m *Emoji) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.RacyLikelihood = int(value.Int64)
 			}
+		case emoji.ForeignKeys[0]:
+			if value, ok := values[i].(*sql.NullScanner); !ok {
+				return fmt.Errorf("unexpected type %T for field discord_guild_guild_emojis", values[i])
+			} else if value.Valid {
+				_m.discord_guild_guild_emojis = new(uuid.UUID)
+				*_m.discord_guild_guild_emojis = *value.S.(*uuid.UUID)
+			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
 		}
@@ -172,6 +196,11 @@ func (_m *Emoji) assignValues(columns []string, values []any) error {
 // This includes values selected through modifiers, order, etc.
 func (_m *Emoji) Value(name string) (ent.Value, error) {
 	return _m.selectValues.Get(name)
+}
+
+// QueryGuild queries the "guild" edge of the Emoji entity.
+func (_m *Emoji) QueryGuild() *DiscordGuildQuery {
+	return NewEmojiClient(_m.config).QueryGuild(_m)
 }
 
 // QueryKeywords queries the "keywords" edge of the Emoji entity.

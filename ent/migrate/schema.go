@@ -165,12 +165,21 @@ var (
 		{Name: "medical_likelihood", Type: field.TypeInt, Default: 0},
 		{Name: "violence_likelihood", Type: field.TypeInt, Default: 0},
 		{Name: "racy_likelihood", Type: field.TypeInt, Default: 0},
+		{Name: "discord_guild_guild_emojis", Type: field.TypeUUID, Nullable: true},
 	}
 	// EmojisTable holds the schema information for the "emojis" table.
 	EmojisTable = &schema.Table{
 		Name:       "emojis",
 		Columns:    EmojisColumns,
 		PrimaryKey: []*schema.Column{EmojisColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "emojis_discord_guilds_guild_emojis",
+				Columns:    []*schema.Column{EmojisColumns[10]},
+				RefColumns: []*schema.Column{DiscordGuildsColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
 	}
 	// EmojiKeywordScoresColumns holds the columns for the "emoji_keyword_scores" table.
 	EmojiKeywordScoresColumns = []*schema.Column{
@@ -371,6 +380,7 @@ func init() {
 	DiscordMessagesTable.ForeignKeys[2].RefTable = DiscordUsersTable
 	DiscordMessageReactionsTable.ForeignKeys[0].RefTable = DiscordMessagesTable
 	DiscordMessageReactionsTable.ForeignKeys[1].RefTable = DiscordUsersTable
+	EmojisTable.ForeignKeys[0].RefTable = DiscordGuildsTable
 	EmojiKeywordScoresTable.ForeignKeys[0].RefTable = KeywordsTable
 	EmojiKeywordScoresTable.ForeignKeys[1].RefTable = EmojisTable
 	MediaRequestsTable.ForeignKeys[0].RefTable = BooksTable
