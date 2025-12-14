@@ -44,7 +44,7 @@ runs:
         GITHUB_TOKEN: ${{ inputs.token }}
 
     - name: Upload assets
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v6
       with:
         name: bloopyboi
         path: ./dist/*
