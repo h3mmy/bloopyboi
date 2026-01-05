@@ -20,7 +20,7 @@ require (
 	github.com/uptrace/opentelemetry-go-extra/otelsql v0.3.2
 	github.com/uptrace/opentelemetry-go-extra/otelzap v0.3.2
 	go.uber.org/zap v1.27.1
-	golang.org/x/oauth2 v0.33.0
+	golang.org/x/oauth2 v0.34.0
 	golift.io/starr v1.2.1
 	google.golang.org/grpc v1.77.0
 	google.golang.org/protobuf v1.36.10
