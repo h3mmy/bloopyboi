@@ -1,6 +1,6 @@
 module github.com/h3mmy/bloopyboi
 
-go 1.24.6
+go 1.25.0
 
 // replace github.com/googleapis/gnostic => github.com/googleapis/gnostic v0.5.5
 
@@ -22,8 +22,8 @@ require (
 	go.uber.org/zap v1.27.1
 	golang.org/x/oauth2 v0.33.0
 	golift.io/starr v1.2.1
-	google.golang.org/grpc v1.77.0
-	google.golang.org/protobuf v1.36.10
+	google.golang.org/grpc v1.78.0
+	google.golang.org/protobuf v1.36.11
 	k8s.io/api v0.34.2
 	k8s.io/apimachinery v0.34.2
 )
@@ -79,6 +79,7 @@ require (
 	github.com/jackc/pgservicefile v0.0.0-20240606120523-5a60cdf6a761 // indirect
 	github.com/jackc/puddle/v2 v2.2.2 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
+	github.com/labstack/echo/v5 v5.0.0-20260118161441-9500f2745481 // indirect
 	github.com/labstack/gommon v0.4.2 // indirect
 	github.com/mattn/go-colorable v0.1.14 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
@@ -106,11 +107,11 @@ require (
 	go.uber.org/multierr v1.11.0 // indirect
 	go.yaml.in/yaml/v2 v2.4.3 // indirect
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
-	golang.org/x/mod v0.30.0 // indirect
-	golang.org/x/net v0.47.0 // indirect
-	golang.org/x/term v0.37.0 // indirect
+	golang.org/x/mod v0.31.0 // indirect
+	golang.org/x/net v0.49.0 // indirect
+	golang.org/x/term v0.39.0 // indirect
 	golang.org/x/time v0.14.0 // indirect
-	golang.org/x/tools v0.38.0 // indirect
+	golang.org/x/tools v0.40.0 // indirect
 	google.golang.org/genproto v0.0.0-20251111163417-95abcf5c77ba // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20251111163417-95abcf5c77ba // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20251111163417-95abcf5c77ba // indirect
@@ -134,17 +135,17 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/gorilla/websocket v1.5.4-0.20250319132907-e064f32e3674 // indirect
 	github.com/jackc/pgx/v5 v5.7.6
-	github.com/labstack/echo-contrib v0.17.4
+	github.com/labstack/echo-contrib v0.50.0
 	github.com/pelletier/go-toml/v2 v2.2.4 // indirect
 	github.com/spf13/afero v1.15.0 // indirect
 	github.com/spf13/cast v1.10.0 // indirect
 	github.com/spf13/pflag v1.0.10 // indirect
 	github.com/subosito/gotenv v1.6.0 // indirect
 	goauthentik.io/api/v3 v3.2025120.5
-	golang.org/x/crypto v0.45.0 // indirect
-	golang.org/x/sync v0.18.0
-	golang.org/x/sys v0.38.0 // indirect
-	golang.org/x/text v0.31.0 // indirect
+	golang.org/x/crypto v0.47.0 // indirect
+	golang.org/x/sync v0.19.0
+	golang.org/x/sys v0.40.0 // indirect
+	golang.org/x/text v0.33.0 // indirect
 	google.golang.org/api v0.256.0
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	k8s.io/client-go v0.34.2
