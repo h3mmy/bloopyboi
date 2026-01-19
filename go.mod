@@ -1,6 +1,6 @@
 module github.com/h3mmy/bloopyboi
 
-go 1.24.6
+go 1.25.0
 
 // replace github.com/googleapis/gnostic => github.com/googleapis/gnostic v0.5.5
 
@@ -24,8 +24,8 @@ require (
 	golift.io/starr v1.2.1
 	google.golang.org/grpc v1.77.0
 	google.golang.org/protobuf v1.36.10
-	k8s.io/api v0.34.2
-	k8s.io/apimachinery v0.34.2
+	k8s.io/api v0.35.0
+	k8s.io/apimachinery v0.35.0
 )
 
 require (
@@ -147,7 +147,7 @@ require (
 	golang.org/x/text v0.31.0 // indirect
 	google.golang.org/api v0.256.0
 	gopkg.in/yaml.v3 v3.0.1 // indirect
-	k8s.io/client-go v0.34.2
+	k8s.io/client-go v0.35.0
 	k8s.io/metrics v0.34.2
-	sigs.k8s.io/controller-runtime v0.22.4
+	sigs.k8s.io/controller-runtime v0.23.0
 )
