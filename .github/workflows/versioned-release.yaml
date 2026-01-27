@@ -61,6 +61,8 @@ jobs:
 
   release-binaries:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     needs: tests
     steps:
       - name: Checkout
