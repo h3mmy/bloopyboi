@@ -103,7 +103,7 @@ func DirectedMessageReceive(s *discordgo.Session, m *discordgo.MessageCreate) {
 		}
 	}
 	if IsBotReferenced(m.Content) {
-		logger.Sugar().Debug("Detected Bot Reference in message from ", m.Author.Username)
+		logger.Sugar().Debug("Detected BloopyBoi in message from ", m.Author.Username)
 		reactn := NoticedReactionPool[rand.Intn(len(NoticedReactionPool))]
 		err := s.MessageReactionAdd(m.ChannelID, m.ID, reactn)
 		if err != nil {
