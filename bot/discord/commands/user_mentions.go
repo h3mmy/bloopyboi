@@ -3,13 +3,51 @@ package commands
 import (
 	"fmt"
 	"math/rand"
+	"regexp"
 	"strings"
 
+	"github.com/adrg/strutil/metrics"
 	"github.com/bwmarrin/discordgo"
 	"go.uber.org/zap"
 )
 
-var NoticedReactionPool = []string{"👀","🙊","🙈","🙉","👁️","👄","🫦","✍🏽","🐸","🐢","🥁","🔬","🔭","⁉️","🆒"}
+var (
+	NoticedReactionPool = []string{"👀", "🙊", "🙈", "🙉", "👁️", "👄", "🫦", "✍🏽", "🐸", "🐢", "🥁", "🔬", "🔭", "⁉️", "🆒"}
+
+	botRefRegexes = []*regexp.Regexp{
+		regexp.MustCompile(`(?i)\bbloopy\s*boi\b`),
+		regexp.MustCompile(`(?i)\bbloop\s*boi\b`),
+		regexp.MustCompile(`(?i)\bthe\s*boi\b`),
+		regexp.MustCompile(`(?i)\bthe\s*bot\b`),
+		regexp.MustCompile(`(?i)\bbloopyboi\b`),
+		regexp.MustCompile(`(?i)\bbloopy\b`),
+	}
+)
+
+// IsBotReferenced checks if the message content refers to the bot, either exactly or fuzzily.
+func IsBotReferenced(content string) bool {
+	// Exact/Phrase matches with word boundaries
+	for _, re := range botRefRegexes {
+		if re.MatchString(content) {
+			return true
+		}
+	}
+
+	// Fuzzy matching for typos
+	oc := metrics.NewOverlapCoefficient()
+	words := strings.Fields(strings.ToLower(content))
+	for _, word := range words {
+		cleanWord := strings.Trim(word, ".,!?;:()[]{}")
+		if len(cleanWord) < 5 {
+			continue // avoid too short words matching fuzzily
+		}
+		// Check against primary name
+		if oc.Compare("bloopyboi", cleanWord) >= 0.8 {
+			return true
+		}
+	}
+	return false
+}
 
 //TODO: Migrate to asynchandlers
 // Listens for messages specifically addressing bot
@@ -64,7 +102,7 @@ func DirectedMessageReceive(s *discordgo.Session, m *discordgo.MessageCreate) {
 			}
 		}
 	}
-	if strings.Contains(strings.ToLower(m.Content), "bloopyboi") {
+	if IsBotReferenced(m.Content) {
 		logger.Sugar().Debug("Detected BloopyBoi in message from ", m.Author.Username)
 		reactn := NoticedReactionPool[rand.Intn(len(NoticedReactionPool))]
 		err := s.MessageReactionAdd(m.ChannelID, m.ID, reactn)
