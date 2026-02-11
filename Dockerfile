@@ -1,4 +1,4 @@
-FROM golang:1.25-alpine@sha256:d3f0cf7723f3429e3f9ed846243970b20a2de7bae6a5b66fc5914e228d831bbb AS build
+FROM golang:1.25-alpine@sha256:f6751d823c26342f9506c03797d2527668d095b0a15f1862cddb4d927a7a4ced AS build
 
 ARG TARGETPLATFORM
 ENV TARGETPLATFORM=${TARGETPLATFORM:-linux/amd64}
@@ -24,7 +24,7 @@ RUN export GOOS=$(echo ${TARGETPLATFORM} | cut -d / -f1) \
 RUN --mount=type=cache,target=/root/.cache/go-build go build -ldflags="-w -s" .
 RUN echo $(ls .)
 
-FROM gcr.io/distroless/static@sha256:cd64bec9cec257044ce3a8dd3620cf83b387920100332f2b041f19c4d2febf93
+FROM gcr.io/distroless/static@sha256:972618ca78034aaddc55864342014a96b85108c607372f7cbd0dbd1361f1d841
 
 COPY --from=build /build/bloopyboi /
 
