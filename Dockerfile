@@ -24,7 +24,7 @@ RUN export GOOS=$(echo ${TARGETPLATFORM} | cut -d / -f1) \
 RUN --mount=type=cache,target=/root/.cache/go-build go build -ldflags="-w -s" .
 RUN echo $(ls .)
 
-FROM gcr.io/distroless/static@sha256:972618ca78034aaddc55864342014a96b85108c607372f7cbd0dbd1361f1d841
+FROM gcr.io/distroless/static@sha256:d90359c7a3ad67b3c11ca44fd5f3f5208cbef546f2e692b0dc3410a869de46bf
 
 COPY --from=build /build/bloopyboi /
 
