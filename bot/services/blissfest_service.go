@@ -23,7 +23,9 @@ type BlissfestService struct {
 // 2023: "https://www.blissfestfestival.org/wp-content/uploads/2023/04/Bliss23_LineUpIG-2-2048x2048.jpg"
 // 2024: "https://www.blissfestfestival.org/wp-content/uploads/2024/04/Bliss24_IGAnnouncement3-2048x2048.jpg"
 // 2025: "https://www.blissfestfestival.org/wp-content/uploads/2024/04/Bliss24_IGAnnouncement3-2048x2048.jpg"
-var lineupImageURI = "https://blissfest.org/cdn/shop/files/Blissfest25_Lineup_HomePage5a.jpg?v=1741384591&width=3000"
+// 2025: "https://blissfest.org/cdn/shop/files/Blissfest25_Lineup_HomePage5a.jpg?v=1741384591&width=3000"
+// 2026: "https://cdn.localspins.com/wp-content/uploads/2026/02/bf26_final-poster3_lineup_ig1080x1350-1638x2048.png" 
+var lineupImageURI = "https://cdn.localspins.com/wp-content/uploads/2026/02/bf26_final-poster3_lineup_ig1080x1350-1638x2048.png" 
 
 // 2024 blissfest showclix "event_id": 9297272, "parent_event_id": 8615552,
 // 2024 blissfest showclix venue_id = 64139
