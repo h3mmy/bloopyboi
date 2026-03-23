@@ -127,7 +127,7 @@ require (
 )
 
 require (
-	entgo.io/ent v0.14.5
+	entgo.io/ent v0.14.6
 	github.com/alexliesenfeld/health v0.8.1
 	github.com/fsnotify/fsnotify v1.9.0
 	github.com/go-openapi/runtime v0.29.2
