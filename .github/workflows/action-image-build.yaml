@@ -50,7 +50,7 @@ jobs:
           echo 'sendNotification=${{ inputs.sendNotification }}'
 
       - name: Setup CUE
-        uses: cue-lang/setup-cue@a93fa358375740cd8b0078f76355512b9208acb1
+        uses: cue-lang/setup-cue@dbedece1c566369854bef676ae83075f3b3c9f88
 
       - name: Validate Image Metadata
         shell: bash
