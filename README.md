@@ -16,7 +16,7 @@ Note: The Helm Chart is Deprecated currently.
 
 ## Authors and acknowledgment
 
-Workflows initially templated from [bjw-s/helm-charts](https://github.com/bjw-s/helm-charts) and [onedr0p/containers](https://github.com/onedr0p/containers) so I could butcher them here.
+Workflows initially templated from [bjw-s/helm-charts](https://github.com/bjw-s/helm-charts) and [onedr0p/containers](http://web.archive.org/web/20260310023031/https://github.com/onedr0p/containers) so I could butcher them here.
 
 ## License
 
