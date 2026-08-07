@@ -1,6 +1,6 @@
 module github.com/h3mmy/bloopyboi
 
-go 1.24.6
+go 1.25.7
 
 // replace github.com/googleapis/gnostic => github.com/googleapis/gnostic v0.5.5
 
@@ -21,7 +21,7 @@ require (
 	github.com/uptrace/opentelemetry-go-extra/otelzap v0.3.2
 	go.uber.org/zap v1.27.1
 	golang.org/x/oauth2 v0.33.0
-	golift.io/starr v1.3.0
+	golift.io/starr v1.3.1
 	google.golang.org/grpc v1.77.0
 	google.golang.org/protobuf v1.36.10
 	k8s.io/api v0.34.3
