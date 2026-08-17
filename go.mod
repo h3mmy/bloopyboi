@@ -16,7 +16,7 @@ require (
 	github.com/jarcoal/httpmock v1.4.1
 	github.com/labstack/echo/v4 v4.13.4
 	github.com/spf13/viper v1.21.0
-	github.com/stretchr/testify v1.11.1
+	github.com/stretchr/testify v1.12.0
 	github.com/uptrace/opentelemetry-go-extra/otelsql v0.3.2
 	github.com/uptrace/opentelemetry-go-extra/otelzap v0.3.2
 	go.uber.org/zap v1.27.1
