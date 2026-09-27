@@ -11,7 +11,7 @@ require (
 	github.com/bwmarrin/discordgo v0.29.0
 	github.com/cdfmlr/ellipsis v0.0.1
 	github.com/devopsarr/overseerr-go v1.0.2
-	github.com/dustin/go-humanize v1.0.1
+	github.com/dustin/go-humanize v1.1.0
 	github.com/gorilla/sessions v1.4.0
 	github.com/jarcoal/httpmock v1.4.1
 	github.com/labstack/echo/v4 v4.13.4
