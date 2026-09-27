@@ -1,6 +1,6 @@
 module github.com/h3mmy/bloopyboi
 
-go 1.24.6
+go 1.25.0
 
 // replace github.com/googleapis/gnostic => github.com/googleapis/gnostic v0.5.5
 
@@ -133,7 +133,7 @@ require (
 	github.com/go-openapi/runtime v0.29.2
 	github.com/google/uuid v1.6.0
 	github.com/gorilla/websocket v1.5.4-0.20250319132907-e064f32e3674 // indirect
-	github.com/jackc/pgx/v5 v5.7.6
+	github.com/jackc/pgx/v5 v5.9.0
 	github.com/labstack/echo-contrib v0.17.4
 	github.com/pelletier/go-toml/v2 v2.2.4 // indirect
 	github.com/spf13/afero v1.15.0 // indirect
